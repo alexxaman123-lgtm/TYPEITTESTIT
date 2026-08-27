@@ -1,0 +1,203 @@
+@import "tailwindcss";
+@import "./fonts.css";
+
+@theme {
+  --color-bg: #050706;
+  --color-surface1: #080b09;
+  --color-surface2: #0c100d;
+  --color-surface3: #101510;
+  --color-accent: #00ff66;
+  --color-accent2: #00d95a;
+  --color-accentdark: #123b25;
+  --color-ink: #ffffff;
+  --color-ink-soft: #e8ece9;
+  --color-muted: #a7aea9;
+  --color-faint: #6e7771;
+  --color-danger: #ff5c5c;
+
+  --font-sans: "Inter Variable", ui-sans-serif, system-ui, -apple-system, sans-serif;
+  --font-mono: "JetBrains Mono Variable", ui-monospace, "SFMono-Regular", Menlo, monospace;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+  color-scheme: dark;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+}
+
+body {
+  background-color: var(--color-bg);
+  color: var(--color-ink);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+  overflow-x: hidden;
+}
+
+::selection {
+  background-color: rgba(0, 255, 102, 0.28);
+  color: #ffffff;
+}
+
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+::-webkit-scrollbar-track {
+  background: var(--color-bg);
+}
+::-webkit-scrollbar-thumb {
+  background-color: #1a231c;
+  border-radius: 999px;
+  border: 2px solid var(--color-bg);
+}
+::-webkit-scrollbar-thumb:hover {
+  background-color: var(--color-accentdark);
+}
+
+:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 2px;
+}
+
+@keyframes fadeUp {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fade-up {
+  animation: fadeUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-fade-up {
+    animation: none;
+  }
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+@keyframes softPulse {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.55;
+  }
+}
+
+.caret-blink {
+  animation: softPulse 1s ease-in-out infinite;
+}
+
+@keyframes drift {
+  0% {
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+  50% {
+    transform: translate3d(1.5%, -2%, 0) scale(1.03);
+  }
+  100% {
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+}
+
+.animate-drift {
+  animation: drift 26s ease-in-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-drift {
+    animation: none;
+  }
+  .caret-blink {
+    animation: none;
+  }
+}
+
+
+/* Premium UI polish — visual only, functionality unchanged. */
+.surface-lift {
+  box-shadow: 0 18px 55px -28px rgba(0, 0, 0, 0.95), inset 0 1px 0 rgba(255, 255, 255, 0.035);
+}
+
+.interactive-lift {
+  transition: transform 180ms ease, border-color 180ms ease, background-color 180ms ease, box-shadow 180ms ease;
+}
+
+.interactive-lift:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 14px 30px -22px rgba(0, 255, 102, 0.65);
+}
+
+.test-shell {
+  position: relative;
+  overflow: hidden;
+  isolation: isolate;
+}
+
+.test-shell::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  border-radius: inherit;
+  background: linear-gradient(135deg, rgba(0,255,102,0.045), transparent 36%, transparent 70%, rgba(255,255,255,0.018));
+  z-index: -1;
+}
+
+.eyebrow-line {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.55rem;
+}
+
+.eyebrow-line::before,
+.eyebrow-line::after {
+  content: "";
+  width: 24px;
+  height: 1px;
+  background: rgba(0, 255, 102, 0.35);
+}
+
+.typing-surface {
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.03), 0 18px 42px -34px rgba(0,0,0,0.95);
+}
+
+.metric-surface {
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.03);
+}
+
+@media (max-width: 640px) {
+  .eyebrow-line::before,
+  .eyebrow-line::after {
+    width: 14px;
+  }
+}
+
+/* Keep below-the-fold content from competing with the initial typing-test paint. */
+.below-fold-content {
+  content-visibility: auto;
+  contain-intrinsic-size: 800px;
+}
