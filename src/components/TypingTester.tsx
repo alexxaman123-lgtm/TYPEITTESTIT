@@ -39,7 +39,6 @@ export default function TypingTester() {
   return (
     <div id="tester" className="scroll-mt-20">
       <div className="test-shell animate-fade-up rounded-3xl border border-white/10 bg-surface1/75 p-4 shadow-[0_0_70px_-24px_rgba(0,0,0,0.7)] backdrop-blur-sm surface-lift sm:p-6 lg:p-8">
-        {/* Top bar: settings */}
         <div className="flex flex-col gap-4 border-b border-white/8 pb-5 lg:flex-row lg:items-center lg:justify-between">
           <div className="flex flex-wrap items-center gap-3">
             <SettingLabel text="Difficulty" />
@@ -110,6 +109,7 @@ export default function TypingTester() {
             <div className="space-y-5">
               <LiveMetrics
                 wpm={test.liveStats.wpm}
+                liveWpmRef={test.liveWordProgressRef}
                 predictedWpm={test.liveStats.predictedWpm}
                 accuracy={test.liveStats.accuracy}
                 remainingSec={remainingSec}
