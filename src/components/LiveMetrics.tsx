@@ -54,10 +54,9 @@ export default function LiveMetrics({
         </span>
         <span
           ref={actualWpmElementRef}
+          aria-live="off"
           className="font-mono text-2xl font-bold tabular-nums text-accent sm:text-3xl"
-        >
-          0.0
-        </span>
+        />
       </div>
 
       <Metric label="Predicted WPM" value={predictedWpm === null ? "—" : predictedWpm} valueClass="text-ink" />
