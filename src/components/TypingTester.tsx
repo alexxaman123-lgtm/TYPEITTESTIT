@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useMemo, useRef, useState } from "react";
 import { useTypingTest } from "../lib/useTypingTest";
 import { useReducedMotion } from "../lib/useReducedMotion";
 import { getPersonalBest, getPreferences, savePreferences } from "../lib/storage";
@@ -18,6 +18,7 @@ export default function TypingTester() {
   const reducedMotion = useReducedMotion();
   const test = useTypingTest(prefs.difficulty, prefs.duration);
   const [viewMode, setViewMode] = useState<ViewMode>("test");
+  const actualWpmElementRef = useRef<HTMLSpanElement | null>(null);
 
   const remainingSec = Math.ceil(test.remainingMs / 1000);
   const urgent = test.status === "running" && remainingSec <= 10 && remainingSec > 0;
@@ -42,19 +43,11 @@ export default function TypingTester() {
         <div className="flex flex-col gap-4 border-b border-white/8 pb-5 lg:flex-row lg:items-center lg:justify-between">
           <div className="flex flex-wrap items-center gap-3">
             <SettingLabel text="Difficulty" />
-            <DifficultySelector
-              value={test.difficulty}
-              onChange={handleDifficultyChange}
-              disabled={controlsDisabled}
-            />
+            <DifficultySelector value={test.difficulty} onChange={handleDifficultyChange} disabled={controlsDisabled} />
           </div>
           <div className="flex flex-wrap items-center gap-3">
             <SettingLabel text="Duration" />
-            <DurationSelector
-              value={test.duration}
-              onChange={handleDurationChange}
-              disabled={controlsDisabled}
-            />
+            <DurationSelector value={test.duration} onChange={handleDurationChange} disabled={controlsDisabled} />
           </div>
           <button
             type="button"
@@ -74,8 +67,7 @@ export default function TypingTester() {
         {personalBest && viewMode === "test" && test.status !== "finished" && (
           <p className="mt-4 text-center text-xs font-medium uppercase tracking-wide text-faint sm:text-left">
             Personal best for {test.difficulty} · {test.duration / 60}min:{" "}
-            <span className="text-accent">{personalBest.wpm} WPM</span> at{" "}
-            <span className="text-ink-soft">{personalBest.accuracy}%</span>
+            <span className="text-accent">{personalBest.wpm} WPM</span> at <span className="text-ink-soft">{personalBest.accuracy}%</span>
           </p>
         )}
 
@@ -100,9 +92,7 @@ export default function TypingTester() {
               reducedMotion={reducedMotion}
               onRetry={test.retry}
               onNewText={test.newText}
-              onChangeDifficulty={() => {
-                test.reset();
-              }}
+              onChangeDifficulty={() => test.reset()}
               onCustomTest={() => setViewMode("custom")}
             />
           ) : (
@@ -110,6 +100,7 @@ export default function TypingTester() {
               <LiveMetrics
                 wpm={test.liveStats.wpm}
                 liveWpmRef={test.liveWordProgressRef}
+                actualWpmElementRef={actualWpmElementRef}
                 predictedWpm={test.liveStats.predictedWpm}
                 accuracy={test.liveStats.accuracy}
                 remainingSec={remainingSec}
@@ -121,6 +112,7 @@ export default function TypingTester() {
                 status={test.status}
                 resetKey={test.sessionId}
                 onChange={test.handleInputChange}
+                actualWpmElementRef={actualWpmElementRef}
                 reducedMotion={reducedMotion}
                 freeTyping={test.isFreeTyping}
               />
@@ -139,7 +131,5 @@ export default function TypingTester() {
 }
 
 function SettingLabel({ text }: { text: string }) {
-  return (
-    <span className="text-xs font-semibold uppercase tracking-[0.15em] text-faint">{text}</span>
-  );
+  return <span className="text-xs font-semibold uppercase tracking-[0.15em] text-faint">{text}</span>;
 }
