@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Difficulty, getRandomPassage } from "../data/texts";
-import { computeAccuracy, computeFreeWordProgress, computePredictedWpm, computeRawWordProgress, computeRawWordWpm, computeWordProgress, countWordErrors, getLettersOnlyCount } from "./stats";
+import { computeAccuracy, computeFreeWordProgress, computePredictedWpm, computeRawWordProgress, computeWordProgress, countWordErrors, getLettersOnlyCount } from "./stats";
 import { maybeSavePersonalBest } from "./storage";
 
 export type TestStatus = "idle" | "running" | "finished";
@@ -91,10 +91,12 @@ export function useTypingTest(initialDifficulty: Difficulty, initialDuration: nu
       }
     }
 
+    // "Actual WPM" is the amount of text/word progress the user has actually
+    // written, not a rate projected from elapsed time. Wrong words still count.
     const wordProgress = isCustom && customMode === "free"
       ? computeFreeWordProgress(typed)
-      : computeWordProgress(targetText, typed);
-    const actualWpm = computeRawWordWpm(typed, elapsedMs);
+      : computeRawWordProgress(typed);
+    const actualWpm = wordProgress;
     const predictedWpm = computePredictedWpm(wordProgress, elapsedMs);
     const lettersTyped = getLettersOnlyCount(typed);
     const accuracy = isCustom && customMode === "free"
@@ -303,12 +305,14 @@ export function useTypingTest(initialDifficulty: Difficulty, initialDuration: nu
   const remainingMs = Math.max(0, duration * 1000 - elapsedMs);
 
   const liveStats = useMemo(() => {
-    const actualWpm = computeRawWordWpm(typed, elapsedMs);
+    const wordProgress = isCustom && customMode === "free"
+      ? computeFreeWordProgress(typed)
+      : computeRawWordProgress(typed);
+    const actualWpm = wordProgress;
 
     if (isCustom && customMode === "free") {
       const lettersTyped = getLettersOnlyCount(typed);
       const accuracy = lettersTyped > 0 ? 100 : 0;
-      const wordProgress = computeRawWordProgress(typed);
       return {
         correct: lettersTyped,
         incorrect: 0,
@@ -328,7 +332,6 @@ export function useTypingTest(initialDifficulty: Difficulty, initialDuration: nu
     }
     const lettersTyped = getLettersOnlyCount(typed);
     const incorrect = Math.max(0, lettersTyped - correct);
-    const wordProgress = computeWordProgress(targetText, typed);
     const predictedWpm = computePredictedWpm(wordProgress, elapsedMs);
     const accuracy = computeAccuracy(correct, lettersTyped);
     return {
