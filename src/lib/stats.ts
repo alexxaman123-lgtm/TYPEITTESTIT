@@ -22,6 +22,27 @@ export function computeRawWpm(totalTyped: number, elapsedMs: number): number {
   return Math.max(0, Math.round((totalTyped / 5 / minutes) * 10) / 10);
 }
 
+/**
+ * Count words from exactly what the user typed, regardless of correctness.
+ * Completed words count fully; the current unfinished word contributes a
+ * five-character fraction so live WPM stays responsive while typing.
+ */
+export function computeRawWordProgress(typedText: string): number {
+  if (!typedText) return 0;
+  const words = typedText.split(/\s+/).filter(Boolean);
+  const completedWords = /\s$/u.test(typedText) ? words.length : Math.max(0, words.length - 1);
+  if (/\s$/u.test(typedText)) return completedWords;
+  const partialLength = words.at(-1)?.length ?? 0;
+  return completedWords + Math.min(1, partialLength / 5);
+}
+
+/**
+ * Actual WPM based on all text entered by the user. Wrong words still count;
+ * accuracy is calculated separately.
+ */
+export function computeRawWordWpm(typedText: string, elapsedMs: number): number {
+  return computePredictedWpm(computeRawWordProgress(typedText), elapsedMs);
+}
 
 export function computeWordProgress(targetText: string, typedText: string): number {
   if (!typedText) return 0;
@@ -50,12 +71,7 @@ export function computeWordsWritten(targetText: string, typedText: string): numb
 
 
 export function computeFreeWordProgress(typedText: string): number {
-  if (!typedText) return 0;
-  const words = typedText.split(/\s+/).filter(Boolean);
-  const completedWords = typedText.endsWith(" ") ? words.length : Math.max(0, words.length - 1);
-  if (typedText.endsWith(" ")) return completedWords;
-  const partialLength = words.at(-1)?.length ?? 0;
-  return completedWords + Math.min(1, partialLength / 5);
+  return computeRawWordProgress(typedText);
 }
 
 export function countWordErrors(targetText: string, typedText: string): number {
