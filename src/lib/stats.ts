@@ -1,7 +1,5 @@
 /** Project the current word progress to a one-minute rate.
  *  Example: 3.0 words in 5 seconds => 36.0 predicted WPM.
- *  This is intentionally based on words progressed, not character counts,
- *  so the predictive metric matches what the user sees in the typing flow.
  */
 export function computePredictedWpm(wordProgress: number, elapsedMs: number): number {
   if (elapsedMs <= 0 || wordProgress <= 0) return 0;
@@ -23,23 +21,38 @@ export function computeRawWpm(totalTyped: number, elapsedMs: number): number {
 }
 
 /**
- * Count words from exactly what the user typed, regardless of correctness.
- * Completed words count fully; the current unfinished word contributes a
- * five-character fraction so live WPM stays responsive while typing.
+ * Count the user's live word progress from the exact text they typed.
+ * Completed words count as 1.0 regardless of correctness. The unfinished
+ * current word contributes a fraction based on its progress through the
+ * corresponding target word, so 1 complete word + half of the next word = 1.5.
  */
-export function computeRawWordProgress(typedText: string): number {
+export function computeLiveWordProgress(targetText: string, typedText: string): number {
   if (!typedText) return 0;
-  const words = typedText.split(/\s+/).filter(Boolean);
-  const completedWords = /\s$/u.test(typedText) ? words.length : Math.max(0, words.length - 1);
+
+  const typedWords = typedText.split(/\s+/).filter(Boolean);
+  if (!typedWords.length) return 0;
+
+  const completedWords = /\s$/u.test(typedText)
+    ? typedWords.length
+    : Math.max(0, typedWords.length - 1);
+
   if (/\s$/u.test(typedText)) return completedWords;
-  const partialLength = words.at(-1)?.length ?? 0;
-  return completedWords + Math.min(1, partialLength / 5);
+
+  const currentTypedWord = typedWords.at(-1) ?? "";
+  const targetWords = targetText.trim().split(/\s+/).filter(Boolean);
+  const targetWord = targetWords[completedWords] ?? "";
+
+  if (!targetWord) return completedWords + 1;
+
+  const fraction = Math.min(1, currentTypedWord.length / Math.max(1, targetWord.length));
+  return completedWords + fraction;
 }
 
-/**
- * Actual WPM based on all text entered by the user. Wrong words still count;
- * accuracy is calculated separately.
- */
+/** Backward-compatible alias for raw typed-word progress. */
+export function computeRawWordProgress(typedText: string): number {
+  return computeLiveWordProgress("", typedText);
+}
+
 export function computeRawWordWpm(typedText: string, elapsedMs: number): number {
   return computePredictedWpm(computeRawWordProgress(typedText), elapsedMs);
 }
@@ -69,9 +82,13 @@ export function computeWordsWritten(targetText: string, typedText: string): numb
   return computeWordProgress(targetText, typedText);
 }
 
-
 export function computeFreeWordProgress(typedText: string): number {
-  return computeRawWordProgress(typedText);
+  if (!typedText) return 0;
+  const words = typedText.split(/\s+/).filter(Boolean);
+  const completedWords = typedText.endsWith(" ") ? words.length : Math.max(0, words.length - 1);
+  if (typedText.endsWith(" ")) return completedWords;
+  const partialLength = words.at(-1)?.length ?? 0;
+  return completedWords + Math.min(1, partialLength / 5);
 }
 
 export function countWordErrors(targetText: string, typedText: string): number {
@@ -117,7 +134,6 @@ export function getPerformanceLabel(wpm: number, accuracy: number): PerformanceL
   return "KEEP PRACTICING";
 }
 
-
 export type SpeedTier = {
   name: "POOR" | "AVERAGE" | "GOOD" | "FAST" | "EXCELLENT" | "ELITE";
   minWpm: number;
@@ -127,48 +143,12 @@ export type SpeedTier = {
 };
 
 export const SPEED_TIERS: SpeedTier[] = [
-  {
-    name: "POOR",
-    minWpm: 0,
-    maxWpm: 29.9,
-    message: "You are building your typing foundation. Focus on accuracy and steady rhythm first.",
-    nextTarget: 30,
-  },
-  {
-    name: "AVERAGE",
-    minWpm: 30,
-    maxWpm: 44.9,
-    message: "You are around the everyday range. Keep practicing to move toward a stronger, more comfortable pace.",
-    nextTarget: 45,
-  },
-  {
-    name: "GOOD",
-    minWpm: 45,
-    maxWpm: 59.9,
-    message: "Good typing speed. You have a solid foundation for school, work, and everyday typing.",
-    nextTarget: 60,
-  },
-  {
-    name: "FAST",
-    minWpm: 60,
-    maxWpm: 79.9,
-    message: "You are typing faster than most everyday users. Keep accuracy high while pushing your pace.",
-    nextTarget: 80,
-  },
-  {
-    name: "EXCELLENT",
-    minWpm: 80,
-    maxWpm: 99.9,
-    message: "Excellent speed. You are in advanced territory and well above a typical everyday typing pace.",
-    nextTarget: 100,
-  },
-  {
-    name: "ELITE",
-    minWpm: 100,
-    maxWpm: null,
-    message: "Elite typing speed. Staying above 100 WPM with high accuracy is a strong competitive benchmark.",
-    nextTarget: null,
-  },
+  { name: "POOR", minWpm: 0, maxWpm: 29.9, message: "You are building your typing foundation. Focus on accuracy and steady rhythm first.", nextTarget: 30 },
+  { name: "AVERAGE", minWpm: 30, maxWpm: 44.9, message: "You are around the everyday range. Keep practicing to move toward a stronger, more comfortable pace.", nextTarget: 45 },
+  { name: "GOOD", minWpm: 45, maxWpm: 59.9, message: "Good typing speed. You have a solid foundation for school, work, and everyday typing.", nextTarget: 60 },
+  { name: "FAST", minWpm: 60, maxWpm: 79.9, message: "You are typing faster than most everyday users. Keep accuracy high while pushing your pace.", nextTarget: 80 },
+  { name: "EXCELLENT", minWpm: 80, maxWpm: 99.9, message: "Excellent speed. You are in advanced territory and well above a typical everyday typing pace.", nextTarget: 100 },
+  { name: "ELITE", minWpm: 100, maxWpm: null, message: "Elite typing speed. Staying above 100 WPM with high accuracy is a strong competitive benchmark.", nextTarget: null },
 ];
 
 export function getSpeedTier(wpm: number): SpeedTier {
