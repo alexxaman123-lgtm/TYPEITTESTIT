@@ -1,6 +1,17 @@
 <!doctype html>
 <html lang="en">
   <head>
+    <script>
+      // Safeguard against "Cannot read properties of undefined (reading 'miniProgram')"
+      // This happens when 3rd-party scripts (like ads or webview injectors)
+      // assume window.wx is defined when checking for WeChat environments.
+      if (typeof window !== 'undefined' && typeof window.wx === 'undefined') {
+        window.wx = {};
+      }
+      if (typeof globalThis !== 'undefined' && typeof globalThis.wx === 'undefined') {
+        globalThis.wx = {};
+      }
+    </script>
     <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-9769426845506731"
      crossorigin="anonymous"></script>
     <meta charset="UTF-8" />
@@ -17,7 +28,7 @@
     />
     <meta name="robots" content="index, follow" />
     <meta name="referrer" content="strict-origin-when-cross-origin" />
-    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; base-uri 'self'; object-src 'none'; frame-ancestors 'self'; form-action 'self'; img-src 'self' data: blob:; font-src 'self' data:; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; connect-src 'self'; worker-src 'self' blob:; manifest-src 'self'; media-src 'self'; upgrade-insecure-requests" />
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; base-uri 'self'; object-src 'none'; frame-ancestors 'self'; form-action 'self'; img-src 'self' data: blob: https://pagead2.googlesyndication.com; font-src 'self' data:; script-src 'self' 'unsafe-inline' https://pagead2.googlesyndication.com; style-src 'self' 'unsafe-inline'; connect-src 'self' https://yoaybrhxjwugjauwzrua.supabase.co https://pagead2.googlesyndication.com; worker-src 'self' blob:; manifest-src 'self'; media-src 'self'; upgrade-insecure-requests" />
     <meta name="author" content="TYPEITTESTIT" />
     <link rel="canonical" href="https://typeittestit.com/" />
 
