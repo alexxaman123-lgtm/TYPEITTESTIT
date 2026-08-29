@@ -1,18 +1,55 @@
+import { useEffect, useState } from "react";
 import { formatTime } from "../lib/stats";
 import { cn } from "../utils/cn";
 
 interface Props {
   wpm: number;
+  liveWpmRef?: { current: number };
   predictedWpm: number | null;
   accuracy: number;
   remainingSec: number;
   urgent: boolean;
 }
 
-export default function LiveMetrics({ wpm, predictedWpm, accuracy, remainingSec, urgent }: Props) {
+export default function LiveMetrics({
+  wpm,
+  liveWpmRef,
+  predictedWpm,
+  accuracy,
+  remainingSec,
+  urgent,
+}: Props) {
+  const [displayWpm, setDisplayWpm] = useState(wpm);
+
+  useEffect(() => {
+    if (!liveWpmRef) {
+      setDisplayWpm(wpm);
+      return;
+    }
+
+    let frame = 0;
+    let last = liveWpmRef.current;
+
+    const sync = () => {
+      const next = liveWpmRef.current;
+      if (next !== last) {
+        last = next;
+        setDisplayWpm(next);
+      }
+      frame = window.requestAnimationFrame(sync);
+    };
+
+    sync();
+    return () => window.cancelAnimationFrame(frame);
+  }, [liveWpmRef, wpm]);
+
+  useEffect(() => {
+    if (!liveWpmRef) setDisplayWpm(wpm);
+  }, [liveWpmRef, wpm]);
+
   return (
     <div className="metric-surface grid grid-cols-2 divide-x divide-y divide-white/10 rounded-2xl border border-white/10 bg-surface2/70 sm:grid-cols-4 sm:divide-y-0">
-      <Metric label="Actual WPM" value={wpm.toFixed(1)} valueClass="text-accent" />
+      <Metric label="Actual WPM" value={displayWpm.toFixed(1)} valueClass="text-accent" />
       <Metric label="Predicted WPM" value={predictedWpm === null ? "—" : predictedWpm} valueClass="text-ink" />
       <Metric label="Accuracy" value={`${accuracy}%`} valueClass="text-ink" />
       <Metric
