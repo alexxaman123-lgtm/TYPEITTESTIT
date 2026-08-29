@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Difficulty, getRandomPassage } from "../data/texts";
-import { computeAccuracy, computeFreeWordProgress, computePredictedWpm, computeWordProgress, countWordErrors, getLettersOnlyCount } from "./stats";
+import { computeAccuracy, computeFreeWordProgress, computePredictedWpm, computeRawWordProgress, computeRawWordWpm, computeWordProgress, countWordErrors, getLettersOnlyCount } from "./stats";
 import { maybeSavePersonalBest } from "./storage";
 
 export type TestStatus = "idle" | "running" | "finished";
@@ -94,7 +94,7 @@ export function useTypingTest(initialDifficulty: Difficulty, initialDuration: nu
     const wordProgress = isCustom && customMode === "free"
       ? computeFreeWordProgress(typed)
       : computeWordProgress(targetText, typed);
-    const actualWpm = wordProgress;
+    const actualWpm = computeRawWordWpm(typed, elapsedMs);
     const predictedWpm = computePredictedWpm(wordProgress, elapsedMs);
     const lettersTyped = getLettersOnlyCount(typed);
     const accuracy = isCustom && customMode === "free"
@@ -158,12 +158,10 @@ export function useTypingTest(initialDifficulty: Difficulty, initialDuration: nu
     [clearTimer, customMode]
   );
 
-  // Retry: same passage, fresh attempt.
   const retry = useCallback(() => {
     resetInternal(targetText, isCustom ? customMode : "standard");
   }, [resetInternal, targetText, isCustom, customMode]);
 
-  // New text: different passage, same difficulty.
   const newText = useCallback(() => {
     if (isCustom) {
       if (customMode === "free") {
@@ -178,7 +176,6 @@ export function useTypingTest(initialDifficulty: Difficulty, initialDuration: nu
     resetInternal(next.text, "standard");
   }, [isCustom, customMode, customSource, difficulty, lastPassageId, resetInternal]);
 
-  // Full reset back to defaults for current difficulty/duration.
   const reset = useCallback(() => {
     if (isCustom) {
       setIsCustom(false);
@@ -189,7 +186,6 @@ export function useTypingTest(initialDifficulty: Difficulty, initialDuration: nu
     resetInternal(next.text, "standard");
   }, [difficulty, isCustom, lastPassageId, resetInternal]);
 
-  // Stop immediately and score based on progress so far.
   const stop = useCallback(() => {
     if (status === "running") {
       finish();
@@ -265,7 +261,6 @@ export function useTypingTest(initialDifficulty: Difficulty, initialDuration: nu
         return;
       }
 
-      // Ensure enough text remains ahead of the cursor; append more if needed.
       let currentTarget = targetText;
       if (currentTarget.length - value.length < APPEND_THRESHOLD) {
         if (isCustom) {
@@ -280,7 +275,6 @@ export function useTypingTest(initialDifficulty: Difficulty, initialDuration: nu
 
       const clipped = value.length > currentTarget.length ? value.slice(0, currentTarget.length) : value;
 
-      // Count freshly typed (non-backspace) characters as errors when wrong.
       if (clipped.length > typed.length) {
         for (let i = typed.length; i < clipped.length; i++) {
           if (clipped[i] !== currentTarget[i]) errorsRef.current += 1;
@@ -309,14 +303,16 @@ export function useTypingTest(initialDifficulty: Difficulty, initialDuration: nu
   const remainingMs = Math.max(0, duration * 1000 - elapsedMs);
 
   const liveStats = useMemo(() => {
+    const actualWpm = computeRawWordWpm(typed, elapsedMs);
+
     if (isCustom && customMode === "free") {
       const lettersTyped = getLettersOnlyCount(typed);
       const accuracy = lettersTyped > 0 ? 100 : 0;
-      const wordProgress = computeFreeWordProgress(typed);
+      const wordProgress = computeRawWordProgress(typed);
       return {
         correct: lettersTyped,
         incorrect: 0,
-        wpm: wordProgress,
+        wpm: actualWpm,
         wordProgress,
         predictedWpm: computePredictedWpm(wordProgress, elapsedMs),
         characterErrors: 0,
@@ -333,7 +329,6 @@ export function useTypingTest(initialDifficulty: Difficulty, initialDuration: nu
     const lettersTyped = getLettersOnlyCount(typed);
     const incorrect = Math.max(0, lettersTyped - correct);
     const wordProgress = computeWordProgress(targetText, typed);
-    const actualWpm = wordProgress;
     const predictedWpm = computePredictedWpm(wordProgress, elapsedMs);
     const accuracy = computeAccuracy(correct, lettersTyped);
     return {
