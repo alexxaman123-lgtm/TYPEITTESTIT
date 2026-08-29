@@ -1,4 +1,5 @@
-import { useEffect, useLayoutEffect, useRef, useState } from "react";
+import { RefObject, useEffect, useLayoutEffect, useRef, useState } from "react";
+import { computeLiveWordProgress, computeFreeWordProgress } from "../lib/stats";
 import { cn } from "../utils/cn";
 
 interface Props {
@@ -9,6 +10,7 @@ interface Props {
   onChange: (value: string) => void;
   reducedMotion: boolean;
   freeTyping?: boolean;
+  actualWpmElementRef: RefObject<HTMLSpanElement | null>;
 }
 
 const WINDOW_SIZE = 620;
@@ -22,6 +24,7 @@ export default function TypingText({
   onChange,
   reducedMotion,
   freeTyping = false,
+  actualWpmElementRef,
 }: Props) {
   const inputRef = useRef<HTMLInputElement | null>(null);
   const [windowStart, setWindowStart] = useState(0);
@@ -29,13 +32,9 @@ export default function TypingText({
 
   useEffect(() => {
     setWindowStart(0);
-
-    // The input is intentionally uncontrolled. Let the browser own its value
-    // so very fast typing is never throttled or overwritten by React's render.
-    if (inputRef.current) {
-      inputRef.current.value = "";
-    }
-  }, [resetKey]);
+    if (inputRef.current) inputRef.current.value = "";
+    if (actualWpmElementRef.current) actualWpmElementRef.current.textContent = "0.0";
+  }, [resetKey, actualWpmElementRef]);
 
   useEffect(() => {
     if (!freeTyping && typed.length - windowStart > SHIFT_THRESHOLD) {
@@ -51,9 +50,22 @@ export default function TypingText({
   }, [typed]);
 
   const disabled = status === "finished";
-
   const focusInput = () => {
     if (!disabled) inputRef.current?.focus();
+  };
+
+  const handleNativeInput = (value: string) => {
+    const progress = freeTyping
+      ? computeFreeWordProgress(value)
+      : computeLiveWordProgress(target, value);
+
+    // Write Actual WPM directly from the browser's native input event.
+    // This is intentionally independent of React state/render timing.
+    if (actualWpmElementRef.current) {
+      actualWpmElementRef.current.textContent = progress.toFixed(1);
+    }
+
+    onChange(value);
   };
 
   const windowEnd = Math.min(target.length, windowStart + WINDOW_SIZE);
@@ -73,11 +85,7 @@ export default function TypingText({
       >
         {freeTyping ? (
           <p className="whitespace-pre-wrap break-words text-ink-soft">
-            {typed.length > 0 ? (
-              typed
-            ) : (
-              <span className="text-faint">Start typing anything you want...</span>
-            )}
+            {typed.length > 0 ? typed : <span className="text-faint">Start typing anything you want...</span>}
             {status !== "finished" && typed.length > 0 && (
               <span
                 className={cn(
@@ -93,60 +101,33 @@ export default function TypingText({
             {slice.split("").map((ch, i) => {
               const absIndex = windowStart + i;
               let state: "correct" | "incorrect" | "current" | "pending" = "pending";
-              if (absIndex < typed.length) {
-                state = typed[absIndex] === ch ? "correct" : "incorrect";
-              } else if (absIndex === typed.length) {
-                state = "current";
-              }
+              if (absIndex < typed.length) state = typed[absIndex] === ch ? "correct" : "incorrect";
+              else if (absIndex === typed.length) state = "current";
 
               if (state === "current") {
                 return (
                   <span key={absIndex} className="relative">
-                    <span
-                      className={cn(
-                        "absolute -left-[1px] top-[2px] bottom-[2px] w-[2px] rounded-full bg-accent",
-                        !reducedMotion && "caret-blink"
-                      )}
-                      aria-hidden="true"
-                    />
+                    <span className={cn("absolute -left-[1px] top-[2px] bottom-[2px] w-[2px] rounded-full bg-accent", !reducedMotion && "caret-blink")} aria-hidden="true" />
                     <span className="rounded-[3px] bg-accent/15 text-ink">{ch}</span>
                   </span>
                 );
               }
-
-              if (state === "correct") {
-                return (
-                  <span key={absIndex} className="text-accent2">
-                    {ch}
-                  </span>
-                );
-              }
-
+              if (state === "correct") return <span key={absIndex} className="text-accent2">{ch}</span>;
               if (state === "incorrect") {
                 return (
-                  <span
-                    key={absIndex}
-                    className={cn("rounded-[3px] text-danger", ch === " " ? "bg-danger/25" : "bg-danger/10")}
-                  >
+                  <span key={absIndex} className={cn("rounded-[3px] text-danger", ch === " " ? "bg-danger/25" : "bg-danger/10")}>
                     {ch === " " ? "\u00B7" : ch}
                   </span>
                 );
               }
-
-              return (
-                <span key={absIndex} className="text-faint">
-                  {ch}
-                </span>
-              );
+              return <span key={absIndex} className="text-faint">{ch}</span>;
             })}
           </p>
         )}
 
         {!focused && status !== "finished" && (
           <div className="pointer-events-none absolute inset-0 flex items-center justify-center rounded-2xl bg-bg/70 backdrop-blur-[2px]">
-            <span className="rounded-full border border-accent/40 bg-accent/10 px-5 py-2.5 text-sm font-semibold text-accent">
-              Click here and start typing
-            </span>
+            <span className="rounded-full border border-accent/40 bg-accent/10 px-5 py-2.5 text-sm font-semibold text-accent">Click here and start typing</span>
           </div>
         )}
       </div>
@@ -156,18 +137,14 @@ export default function TypingText({
         type="text"
         defaultValue=""
         disabled={disabled}
-        onInput={(e) => onChange(e.currentTarget.value)}
+        onInput={(e) => handleNativeInput(e.currentTarget.value)}
         onFocus={() => setFocused(true)}
         onBlur={() => setFocused(false)}
         autoComplete="off"
         autoCorrect="off"
         autoCapitalize="off"
         spellCheck={false}
-        aria-label={
-          freeTyping
-            ? "Free typing input. Type anything you want."
-            : "Typing test input. Type the passage displayed above this field."
-        }
+        aria-label={freeTyping ? "Free typing input. Type anything you want." : "Typing test input. Type the passage displayed above this field."}
         tabIndex={disabled ? -1 : 0}
         className="absolute inset-0 h-full w-full cursor-text opacity-0"
       />
