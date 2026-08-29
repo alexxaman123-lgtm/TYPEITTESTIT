@@ -1,10 +1,9 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Difficulty, getRandomPassage } from "../data/texts";
-import { computeAccuracy, computeFreeWordProgress, computePredictedWpm, computeRawWordProgress, computeWordProgress, countWordErrors, getLettersOnlyCount } from "./stats";
+import { computeAccuracy, computeFreeWordProgress, computeLiveWordProgress, computePredictedWpm, computeWordProgress, countWordErrors, getLettersOnlyCount } from "./stats";
 import { maybeSavePersonalBest } from "./storage";
 
 export type TestStatus = "idle" | "running" | "finished";
-
 type CustomMode = "standard" | "free";
 
 export interface TestResult {
@@ -50,11 +49,10 @@ export function useTypingTest(initialDifficulty: Difficulty, initialDuration: nu
   const [targetText, setTargetText] = useState<string>(initial.text);
   const [typed, setTyped] = useState<string>("");
 
-  // The native input is the source of truth while typing. These refs update
-  // synchronously even if React batches or delays the visual render.
+  // Refs are the authoritative low-latency typing state. React state mirrors
+  // these values for the rest of the UI and result rendering.
   const typedRef = useRef("");
   const liveWordProgressRef = useRef(0);
-  const [liveWordProgress, setLiveWordProgress] = useState(0);
 
   const [status, setStatus] = useState<TestStatus>("idle");
   const [result, setResult] = useState<TestResult | null>(null);
@@ -101,7 +99,7 @@ export function useTypingTest(initialDifficulty: Difficulty, initialDuration: nu
 
     const wordProgress = isCustom && customMode === "free"
       ? computeFreeWordProgress(currentTyped)
-      : computeRawWordProgress(currentTyped);
+      : computeLiveWordProgress(targetText, currentTyped);
     const actualWpm = wordProgress;
     const predictedWpm = computePredictedWpm(wordProgress, elapsedMs);
     const lettersTyped = getLettersOnlyCount(currentTyped);
@@ -142,11 +140,8 @@ export function useTypingTest(initialDifficulty: Difficulty, initialDuration: nu
     setStatus("running");
     intervalRef.current = window.setInterval(() => {
       const elapsed = Date.now() - (startTimeRef.current ?? Date.now());
-      if (elapsed >= duration * 1000) {
-        finishRef.current();
-      } else {
-        setTick((t) => t + 1);
-      }
+      if (elapsed >= duration * 1000) finishRef.current();
+      else setTick((t) => t + 1);
     }, 200);
   }, [duration]);
 
@@ -159,7 +154,6 @@ export function useTypingTest(initialDifficulty: Difficulty, initialDuration: nu
       typedRef.current = "";
       liveWordProgressRef.current = 0;
       setTyped("");
-      setLiveWordProgress(0);
       setResult(null);
       setStatus("idle");
       setCustomMode(nextCustomMode);
@@ -175,11 +169,7 @@ export function useTypingTest(initialDifficulty: Difficulty, initialDuration: nu
 
   const newText = useCallback(() => {
     if (isCustom) {
-      if (customMode === "free") {
-        resetInternal("", "free");
-      } else {
-        resetInternal(customSource, "standard");
-      }
+      resetInternal(customMode === "free" ? "" : customSource, customMode === "free" ? "free" : "standard");
       return;
     }
     const next = buildText(difficulty, lastPassageId);
@@ -198,59 +188,45 @@ export function useTypingTest(initialDifficulty: Difficulty, initialDuration: nu
   }, [difficulty, isCustom, lastPassageId, resetInternal]);
 
   const stop = useCallback(() => {
-    if (status === "running") {
-      finish();
-    }
+    if (status === "running") finish();
   }, [status, finish]);
 
-  const setDifficulty = useCallback(
-    (d: Difficulty) => {
-      setDifficultyState(d);
-      setIsCustom(false);
-      setCustomSource("");
-      const next = buildText(d, lastPassageId);
+  const setDifficulty = useCallback((d: Difficulty) => {
+    setDifficultyState(d);
+    setIsCustom(false);
+    setCustomSource("");
+    const next = buildText(d, lastPassageId);
+    setLastPassageId(next.id);
+    resetInternal(next.text, "standard");
+  }, [lastPassageId, resetInternal]);
+
+  const setDuration = useCallback((secs: number) => {
+    setDurationState(secs);
+    if (isCustom) {
+      resetInternal(customMode === "free" ? "" : customSource, customMode);
+    } else {
+      const next = buildText(difficulty, lastPassageId);
       setLastPassageId(next.id);
       resetInternal(next.text, "standard");
-    },
-    [lastPassageId, resetInternal]
-  );
+    }
+  }, [resetInternal, isCustom, customMode, customSource, difficulty, lastPassageId]);
 
-  const setDuration = useCallback(
-    (secs: number) => {
-      setDurationState(secs);
-      if (isCustom) {
-        resetInternal(customMode === "free" ? "" : customSource, customMode);
-      } else {
-        const next = buildText(difficulty, lastPassageId);
-        setLastPassageId(next.id);
-        resetInternal(next.text, "standard");
-      }
-    },
-    [resetInternal, isCustom, customMode, customSource, difficulty, lastPassageId]
-  );
+  const startCustomTest = useCallback((text: string, secs: number) => {
+    const clean = normalize(text);
+    setIsCustom(true);
+    setCustomMode("standard");
+    setCustomSource(clean);
+    setDurationState(secs);
+    resetInternal(clean, "standard");
+  }, [resetInternal]);
 
-  const startCustomTest = useCallback(
-    (text: string, secs: number) => {
-      const clean = normalize(text);
-      setIsCustom(true);
-      setCustomMode("standard");
-      setCustomSource(clean);
-      setDurationState(secs);
-      resetInternal(clean, "standard");
-    },
-    [resetInternal]
-  );
-
-  const startFreeTypingTest = useCallback(
-    (secs: number) => {
-      setIsCustom(true);
-      setCustomMode("free");
-      setCustomSource("");
-      setDurationState(secs);
-      resetInternal("", "free");
-    },
-    [resetInternal]
-  );
+  const startFreeTypingTest = useCallback((secs: number) => {
+    setIsCustom(true);
+    setCustomMode("free");
+    setCustomSource("");
+    setDurationState(secs);
+    resetInternal("", "free");
+  }, [resetInternal]);
 
   const exitCustom = useCallback(() => {
     setIsCustom(false);
@@ -261,51 +237,46 @@ export function useTypingTest(initialDifficulty: Difficulty, initialDuration: nu
     resetInternal(next.text, "standard");
   }, [difficulty, lastPassageId, resetInternal]);
 
-  const handleInputChange = useCallback(
-    (value: string) => {
-      if (status === "finished") return;
+  const handleInputChange = useCallback((value: string) => {
+    if (status === "finished") return;
 
-      if (isCustom && customMode === "free") {
-        const clipped = value.slice(0, MAX_CUSTOM_TEXT_LENGTH);
-        const nextProgress = computeFreeWordProgress(clipped);
-        typedRef.current = clipped;
-        liveWordProgressRef.current = nextProgress;
-        setLiveWordProgress(nextProgress);
-        setTyped(clipped);
-        startTimerIfNeeded();
-        return;
-      }
-
-      let currentTarget = targetText;
-      if (currentTarget.length - value.length < APPEND_THRESHOLD) {
-        if (isCustom) {
-          currentTarget = currentTarget + " " + normalize(customSource);
-        } else {
-          const next = buildText(difficulty, lastPassageId);
-          setLastPassageId(next.id);
-          currentTarget = currentTarget + " " + next.text;
-        }
-        setTargetText(currentTarget);
-      }
-
-      const clipped = value.length > currentTarget.length ? value.slice(0, currentTarget.length) : value;
-      const previousLength = typedRef.current.length;
-
-      if (clipped.length > previousLength) {
-        for (let i = previousLength; i < clipped.length; i++) {
-          if (clipped[i] !== currentTarget[i]) errorsRef.current += 1;
-        }
-      }
-
-      const nextProgress = computeRawWordProgress(clipped);
+    if (isCustom && customMode === "free") {
+      const clipped = value.slice(0, MAX_CUSTOM_TEXT_LENGTH);
+      const nextProgress = computeFreeWordProgress(clipped);
       typedRef.current = clipped;
       liveWordProgressRef.current = nextProgress;
-      setLiveWordProgress(nextProgress);
       setTyped(clipped);
       startTimerIfNeeded();
-    },
-    [status, isCustom, customMode, targetText, customSource, difficulty, lastPassageId, startTimerIfNeeded]
-  );
+      return;
+    }
+
+    let currentTarget = targetText;
+    if (currentTarget.length - value.length < APPEND_THRESHOLD) {
+      if (isCustom) {
+        currentTarget = currentTarget + " " + normalize(customSource);
+      } else {
+        const next = buildText(difficulty, lastPassageId);
+        setLastPassageId(next.id);
+        currentTarget = currentTarget + " " + next.text;
+      }
+      setTargetText(currentTarget);
+    }
+
+    const clipped = value.length > currentTarget.length ? value.slice(0, currentTarget.length) : value;
+    const previousLength = typedRef.current.length;
+
+    if (clipped.length > previousLength) {
+      for (let i = previousLength; i < clipped.length; i++) {
+        if (clipped[i] !== currentTarget[i]) errorsRef.current += 1;
+      }
+    }
+
+    const nextProgress = computeLiveWordProgress(currentTarget, clipped);
+    typedRef.current = clipped;
+    liveWordProgressRef.current = nextProgress;
+    setTyped(clipped);
+    startTimerIfNeeded();
+  }, [status, isCustom, customMode, targetText, customSource, difficulty, lastPassageId, startTimerIfNeeded]);
 
   useEffect(() => clearTimer, [clearTimer]);
 
@@ -315,12 +286,11 @@ export function useTypingTest(initialDifficulty: Difficulty, initialDuration: nu
   const liveStats = useMemo(() => {
     const wordProgress = isCustom && customMode === "free"
       ? computeFreeWordProgress(typed)
-      : liveWordProgress;
-    const actualWpm = liveWordProgress;
+      : liveWordProgressRef.current;
+    const actualWpm = liveWordProgressRef.current;
 
     if (isCustom && customMode === "free") {
       const lettersTyped = getLettersOnlyCount(typed);
-      const accuracy = lettersTyped > 0 ? 100 : 0;
       return {
         correct: lettersTyped,
         incorrect: 0,
@@ -329,7 +299,7 @@ export function useTypingTest(initialDifficulty: Difficulty, initialDuration: nu
         predictedWpm: computePredictedWpm(wordProgress, elapsedMs),
         characterErrors: 0,
         wordErrors: 0,
-        accuracy,
+        accuracy: lettersTyped > 0 ? 100 : 0,
       };
     }
 
@@ -340,20 +310,17 @@ export function useTypingTest(initialDifficulty: Difficulty, initialDuration: nu
     }
     const lettersTyped = getLettersOnlyCount(typed);
     const incorrect = Math.max(0, lettersTyped - correct);
-    const predictedWpm = computePredictedWpm(wordProgress, elapsedMs);
-    const accuracy = computeAccuracy(correct, lettersTyped);
     return {
       correct,
       incorrect,
       wpm: actualWpm,
       wordProgress,
-      predictedWpm,
+      predictedWpm: computePredictedWpm(wordProgress, elapsedMs),
       characterErrors: incorrect,
       wordErrors: countWordErrors(targetText, typed),
-      accuracy,
+      accuracy: computeAccuracy(correct, lettersTyped),
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [typed, targetText, tick, elapsedMs, isCustom, customMode, liveWordProgress]);
+  }, [typed, targetText, tick, elapsedMs, isCustom, customMode, liveWordProgressRef]);
 
   return {
     difficulty,
