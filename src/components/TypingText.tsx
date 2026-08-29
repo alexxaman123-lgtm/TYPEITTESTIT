@@ -29,6 +29,12 @@ export default function TypingText({
 
   useEffect(() => {
     setWindowStart(0);
+
+    // The input is intentionally uncontrolled. Let the browser own its value
+    // so very fast typing is never throttled or overwritten by React's render.
+    if (inputRef.current) {
+      inputRef.current.value = "";
+    }
   }, [resetKey]);
 
   useEffect(() => {
@@ -44,11 +50,12 @@ export default function TypingText({
     }
   }, [typed]);
 
+  const disabled = status === "finished";
+
   const focusInput = () => {
     if (!disabled) inputRef.current?.focus();
   };
 
-  const disabled = status === "finished";
   const windowEnd = Math.min(target.length, windowStart + WINDOW_SIZE);
   const slice = target.slice(windowStart, windowEnd);
 
@@ -138,7 +145,7 @@ export default function TypingText({
         {!focused && status !== "finished" && (
           <div className="pointer-events-none absolute inset-0 flex items-center justify-center rounded-2xl bg-bg/70 backdrop-blur-[2px]">
             <span className="rounded-full border border-accent/40 bg-accent/10 px-5 py-2.5 text-sm font-semibold text-accent">
-              {freeTyping ? "Click here and start typing" : "Click here and start typing"}
+              Click here and start typing
             </span>
           </div>
         )}
@@ -147,9 +154,9 @@ export default function TypingText({
       <input
         ref={inputRef}
         type="text"
-        value={typed}
+        defaultValue=""
         disabled={disabled}
-        onChange={(e) => onChange(e.target.value)}
+        onInput={(e) => onChange(e.currentTarget.value)}
         onFocus={() => setFocused(true)}
         onBlur={() => setFocused(false)}
         autoComplete="off"
