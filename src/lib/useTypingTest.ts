@@ -49,10 +49,13 @@ export function useTypingTest(initialDifficulty: Difficulty, initialDuration: nu
   const initial = useMemo(() => buildText(initialDifficulty), []); // eslint-disable-line react-hooks/exhaustive-deps
   const [targetText, setTargetText] = useState<string>(initial.text);
   const [typed, setTyped] = useState<string>("");
-  // React state mirrors the value for the rest of the UI. The ref is the
-  // low-latency source used by the Actual WPM display.
-  const [liveWordProgress, setLiveWordProgress] = useState(0);
+
+  // The native input is the source of truth while typing. These refs update
+  // synchronously even if React batches or delays the visual render.
+  const typedRef = useRef("");
   const liveWordProgressRef = useRef(0);
+  const [liveWordProgress, setLiveWordProgress] = useState(0);
+
   const [status, setStatus] = useState<TestStatus>("idle");
   const [result, setResult] = useState<TestResult | null>(null);
   const [tick, setTick] = useState(0);
@@ -79,16 +82,17 @@ export function useTypingTest(initialDifficulty: Difficulty, initialDuration: nu
     finishedRef.current = true;
     clearTimer();
 
+    const currentTyped = typedRef.current;
     const elapsedMs = startTimeRef.current ? Date.now() - startTimeRef.current : 0;
     let correct = 0;
     let incorrect = 0;
 
     if (isCustom && customMode === "free") {
-      correct = getLettersOnlyCount(typed);
+      correct = getLettersOnlyCount(currentTyped);
       incorrect = 0;
     } else {
-      for (let i = 0; i < typed.length; i++) {
-        const typedChar = typed[i];
+      for (let i = 0; i < currentTyped.length; i++) {
+        const typedChar = currentTyped[i];
         if (/\s/u.test(typedChar)) continue;
         if (typedChar === targetText[i]) correct++;
         else incorrect++;
@@ -96,15 +100,15 @@ export function useTypingTest(initialDifficulty: Difficulty, initialDuration: nu
     }
 
     const wordProgress = isCustom && customMode === "free"
-      ? computeFreeWordProgress(typed)
-      : computeRawWordProgress(typed);
+      ? computeFreeWordProgress(currentTyped)
+      : computeRawWordProgress(currentTyped);
     const actualWpm = wordProgress;
     const predictedWpm = computePredictedWpm(wordProgress, elapsedMs);
-    const lettersTyped = getLettersOnlyCount(typed);
+    const lettersTyped = getLettersOnlyCount(currentTyped);
     const accuracy = isCustom && customMode === "free"
       ? (lettersTyped > 0 ? 100 : 0)
       : computeAccuracy(correct, lettersTyped);
-    const wordErrors = isCustom && customMode === "free" ? 0 : countWordErrors(targetText, typed);
+    const wordErrors = isCustom && customMode === "free" ? 0 : countWordErrors(targetText, currentTyped);
     const durationSec = Math.round(elapsedMs / 1000);
     const isNewBest = !isCustom ? maybeSavePersonalBest(difficulty, duration, actualWpm, accuracy) : false;
 
@@ -119,7 +123,7 @@ export function useTypingTest(initialDifficulty: Difficulty, initialDuration: nu
       wordErrors,
       mistakes: errorsRef.current,
       totalTyped: lettersTyped,
-      typedText: typed,
+      typedText: currentTyped,
       durationSec: durationSec || duration,
       targetDurationSec: duration,
       difficulty,
@@ -127,7 +131,7 @@ export function useTypingTest(initialDifficulty: Difficulty, initialDuration: nu
       isNewBest,
     });
     setStatus("finished");
-  }, [clearTimer, typed, targetText, difficulty, duration, isCustom, customMode]);
+  }, [clearTimer, targetText, difficulty, duration, isCustom, customMode]);
 
   const finishRef = useRef(finish);
   finishRef.current = finish;
@@ -152,6 +156,7 @@ export function useTypingTest(initialDifficulty: Difficulty, initialDuration: nu
       startTimeRef.current = null;
       errorsRef.current = 0;
       finishedRef.current = false;
+      typedRef.current = "";
       liveWordProgressRef.current = 0;
       setTyped("");
       setLiveWordProgress(0);
@@ -263,6 +268,7 @@ export function useTypingTest(initialDifficulty: Difficulty, initialDuration: nu
       if (isCustom && customMode === "free") {
         const clipped = value.slice(0, MAX_CUSTOM_TEXT_LENGTH);
         const nextProgress = computeFreeWordProgress(clipped);
+        typedRef.current = clipped;
         liveWordProgressRef.current = nextProgress;
         setLiveWordProgress(nextProgress);
         setTyped(clipped);
@@ -283,32 +289,22 @@ export function useTypingTest(initialDifficulty: Difficulty, initialDuration: nu
       }
 
       const clipped = value.length > currentTarget.length ? value.slice(0, currentTarget.length) : value;
+      const previousLength = typedRef.current.length;
 
-      if (clipped.length > typed.length) {
-        for (let i = typed.length; i < clipped.length; i++) {
+      if (clipped.length > previousLength) {
+        for (let i = previousLength; i < clipped.length; i++) {
           if (clipped[i] !== currentTarget[i]) errorsRef.current += 1;
         }
       }
 
-      // Capture the newest progress synchronously, before React renders the
-      // heavier character-by-character typing surface.
       const nextProgress = computeRawWordProgress(clipped);
+      typedRef.current = clipped;
       liveWordProgressRef.current = nextProgress;
       setLiveWordProgress(nextProgress);
       setTyped(clipped);
       startTimerIfNeeded();
     },
-    [
-      status,
-      isCustom,
-      customMode,
-      targetText,
-      typed.length,
-      customSource,
-      difficulty,
-      lastPassageId,
-      startTimerIfNeeded,
-    ]
+    [status, isCustom, customMode, targetText, customSource, difficulty, lastPassageId, startTimerIfNeeded]
   );
 
   useEffect(() => clearTimer, [clearTimer]);
