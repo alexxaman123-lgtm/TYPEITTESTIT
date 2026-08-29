@@ -1,4 +1,3 @@
-import { useState } from "react";
 import { X } from "lucide-react";
 import { supabase } from "../supabaseClient";
 
@@ -9,73 +8,49 @@ export default function AuthModal({
   isOpen: boolean;
   onClose: () => void;
 }) {
-  const [mode, setMode] = useState<"signin" | "signup">("signin");
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [error, setError] = useState<string | null>(null);
-  const [loading, setLoading] = useState(false);
+  if (!isOpen) return null;
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setError(null);
-    setLoading(true);
-    
-    try {
-      if (mode === "signup") {
-        const { error: signUpError } = await supabase.auth.signUp({ email, password });
-        if (signUpError) throw signUpError;
-      } else {
-        const { error: signInError } = await supabase.auth.signInWithPassword({ email, password });
-        if (signInError) throw signInError;
-      }
-      
-      // On success, close modal to redirect/stay on home
-      onClose();
-    } catch (err: any) {
-      setError(err.message || "An error occurred.");
-    } finally {
-      setLoading(false);
+  const handleGoogleSignIn = async () => {
+    const { error } = await supabase.auth.signInWithOAuth({
+      provider: "google",
+    });
+
+    if (error) {
+      console.error("Google sign-in failed:", error.message);
     }
   };
-
-  if (!isOpen) return null;
 
   return (
     <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
       {/* Backdrop */}
-      <div 
+      <div
         className="fixed inset-0 bg-black/60 backdrop-blur-sm transition-opacity"
         onClick={onClose}
       />
-      
+
       {/* Modal Content */}
       <div className="relative w-full max-w-md animate-fade-up overflow-hidden rounded-2xl border border-white/10 bg-[#080b09] p-6 shadow-2xl sm:p-8">
         <button
           onClick={onClose}
           className="absolute right-4 top-4 rounded-lg p-1 text-[#a7aea9] transition-colors hover:bg-white/10 hover:text-white"
+          aria-label="Close"
         >
           <X className="h-5 w-5" />
         </button>
 
         <h2 className="mb-2 text-2xl font-bold tracking-tight text-white">
-          {mode === "signin" ? "Welcome back" : "Create an account"}
+          Welcome to Type It Test It
         </h2>
         <p className="mb-8 text-sm text-[#a7aea9]">
-          {mode === "signin"
-            ? "Enter your details to access your account."
-            : "Sign up to track your typing speeds and history."}
+          Sign in or create your account with Google to track your typing speeds and history.
         </p>
 
         <button
           type="button"
-          onClick={async () => {
-            await supabase.auth.signInWithOAuth({
-              provider: "google",
-            });
-          }}
+          onClick={handleGoogleSignIn}
           className="flex w-full items-center justify-center gap-3 rounded-xl border border-white/10 bg-[#0c100d] px-4 py-3 text-sm font-semibold text-white transition-all hover:bg-white/5 active:scale-[0.98]"
         >
-          <svg className="h-5 w-5" viewBox="0 0 24 24">
+          <svg className="h-5 w-5" viewBox="0 0 24 24" aria-hidden="true">
             <path
               d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
               fill="#4285F4"
@@ -95,79 +70,6 @@ export default function AuthModal({
           </svg>
           Continue with Google
         </button>
-
-        <div className="relative my-6">
-          <div className="absolute inset-0 flex items-center">
-            <div className="w-full border-t border-white/10"></div>
-          </div>
-          <div className="relative flex justify-center text-xs">
-            <span className="bg-[#080b09] px-2 text-[#a7aea9]">Or continue with email</span>
-          </div>
-        </div>
-
-        <form className="flex flex-col gap-4" onSubmit={handleSubmit}>
-          <div className="space-y-1">
-            <label className="text-xs font-medium text-[#a7aea9]" htmlFor="email">Email</label>
-            <input
-              id="email"
-              type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              className="w-full rounded-xl border border-white/10 bg-[#0c100d] px-4 py-3 text-sm text-white outline-none transition-all focus:border-[#00ff66] focus:bg-[#101510] focus:ring-1 focus:ring-[#00ff66]"
-              placeholder="you@example.com"
-              required
-            />
-          </div>
-          
-          <div className="space-y-1">
-            <label className="text-xs font-medium text-[#a7aea9]" htmlFor="password">Password</label>
-            <input
-              id="password"
-              type="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              className="w-full rounded-xl border border-white/10 bg-[#0c100d] px-4 py-3 text-sm text-white outline-none transition-all focus:border-[#00ff66] focus:bg-[#101510] focus:ring-1 focus:ring-[#00ff66]"
-              placeholder="••••••••"
-              required
-            />
-          </div>
-
-          {error && <p className="text-xs text-red-500">{error}</p>}
-
-          <button
-            type="submit"
-            disabled={loading}
-            className="mt-2 w-full rounded-xl bg-[#00ff66] px-4 py-3 text-sm font-bold text-black transition-transform hover:-translate-y-[1px] hover:shadow-[0_4px_12px_rgba(0,255,102,0.3)] active:translate-y-0 disabled:opacity-50 disabled:hover:translate-y-0 disabled:hover:shadow-none"
-          >
-            {loading ? "Please wait..." : (mode === "signin" ? "Sign In" : "Sign Up")}
-          </button>
-        </form>
-
-        <div className="mt-6 text-center text-sm text-[#a7aea9]">
-          {mode === "signin" ? (
-            <p>
-              Don't have an account?{" "}
-              <button
-                type="button"
-                onClick={() => setMode("signup")}
-                className="text-[#00ff66] hover:underline"
-              >
-                Sign up
-              </button>
-            </p>
-          ) : (
-            <p>
-              Already have an account?{" "}
-              <button
-                type="button"
-                onClick={() => setMode("signin")}
-                className="text-[#00ff66] hover:underline"
-              >
-                Sign in
-              </button>
-            </p>
-          )}
-        </div>
       </div>
     </div>
   );
