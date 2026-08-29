@@ -4,12 +4,30 @@
     <script>
       // Safeguard against "Cannot read properties of undefined (reading 'miniProgram')"
       // This happens when 3rd-party scripts (like ads or webview injectors)
-      // assume window.wx is defined when checking for WeChat environments.
-      if (typeof window !== 'undefined' && typeof window.wx === 'undefined') {
-        window.wx = {};
+      // assume globals are defined when checking for mini-program environments.
+      if (typeof window !== 'undefined') {
+        if (typeof window.wx === 'undefined') window.wx = {};
+        if (typeof window.my === 'undefined') window.my = {};
+        if (typeof window.tt === 'undefined') window.tt = {};
+        if (typeof window.swan === 'undefined') window.swan = {};
+        if (typeof window.qq === 'undefined') window.qq = {};
+        if (typeof window.ks === 'undefined') window.ks = {};
+        if (typeof window.jd === 'undefined') window.jd = {};
+        if (typeof window.xhs === 'undefined') window.xhs = {};
+        if (typeof window.qh === 'undefined') window.qh = {};
+        if (typeof window.bb === 'undefined') window.bb = {};
       }
-      if (typeof globalThis !== 'undefined' && typeof globalThis.wx === 'undefined') {
-        globalThis.wx = {};
+      if (typeof globalThis !== 'undefined') {
+        if (typeof globalThis.wx === 'undefined') globalThis.wx = {};
+        if (typeof globalThis.my === 'undefined') globalThis.my = {};
+        if (typeof globalThis.tt === 'undefined') globalThis.tt = {};
+        if (typeof globalThis.swan === 'undefined') globalThis.swan = {};
+        if (typeof globalThis.qq === 'undefined') globalThis.qq = {};
+        if (typeof globalThis.ks === 'undefined') globalThis.ks = {};
+        if (typeof globalThis.jd === 'undefined') globalThis.jd = {};
+        if (typeof globalThis.xhs === 'undefined') globalThis.xhs = {};
+        if (typeof globalThis.qh === 'undefined') globalThis.qh = {};
+        if (typeof globalThis.bb === 'undefined') globalThis.bb = {};
       }
     </script>
     <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-9769426845506731"
