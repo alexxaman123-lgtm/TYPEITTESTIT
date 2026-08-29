@@ -49,6 +49,9 @@ export function useTypingTest(initialDifficulty: Difficulty, initialDuration: nu
   const initial = useMemo(() => buildText(initialDifficulty), []); // eslint-disable-line react-hooks/exhaustive-deps
   const [targetText, setTargetText] = useState<string>(initial.text);
   const [typed, setTyped] = useState<string>("");
+  // This is the exact live word-progress value shown as Actual WPM.
+  // It is updated directly from every input event instead of depending on the timer tick.
+  const [liveWordProgress, setLiveWordProgress] = useState(0);
   const [status, setStatus] = useState<TestStatus>("idle");
   const [result, setResult] = useState<TestResult | null>(null);
   const [tick, setTick] = useState(0);
@@ -91,8 +94,6 @@ export function useTypingTest(initialDifficulty: Difficulty, initialDuration: nu
       }
     }
 
-    // "Actual WPM" is the amount of text/word progress the user has actually
-    // written, not a rate projected from elapsed time. Wrong words still count.
     const wordProgress = isCustom && customMode === "free"
       ? computeFreeWordProgress(typed)
       : computeRawWordProgress(typed);
@@ -151,6 +152,7 @@ export function useTypingTest(initialDifficulty: Difficulty, initialDuration: nu
       errorsRef.current = 0;
       finishedRef.current = false;
       setTyped("");
+      setLiveWordProgress(0);
       setResult(null);
       setStatus("idle");
       setCustomMode(nextCustomMode);
@@ -259,6 +261,7 @@ export function useTypingTest(initialDifficulty: Difficulty, initialDuration: nu
       if (isCustom && customMode === "free") {
         const clipped = value.slice(0, MAX_CUSTOM_TEXT_LENGTH);
         setTyped(clipped);
+        setLiveWordProgress(computeFreeWordProgress(clipped));
         startTimerIfNeeded();
         return;
       }
@@ -283,6 +286,9 @@ export function useTypingTest(initialDifficulty: Difficulty, initialDuration: nu
         }
       }
 
+      // Update Actual WPM directly from the latest typed value on every input event.
+      // This is independent of the 200 ms timer used for predicted WPM/time.
+      setLiveWordProgress(computeRawWordProgress(clipped));
       setTyped(clipped);
       startTimerIfNeeded();
     },
@@ -307,8 +313,8 @@ export function useTypingTest(initialDifficulty: Difficulty, initialDuration: nu
   const liveStats = useMemo(() => {
     const wordProgress = isCustom && customMode === "free"
       ? computeFreeWordProgress(typed)
-      : computeRawWordProgress(typed);
-    const actualWpm = wordProgress;
+      : liveWordProgress;
+    const actualWpm = liveWordProgress;
 
     if (isCustom && customMode === "free") {
       const lettersTyped = getLettersOnlyCount(typed);
@@ -345,7 +351,7 @@ export function useTypingTest(initialDifficulty: Difficulty, initialDuration: nu
       accuracy,
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [typed, targetText, tick, elapsedMs, isCustom, customMode]);
+  }, [typed, targetText, tick, elapsedMs, isCustom, customMode, liveWordProgress]);
 
   return {
     difficulty,
