@@ -1,4 +1,4 @@
-import { RefObject, useEffect } from "react";
+import { RefObject } from "react";
 import { formatTime } from "../lib/stats";
 import { cn } from "../utils/cn";
 
@@ -13,22 +13,16 @@ interface Props {
 }
 
 export default function LiveMetrics({
-  wpm,
   predictedWpm,
   accuracy,
   remainingSec,
   urgent,
-  liveWpmRef,
   actualWpmElementRef,
 }: Props) {
-  useEffect(() => {
-    const element = actualWpmElementRef.current;
-    if (!element) return;
-    element.textContent = Number.isFinite(liveWpmRef.current)
-      ? liveWpmRef.current.toFixed(1)
-      : "0.0";
-  }, [actualWpmElementRef, liveWpmRef, wpm]);
-
+  // Actual WPM is intentionally NOT synchronized from React state here.
+  // TypingText writes the freshest value directly to this shared DOM element
+  // from the browser's native input event. Keeping this element childless from
+  // React prevents reconciliation from overwriting that low-latency value.
   return (
     <div className="metric-surface grid grid-cols-2 divide-x divide-y divide-white/10 rounded-2xl border border-white/10 bg-surface2/70 sm:grid-cols-4 sm:divide-y-0">
       <div className="flex min-h-[88px] flex-col items-center justify-center gap-1 px-3 py-4 sm:py-5">
@@ -44,7 +38,12 @@ export default function LiveMetrics({
 
       <Metric label="Predicted WPM" value={predictedWpm === null ? "—" : predictedWpm} valueClass="text-ink" />
       <Metric label="Accuracy" value={`${accuracy}%`} valueClass="text-ink" />
-      <Metric label="Time" value={formatTime(remainingSec)} valueClass={cn("text-ink font-mono", urgent && "text-danger")} pulse={urgent} />
+      <Metric
+        label="Time"
+        value={formatTime(remainingSec)}
+        valueClass={cn("text-ink font-mono", urgent && "text-danger")}
+        pulse={urgent}
+      />
     </div>
   );
 }
