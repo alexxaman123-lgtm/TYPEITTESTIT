@@ -5,7 +5,6 @@ import {
   computeFreeWordProgress,
   computePredictedWpm,
   computeWordProgress,
-  computeWpmRate,
   countWordErrors,
   getLettersOnlyCount,
 } from "./stats";
@@ -126,7 +125,7 @@ export function useTypingTest(initialDifficulty: Difficulty, initialDuration: nu
       : computeWordProgress(targetValue, typedValue);
     // Use the same rate formula for the final value so the live and
     // final WPM are consistent and the meaning of "wpm" stays intact.
-    const actualWpm = computeWpmRate(wordProgress, elapsedMs);
+    const actualWpm = wordProgress;
     const predictedWpm = computePredictedWpm(wordProgress, elapsedMs);
     const lettersTyped = getLettersOnlyCount(typedValue);
     const accuracy = isCustomValue && customModeValue === "free"
@@ -374,10 +373,11 @@ export function useTypingTest(initialDifficulty: Difficulty, initialDuration: nu
       return {
         correct: lettersTyped,
         incorrect: 0,
-        // Use the rate formula so Actual WPM is a real words-per-minute
-        // value that grows/decays smoothly with elapsed time, instead of
-        // jumping only when a word boundary is crossed.
-        wpm: computeWpmRate(wordProgress, elapsedMs),
+        // Keep the original wordProgress-based Actual WPM. The high-frequency
+        // rAF sync (see useEffect above) guarantees this value is re-read
+        // on every frame from the latest typing-session state, so it can
+        // never fall behind the user's typing no matter how fast they go.
+        wpm: wordProgress,
         wordProgress,
         predictedWpm: computePredictedWpm(wordProgress, elapsedMs),
         characterErrors: 0,
@@ -394,7 +394,7 @@ export function useTypingTest(initialDifficulty: Difficulty, initialDuration: nu
     const lettersTyped = getLettersOnlyCount(typed);
     const incorrect = Math.max(0, lettersTyped - correct);
     const wordProgress = computeWordProgress(targetText, typed);
-    const actualWpm = computeWpmRate(wordProgress, elapsedMs);
+    const actualWpm = wordProgress;
     const predictedWpm = computePredictedWpm(wordProgress, elapsedMs);
     const accuracy = computeAccuracy(correct, lettersTyped);
     return {

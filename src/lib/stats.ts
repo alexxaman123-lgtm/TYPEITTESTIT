@@ -9,18 +9,6 @@ export function computePredictedWpm(wordProgress: number, elapsedMs: number): nu
   return Math.max(0, Math.round((wordProgress / minutes) * 10) / 10);
 }
 
-/**
- * Live WPM rate based on word progress and elapsed time.
- * Returns the unrounded float so the live display can update smoothly
- * between completed words. Decimal precision is preserved here and
- * only rounded at the final presentation layer (e.g. toFixed(1)).
- */
-export function computeWpmRate(wordProgress: number, elapsedMs: number): number {
-  if (elapsedMs <= 0 || wordProgress <= 0) return 0;
-  const minutes = elapsedMs / 60000;
-  return Math.max(0, wordProgress / minutes);
-}
-
 export function computeWpm(correctChars: number, elapsedMs: number): number {
   if (elapsedMs <= 0) return 0;
   const minutes = elapsedMs / 60000;
