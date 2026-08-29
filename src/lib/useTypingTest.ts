@@ -49,9 +49,10 @@ export function useTypingTest(initialDifficulty: Difficulty, initialDuration: nu
   const initial = useMemo(() => buildText(initialDifficulty), []); // eslint-disable-line react-hooks/exhaustive-deps
   const [targetText, setTargetText] = useState<string>(initial.text);
   const [typed, setTyped] = useState<string>("");
-  // This is the exact live word-progress value shown as Actual WPM.
-  // It is updated directly from every input event instead of depending on the timer tick.
+  // React state mirrors the value for the rest of the UI. The ref is the
+  // low-latency source used by the Actual WPM display.
   const [liveWordProgress, setLiveWordProgress] = useState(0);
+  const liveWordProgressRef = useRef(0);
   const [status, setStatus] = useState<TestStatus>("idle");
   const [result, setResult] = useState<TestResult | null>(null);
   const [tick, setTick] = useState(0);
@@ -151,6 +152,7 @@ export function useTypingTest(initialDifficulty: Difficulty, initialDuration: nu
       startTimeRef.current = null;
       errorsRef.current = 0;
       finishedRef.current = false;
+      liveWordProgressRef.current = 0;
       setTyped("");
       setLiveWordProgress(0);
       setResult(null);
@@ -260,8 +262,10 @@ export function useTypingTest(initialDifficulty: Difficulty, initialDuration: nu
 
       if (isCustom && customMode === "free") {
         const clipped = value.slice(0, MAX_CUSTOM_TEXT_LENGTH);
+        const nextProgress = computeFreeWordProgress(clipped);
+        liveWordProgressRef.current = nextProgress;
+        setLiveWordProgress(nextProgress);
         setTyped(clipped);
-        setLiveWordProgress(computeFreeWordProgress(clipped));
         startTimerIfNeeded();
         return;
       }
@@ -286,9 +290,11 @@ export function useTypingTest(initialDifficulty: Difficulty, initialDuration: nu
         }
       }
 
-      // Update Actual WPM directly from the latest typed value on every input event.
-      // This is independent of the 200 ms timer used for predicted WPM/time.
-      setLiveWordProgress(computeRawWordProgress(clipped));
+      // Capture the newest progress synchronously, before React renders the
+      // heavier character-by-character typing surface.
+      const nextProgress = computeRawWordProgress(clipped);
+      liveWordProgressRef.current = nextProgress;
+      setLiveWordProgress(nextProgress);
       setTyped(clipped);
       startTimerIfNeeded();
     },
@@ -366,6 +372,7 @@ export function useTypingTest(initialDifficulty: Difficulty, initialDuration: nu
     remainingMs,
     elapsedMs,
     liveStats,
+    liveWordProgressRef,
     setDifficulty,
     setDuration,
     handleInputChange,
