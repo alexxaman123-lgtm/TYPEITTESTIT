@@ -1,4 +1,4 @@
-import { RefObject, useEffect } from "react";
+import { RefObject, useEffect, useRef } from "react";
 import { formatTime } from "../lib/stats";
 import { cn } from "../utils/cn";
 
@@ -17,21 +17,22 @@ export default function LiveMetrics({
   urgent,
   liveWpmRef,
 }: Props) {
+  const actualWpmElementRef = useRef<HTMLSpanElement | null>(null);
+
   useEffect(() => {
     let animationFrame = 0;
     let mounted = true;
-    let lastDisplayed = -1;
+    let lastDisplayed = Number.NaN;
 
     const updateActualWpm = () => {
       if (!mounted) return;
 
-      const element = document.querySelector<HTMLSpanElement>('[data-actual-wpm="true"]');
-      if (element) {
-        const value = liveWpmRef.current;
-        if (value !== lastDisplayed) {
-          element.textContent = value.toFixed(1);
-          lastDisplayed = value;
-        }
+      const element = actualWpmElementRef.current;
+      const value = liveWpmRef.current;
+
+      if (element && value !== lastDisplayed) {
+        element.textContent = value.toFixed(1);
+        lastDisplayed = value;
       }
 
       animationFrame = window.requestAnimationFrame(updateActualWpm);
@@ -52,7 +53,7 @@ export default function LiveMetrics({
           Actual WPM
         </span>
         <span
-          data-actual-wpm="true"
+          ref={actualWpmElementRef}
           className="font-mono text-2xl font-bold tabular-nums text-accent sm:text-3xl"
         >
           0.0
