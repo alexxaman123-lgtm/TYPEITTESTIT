@@ -5,11 +5,11 @@ import AuthModal from "./AuthModal";
 import UsernameModal from "./UsernameModal";
 
 const NAV_LINKS = [
-  { label: "Typing Speed Test", href: "#tester" },
-  { label: "Guides", href: "#guides" },
-  { label: "How It Works", href: "#how-it-works" },
-  { label: "About", href: "#about" },
-  { label: "Contact", href: "#contact" },
+  { label: "Typing Speed Test", href: "/#tester" },
+  { label: "Guides", href: "/#guides" },
+  { label: "How It Works", href: "/#how-it-works" },
+  { label: "About", href: "/about" },
+  { label: "Contact", href: "/contact" },
 ];
 
 export default function Header() {
@@ -62,7 +62,7 @@ export default function Header() {
     <>
       <header className={cn("sticky top-0 z-50 w-full border-b transition-all duration-300", scrolled ? "border-white/10 bg-bg/85 shadow-[0_8px_24px_-20px_rgba(0,255,102,0.35)] backdrop-blur-md" : "border-transparent bg-transparent")}>
         <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
-          <a href="#tester" className="select-none text-lg font-extrabold tracking-[-0.03em] text-ink" aria-label="TypeItTestIt home">
+          <a href="/" className="select-none text-lg font-extrabold tracking-[-0.03em] text-ink" aria-label="TypeItTestIt home">
             TYPING<span className="text-accent">TEST</span>
           </a>
 
@@ -78,7 +78,7 @@ export default function Header() {
             ) : (
               <button onClick={() => setIsAuthModalOpen(true)} className="text-sm font-medium text-ink transition-colors hover:text-accent">Sign In</button>
             )}
-            <a href="#tester" className="rounded-full border border-accent/40 bg-accent/10 px-4 py-2 text-sm font-semibold text-accent transition-all duration-200 hover:border-accent/70 hover:bg-accent/20">Start Typing</a>
+            <a href="/#tester" className="rounded-full border border-accent/40 bg-accent/10 px-4 py-2 text-sm font-semibold text-accent transition-all duration-200 hover:border-accent/70 hover:bg-accent/20">Start Typing</a>
           </div>
 
           <div className="flex items-center gap-4 md:hidden">
