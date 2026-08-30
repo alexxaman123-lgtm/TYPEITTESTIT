@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Difficulty, getRandomPassage } from "../data/texts";
-import { computeAccuracy, computeFreeWordProgress, computeLiveWordProgress, countWordErrors, getLettersOnlyCount } from "./stats";
+import { computeAccuracy, computeFreeWordProgress, computeLiveWordProgress, computeRawWpm, countWordErrors, getLettersOnlyCount } from "./stats";
 import { maybeSavePersonalBest } from "./storage";
 
 export type TestStatus = "idle" | "running" | "finished";
@@ -9,6 +9,7 @@ type CustomMode = "standard" | "free";
 export interface TestResult {
   wpm: number;
   wordProgress: number;
+  wordsWritten: number;
   accuracy: number;
   correctChars: number;
   incorrectChars: number;
@@ -36,6 +37,10 @@ function buildText(difficulty: Difficulty, excludeId?: string) {
   return { text: normalize(passage.text), id: passage.id };
 }
 
+function countTypedWords(text: string): number {
+  return text.trim() ? text.trim().split(/\s+/u).length : 0;
+}
+
 export function useTypingTest(initialDifficulty: Difficulty, initialDuration: number) {
   const [difficulty, setDifficultyState] = useState<Difficulty>(initialDifficulty);
   const [duration, setDurationState] = useState<number>(initialDuration);
@@ -48,8 +53,6 @@ export function useTypingTest(initialDifficulty: Difficulty, initialDuration: nu
   const [targetText, setTargetText] = useState<string>(initial.text);
   const [typed, setTyped] = useState<string>("");
 
-  // These refs are the authoritative low-latency test state. The timer/WPM
-  // display reads them directly so React scheduling cannot make it stale.
   const typedRef = useRef("");
   const liveWordProgressRef = useRef(0);
   const startTimeRef = useRef<number | null>(null);
@@ -97,9 +100,8 @@ export function useTypingTest(initialDifficulty: Difficulty, initialDuration: nu
     const wordProgress = isCustom && customMode === "free"
       ? computeFreeWordProgress(currentTyped)
       : computeLiveWordProgress(targetText, currentTyped);
-    const actualWpm = elapsedMs > 0
-      ? Math.max(0, Math.round((wordProgress / (elapsedMs / 60000)) * 10) / 10)
-      : 0;
+    const actualWpm = computeRawWpm(getLettersOnlyCount(currentTyped), elapsedMs);
+    const wordsWritten = countTypedWords(currentTyped);
     const lettersTyped = getLettersOnlyCount(currentTyped);
     const accuracy = isCustom && customMode === "free"
       ? (lettersTyped > 0 ? 100 : 0)
@@ -111,6 +113,7 @@ export function useTypingTest(initialDifficulty: Difficulty, initialDuration: nu
     setResult({
       wpm: actualWpm,
       wordProgress,
+      wordsWritten,
       accuracy,
       correctChars: correct,
       incorrectChars: incorrect,
@@ -289,9 +292,7 @@ export function useTypingTest(initialDifficulty: Difficulty, initialDuration: nu
     const wordProgress = isCustom && customMode === "free"
       ? computeFreeWordProgress(typed)
       : liveWordProgressRef.current;
-    const actualWpm = elapsedMs > 0
-      ? Math.max(0, Math.round((wordProgress / (elapsedMs / 60000)) * 10) / 10)
-      : 0;
+    const actualWpm = computeRawWpm(getLettersOnlyCount(typed), elapsedMs);
 
     if (isCustom && customMode === "free") {
       const lettersTyped = getLettersOnlyCount(typed);
