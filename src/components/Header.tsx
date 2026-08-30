@@ -31,24 +31,39 @@ export default function Header() {
     let mounted = true;
 
     const syncUser = async () => {
-      const { data: { user } } = await supabase.auth.getUser();
+      const {
+        data: { user },
+        error: authError,
+      } = await supabase.auth.getUser();
+
       if (!mounted) return;
 
-      setIsAuthenticated(Boolean(user));
-
-      if (!user) {
+      // No authenticated user: never show the username dialog.
+      if (authError || !user) {
+        setIsAuthenticated(false);
         setUsername(null);
         setIsUsernameModalOpen(false);
         return;
       }
 
-      const { data: profile } = await supabase
+      setIsAuthenticated(true);
+
+      const { data: profile, error: profileError } = await supabase
         .from("profiles")
         .select("username")
         .eq("user_id", user.id)
         .maybeSingle();
 
       if (!mounted) return;
+
+      // A database/table/RLS error must NOT be interpreted as "new user".
+      // Otherwise every visitor/authenticated session can get stuck in the modal.
+      if (profileError) {
+        console.error("Could not load profile:", profileError.message);
+        setUsername(null);
+        setIsUsernameModalOpen(false);
+        return;
+      }
 
       const currentUsername = profile?.username?.trim() || null;
       setUsername(currentUsername);
@@ -57,9 +72,20 @@ export default function Header() {
 
     void syncUser();
 
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(() => {
-      void syncUser();
-      setIsAuthModalOpen(false);
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event) => {
+      if (event === "SIGNED_OUT") {
+        setIsAuthenticated(false);
+        setUsername(null);
+        setIsUsernameModalOpen(false);
+        setIsAuthModalOpen(false);
+        return;
+      }
+
+      // Only re-check the profile after an actual authentication event.
+      if (event === "SIGNED_IN" || event === "INITIAL_SESSION" || event === "USER_UPDATED") {
+        void syncUser();
+        if (event === "SIGNED_IN") setIsAuthModalOpen(false);
+      }
     });
 
     return () => {
@@ -128,7 +154,7 @@ export default function Header() {
       </header>
 
       <AuthModal isOpen={isAuthModalOpen} onClose={() => setIsAuthModalOpen(false)} />
-      <UsernameModal isOpen={isUsernameModalOpen} initialUsername={username || ""} onSaved={saveUsername} />
+      <UsernameModal isOpen={isUsernameModalOpen && isAuthenticated} initialUsername={username || ""} onSaved={saveUsername} />
     </>
   );
 }
