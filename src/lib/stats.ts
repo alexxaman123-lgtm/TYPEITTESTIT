@@ -1,14 +1,10 @@
-/**
- * Monkeytype-style WPM: raw typed characters / 5 / elapsed minutes.
- * The target passage and correctness do not affect this value.
- */
+/** Monkeytype-style WPM: raw typed characters / 5 / elapsed minutes. */
 export function computeRawWpm(totalTyped: number, elapsedMs: number): number {
   if (elapsedMs <= 0 || totalTyped <= 0) return 0;
-  const minutes = elapsedMs / 60000;
-  return Math.max(0, Math.round((totalTyped / 5 / minutes) * 10) / 10);
+  return Math.max(0, Math.round((totalTyped / 5 / (elapsedMs / 60000)) * 10) / 10);
 }
 
-/** Whole words actually entered by the user. */
+/** Count complete word units actually entered by the user. */
 export function computeWordsWritten(typedText: string): number {
   if (!typedText.trim()) return 0;
   return typedText.trim().split(/\s+/u).filter(Boolean).length;
@@ -36,10 +32,8 @@ export function countWordErrors(targetText: string, typedText: string): number {
         break;
       }
     }
-
     if (wordHasError) errors++;
   }
-
   return errors;
 }
 
