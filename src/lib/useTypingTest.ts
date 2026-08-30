@@ -27,7 +27,7 @@ export interface TestResult {
 
 const APPEND_THRESHOLD = 120;
 const MAX_CUSTOM_TEXT_LENGTH = 100_000;
-const TIMER_TICK_MS = 50;
+const TIMER_TICK_MS = 10;
 
 function normalize(text: string) {
   return text.replace(/\s+/g, " ").trim().slice(0, MAX_CUSTOM_TEXT_LENGTH);
