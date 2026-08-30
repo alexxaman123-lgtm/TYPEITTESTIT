@@ -38,12 +38,12 @@ export default function LiveMetrics({
 
       const elapsedMs = Math.max(0, Date.now() - start);
       const elapsedMinutes = elapsedMs / 60000;
-      const typedCharacters = liveWpmRef.current;
-      const rawWpm = elapsedMinutes > 0
-        ? Math.max(0, Math.round((typedCharacters / 5 / elapsedMinutes) * 10) / 10)
+      const wordProgress = liveWpmRef.current;
+      const actualWpm = elapsedMinutes > 0
+        ? Math.max(0, Math.round((wordProgress / elapsedMinutes) * 10) / 10)
         : 0;
 
-      if (actualElement) actualElement.textContent = rawWpm.toFixed(1);
+      if (actualElement) actualElement.textContent = actualWpm.toFixed(1);
 
       const remainingMs = Math.max(0, duration * 1000 - elapsedMs);
       const remainingSec = Math.ceil(remainingMs / 1000);
