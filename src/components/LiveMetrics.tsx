@@ -5,46 +5,71 @@ import { cn } from "../utils/cn";
 interface Props {
   predictedWpm: number | null;
   accuracy: number;
-  remainingSec: number;
-  urgent: boolean;
-  liveWpmRef: RefObject<number>;
+  status: "idle" | "running" | "finished";
+  duration: number;
+  liveWpmRef: RefObject<number | null>;
+  startTimeRef: RefObject<number | null>;
 }
 
 export default function LiveMetrics({
   predictedWpm,
   accuracy,
-  remainingSec,
-  urgent,
+  status,
+  duration,
   liveWpmRef,
+  startTimeRef,
 }: Props) {
   const actualWpmElementRef = useRef<HTMLSpanElement | null>(null);
+  const timeElementRef = useRef<HTMLSpanElement | null>(null);
 
   useEffect(() => {
     let animationFrame = 0;
     let mounted = true;
-    let lastDisplayed = Number.NaN;
 
-    const updateActualWpm = () => {
+    const renderLiveMetrics = () => {
       if (!mounted) return;
 
-      const element = actualWpmElementRef.current;
-      const value = liveWpmRef.current;
+      const actualElement = actualWpmElementRef.current;
+      const timeElement = timeElementRef.current;
+      const start = startTimeRef.current;
 
-      if (element && value !== lastDisplayed) {
-        element.textContent = value.toFixed(1);
-        lastDisplayed = value;
+      if (status !== "running" || start === null) {
+        if (actualElement) actualElement.textContent = "0.0";
+        if (timeElement) {
+          timeElement.textContent = formatTime(duration);
+          timeElement.classList.remove("text-danger", "caret-blink");
+        }
+      } else {
+        const elapsedMs = Math.max(0, Date.now() - start);
+        const elapsedMinutes = elapsedMs / 60000;
+        const wordProgress = liveWpmRef.current ?? 0;
+        const actualWpm = elapsedMinutes > 0
+          ? Math.max(0, Math.round((wordProgress / elapsedMinutes) * 10) / 10)
+          : 0;
+
+        if (actualElement) actualElement.textContent = actualWpm.toFixed(1);
+
+        const remainingMs = Math.max(0, duration * 1000 - elapsedMs);
+        const remainingSec = Math.ceil(remainingMs / 1000);
+        const urgent = remainingSec <= 10 && remainingSec > 0;
+
+        if (timeElement) {
+          timeElement.textContent = formatTime(remainingSec);
+          timeElement.classList.toggle("text-danger", urgent);
+          timeElement.classList.toggle("caret-blink", urgent);
+        }
       }
 
-      animationFrame = window.requestAnimationFrame(updateActualWpm);
+      animationFrame = window.requestAnimationFrame(renderLiveMetrics);
     };
 
-    updateActualWpm();
+    renderLiveMetrics();
 
     return () => {
       mounted = false;
       window.cancelAnimationFrame(animationFrame);
     };
-  }, [liveWpmRef]);
+  }, [duration, liveWpmRef, startTimeRef, status]);
 
   return (
     <div className="metric-surface grid grid-cols-2 divide-x divide-y divide-white/10 rounded-2xl border border-white/10 bg-surface2/70 sm:grid-cols-4 sm:divide-y-0">
@@ -56,17 +81,24 @@ export default function LiveMetrics({
           ref={actualWpmElementRef}
           aria-live="off"
           className="font-mono text-2xl font-bold tabular-nums text-accent sm:text-3xl"
-        />
+        >
+          0.0
+        </span>
       </div>
 
       <Metric label="Predicted WPM" value={predictedWpm === null ? "—" : predictedWpm} valueClass="text-ink" />
       <Metric label="Accuracy" value={`${accuracy}%`} valueClass="text-ink" />
-      <Metric
-        label="Time"
-        value={formatTime(remainingSec)}
-        valueClass={cn("text-ink font-mono", urgent && "text-danger")}
-        pulse={urgent}
-      />
+      <div className="flex min-h-[88px] flex-col items-center justify-center gap-1 px-3 py-4 sm:py-5">
+        <span className="text-[10px] font-semibold uppercase tracking-[0.18em] text-faint sm:text-xs">
+          Time
+        </span>
+        <span
+          ref={timeElementRef}
+          className={cn("font-mono text-2xl font-bold tabular-nums text-ink sm:text-3xl")}
+        >
+          {formatTime(duration)}
+        </span>
+      </div>
     </div>
   );
 }
@@ -75,12 +107,10 @@ function Metric({
   label,
   value,
   valueClass,
-  pulse,
 }: {
   label: string;
   value: string | number;
   valueClass?: string;
-  pulse?: boolean;
 }) {
   return (
     <div className="flex min-h-[88px] flex-col items-center justify-center gap-1 px-3 py-4 sm:py-5">
@@ -90,8 +120,7 @@ function Metric({
       <span
         className={cn(
           "font-mono text-2xl font-bold tabular-nums transition-colors duration-300 sm:text-3xl",
-          valueClass,
-          pulse && "caret-blink"
+          valueClass
         )}
       >
         {value}
