@@ -98,7 +98,6 @@ export default function TypingTester() {
                 duration={test.duration}
                 startTimeRef={test.startTimeRef}
                 liveWpmRef={test.liveWordProgressRef}
-                predictedWpm={test.liveStats.predictedWpm}
                 accuracy={test.liveStats.accuracy}
               />
               <TypingText
