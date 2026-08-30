@@ -7,7 +7,7 @@ interface Props {
   accuracy: number;
   status: "idle" | "running" | "finished";
   duration: number;
-  liveWpmRef: RefObject<number | null>;
+  liveWpmRef: RefObject<number>;
   startTimeRef: RefObject<number | null>;
 }
 
@@ -39,25 +39,26 @@ export default function LiveMetrics({
           timeElement.textContent = formatTime(duration);
           timeElement.classList.remove("text-danger", "caret-blink");
         }
-      } else {
-        const elapsedMs = Math.max(0, Date.now() - start);
-        const elapsedMinutes = elapsedMs / 60000;
-        const wordProgress = liveWpmRef.current ?? 0;
-        const actualWpm = elapsedMinutes > 0
-          ? Math.max(0, Math.round((wordProgress / elapsedMinutes) * 10) / 10)
-          : 0;
+        return;
+      }
 
-        if (actualElement) actualElement.textContent = actualWpm.toFixed(1);
+      const elapsedMs = Math.max(0, Date.now() - start);
+      const elapsedMinutes = elapsedMs / 60000;
+      const wordProgress = liveWpmRef.current;
+      const actualWpm = elapsedMinutes > 0
+        ? Math.max(0, Math.round((wordProgress / elapsedMinutes) * 10) / 10)
+        : 0;
 
-        const remainingMs = Math.max(0, duration * 1000 - elapsedMs);
-        const remainingSec = Math.ceil(remainingMs / 1000);
-        const urgent = remainingSec <= 10 && remainingSec > 0;
+      if (actualElement) actualElement.textContent = actualWpm.toFixed(1);
 
-        if (timeElement) {
-          timeElement.textContent = formatTime(remainingSec);
-          timeElement.classList.toggle("text-danger", urgent);
-          timeElement.classList.toggle("caret-blink", urgent);
-        }
+      const remainingMs = Math.max(0, duration * 1000 - elapsedMs);
+      const remainingSec = Math.ceil(remainingMs / 1000);
+      const urgent = remainingSec <= 10 && remainingSec > 0;
+
+      if (timeElement) {
+        timeElement.textContent = formatTime(remainingSec);
+        timeElement.classList.toggle("text-danger", urgent);
+        timeElement.classList.toggle("caret-blink", urgent);
       }
 
       animationFrame = window.requestAnimationFrame(renderLiveMetrics);
