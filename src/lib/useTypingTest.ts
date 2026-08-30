@@ -38,24 +38,40 @@ function buildText(difficulty: Difficulty, excludeId?: string) {
 }
 
 /**
- * Count the raw amount of text the user actually entered.
- * Complete words count as 1. An unfinished current word contributes a
- * fractional value based on the characters actually entered (5 chars = 1
- * standard word). Correctness never changes this value.
+ * Count the user's real typed-word progress without judging correctness.
+ * Every completed word (a word followed by whitespace) is exactly 1.0.
+ * The unfinished current word is fractional progress based only on how many
+ * characters have been entered relative to that target word's length.
+ *
+ * Examples for target "Aman Gusain":
+ *   "Aman "       => 1.0
+ *   "AM"          => 0.5
+ *   "Aman Gusain" => 2.0
+ *   "Aman Xusain" => 2.0 once the second word is complete
  */
-function countActualTypedWords(text: string): number {
+function countActualTypedWords(targetText: string, text: string): number {
   if (!text) return 0;
 
-  const words = text.trim().split(/\s+/u).filter(Boolean);
-  if (!words.length) return 0;
+  const typedWords = text.trim().split(/\s+/u).filter(Boolean);
+  if (!typedWords.length) return 0;
 
   const endsWithWhitespace = /\s$/u.test(text);
-  const completedWords = endsWithWhitespace ? words.length : Math.max(0, words.length - 1);
+  const completedWords = endsWithWhitespace
+    ? typedWords.length
+    : Math.max(0, typedWords.length - 1);
 
   if (endsWithWhitespace) return completedWords;
 
-  const currentWordLength = words.at(-1)?.length ?? 0;
-  const partialWord = Math.min(1, currentWordLength / 5);
+  const currentTypedWord = typedWords.at(-1) ?? "";
+  const targetWords = targetText.trim().split(/\s+/u).filter(Boolean);
+  const targetWord = targetWords[completedWords] ?? "";
+
+  // For standard tests, use the target word's length only to measure progress,
+  // never its spelling/correctness. For free typing, use the standard 5-char
+  // WPM word convention for an unfinished word.
+  const denominator = targetWord.length > 0 ? targetWord.length : 5;
+  const partialWord = Math.min(1, currentTypedWord.length / denominator);
+
   return Math.round((completedWords + partialWord) * 10) / 10;
 }
 
@@ -115,9 +131,9 @@ export function useTypingTest(initialDifficulty: Difficulty, initialDuration: nu
       }
     }
 
-    // WPM is based only on the raw amount of text the user actually typed.
-    // It does not compare the typed text with the target passage.
-    const wordProgress = countActualTypedWords(currentTyped);
+    // WPM uses only the amount of text the user actually entered.
+    // Completed words always count as 1.0 even when misspelled.
+    const wordProgress = countActualTypedWords(isCustom && customMode === "free" ? "" : targetText, currentTyped);
     const actualWpm = elapsedMs > 0
       ? Math.max(0, Math.round((wordProgress / (elapsedMs / 60000)) * 10) / 10)
       : 0;
@@ -265,18 +281,11 @@ export function useTypingTest(initialDifficulty: Difficulty, initialDuration: nu
       return;
     }
 
-    if (isCustom && customMode === "free") {
-      const clipped = value.slice(0, MAX_CUSTOM_TEXT_LENGTH);
-      const nextProgress = countActualTypedWords(clipped);
-      typedRef.current = clipped;
-      liveWordProgressRef.current = nextProgress;
-      setTyped(clipped);
-      startTimerIfNeeded();
-      return;
-    }
+    const isFree = isCustom && customMode === "free";
+    const clippedValue = isFree ? value.slice(0, MAX_CUSTOM_TEXT_LENGTH) : value;
 
     let currentTarget = targetText;
-    if (currentTarget.length - value.length < APPEND_THRESHOLD) {
+    if (!isFree && currentTarget.length - clippedValue.length < APPEND_THRESHOLD) {
       if (isCustom) {
         currentTarget = currentTarget + " " + normalize(customSource);
       } else {
@@ -287,7 +296,9 @@ export function useTypingTest(initialDifficulty: Difficulty, initialDuration: nu
       setTargetText(currentTarget);
     }
 
-    const clipped = value.length > currentTarget.length ? value.slice(0, currentTarget.length) : value;
+    const clipped = isFree
+      ? clippedValue
+      : (clippedValue.length > currentTarget.length ? clippedValue.slice(0, currentTarget.length) : clippedValue);
     const previousLength = typedRef.current.length;
 
     if (clipped.length > previousLength) {
@@ -296,7 +307,7 @@ export function useTypingTest(initialDifficulty: Difficulty, initialDuration: nu
       }
     }
 
-    const nextProgress = countActualTypedWords(clipped);
+    const nextProgress = countActualTypedWords(isFree ? "" : currentTarget, clipped);
     typedRef.current = clipped;
     liveWordProgressRef.current = nextProgress;
     setTyped(clipped);
@@ -309,9 +320,8 @@ export function useTypingTest(initialDifficulty: Difficulty, initialDuration: nu
   const remainingMs = Math.max(0, duration * 1000 - elapsedMs);
 
   const liveStats = useMemo(() => {
-    // Use only the raw text actually entered. The target text and correctness
-    // have no effect on the live WPM value.
-    const wordProgress = countActualTypedWords(typed);
+    // Live WPM is derived from the actual typed text, never from correctness.
+    const wordProgress = countActualTypedWords(isCustom && customMode === "free" ? "" : targetText, typed);
     const actualWpm = elapsedMs > 0
       ? Math.max(0, Math.round((wordProgress / (elapsedMs / 60000)) * 10) / 10)
       : 0;
