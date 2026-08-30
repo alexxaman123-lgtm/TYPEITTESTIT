@@ -50,7 +50,7 @@ export default function ResultPanel({
     }
   };
 
-  const wordsWritten = result.wpm.toFixed(1).replace(/\.0$/, "");
+  const wordsWritten = result.wordsWritten;
 
   return (
     <div className="animate-fade-up rounded-2xl border border-white/10 bg-surface2/70 p-6 shadow-[0_18px_60px_-34px_rgba(0,0,0,0.95)] sm:p-10">
@@ -132,9 +132,7 @@ export default function ResultPanel({
       </div>
 
       <div className="mt-8 flex flex-wrap justify-center gap-3">
-        <ActionButton primary onClick={onRetry}>
-          Retry
-        </ActionButton>
+        <ActionButton primary onClick={onRetry}>Retry</ActionButton>
         <ActionButton onClick={onNewText}>New Text</ActionButton>
         <ActionButton onClick={onChangeDifficulty}>Change Difficulty</ActionButton>
         <ActionButton onClick={onCustomTest}>Custom Test</ActionButton>
