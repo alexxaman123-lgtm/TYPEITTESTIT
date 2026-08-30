@@ -1,11 +1,11 @@
 const FOOTER_LINKS = [
-  { label: "Typing Tester", href: "#tester" },
-  { label: "Guides", href: "#guides" },
-  { label: "How It Works", href: "#how-it-works" },
-  { label: "About", href: "#about" },
-  { label: "Contact", href: "#contact" },
-  { label: "Privacy Policy", href: "#privacy" },
-  { label: "Terms", href: "#terms" },
+  { label: "Typing Tester", href: "/#tester" },
+  { label: "Guides", href: "/#guides" },
+  { label: "How It Works", href: "/#how-it-works" },
+  { label: "About", href: "/about" },
+  { label: "Contact", href: "/contact" },
+  { label: "Privacy Policy", href: "/privacy-policy" },
+  { label: "Terms", href: "/terms-of-use" },
 ];
 
 export default function Footer() {
@@ -39,27 +39,6 @@ export default function Footer() {
         <div className="mt-10 flex flex-col gap-2 border-t border-white/5 pt-6 text-xs text-faint sm:flex-row sm:items-center sm:justify-between">
           <p>&copy; {new Date().getFullYear()} TYPEITTESTIT. All rights reserved.</p>
           <p>Built for typists who want real, honest numbers.</p>
-        </div>
-
-        <div id="privacy" className="mt-10 scroll-mt-24 border-t border-white/5 pt-8 text-sm text-muted">
-          <h3 className="font-semibold text-ink-soft">Privacy Policy</h3>
-          <p className="mt-2 max-w-3xl">
-            TYPEITTESTIT does not require an account to use the typing test. Your difficulty and
-            duration preferences and your personal best scores are stored only in your browser's
-            local storage so they can be restored on your next visit. This data never leaves your
-            device and is never sold or shared. Custom text you paste into the custom typing mode
-            is processed locally in your browser and is not transmitted to any server.
-          </p>
-        </div>
-
-        <div id="terms" className="mt-8 scroll-mt-24 border-t border-white/5 pt-8 pb-2 text-sm text-muted">
-          <h3 className="font-semibold text-ink-soft">Terms of Use</h3>
-          <p className="mt-2 max-w-3xl">
-            TYPEITTESTIT is provided as a free tool for practicing and measuring typing speed. The
-            typing passages are provided for practice purposes only. Results are generated
-            locally in your browser based on your own input and are provided for personal,
-            informational use without any warranty of accuracy for any specific purpose.
-          </p>
         </div>
       </div>
     </footer>
