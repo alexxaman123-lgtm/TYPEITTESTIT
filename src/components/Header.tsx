@@ -38,7 +38,6 @@ export default function Header() {
 
       if (!mounted) return;
 
-      // No authenticated user: never show the username dialog.
       if (authError || !user) {
         setIsAuthenticated(false);
         setUsername(null);
@@ -48,6 +47,10 @@ export default function Header() {
 
       setIsAuthenticated(true);
 
+      const metadataUsername = typeof user.user_metadata?.username === "string"
+        ? user.user_metadata.username.trim()
+        : null;
+
       const { data: profile, error: profileError } = await supabase
         .from("profiles")
         .select("username")
@@ -56,16 +59,17 @@ export default function Header() {
 
       if (!mounted) return;
 
-      // A database/table/RLS error must NOT be interpreted as "new user".
-      // Otherwise every visitor/authenticated session can get stuck in the modal.
+      // Prefer the profile value. Auth metadata is a reliable fallback so an
+      // authenticated user does not revert to the generic "Signed in" label
+      // when profile SELECT is temporarily unavailable.
       if (profileError) {
         console.error("Could not load profile:", profileError.message);
-        setUsername(null);
-        setIsUsernameModalOpen(false);
+        setUsername(metadataUsername);
+        setIsUsernameModalOpen(!metadataUsername);
         return;
       }
 
-      const currentUsername = profile?.username?.trim() || null;
+      const currentUsername = profile?.username?.trim() || metadataUsername || null;
       setUsername(currentUsername);
       setIsUsernameModalOpen(!currentUsername);
     };
@@ -81,7 +85,6 @@ export default function Header() {
         return;
       }
 
-      // Only re-check the profile after an actual authentication event.
       if (event === "SIGNED_IN" || event === "INITIAL_SESSION" || event === "USER_UPDATED") {
         void syncUser();
         if (event === "SIGNED_IN") setIsAuthModalOpen(false);
