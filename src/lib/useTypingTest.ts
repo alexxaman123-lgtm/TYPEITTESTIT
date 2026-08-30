@@ -37,7 +37,7 @@ function buildText(difficulty: Difficulty, excludeId?: string) {
   return { text: normalize(passage.text), id: passage.id };
 }
 
-function countTypedWords(text: string): number {
+function countActualTypedWords(text: string): number {
   return text.trim() ? text.trim().split(/\s+/u).length : 0;
 }
 
@@ -103,7 +103,7 @@ export function useTypingTest(initialDifficulty: Difficulty, initialDuration: nu
     const actualWpm = elapsedMs > 0
       ? Math.max(0, Math.round((wordProgress / (elapsedMs / 60000)) * 10) / 10)
       : 0;
-    const wordsWritten = countTypedWords(currentTyped);
+    const wordsWritten = countActualTypedWords(currentTyped);
     const lettersTyped = getLettersOnlyCount(currentTyped);
     const accuracy = isCustom && customMode === "free"
       ? (lettersTyped > 0 ? 100 : 0)
