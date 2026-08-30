@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Difficulty, getRandomPassage } from "../data/texts";
-import { computeAccuracy, computeFreeWordProgress, computeLiveWordProgress, countWordErrors, getLettersOnlyCount } from "./stats";
+import { computeAccuracy, computeFreeWordProgress, countWordErrors, getLettersOnlyCount } from "./stats";
 import { maybeSavePersonalBest } from "./storage";
 
 export type TestStatus = "idle" | "running" | "finished";
@@ -38,10 +38,10 @@ function buildText(difficulty: Difficulty, excludeId?: string) {
 }
 
 /**
- * Count words actually entered as word units.
+ * Count the raw amount of text the user actually entered.
  * Complete words count as 1. An unfinished current word contributes a
  * fractional value based on the characters actually entered (5 chars = 1
- * standard word). Correctness has no effect on this count.
+ * standard word). Correctness never changes this value.
  */
 function countActualTypedWords(text: string): number {
   if (!text) return 0;
@@ -115,13 +115,13 @@ export function useTypingTest(initialDifficulty: Difficulty, initialDuration: nu
       }
     }
 
-    const wordProgress = isCustom && customMode === "free"
-      ? computeFreeWordProgress(currentTyped)
-      : computeLiveWordProgress(targetText, currentTyped);
+    // WPM is based only on the raw amount of text the user actually typed.
+    // It does not compare the typed text with the target passage.
+    const wordProgress = countActualTypedWords(currentTyped);
     const actualWpm = elapsedMs > 0
       ? Math.max(0, Math.round((wordProgress / (elapsedMs / 60000)) * 10) / 10)
       : 0;
-    const wordsWritten = countActualTypedWords(currentTyped);
+    const wordsWritten = wordProgress;
     const lettersTyped = getLettersOnlyCount(currentTyped);
     const accuracy = isCustom && customMode === "free"
       ? (lettersTyped > 0 ? 100 : 0)
@@ -267,7 +267,7 @@ export function useTypingTest(initialDifficulty: Difficulty, initialDuration: nu
 
     if (isCustom && customMode === "free") {
       const clipped = value.slice(0, MAX_CUSTOM_TEXT_LENGTH);
-      const nextProgress = computeFreeWordProgress(clipped);
+      const nextProgress = countActualTypedWords(clipped);
       typedRef.current = clipped;
       liveWordProgressRef.current = nextProgress;
       setTyped(clipped);
@@ -296,7 +296,7 @@ export function useTypingTest(initialDifficulty: Difficulty, initialDuration: nu
       }
     }
 
-    const nextProgress = computeLiveWordProgress(currentTarget, clipped);
+    const nextProgress = countActualTypedWords(clipped);
     typedRef.current = clipped;
     liveWordProgressRef.current = nextProgress;
     setTyped(clipped);
@@ -309,9 +309,9 @@ export function useTypingTest(initialDifficulty: Difficulty, initialDuration: nu
   const remainingMs = Math.max(0, duration * 1000 - elapsedMs);
 
   const liveStats = useMemo(() => {
-    const wordProgress = isCustom && customMode === "free"
-      ? computeFreeWordProgress(typed)
-      : computeLiveWordProgress(targetText, typed);
+    // Use only the raw text actually entered. The target text and correctness
+    // have no effect on the live WPM value.
+    const wordProgress = countActualTypedWords(typed);
     const actualWpm = elapsedMs > 0
       ? Math.max(0, Math.round((wordProgress / (elapsedMs / 60000)) * 10) / 10)
       : 0;
