@@ -37,8 +37,26 @@ function buildText(difficulty: Difficulty, excludeId?: string) {
   return { text: normalize(passage.text), id: passage.id };
 }
 
+/**
+ * Count words actually entered as word units.
+ * Complete words count as 1. An unfinished current word contributes a
+ * fractional value based on the characters actually entered (5 chars = 1
+ * standard word). Correctness has no effect on this count.
+ */
 function countActualTypedWords(text: string): number {
-  return text.trim() ? text.trim().split(/\s+/u).length : 0;
+  if (!text) return 0;
+
+  const words = text.trim().split(/\s+/u).filter(Boolean);
+  if (!words.length) return 0;
+
+  const endsWithWhitespace = /\s$/u.test(text);
+  const completedWords = endsWithWhitespace ? words.length : Math.max(0, words.length - 1);
+
+  if (endsWithWhitespace) return completedWords;
+
+  const currentWordLength = words.at(-1)?.length ?? 0;
+  const partialWord = Math.min(1, currentWordLength / 5);
+  return Math.round((completedWords + partialWord) * 10) / 10;
 }
 
 export function useTypingTest(initialDifficulty: Difficulty, initialDuration: number) {
