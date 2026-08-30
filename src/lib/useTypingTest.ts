@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Difficulty, getRandomPassage } from "../data/texts";
-import { computeAccuracy, countWordErrors, getLettersOnlyCount } from "./stats";
+import { computeAccuracy, computeRawWpm, computeWordsWritten, countWordErrors, getLettersOnlyCount } from "./stats";
 import { maybeSavePersonalBest } from "./storage";
 
 export type TestStatus = "idle" | "running" | "finished";
@@ -35,17 +35,6 @@ function normalize(text: string) {
 function buildText(difficulty: Difficulty, excludeId?: string) {
   const passage = getRandomPassage(difficulty, excludeId);
   return { text: normalize(passage.text), id: passage.id };
-}
-
-function calculateRawWpm(charCount: number, elapsedMs: number): number {
-  if (elapsedMs <= 0 || charCount <= 0) return 0;
-  const elapsedMinutes = elapsedMs / 60000;
-  return Math.max(0, Math.round((charCount / 5 / elapsedMinutes) * 10) / 10);
-}
-
-function countWordsWritten(text: string): number {
-  if (!text.trim()) return 0;
-  return text.trim().split(/\s+/u).filter(Boolean).length;
 }
 
 export function useTypingTest(initialDifficulty: Difficulty, initialDuration: number) {
@@ -104,8 +93,8 @@ export function useTypingTest(initialDifficulty: Difficulty, initialDuration: nu
       }
     }
 
-    const actualWpm = calculateRawWpm(currentTyped.length, elapsedMs);
-    const wordsWritten = countWordsWritten(currentTyped);
+    const wordsWritten = computeWordsWritten(currentTyped);
+    const actualWpm = computeRawWpm(currentTyped.length, elapsedMs);
     const lettersTyped = getLettersOnlyCount(currentTyped);
     const accuracy = isCustom && customMode === "free"
       ? (lettersTyped > 0 ? 100 : 0)
@@ -278,7 +267,7 @@ export function useTypingTest(initialDifficulty: Difficulty, initialDuration: nu
 
     typedRef.current = clipped;
     liveCharCountRef.current = clipped.length;
-    liveWordProgressRef.current = countWordsWritten(clipped);
+    liveWordProgressRef.current = computeWordsWritten(clipped);
     setTyped(clipped);
     startTimerIfNeeded();
   }, [status, isCustom, customMode, targetText, customSource, difficulty, lastPassageId, duration, startTimerIfNeeded]);
@@ -293,8 +282,8 @@ export function useTypingTest(initialDifficulty: Difficulty, initialDuration: nu
   const remainingMs = Math.max(0, duration * 1000 - elapsedMs);
 
   const liveStats = useMemo(() => {
-    const actualWpm = calculateRawWpm(liveCharCountRef.current, elapsedMs);
-    const wordsWritten = countWordsWritten(typed);
+    const actualWpm = computeRawWpm(liveCharCountRef.current, elapsedMs);
+    const wordsWritten = computeWordsWritten(typed);
 
     if (isCustom && customMode === "free") {
       const lettersTyped = getLettersOnlyCount(typed);
