@@ -135,12 +135,11 @@ export function useTypingTest(initialDifficulty: Difficulty, initialDuration: nu
   const startTimerIfNeeded = useCallback(() => {
     if (startTimeRef.current !== null || finishedRef.current) return;
 
-    const start = Date.now();
-    startTimeRef.current = start;
+    startTimeRef.current = Date.now();
     setStatus("running");
     timeoutRef.current = window.setTimeout(() => {
       finishRef.current();
-    }, Math.max(0, duration * 1000));
+    }, duration * 1000);
   }, [duration]);
 
   const resetInternal = useCallback(
