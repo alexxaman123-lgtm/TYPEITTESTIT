@@ -1,4 +1,4 @@
-import { useMemo, useRef, useState } from "react";
+import { useMemo, useState } from "react";
 import { useTypingTest } from "../lib/useTypingTest";
 import { useReducedMotion } from "../lib/useReducedMotion";
 import { getPersonalBest, getPreferences, savePreferences } from "../lib/storage";
@@ -18,10 +18,6 @@ export default function TypingTester() {
   const reducedMotion = useReducedMotion();
   const test = useTypingTest(prefs.difficulty, prefs.duration);
   const [viewMode, setViewMode] = useState<ViewMode>("test");
-  const actualWpmElementRef = useRef<HTMLSpanElement | null>(null);
-
-  const remainingSec = Math.ceil(test.remainingMs / 1000);
-  const urgent = test.status === "running" && remainingSec <= 10 && remainingSec > 0;
 
   const personalBest = test.isCustom ? null : getPersonalBest(test.difficulty, test.duration);
 
@@ -98,13 +94,12 @@ export default function TypingTester() {
           ) : (
             <div className="space-y-5">
               <LiveMetrics
-                wpm={test.liveStats.wpm}
+                status={test.status}
+                duration={test.duration}
+                startTimeRef={test.startTimeRef}
                 liveWpmRef={test.liveWordProgressRef}
-                actualWpmElementRef={actualWpmElementRef}
                 predictedWpm={test.liveStats.predictedWpm}
                 accuracy={test.liveStats.accuracy}
-                remainingSec={remainingSec}
-                urgent={urgent}
               />
               <TypingText
                 target={test.targetText}
@@ -112,7 +107,6 @@ export default function TypingTester() {
                 status={test.status}
                 resetKey={test.sessionId}
                 onChange={test.handleInputChange}
-                actualWpmElementRef={actualWpmElementRef}
                 reducedMotion={reducedMotion}
                 freeTyping={test.isFreeTyping}
               />
