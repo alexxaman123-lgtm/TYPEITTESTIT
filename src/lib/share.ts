@@ -2,7 +2,7 @@ import type { TestResult } from "./useTypingTest";
 
 export function buildShareText(result: TestResult): string {
   const mode = result.isCustom ? "CUSTOM" : result.difficulty.toUpperCase();
-  return `I just scored ${result.wpm.toFixed(1)} actual WPM (${result.predictedWpm === null ? "—" : result.predictedWpm} predicted WPM) with ${result.accuracy}% accuracy on TYPEITTESTIT (${mode} mode, ${result.targetDurationSec}s test). Can you beat my score?\n\nTry it: https://typeittestit.com`;
+  return `I just scored ${result.wpm.toFixed(1)} actual WPM with ${result.accuracy}% accuracy on TYPEITTESTIT (${mode} mode, ${result.targetDurationSec}s test). Can you beat my score?\n\nTry it: https://typeittestit.com`;
 }
 
 function drawShareCard(result: TestResult): HTMLCanvasElement {
