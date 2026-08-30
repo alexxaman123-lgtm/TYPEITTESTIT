@@ -35,7 +35,7 @@ export default function ResultPanel({
 }: Props) {
   const wpm = useCountUp(result.wpm, 800, reducedMotion);
   const [shareStatus, setShareStatus] = useState<string | null>(null);
-  const measuredWpm = result.predictedWpm ?? result.wpm;
+  const measuredWpm = result.wpm;
   const speedTier = getSpeedTier(measuredWpm);
   const label = speedTier.name;
 
@@ -67,13 +67,6 @@ export default function ResultPanel({
           {wpm.toFixed(1)}
         </span>
         <span className="mt-1 text-sm font-semibold uppercase tracking-[0.25em] text-muted">ACTUAL WPM</span>
-
-        <div className="mt-5 flex flex-wrap items-center justify-center gap-3">
-          <span className="text-base font-bold text-accent2">
-            {result.predictedWpm === null ? "—" : `${Number.isInteger(result.predictedWpm) ? result.predictedWpm : result.predictedWpm.toFixed(1)} WPM`}
-          </span>
-          <span className="text-xs uppercase tracking-wide text-muted">predicted WPM from current word pace</span>
-        </div>
 
         <div className="mt-4 flex items-center gap-3">
           <span className="text-xl font-bold text-ink">{result.accuracy}%</span>
