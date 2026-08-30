@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Difficulty, getRandomPassage } from "../data/texts";
-import { computeAccuracy, computeFreeWordProgress, computeLiveWordProgress, computeRawWpm, countWordErrors, getLettersOnlyCount } from "./stats";
+import { computeAccuracy, computeFreeWordProgress, computeLiveWordProgress, countWordErrors, getLettersOnlyCount } from "./stats";
 import { maybeSavePersonalBest } from "./storage";
 
 export type TestStatus = "idle" | "running" | "finished";
@@ -100,9 +100,11 @@ export function useTypingTest(initialDifficulty: Difficulty, initialDuration: nu
     const wordProgress = isCustom && customMode === "free"
       ? computeFreeWordProgress(currentTyped)
       : computeLiveWordProgress(targetText, currentTyped);
-    const lettersTyped = getLettersOnlyCount(currentTyped);
-    const actualWpm = computeRawWpm(lettersTyped, elapsedMs);
+    const actualWpm = elapsedMs > 0
+      ? Math.max(0, Math.round((wordProgress / (elapsedMs / 60000)) * 10) / 10)
+      : 0;
     const wordsWritten = countTypedWords(currentTyped);
+    const lettersTyped = getLettersOnlyCount(currentTyped);
     const accuracy = isCustom && customMode === "free"
       ? (lettersTyped > 0 ? 100 : 0)
       : computeAccuracy(correct, lettersTyped);
