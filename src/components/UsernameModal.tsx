@@ -32,24 +32,42 @@ export default function UsernameModal({ isOpen, initialUsername = "", onSaved }:
     setSaving(true);
     setError(null);
 
-    const { data, error: saveError } = await supabase.rpc("set_username", {
-      requested_username: validation.username,
-    });
+    // Never allow username setup without an authenticated Supabase user.
+    const {
+      data: { user },
+      error: userError,
+    } = await supabase.auth.getUser();
+
+    if (userError || !user) {
+      setSaving(false);
+      setError("Please sign in with Google before choosing a username.");
+      return;
+    }
+
+    // Store the username directly against the authenticated user's UUID.
+    // This avoids depending on a database RPC/function that may not exist.
+    const { error: saveError } = await supabase.from("profiles").upsert(
+      {
+        user_id: user.id,
+        username: validation.username,
+      },
+      { onConflict: "user_id" },
+    );
 
     setSaving(false);
 
     if (saveError) {
       if (saveError.code === "23505" || /unique|already taken/i.test(saveError.message || "")) {
         setError("That username is already taken. Please choose another one.");
-      } else if (saveError.code === "PGRST202") {
-        setError("Username setup is temporarily unavailable. Please try again later.");
+      } else if (saveError.code === "42501") {
+        setError("Username setup is not enabled yet. Please try again after the database permissions are set up.");
       } else {
         setError(saveError.message || "Could not save your username.");
       }
       return;
     }
 
-    onSaved(typeof data === "string" ? data : validation.username);
+    onSaved(validation.username);
   };
 
   return (
