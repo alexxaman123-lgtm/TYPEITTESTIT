@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Difficulty, getRandomPassage } from "../data/texts";
-import { computeAccuracy, computeFreeWordProgress, computeLiveWordProgress, computePredictedWpm, computeWordProgress, countWordErrors, getLettersOnlyCount } from "./stats";
+import { computeAccuracy, computeFreeWordProgress, computeLiveWordProgress, computePredictedWpm, countWordErrors, getLettersOnlyCount } from "./stats";
 import { maybeSavePersonalBest } from "./storage";
 
 export type TestStatus = "idle" | "running" | "finished";
@@ -27,7 +27,6 @@ export interface TestResult {
 
 const APPEND_THRESHOLD = 120;
 const MAX_CUSTOM_TEXT_LENGTH = 100_000;
-const TIMER_TICK_MS = 10;
 
 function normalize(text: string) {
   return text.replace(/\s+/g, " ").trim().slice(0, MAX_CUSTOM_TEXT_LENGTH);
@@ -50,29 +49,27 @@ export function useTypingTest(initialDifficulty: Difficulty, initialDuration: nu
   const [targetText, setTargetText] = useState<string>(initial.text);
   const [typed, setTyped] = useState<string>("");
 
-  // Refs are the authoritative low-latency typing state. React state mirrors
-  // these values for the rest of the UI and result rendering.
+  // These refs are the authoritative low-latency test state. The timer/WPM
+  // display reads them directly so React scheduling cannot make it stale.
   const typedRef = useRef("");
   const liveWordProgressRef = useRef(0);
+  const startTimeRef = useRef<number | null>(null);
+  const errorsRef = useRef(0);
+  const timeoutRef = useRef<number | null>(null);
+  const finishedRef = useRef(false);
 
   const [status, setStatus] = useState<TestStatus>("idle");
   const [result, setResult] = useState<TestResult | null>(null);
-  const [tick, setTick] = useState(0);
   const [sessionId, setSessionId] = useState(0);
-
-  const startTimeRef = useRef<number | null>(null);
-  const errorsRef = useRef(0);
-  const intervalRef = useRef<number | null>(null);
-  const finishedRef = useRef(false);
 
   useEffect(() => {
     setLastPassageId(initial.id);
   }, [initial.id]);
 
   const clearTimer = useCallback(() => {
-    if (intervalRef.current !== null) {
-      window.clearInterval(intervalRef.current);
-      intervalRef.current = null;
+    if (timeoutRef.current !== null) {
+      window.clearTimeout(timeoutRef.current);
+      timeoutRef.current = null;
     }
   }, []);
 
@@ -101,7 +98,7 @@ export function useTypingTest(initialDifficulty: Difficulty, initialDuration: nu
     const wordProgress = isCustom && customMode === "free"
       ? computeFreeWordProgress(currentTyped)
       : computeLiveWordProgress(targetText, currentTyped);
-    const actualWpm = wordProgress;
+    const actualWpm = computePredictedWpm(wordProgress, elapsedMs);
     const predictedWpm = computePredictedWpm(wordProgress, elapsedMs);
     const lettersTyped = getLettersOnlyCount(currentTyped);
     const accuracy = isCustom && customMode === "free"
@@ -137,16 +134,13 @@ export function useTypingTest(initialDifficulty: Difficulty, initialDuration: nu
 
   const startTimerIfNeeded = useCallback(() => {
     if (startTimeRef.current !== null || finishedRef.current) return;
-    startTimeRef.current = Date.now();
-    setStatus("running");
-    intervalRef.current = window.setInterval(() => {
-      const start = startTimeRef.current;
-      if (start === null) return;
 
-      const elapsed = Date.now() - start;
-      if (elapsed >= duration * 1000) finishRef.current();
-      else setTick((t) => t + 1);
-    }, TIMER_TICK_MS);
+    const start = Date.now();
+    startTimeRef.current = start;
+    setStatus("running");
+    timeoutRef.current = window.setTimeout(() => {
+      finishRef.current();
+    }, Math.max(0, duration * 1000));
   }, [duration]);
 
   const resetInternal = useCallback(
@@ -163,7 +157,6 @@ export function useTypingTest(initialDifficulty: Difficulty, initialDuration: nu
       setCustomMode(nextCustomMode);
       setTargetText(newTarget);
       setSessionId((s) => s + 1);
-      setTick((t) => t + 1);
     },
     [clearTimer, customMode]
   );
@@ -245,6 +238,12 @@ export function useTypingTest(initialDifficulty: Difficulty, initialDuration: nu
   const handleInputChange = useCallback((value: string) => {
     if (status === "finished") return;
 
+    const start = startTimeRef.current;
+    if (start !== null && Date.now() - start >= duration * 1000) {
+      finishRef.current();
+      return;
+    }
+
     if (isCustom && customMode === "free") {
       const clipped = value.slice(0, MAX_CUSTOM_TEXT_LENGTH);
       const nextProgress = computeFreeWordProgress(clipped);
@@ -281,7 +280,7 @@ export function useTypingTest(initialDifficulty: Difficulty, initialDuration: nu
     liveWordProgressRef.current = nextProgress;
     setTyped(clipped);
     startTimerIfNeeded();
-  }, [status, isCustom, customMode, targetText, customSource, difficulty, lastPassageId, startTimerIfNeeded]);
+  }, [status, isCustom, customMode, targetText, customSource, difficulty, lastPassageId, duration, startTimerIfNeeded]);
 
   useEffect(() => clearTimer, [clearTimer]);
 
@@ -292,7 +291,7 @@ export function useTypingTest(initialDifficulty: Difficulty, initialDuration: nu
     const wordProgress = isCustom && customMode === "free"
       ? computeFreeWordProgress(typed)
       : liveWordProgressRef.current;
-    const actualWpm = liveWordProgressRef.current;
+    const actualWpm = computePredictedWpm(wordProgress, elapsedMs);
 
     if (isCustom && customMode === "free") {
       const lettersTyped = getLettersOnlyCount(typed);
@@ -325,7 +324,7 @@ export function useTypingTest(initialDifficulty: Difficulty, initialDuration: nu
       wordErrors: countWordErrors(targetText, typed),
       accuracy: computeAccuracy(correct, lettersTyped),
     };
-  }, [typed, targetText, tick, elapsedMs, isCustom, customMode]);
+  }, [typed, targetText, elapsedMs, isCustom, customMode]);
 
   return {
     difficulty,
@@ -341,6 +340,7 @@ export function useTypingTest(initialDifficulty: Difficulty, initialDuration: nu
     elapsedMs,
     liveStats,
     liveWordProgressRef,
+    startTimeRef,
     setDifficulty,
     setDuration,
     handleInputChange,
