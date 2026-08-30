@@ -5,7 +5,7 @@ interface Props {
   accuracy: number;
   status: "idle" | "running" | "finished";
   duration: number;
-  liveWpmRef: RefObject<number>;
+  liveCharCountRef: RefObject<number>;
   startTimeRef: RefObject<number | null>;
 }
 
@@ -13,7 +13,7 @@ export default function LiveMetrics({
   accuracy,
   status,
   duration,
-  liveWpmRef,
+  liveCharCountRef,
   startTimeRef,
 }: Props) {
   const actualWpmElementRef = useRef<HTMLSpanElement | null>(null);
@@ -38,9 +38,9 @@ export default function LiveMetrics({
 
       const elapsedMs = Math.max(0, Date.now() - start);
       const elapsedMinutes = elapsedMs / 60000;
-      const wordProgress = liveWpmRef.current;
+      const typedCharacters = liveCharCountRef.current;
       const actualWpm = elapsedMinutes > 0
-        ? Math.max(0, Math.round((wordProgress / elapsedMinutes) * 10) / 10)
+        ? Math.max(0, Math.round((typedCharacters / 5 / elapsedMinutes) * 10) / 10)
         : 0;
 
       if (actualElement) actualElement.textContent = actualWpm.toFixed(1);
@@ -58,7 +58,7 @@ export default function LiveMetrics({
       mounted = false;
       window.cancelAnimationFrame(animationFrame);
     };
-  }, [duration, liveWpmRef, startTimeRef, status]);
+  }, [duration, liveCharCountRef, startTimeRef, status]);
 
   return (
     <div className="metric-surface grid grid-cols-3 divide-x divide-white/10 rounded-2xl border border-white/10 bg-surface2/70">
