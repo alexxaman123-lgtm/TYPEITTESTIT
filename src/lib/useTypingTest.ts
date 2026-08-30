@@ -27,6 +27,7 @@ export interface TestResult {
 
 const APPEND_THRESHOLD = 120;
 const MAX_CUSTOM_TEXT_LENGTH = 100_000;
+const TIMER_TICK_MS = 50;
 
 function normalize(text: string) {
   return text.replace(/\s+/g, " ").trim().slice(0, MAX_CUSTOM_TEXT_LENGTH);
@@ -81,7 +82,7 @@ export function useTypingTest(initialDifficulty: Difficulty, initialDuration: nu
     clearTimer();
 
     const currentTyped = typedRef.current;
-    const elapsedMs = startTimeRef.current ? Date.now() - startTimeRef.current : 0;
+    const elapsedMs = startTimeRef.current ? Math.max(0, Date.now() - startTimeRef.current) : 0;
     let correct = 0;
     let incorrect = 0;
 
@@ -139,10 +140,13 @@ export function useTypingTest(initialDifficulty: Difficulty, initialDuration: nu
     startTimeRef.current = Date.now();
     setStatus("running");
     intervalRef.current = window.setInterval(() => {
-      const elapsed = Date.now() - (startTimeRef.current ?? Date.now());
+      const start = startTimeRef.current;
+      if (start === null) return;
+
+      const elapsed = Date.now() - start;
       if (elapsed >= duration * 1000) finishRef.current();
       else setTick((t) => t + 1);
-    }, 200);
+    }, TIMER_TICK_MS);
   }, [duration]);
 
   const resetInternal = useCallback(
@@ -159,6 +163,7 @@ export function useTypingTest(initialDifficulty: Difficulty, initialDuration: nu
       setCustomMode(nextCustomMode);
       setTargetText(newTarget);
       setSessionId((s) => s + 1);
+      setTick((t) => t + 1);
     },
     [clearTimer, customMode]
   );
@@ -280,7 +285,7 @@ export function useTypingTest(initialDifficulty: Difficulty, initialDuration: nu
 
   useEffect(() => clearTimer, [clearTimer]);
 
-  const elapsedMs = status === "idle" ? 0 : startTimeRef.current ? Date.now() - startTimeRef.current : 0;
+  const elapsedMs = status === "idle" ? 0 : startTimeRef.current ? Math.max(0, Date.now() - startTimeRef.current) : 0;
   const remainingMs = Math.max(0, duration * 1000 - elapsedMs);
 
   const liveStats = useMemo(() => {
@@ -320,7 +325,7 @@ export function useTypingTest(initialDifficulty: Difficulty, initialDuration: nu
       wordErrors: countWordErrors(targetText, typed),
       accuracy: computeAccuracy(correct, lettersTyped),
     };
-  }, [typed, targetText, tick, elapsedMs, isCustom, customMode, liveWordProgressRef]);
+  }, [typed, targetText, tick, elapsedMs, isCustom, customMode]);
 
   return {
     difficulty,
