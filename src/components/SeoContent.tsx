@@ -1,11 +1,11 @@
 const TOPICS = [
   {
     title: "Typing Test Online for Speed, Accuracy, and Practice",
-    body: "TYPEITTESTIT is a free typing test online for anyone who wants to measure typing speed, check accuracy, and practice with real sentences. Start a typing speed test with no sign-up, choose a difficulty and duration, and get immediate WPM feedback. It works as a quick online typing test, a daily typing practice tool, and a simple way to track progress over time.",
+    body: "TYPEITTESTIT is a free typing test online for anyone who wants to measure typing speed, check accuracy, and practice with real sentences. Take a typing speed test without signing in, choose a difficulty and duration, and get immediate WPM feedback. Sign in with Google when you want account-based saved-progress or leaderboard features.",
   },
   {
     title: "Typing Test Online: Free Typing Speed Test",
-    body: "Use TYPEITTESTIT as a free typing test online whenever you want a quick, reliable measure of typing speed and accuracy. Choose Easy, Medium, or Hard text and a 1, 2, 3, or 5 minute typing test, then start typing. The timer starts on your first keystroke and the browser-based tester reports WPM, accuracy, and your typed-letter totals without requiring an account.",
+    body: "Use TYPEITTESTIT as a free typing test online whenever you want a quick, reliable measure of typing speed and accuracy. Choose Easy, Medium, or Hard text and a 1, 2, 3, or 5 minute typing test, then start typing. The timer starts on your first keystroke and the browser-based tester reports WPM, accuracy, and your typed-letter totals. No sign-in is needed to take a test; a Google sign-in is required for account-based saved progress and leaderboard participation.",
   },
   {
     title: "Speed Typing Test and WPM Test",
@@ -118,7 +118,7 @@ export default function SeoContent() {
           <div className="mt-6 grid gap-3 sm:grid-cols-2">
             {[
               ["Typing speed test", "Measure WPM and accuracy with a timed passage."],
-              ["Free typing test", "Start instantly without a sign-up or account."],
+              ["Free typing test", "Take a test instantly without signing in; saved account progress and leaderboard participation require Google Sign-In."],
               ["Typing practice", "Use varied passages and durations to build consistency."],
               ["WPM test", "Compare actual typing progress with a projected one-minute pace."],
               ["Keyboard speed test", "Build faster, more controlled keyboard movement."],

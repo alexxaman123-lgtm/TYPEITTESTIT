@@ -22,13 +22,11 @@ export default function AuthModal({
 
   return (
     <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
-      {/* Backdrop */}
       <div
         className="fixed inset-0 bg-black/60 backdrop-blur-sm transition-opacity"
         onClick={onClose}
       />
 
-      {/* Modal Content */}
       <div className="relative w-full max-w-md animate-fade-up overflow-hidden rounded-2xl border border-white/10 bg-[#080b09] p-6 shadow-2xl sm:p-8">
         <button
           onClick={onClose}
@@ -42,7 +40,8 @@ export default function AuthModal({
           Welcome to Type It Test It
         </h2>
         <p className="mb-8 text-sm text-[#a7aea9]">
-          Sign in or create your account with Google to track your typing speeds and history.
+          Google Sign-In is optional. Take any typing test without signing in; sign in to choose a unique
+          username for saved-progress and leaderboard features.
         </p>
 
         <button

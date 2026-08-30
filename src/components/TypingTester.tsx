@@ -66,7 +66,7 @@ export default function TypingTester() {
 
         {personalBest && viewMode === "test" && test.status !== "finished" && (
           <p className="mt-4 text-center text-xs font-medium uppercase tracking-wide text-faint sm:text-left">
-            Personal best for {test.difficulty} · {test.duration / 60}min:{" "}
+            Best on this device for {test.difficulty} · {test.duration / 60}min:{" "}
             <span className="text-accent">{personalBest.wpm} WPM</span> at <span className="text-ink-soft">{personalBest.accuracy}%</span>
           </p>
         )}

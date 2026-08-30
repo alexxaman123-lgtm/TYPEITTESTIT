@@ -17,6 +17,7 @@ export default function Header() {
   const [scrolled, setScrolled] = useState(false);
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
   const [isUsernameModalOpen, setIsUsernameModalOpen] = useState(false);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [username, setUsername] = useState<string | null>(null);
 
   useEffect(() => {
@@ -32,19 +33,33 @@ export default function Header() {
     const syncUser = async () => {
       const { data: { user } } = await supabase.auth.getUser();
       if (!mounted) return;
-      const currentUsername = user?.user_metadata?.username?.trim() || null;
+
+      setIsAuthenticated(Boolean(user));
+
+      if (!user) {
+        setUsername(null);
+        setIsUsernameModalOpen(false);
+        return;
+      }
+
+      const { data: profile } = await supabase
+        .from("profiles")
+        .select("username")
+        .eq("user_id", user.id)
+        .maybeSingle();
+
+      if (!mounted) return;
+
+      const currentUsername = profile?.username?.trim() || null;
       setUsername(currentUsername);
-      if (user && !currentUsername) setIsUsernameModalOpen(true);
+      setIsUsernameModalOpen(!currentUsername);
     };
 
-    syncUser();
+    void syncUser();
 
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
-      const user = session?.user;
-      const currentUsername = user?.user_metadata?.username?.trim() || null;
-      setUsername(currentUsername);
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(() => {
+      void syncUser();
       setIsAuthModalOpen(false);
-      if (user && !currentUsername) setIsUsernameModalOpen(true);
     });
 
     return () => {
@@ -57,6 +72,22 @@ export default function Header() {
     setUsername(newUsername);
     setIsUsernameModalOpen(false);
   };
+
+  const accountLabel = username ? (
+    <span className="max-w-[180px] truncate text-sm font-semibold text-ink" title={username}>{username}</span>
+  ) : isAuthenticated ? (
+    <span className="text-sm font-medium text-ink">Signed in</span>
+  ) : (
+    <button onClick={() => setIsAuthModalOpen(true)} className="text-sm font-medium text-ink transition-colors hover:text-accent">Sign In</button>
+  );
+
+  const mobileAccountLabel = username ? (
+    <span className="max-w-[120px] truncate text-sm font-semibold text-ink" title={username}>{username}</span>
+  ) : isAuthenticated ? (
+    <span className="text-sm font-medium text-ink">Signed in</span>
+  ) : (
+    <button onClick={() => setIsAuthModalOpen(true)} className="text-sm font-medium text-ink transition-colors hover:text-accent">Sign In</button>
+  );
 
   return (
     <>
@@ -73,20 +104,12 @@ export default function Header() {
           </nav>
 
           <div className="hidden items-center gap-4 md:flex">
-            {username ? (
-              <span className="max-w-[180px] truncate text-sm font-semibold text-ink" title={username}>{username}</span>
-            ) : (
-              <button onClick={() => setIsAuthModalOpen(true)} className="text-sm font-medium text-ink transition-colors hover:text-accent">Sign In</button>
-            )}
+            {accountLabel}
             <a href="/#tester" className="rounded-full border border-accent/40 bg-accent/10 px-4 py-2 text-sm font-semibold text-accent transition-all duration-200 hover:border-accent/70 hover:bg-accent/20">Start Typing</a>
           </div>
 
           <div className="flex items-center gap-4 md:hidden">
-            {username ? (
-              <span className="max-w-[120px] truncate text-sm font-semibold text-ink" title={username}>{username}</span>
-            ) : (
-              <button onClick={() => setIsAuthModalOpen(true)} className="text-sm font-medium text-ink transition-colors hover:text-accent">Sign In</button>
-            )}
+            {mobileAccountLabel}
             <button type="button" onClick={() => setOpen((o) => !o)} className="flex h-10 w-10 items-center justify-center rounded-lg border border-white/10 text-ink" aria-label={open ? "Close menu" : "Open menu"} aria-expanded={open}>
               <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}>
                 {open ? <path d="M6 6l12 12M18 6l-12 12" strokeLinecap="round" /> : <path d="M3 6h18M3 12h18M3 18h18" strokeLinecap="round" />}

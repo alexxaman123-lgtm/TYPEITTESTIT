@@ -13,7 +13,7 @@ const FAQS = [
   },
   {
     q: "Is this typing test free online?",
-    a: "Yes. TYPEITTESTIT is completely free to use, requires no account or sign-up, and every core feature — easy, medium and hard tests, 1, 2, 3 and 5 minute durations, and custom text — is available immediately.",
+    a: "Yes. TYPEITTESTIT is completely free to use. No account is needed to take a test or use the core typing features; Google Sign-In is optional but required for saved account progress and leaderboard participation.",
   },
   {
     q: "What is the difference between a one minute and a five minute typing test?",

@@ -13,7 +13,7 @@ const STEPS = [
   },
   {
     title: "Get your results",
-    body: "When the timer hits zero, TYPEITTESTIT instantly calculates your WPM, accuracy, and errors — and checks it against your personal best.",
+    body: "When the timer hits zero, TYPEITTESTIT instantly shows your WPM, accuracy, and errors. You can take a test without signing in; account-based progress and leaderboard features require Google Sign-In.",
   },
 ];
 
@@ -24,7 +24,7 @@ export default function HowItWorks() {
         <h2 className="text-2xl font-bold tracking-tight text-ink sm:text-3xl">How It Works</h2>
         <p className="mx-auto mt-3 max-w-2xl text-muted">
           TYPEITTESTIT is built to be understood in seconds. No tutorials, no setup screens — just
-          a fast, focused online typing speed test for practice, WPM tracking, and real improvement.
+          a fast, focused online typing speed test for practice, WPM feedback, and real improvement.
         </p>
       </div>
 
@@ -33,7 +33,7 @@ export default function HowItWorks() {
           <div
             key={step.title}
             className="interactive-lift animate-fade-up rounded-2xl border border-white/10 bg-surface1/55 p-5 shadow-[inset_0_1px_0_rgba(255,255,255,0.025)]"
-            style={{ animationDelay: `${i * 80}ms` }}
+            style={{ animationDelay: String(i * 80) + "ms" }}
           >
             <span className="font-mono text-sm font-bold text-accent">0{i + 1}</span>
             <h3 className="mt-3 font-semibold text-ink">{step.title}</h3>

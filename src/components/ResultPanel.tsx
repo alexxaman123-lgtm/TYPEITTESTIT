@@ -57,7 +57,7 @@ export default function ResultPanel({
       {result.isNewBest && (
         <div className="mb-6 inline-flex items-center gap-2 rounded-full border border-accent/40 bg-accent/10 px-4 py-1.5 text-xs font-bold uppercase tracking-widest text-accent">
           <span className="h-1.5 w-1.5 rounded-full bg-accent" />
-          New personal best
+          New best on this device
         </div>
       )}
 

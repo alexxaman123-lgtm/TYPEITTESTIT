@@ -10,8 +10,7 @@ export default function AboutPage() {
         </p>
         <p className="mt-4 leading-7 text-muted">
           Our typing tester measures your words per minute, accuracy, and errors so you can practice typing
-          and see whether your speed is actually improving. The calculations happen directly in your browser,
-          giving you instant results after every test.
+          and see your results immediately after every test.
         </p>
         <p className="mt-4 leading-7 text-muted">
           TYPEITTESTIT offers three difficulty levels — Easy, Medium, and Hard — with different passages to
@@ -19,8 +18,9 @@ export default function AboutPage() {
           longer sessions to work on consistency and endurance.
         </p>
         <p className="mt-4 leading-7 text-muted">
-          Your personal best is saved locally in your browser, giving you a simple benchmark to beat as you
-          continue practicing. Our goal is to make typing practice straightforward, useful, and focused on real improvement.
+          You can take any typing test without signing in. Google Sign-In is optional, but it is required to
+          save progress to an account and participate in leaderboard features. When you choose a username, it
+          must be unique and may be displayed with your qualifying public leaderboard results.
         </p>
       </div>
     </section>
