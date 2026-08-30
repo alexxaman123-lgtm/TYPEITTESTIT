@@ -8,6 +8,7 @@ import HowItWorks from "./components/HowItWorks";
 import GuidesSection from "./components/GuidesSection";
 import AboutSection from "./components/AboutSection";
 import FaqSection from "./components/FaqSection";
+import ContactSection from "./components/ContactSection";
 
 export default function App() {
   return (
@@ -22,6 +23,7 @@ export default function App() {
         <div className="border-t border-white/8 below-fold-content"><GuidesSection /></div>
         <div className="border-t border-white/8 below-fold-content"><AboutSection /></div>
         <div className="border-t border-white/8 below-fold-content"><FaqSection /></div>
+        <div className="border-t border-white/8 below-fold-content"><ContactSection /></div>
       </main>
       <Footer />
     </div>
