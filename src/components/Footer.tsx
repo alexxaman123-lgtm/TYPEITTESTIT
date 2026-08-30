@@ -3,7 +3,7 @@ const FOOTER_LINKS = [
   { label: "Guides", href: "#guides" },
   { label: "How It Works", href: "#how-it-works" },
   { label: "About", href: "#about" },
-  { label: "Contact", href: "mailto:hello@typeittestit.com" },
+  { label: "Contact", href: "#contact" },
   { label: "Privacy Policy", href: "#privacy" },
   { label: "Terms", href: "#terms" },
 ];
