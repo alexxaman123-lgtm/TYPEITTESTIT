@@ -100,9 +100,9 @@ export function useTypingTest(initialDifficulty: Difficulty, initialDuration: nu
     const wordProgress = isCustom && customMode === "free"
       ? computeFreeWordProgress(currentTyped)
       : computeLiveWordProgress(targetText, currentTyped);
-    const actualWpm = computeRawWpm(getLettersOnlyCount(currentTyped), elapsedMs);
-    const wordsWritten = countTypedWords(currentTyped);
     const lettersTyped = getLettersOnlyCount(currentTyped);
+    const actualWpm = computeRawWpm(lettersTyped, elapsedMs);
+    const wordsWritten = countTypedWords(currentTyped);
     const accuracy = isCustom && customMode === "free"
       ? (lettersTyped > 0 ? 100 : 0)
       : computeAccuracy(correct, lettersTyped);
@@ -249,7 +249,7 @@ export function useTypingTest(initialDifficulty: Difficulty, initialDuration: nu
       const clipped = value.slice(0, MAX_CUSTOM_TEXT_LENGTH);
       const nextProgress = computeFreeWordProgress(clipped);
       typedRef.current = clipped;
-      liveWordProgressRef.current = nextProgress;
+      liveWordProgressRef.current = getLettersOnlyCount(clipped);
       setTyped(clipped);
       startTimerIfNeeded();
       return;
@@ -276,9 +276,8 @@ export function useTypingTest(initialDifficulty: Difficulty, initialDuration: nu
       }
     }
 
-    const nextProgress = computeLiveWordProgress(currentTarget, clipped);
     typedRef.current = clipped;
-    liveWordProgressRef.current = nextProgress;
+    liveWordProgressRef.current = getLettersOnlyCount(clipped);
     setTyped(clipped);
     startTimerIfNeeded();
   }, [status, isCustom, customMode, targetText, customSource, difficulty, lastPassageId, duration, startTimerIfNeeded]);
@@ -291,7 +290,7 @@ export function useTypingTest(initialDifficulty: Difficulty, initialDuration: nu
   const liveStats = useMemo(() => {
     const wordProgress = isCustom && customMode === "free"
       ? computeFreeWordProgress(typed)
-      : liveWordProgressRef.current;
+      : computeLiveWordProgress(targetText, typed);
     const actualWpm = computeRawWpm(getLettersOnlyCount(typed), elapsedMs);
 
     if (isCustom && customMode === "free") {
