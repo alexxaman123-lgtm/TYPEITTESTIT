@@ -3,7 +3,6 @@ import { formatTime } from "../lib/stats";
 import { cn } from "../utils/cn";
 
 interface Props {
-  predictedWpm: number | null;
   accuracy: number;
   status: "idle" | "running" | "finished";
   duration: number;
@@ -12,7 +11,6 @@ interface Props {
 }
 
 export default function LiveMetrics({
-  predictedWpm,
   accuracy,
   status,
   duration,
@@ -73,7 +71,7 @@ export default function LiveMetrics({
   }, [duration, liveWpmRef, startTimeRef, status]);
 
   return (
-    <div className="metric-surface grid grid-cols-2 divide-x divide-y divide-white/10 rounded-2xl border border-white/10 bg-surface2/70 sm:grid-cols-4 sm:divide-y-0">
+    <div className="metric-surface grid grid-cols-2 divide-x divide-y divide-white/10 rounded-2xl border border-white/10 bg-surface2/70 sm:grid-cols-3 sm:divide-y-0">
       <div className="flex min-h-[88px] flex-col items-center justify-center gap-1 px-3 py-4 sm:py-5">
         <span className="text-[10px] font-semibold uppercase tracking-[0.18em] text-faint sm:text-xs">
           Actual WPM
@@ -87,7 +85,6 @@ export default function LiveMetrics({
         </span>
       </div>
 
-      <Metric label="Predicted WPM" value={predictedWpm === null ? "—" : predictedWpm} valueClass="text-ink" />
       <Metric label="Accuracy" value={`${accuracy}%`} valueClass="text-ink" />
       <div className="flex min-h-[88px] flex-col items-center justify-center gap-1 px-3 py-4 sm:py-5">
         <span className="text-[10px] font-semibold uppercase tracking-[0.18em] text-faint sm:text-xs">
