@@ -1,6 +1,5 @@
 import { RefObject, useEffect, useRef } from "react";
 import { formatTime } from "../lib/stats";
-import { cn } from "../utils/cn";
 
 interface Props {
   accuracy: number;
@@ -33,31 +32,22 @@ export default function LiveMetrics({
 
       if (status !== "running" || start === null) {
         if (actualElement) actualElement.textContent = "0.0";
-        if (timeElement) {
-          timeElement.textContent = formatTime(duration);
-          timeElement.classList.remove("text-danger", "caret-blink");
-        }
+        if (timeElement) timeElement.textContent = formatTime(duration);
         return;
       }
 
       const elapsedMs = Math.max(0, Date.now() - start);
       const elapsedMinutes = elapsedMs / 60000;
-      const wordProgress = liveWpmRef.current;
+      const typedWords = liveWpmRef.current;
       const actualWpm = elapsedMinutes > 0
-        ? Math.max(0, Math.round((wordProgress / elapsedMinutes) * 10) / 10)
+        ? Math.max(0, Math.round((typedWords / elapsedMinutes) * 10) / 10)
         : 0;
 
       if (actualElement) actualElement.textContent = actualWpm.toFixed(1);
 
       const remainingMs = Math.max(0, duration * 1000 - elapsedMs);
       const remainingSec = Math.ceil(remainingMs / 1000);
-      const urgent = remainingSec <= 10 && remainingSec > 0;
-
-      if (timeElement) {
-        timeElement.textContent = formatTime(remainingSec);
-        timeElement.classList.toggle("text-danger", urgent);
-        timeElement.classList.toggle("caret-blink", urgent);
-      }
+      if (timeElement) timeElement.textContent = formatTime(remainingSec);
 
       animationFrame = window.requestAnimationFrame(renderLiveMetrics);
     };
@@ -71,7 +61,7 @@ export default function LiveMetrics({
   }, [duration, liveWpmRef, startTimeRef, status]);
 
   return (
-    <div className="metric-surface grid grid-cols-2 divide-x divide-y divide-white/10 rounded-2xl border border-white/10 bg-surface2/70 sm:grid-cols-3 sm:divide-y-0">
+    <div className="metric-surface grid grid-cols-3 divide-x divide-white/10 rounded-2xl border border-white/10 bg-surface2/70">
       <div className="flex min-h-[88px] flex-col items-center justify-center gap-1 px-3 py-4 sm:py-5">
         <span className="text-[10px] font-semibold uppercase tracking-[0.18em] text-faint sm:text-xs">
           Actual WPM
@@ -85,44 +75,26 @@ export default function LiveMetrics({
         </span>
       </div>
 
-      <Metric label="Accuracy" value={`${accuracy}%`} valueClass="text-ink" />
+      <div className="flex min-h-[88px] flex-col items-center justify-center gap-1 px-3 py-4 sm:py-5">
+        <span className="text-[10px] font-semibold uppercase tracking-[0.18em] text-faint sm:text-xs">
+          Accuracy
+        </span>
+        <span className="font-mono text-2xl font-bold tabular-nums text-ink sm:text-3xl">
+          {accuracy}%
+        </span>
+      </div>
+
       <div className="flex min-h-[88px] flex-col items-center justify-center gap-1 px-3 py-4 sm:py-5">
         <span className="text-[10px] font-semibold uppercase tracking-[0.18em] text-faint sm:text-xs">
           Time
         </span>
         <span
           ref={timeElementRef}
-          className={cn("font-mono text-2xl font-bold tabular-nums text-ink sm:text-3xl")}
+          className="font-mono text-2xl font-bold tabular-nums text-ink sm:text-3xl"
         >
           {formatTime(duration)}
         </span>
       </div>
-    </div>
-  );
-}
-
-function Metric({
-  label,
-  value,
-  valueClass,
-}: {
-  label: string;
-  value: string | number;
-  valueClass?: string;
-}) {
-  return (
-    <div className="flex min-h-[88px] flex-col items-center justify-center gap-1 px-3 py-4 sm:py-5">
-      <span className="text-[10px] font-semibold uppercase tracking-[0.18em] text-faint sm:text-xs">
-        {label}
-      </span>
-      <span
-        className={cn(
-          "font-mono text-2xl font-bold tabular-nums transition-colors duration-300 sm:text-3xl",
-          valueClass
-        )}
-      >
-        {value}
-      </span>
     </div>
   );
 }
