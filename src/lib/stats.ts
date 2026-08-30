@@ -1,94 +1,17 @@
-/** Project the current word progress to a one-minute rate.
- *  Example: 3.0 words in 5 seconds => 36.0 predicted WPM.
+/**
+ * Monkeytype-style WPM: raw typed characters / 5 / elapsed minutes.
+ * The target passage and correctness do not affect this value.
  */
-export function computePredictedWpm(wordProgress: number, elapsedMs: number): number {
-  if (elapsedMs <= 0 || wordProgress <= 0) return 0;
-  const minutes = elapsedMs / 60000;
-  return Math.max(0, Math.round((wordProgress / minutes) * 10) / 10);
-}
-
-export function computeWpm(correctChars: number, elapsedMs: number): number {
-  if (elapsedMs <= 0) return 0;
-  const minutes = elapsedMs / 60000;
-  const wpm = correctChars / 5 / minutes;
-  return Math.max(0, Math.round(wpm));
-}
-
 export function computeRawWpm(totalTyped: number, elapsedMs: number): number {
   if (elapsedMs <= 0 || totalTyped <= 0) return 0;
   const minutes = elapsedMs / 60000;
   return Math.max(0, Math.round((totalTyped / 5 / minutes) * 10) / 10);
 }
 
-/**
- * Count the user's live word progress from the exact text they typed.
- * Completed words count as 1.0 regardless of correctness. The unfinished
- * current word contributes a fraction based on its progress through the
- * corresponding target word, so 1 complete word + half of the next word = 1.5.
- */
-export function computeLiveWordProgress(targetText: string, typedText: string): number {
-  if (!typedText) return 0;
-
-  const typedWords = typedText.split(/\s+/).filter(Boolean);
-  if (!typedWords.length) return 0;
-
-  const completedWords = /\s$/u.test(typedText)
-    ? typedWords.length
-    : Math.max(0, typedWords.length - 1);
-
-  if (/\s$/u.test(typedText)) return completedWords;
-
-  const currentTypedWord = typedWords.at(-1) ?? "";
-  const targetWords = targetText.trim().split(/\s+/).filter(Boolean);
-  const targetWord = targetWords[completedWords] ?? "";
-
-  if (!targetWord) return completedWords + 1;
-
-  const fraction = Math.min(1, currentTypedWord.length / Math.max(1, targetWord.length));
-  return completedWords + fraction;
-}
-
-/** Backward-compatible alias for raw typed-word progress. */
-export function computeRawWordProgress(typedText: string): number {
-  return computeLiveWordProgress("", typedText);
-}
-
-export function computeRawWordWpm(typedText: string, elapsedMs: number): number {
-  return computePredictedWpm(computeRawWordProgress(typedText), elapsedMs);
-}
-
-export function computeWordProgress(targetText: string, typedText: string): number {
-  if (!typedText) return 0;
-
-  const targetWords = targetText.trim().split(/\s+/).filter(Boolean);
-  const typedWords = typedText.split(/\s+/).filter(Boolean);
-  if (!typedWords.length) return 0;
-
-  const completedWords = typedText.endsWith(" ") ? typedWords.length : Math.max(0, typedWords.length - 1);
-
-  if (typedText.endsWith(" ")) {
-    return completedWords;
-  }
-
-  const currentTypedWord = typedWords[typedWords.length - 1] ?? "";
-  const targetWord = targetWords[completedWords] ?? "";
-  if (!targetWord) return completedWords + 1;
-
-  const fraction = Math.min(1, currentTypedWord.length / targetWord.length);
-  return completedWords + fraction;
-}
-
-export function computeWordsWritten(targetText: string, typedText: string): number {
-  return computeWordProgress(targetText, typedText);
-}
-
-export function computeFreeWordProgress(typedText: string): number {
-  if (!typedText) return 0;
-  const words = typedText.split(/\s+/).filter(Boolean);
-  const completedWords = typedText.endsWith(" ") ? words.length : Math.max(0, words.length - 1);
-  if (typedText.endsWith(" ")) return completedWords;
-  const partialLength = words.at(-1)?.length ?? 0;
-  return completedWords + Math.min(1, partialLength / 5);
+/** Whole words actually entered by the user. */
+export function computeWordsWritten(typedText: string): number {
+  if (!typedText.trim()) return 0;
+  return typedText.trim().split(/\s+/u).filter(Boolean).length;
 }
 
 export function countWordErrors(targetText: string, typedText: string): number {
