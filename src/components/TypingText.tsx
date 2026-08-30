@@ -1,5 +1,4 @@
-import { RefObject, useEffect, useLayoutEffect, useRef, useState } from "react";
-import { computeLiveWordProgress, computeFreeWordProgress } from "../lib/stats";
+import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { cn } from "../utils/cn";
 
 interface Props {
@@ -10,7 +9,6 @@ interface Props {
   onChange: (value: string) => void;
   reducedMotion: boolean;
   freeTyping?: boolean;
-  actualWpmElementRef: RefObject<HTMLSpanElement | null>;
 }
 
 const WINDOW_SIZE = 620;
@@ -24,7 +22,6 @@ export default function TypingText({
   onChange,
   reducedMotion,
   freeTyping = false,
-  actualWpmElementRef,
 }: Props) {
   const inputRef = useRef<HTMLInputElement | null>(null);
   const [windowStart, setWindowStart] = useState(0);
@@ -33,8 +30,7 @@ export default function TypingText({
   useEffect(() => {
     setWindowStart(0);
     if (inputRef.current) inputRef.current.value = "";
-    if (actualWpmElementRef.current) actualWpmElementRef.current.textContent = "0.0";
-  }, [resetKey, actualWpmElementRef]);
+  }, [resetKey]);
 
   useEffect(() => {
     if (!freeTyping && typed.length - windowStart > SHIFT_THRESHOLD) {
@@ -52,20 +48,6 @@ export default function TypingText({
   const disabled = status === "finished";
   const focusInput = () => {
     if (!disabled) inputRef.current?.focus();
-  };
-
-  const handleNativeInput = (value: string) => {
-    const progress = freeTyping
-      ? computeFreeWordProgress(value)
-      : computeLiveWordProgress(target, value);
-
-    // Write Actual WPM directly from the browser's native input event.
-    // This is intentionally independent of React state/render timing.
-    if (actualWpmElementRef.current) {
-      actualWpmElementRef.current.textContent = progress.toFixed(1);
-    }
-
-    onChange(value);
   };
 
   const windowEnd = Math.min(target.length, windowStart + WINDOW_SIZE);
@@ -137,7 +119,7 @@ export default function TypingText({
         type="text"
         defaultValue=""
         disabled={disabled}
-        onInput={(e) => handleNativeInput(e.currentTarget.value)}
+        onInput={(e) => onChange(e.currentTarget.value)}
         onFocus={() => setFocused(true)}
         onBlur={() => setFocused(false)}
         autoComplete="off"
