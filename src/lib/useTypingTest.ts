@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Difficulty, getRandomPassage } from "../data/texts";
-import { computeAccuracy, computeFreeWordProgress, computeLiveWordProgress, computePredictedWpm, countWordErrors, getLettersOnlyCount } from "./stats";
+import { computeAccuracy, computeFreeWordProgress, computeLiveWordProgress, countWordErrors, getLettersOnlyCount } from "./stats";
 import { maybeSavePersonalBest } from "./storage";
 
 export type TestStatus = "idle" | "running" | "finished";
@@ -9,7 +9,6 @@ type CustomMode = "standard" | "free";
 export interface TestResult {
   wpm: number;
   wordProgress: number;
-  predictedWpm: number | null;
   accuracy: number;
   correctChars: number;
   incorrectChars: number;
@@ -98,8 +97,9 @@ export function useTypingTest(initialDifficulty: Difficulty, initialDuration: nu
     const wordProgress = isCustom && customMode === "free"
       ? computeFreeWordProgress(currentTyped)
       : computeLiveWordProgress(targetText, currentTyped);
-    const actualWpm = computePredictedWpm(wordProgress, elapsedMs);
-    const predictedWpm = computePredictedWpm(wordProgress, elapsedMs);
+    const actualWpm = elapsedMs > 0
+      ? Math.max(0, Math.round((wordProgress / (elapsedMs / 60000)) * 10) / 10)
+      : 0;
     const lettersTyped = getLettersOnlyCount(currentTyped);
     const accuracy = isCustom && customMode === "free"
       ? (lettersTyped > 0 ? 100 : 0)
@@ -111,7 +111,6 @@ export function useTypingTest(initialDifficulty: Difficulty, initialDuration: nu
     setResult({
       wpm: actualWpm,
       wordProgress,
-      predictedWpm,
       accuracy,
       correctChars: correct,
       incorrectChars: incorrect,
@@ -290,7 +289,9 @@ export function useTypingTest(initialDifficulty: Difficulty, initialDuration: nu
     const wordProgress = isCustom && customMode === "free"
       ? computeFreeWordProgress(typed)
       : liveWordProgressRef.current;
-    const actualWpm = computePredictedWpm(wordProgress, elapsedMs);
+    const actualWpm = elapsedMs > 0
+      ? Math.max(0, Math.round((wordProgress / (elapsedMs / 60000)) * 10) / 10)
+      : 0;
 
     if (isCustom && customMode === "free") {
       const lettersTyped = getLettersOnlyCount(typed);
@@ -299,7 +300,6 @@ export function useTypingTest(initialDifficulty: Difficulty, initialDuration: nu
         incorrect: 0,
         wpm: actualWpm,
         wordProgress,
-        predictedWpm: computePredictedWpm(wordProgress, elapsedMs),
         characterErrors: 0,
         wordErrors: 0,
         accuracy: lettersTyped > 0 ? 100 : 0,
@@ -318,7 +318,6 @@ export function useTypingTest(initialDifficulty: Difficulty, initialDuration: nu
       incorrect,
       wpm: actualWpm,
       wordProgress,
-      predictedWpm: computePredictedWpm(wordProgress, elapsedMs),
       characterErrors: incorrect,
       wordErrors: countWordErrors(targetText, typed),
       accuracy: computeAccuracy(correct, lettersTyped),
