@@ -249,7 +249,7 @@ export function useTypingTest(initialDifficulty: Difficulty, initialDuration: nu
       const clipped = value.slice(0, MAX_CUSTOM_TEXT_LENGTH);
       const nextProgress = computeFreeWordProgress(clipped);
       typedRef.current = clipped;
-      liveWordProgressRef.current = getLettersOnlyCount(clipped);
+      liveWordProgressRef.current = nextProgress;
       setTyped(clipped);
       startTimerIfNeeded();
       return;
@@ -276,8 +276,9 @@ export function useTypingTest(initialDifficulty: Difficulty, initialDuration: nu
       }
     }
 
+    const nextProgress = computeLiveWordProgress(currentTarget, clipped);
     typedRef.current = clipped;
-    liveWordProgressRef.current = getLettersOnlyCount(clipped);
+    liveWordProgressRef.current = nextProgress;
     setTyped(clipped);
     startTimerIfNeeded();
   }, [status, isCustom, customMode, targetText, customSource, difficulty, lastPassageId, duration, startTimerIfNeeded]);
@@ -291,7 +292,9 @@ export function useTypingTest(initialDifficulty: Difficulty, initialDuration: nu
     const wordProgress = isCustom && customMode === "free"
       ? computeFreeWordProgress(typed)
       : computeLiveWordProgress(targetText, typed);
-    const actualWpm = computeRawWpm(getLettersOnlyCount(typed), elapsedMs);
+    const actualWpm = elapsedMs > 0
+      ? Math.max(0, Math.round((wordProgress / (elapsedMs / 60000)) * 10) / 10)
+      : 0;
 
     if (isCustom && customMode === "free") {
       const lettersTyped = getLettersOnlyCount(typed);
