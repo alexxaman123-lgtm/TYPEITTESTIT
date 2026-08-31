@@ -13,7 +13,7 @@ const STEPS = [
   },
   {
     title: "Get your results",
-    body: "When the timer hits zero, TippyType instantly shows your WPM, accuracy, and errors. You can take a test without signing in; account-based progress and leaderboard features require Google Sign-In.",
+    body: "When the timer hits zero, GOATTYPE instantly shows your WPM, accuracy, and errors. You can take a test without signing in; account-based progress and leaderboard features require Google Sign-In.",
   },
 ];
 
@@ -23,18 +23,14 @@ export default function HowItWorks() {
       <div className="text-center">
         <h2 className="text-2xl font-bold tracking-tight text-ink sm:text-3xl">How It Works</h2>
         <p className="mx-auto mt-3 max-w-2xl text-muted">
-          TippyType is built to be understood in seconds. No tutorials, no setup screens — just
+          GOATTYPE is built to be understood in seconds. No tutorials, no setup screens — just
           a fast, focused online typing speed test for practice, WPM feedback, and real improvement.
         </p>
       </div>
 
       <div className="mt-10 grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
         {STEPS.map((step, i) => (
-          <div
-            key={step.title}
-            className="interactive-lift animate-fade-up rounded-2xl border border-white/10 bg-surface1/55 p-5 shadow-[inset_0_1px_0_rgba(255,255,255,0.025)]"
-            style={{ animationDelay: String(i * 80) + "ms" }}
-          >
+          <div key={step.title} className="interactive-lift animate-fade-up rounded-2xl border border-white/10 bg-surface1/55 p-5 shadow-[inset_0_1px_0_rgba(255,255,255,0.025)]" style={{ animationDelay: String(i * 80) + "ms" }}>
             <span className="font-mono text-sm font-bold text-accent">0{i + 1}</span>
             <h3 className="mt-3 font-semibold text-ink">{step.title}</h3>
             <p className="mt-2 text-sm leading-6 text-muted">{step.body}</p>
