@@ -38,40 +38,6 @@ body {
   overflow-x: hidden;
 }
 
-/* Slow, theme-aware atmospheric background inspired by the uploaded reference.
-   It stays behind the UI and animates with compositor-friendly transforms. */
-body::before,
-body::after {
-  content: "";
-  position: fixed;
-  inset: -18%;
-  z-index: -1;
-  pointer-events: none;
-  contain: paint;
-  backface-visibility: hidden;
-  transform: translate3d(0, 0, 0);
-  will-change: transform;
-}
-
-body::before {
-  background:
-    radial-gradient(ellipse 44% 38% at 14% 28%, var(--color-accent-glow), transparent 72%),
-    radial-gradient(ellipse 38% 34% at 86% 66%, var(--color-accent-glow-secondary), transparent 74%),
-    radial-gradient(ellipse 30% 28% at 58% 96%, var(--color-accent-glow), transparent 78%);
-  filter: blur(24px);
-  opacity: 0.95;
-  animation: ambientDriftPrimary 24s ease-in-out infinite;
-}
-
-body::after {
-  background:
-    radial-gradient(ellipse 34% 32% at 78% 22%, var(--color-accent-glow-secondary), transparent 76%),
-    radial-gradient(ellipse 42% 36% at 24% 80%, var(--color-accent-glow), transparent 76%);
-  filter: blur(34px);
-  opacity: 0.8;
-  animation: ambientDriftSecondary 31s ease-in-out infinite;
-}
-
 ::selection {
   background-color: color-mix(in srgb, var(--color-accent) 28%, transparent);
   color: #ffffff;
@@ -98,35 +64,101 @@ body::after {
   outline-offset: 2px;
 }
 
-@keyframes ambientDriftPrimary {
+/* Deliberately visible, slow-moving ambient fields. The fields use the active theme
+   variables, so every theme gets its own animated atmosphere without hard-coded green. */
+.ambient-glow {
+  pointer-events: none;
+  contain: paint;
+  backface-visibility: hidden;
+  filter: blur(72px);
+  opacity: 0.42;
+  will-change: transform, opacity;
+  transform: translate3d(0, 0, 0) scale(1);
+}
+
+.ambient-glow-primary {
+  animation: ambientPrimary 22s ease-in-out infinite;
+}
+
+.ambient-glow-secondary {
+  animation: ambientSecondary 28s ease-in-out infinite;
+}
+
+.ambient-glow-tertiary {
+  animation: ambientTertiary 24s ease-in-out infinite;
+}
+
+.ambient-glow-center {
+  opacity: 0.2;
+  filter: blur(96px);
+  animation: ambientCenter 18s ease-in-out infinite;
+}
+
+@keyframes ambientPrimary {
   0%,
   100% {
-    transform: translate3d(-2%, 0%, 0) scale(1);
+    transform: translate3d(-7vw, -2vh, 0) scale(0.95);
+    opacity: 0.3;
   }
   25% {
-    transform: translate3d(3%, -2%, 0) scale(1.035);
+    transform: translate3d(4vw, 3vh, 0) scale(1.08);
+    opacity: 0.46;
   }
   50% {
-    transform: translate3d(1%, 3%, 0) scale(1.02);
+    transform: translate3d(10vw, -1vh, 0) scale(1.02);
+    opacity: 0.38;
   }
   75% {
-    transform: translate3d(-3%, 1.5%, 0) scale(1.04);
+    transform: translate3d(1vw, 7vh, 0) scale(1.1);
+    opacity: 0.44;
   }
 }
 
-@keyframes ambientDriftSecondary {
+@keyframes ambientSecondary {
   0%,
   100% {
-    transform: translate3d(2%, 1%, 0) scale(1.04);
+    transform: translate3d(7vw, 2vh, 0) scale(1.02);
+    opacity: 0.22;
   }
   25% {
-    transform: translate3d(-2%, 3%, 0) scale(1.02);
+    transform: translate3d(-4vw, 6vh, 0) scale(1.12);
+    opacity: 0.36;
   }
   50% {
-    transform: translate3d(-4%, -1%, 0) scale(1.05);
+    transform: translate3d(-9vw, -4vh, 0) scale(1.04);
+    opacity: 0.28;
   }
   75% {
-    transform: translate3d(2%, -3%, 0) scale(1.025);
+    transform: translate3d(2vw, -7vh, 0) scale(1.1);
+    opacity: 0.34;
+  }
+}
+
+@keyframes ambientTertiary {
+  0%,
+  100% {
+    transform: translate3d(-3vw, 5vh, 0) scale(1);
+    opacity: 0.16;
+  }
+  33% {
+    transform: translate3d(7vw, -4vh, 0) scale(1.12);
+    opacity: 0.28;
+  }
+  66% {
+    transform: translate3d(12vw, 4vh, 0) scale(0.96);
+    opacity: 0.22;
+  }
+}
+
+@keyframes ambientCenter {
+  0%,
+  100% {
+    transform: translate3d(-2vw, 2vh, 0) scale(0.9);
+    opacity: 0.12;
+  }
+  50% {
+    transform: translate3d(2vw, -2vh, 0) scale(1.14);
+    opacity: 0.24;
   }
 }
 
@@ -176,14 +208,12 @@ body::after {
   will-change: transform;
 }
 
-/* Keep the fixed decorative layer from forcing the main page to repaint. */
 .background-effects {
   contain: paint;
   transform: translate3d(0, 0, 0);
   backface-visibility: hidden;
 }
 
-/* Theme-aware visual polish — functionality unchanged. */
 .surface-lift {
   box-shadow: 0 18px 55px -28px rgba(0, 0, 0, 0.95), inset 0 1px 0 color-mix(in srgb, var(--color-ink) 3.5%, transparent);
 }
@@ -252,9 +282,20 @@ body::after {
   .eyebrow-line::after {
     width: 14px;
   }
+
+  .ambient-glow {
+    filter: blur(52px);
+  }
+
+  .ambient-glow-primary {
+    animation-duration: 26s;
+  }
+
+  .ambient-glow-secondary {
+    animation-duration: 32s;
+  }
 }
 
-/* Keep below-the-fold content from competing with the initial typing-test paint. */
 .below-fold-content {
   content-visibility: auto;
   contain-intrinsic-size: 800px;
@@ -267,13 +308,12 @@ body::after {
 
   .animate-fade-up,
   .animate-drift,
-  .caret-blink {
+  .caret-blink,
+  .ambient-glow {
     animation: none;
   }
 
-  body::before,
-  body::after {
-    animation: none;
+  .ambient-glow {
     transform: translate3d(0, 0, 0);
   }
 
