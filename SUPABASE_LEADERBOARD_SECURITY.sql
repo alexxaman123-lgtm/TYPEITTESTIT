@@ -9,8 +9,9 @@ drop policy if exists "Users can update their own leaderboard score"
   on public.leaderboard_scores;
 
 -- The application writes scores through this SECURITY DEFINER function instead.
--- The function always uses auth.uid(), validates the test dimensions, compares
--- against the user's existing best, and only stores a new best.
+-- The function always uses auth.uid(), validates the test dimensions, enforces
+-- the competitive accuracy threshold, compares against the user's existing best,
+-- and only stores a new best.
 create or replace function public.submit_leaderboard_score(
   p_difficulty text,
   p_duration_sec integer,
@@ -53,7 +54,7 @@ begin
     return false;
   end if;
 
-  if p_accuracy < 0 or p_accuracy > 100 then
+  if p_accuracy < 95 or p_accuracy > 100 then
     return false;
   end if;
 
