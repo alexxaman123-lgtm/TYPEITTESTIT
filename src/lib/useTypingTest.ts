@@ -9,8 +9,9 @@ import {
   getLettersOnlyCount,
 } from "./stats";
 import { maybeSavePersonalBest } from "./storage";
+import { saveLeaderboardScore } from "./leaderboard";
 
-export type TestStatus = "idle" | "running" | "finished";
+type TestStatus = "idle" | "running" | "finished";
 
 type CustomMode = "standard" | "free";
 
@@ -183,6 +184,24 @@ export function useTypingTest(initialDifficulty: Difficulty, initialDuration: nu
       isCustom: isCustomValue,
       isNewBest,
     });
+
+    // Publish standard authenticated test scores to the public leaderboard.
+    // Keep the existing scoring formulas untouched; this only persists the
+    // exact result already calculated above. The configured test duration is
+    // used as the leaderboard bucket, even when the user stops early.
+    if (!isCustomValue) {
+      void saveLeaderboardScore({
+        difficulty: difficultyValue,
+        durationSec: durationValue,
+        wpm: actualWpm,
+        accuracy,
+        wordsWritten,
+        correctChars: correctWord,
+        incorrectChars: incorrect,
+        totalTyped,
+      });
+    }
+
     setStatus("finished");
   }, []);
 
