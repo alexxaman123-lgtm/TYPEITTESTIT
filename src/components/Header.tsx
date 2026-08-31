@@ -140,7 +140,12 @@ export default function Header() {
 
   return (
     <>
-      <header className={cn("sticky top-0 z-50 w-full border-b transition-all duration-300", scrolled ? "border-white/10 bg-bg/85 theme-accent-shadow backdrop-blur-md" : "border-transparent bg-transparent")}>
+      <header className={cn(
+        "sticky top-0 z-50 w-full border-b transition-[background-color,border-color,box-shadow] duration-200",
+        scrolled
+          ? "border-white/10 bg-bg/95 theme-accent-shadow"
+          : "border-transparent bg-transparent"
+      )}>
         <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
           <a href="/" className="flex items-center gap-0 select-none tracking-[-0.03em]" aria-label="GOATTYPE home">
             <span className="text-lg font-extrabold text-accent">GOAT</span><span className="text-lg font-extrabold text-ink">TYPE</span>
@@ -156,7 +161,7 @@ export default function Header() {
           <div className="hidden items-center gap-3 md:flex">
             <ThemePicker />
             {accountLabel}
-            <a href="/#tester" className="rounded-full border border-accent/40 bg-accent/10 px-4 py-2 text-sm font-semibold text-accent transition-all duration-200 hover:border-accent/70 hover:bg-accent/20">Start Typing</a>
+            <a href="/#tester" className="rounded-full border border-accent/40 bg-accent/10 px-4 py-2 text-sm font-semibold text-accent transition-colors duration-200 hover:border-accent/70 hover:bg-accent/20">Start Typing</a>
           </div>
 
           <div className="flex items-center gap-3 md:hidden">
@@ -171,7 +176,7 @@ export default function Header() {
         </div>
 
         {open && (
-          <div className="border-t border-white/10 bg-bg/95 backdrop-blur-md md:hidden">
+          <div className="border-t border-white/10 bg-bg/95 md:hidden">
             <nav className="flex flex-col gap-1 px-4 py-3" aria-label="Mobile">
               {NAV_LINKS.map((link) => <a key={link.href} href={link.href} onClick={() => setOpen(false)} className="rounded-lg px-3 py-3 text-sm font-medium text-ink-soft hover:bg-white/5 hover:text-ink">{link.label}</a>)}
             </nav>
