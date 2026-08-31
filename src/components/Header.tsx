@@ -21,10 +21,29 @@ export default function Header() {
   const [username, setUsername] = useState<string | null>(null);
 
   useEffect(() => {
-    const onScroll = () => setScrolled(window.scrollY > 8);
-    onScroll();
+    let frame = 0;
+    let lastScrolled = window.scrollY > 8;
+
+    setScrolled(lastScrolled);
+
+    const onScroll = () => {
+      if (frame !== 0) return;
+
+      frame = window.requestAnimationFrame(() => {
+        frame = 0;
+        const nextScrolled = window.scrollY > 8;
+        if (nextScrolled === lastScrolled) return;
+
+        lastScrolled = nextScrolled;
+        setScrolled(nextScrolled);
+      });
+    };
+
     window.addEventListener("scroll", onScroll, { passive: true });
-    return () => window.removeEventListener("scroll", onScroll);
+    return () => {
+      window.removeEventListener("scroll", onScroll);
+      if (frame !== 0) window.cancelAnimationFrame(frame);
+    };
   }, []);
 
   useEffect(() => {
@@ -59,9 +78,6 @@ export default function Header() {
 
       if (!mounted) return;
 
-      // Prefer the profile value. Auth metadata is a reliable fallback so an
-      // authenticated user does not revert to the generic "Signed in" label
-      // when profile SELECT is temporarily unavailable.
       if (profileError) {
         console.error("Could not load profile:", profileError.message);
         setUsername(metadataUsername);
