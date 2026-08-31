@@ -8,6 +8,7 @@ import { cn } from "../utils/cn";
 interface Props {
   result: TestResult;
   targetText: string;
+  profileBest: { wpm: number; accuracy: number } | null;
   onRetry: () => void;
   onNewText: () => void;
   onChangeDifficulty: () => void;
@@ -27,6 +28,7 @@ const LABEL_STYLES: Record<string, string> = {
 export default function ResultPanel({
   result,
   targetText,
+  profileBest,
   onRetry,
   onNewText,
   onChangeDifficulty,
@@ -38,6 +40,11 @@ export default function ResultPanel({
   const measuredWpm = result.wpm;
   const speedTier = getSpeedTier(measuredWpm);
   const label = speedTier.name;
+  const isProfileBest = Boolean(
+    profileBest &&
+    profileBest.wpm === result.wpm &&
+    profileBest.accuracy === result.accuracy
+  );
 
   const handleShare = async () => {
     const outcome = await shareResult(result);
@@ -54,10 +61,10 @@ export default function ResultPanel({
 
   return (
     <div className="animate-fade-up rounded-2xl border border-white/10 bg-surface2/70 p-6 shadow-[0_18px_60px_-34px_rgba(0,0,0,0.95)] sm:p-10">
-      {result.isNewBest && (
+      {isProfileBest && (
         <div className="mb-6 inline-flex items-center gap-2 rounded-full border border-accent/40 bg-accent/10 px-4 py-1.5 text-xs font-bold uppercase tracking-widest text-accent">
           <span className="h-1.5 w-1.5 rounded-full bg-accent" />
-          New best on this device
+          Best on your profile
         </div>
       )}
 
