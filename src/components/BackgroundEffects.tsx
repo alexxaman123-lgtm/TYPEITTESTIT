@@ -11,19 +11,19 @@ export default function BackgroundEffects() {
         }}
       />
 
-      {/* Radial glow top */}
+      {/* Radial glow top — follows the active theme accent. */}
       <div
         className="animate-drift absolute -top-1/4 left-1/2 h-[60vw] w-[60vw] -translate-x-1/2 rounded-full opacity-[0.14] blur-3xl"
         style={{
-          background: "radial-gradient(circle, #00ff66 0%, rgba(0,255,102,0) 70%)",
+          background: "radial-gradient(circle, var(--color-accent) 0%, transparent 70%)",
         }}
       />
 
-      {/* Secondary glow bottom-right */}
+      {/* Secondary glow bottom-right — follows the active theme secondary accent. */}
       <div
         className="absolute bottom-[-15%] right-[-10%] h-[45vw] w-[45vw] rounded-full opacity-[0.08] blur-3xl"
         style={{
-          background: "radial-gradient(circle, #00d95a 0%, rgba(0,217,90,0) 70%)",
+          background: "radial-gradient(circle, var(--color-accent2) 0%, transparent 70%)",
         }}
       />
 
