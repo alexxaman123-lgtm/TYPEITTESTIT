@@ -9,7 +9,7 @@ export default function PrivacyPolicyPage() {
           <div>
             <h2 className="font-semibold text-ink-soft">Typing Tests Without an Account</h2>
             <p className="mt-2">
-              You can take a typing test on TYPEITTESTIT without signing in. Anonymous test results are shown
+              You can take a typing test on TippyType without signing in. Anonymous test results are shown
               to you during and after the test, but are not saved to an account history, associated with an
               account, or included on the leaderboard.
             </p>
@@ -69,7 +69,7 @@ export default function PrivacyPolicyPage() {
           <div>
             <h2 className="font-semibold text-ink-soft">Changes to This Policy</h2>
             <p className="mt-2">
-              We may update this Privacy Policy as TYPEITTESTIT evolves. Any updated version will be published
+              We may update this Privacy Policy as TippyType evolves. Any updated version will be published
               on this page.
             </p>
           </div>
