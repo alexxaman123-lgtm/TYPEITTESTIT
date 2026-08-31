@@ -28,12 +28,6 @@ html {
   color-scheme: dark;
 }
 
-@media (prefers-reduced-motion: reduce) {
-  html {
-    scroll-behavior: auto;
-  }
-}
-
 body {
   background-color: var(--color-bg);
   color: var(--color-ink);
@@ -83,20 +77,6 @@ body {
   animation: fadeUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) both;
 }
 
-@media (prefers-reduced-motion: reduce) {
-  .animate-fade-up {
-    animation: none;
-  }
-  *,
-  *::before,
-  *::after {
-    animation-duration: 0.01ms !important;
-    animation-iteration-count: 1 !important;
-    transition-duration: 0.01ms !important;
-    scroll-behavior: auto !important;
-  }
-}
-
 @keyframes softPulse {
   0%,
   100% {
@@ -125,17 +105,15 @@ body {
 
 .animate-drift {
   animation: drift 26s ease-in-out infinite;
+  will-change: transform;
 }
 
-@media (prefers-reduced-motion: reduce) {
-  .animate-drift {
-    animation: none;
-  }
-  .caret-blink {
-    animation: none;
-  }
+/* Keep the fixed decorative layer from forcing the main page to repaint. */
+.background-effects {
+  contain: paint;
+  transform: translate3d(0, 0, 0);
+  backface-visibility: hidden;
 }
-
 
 /* Premium UI polish — visual only, functionality unchanged. */
 .surface-lift {
@@ -200,4 +178,25 @@ body {
 .below-fold-content {
   content-visibility: auto;
   contain-intrinsic-size: 800px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  .animate-fade-up,
+  .animate-drift,
+  .caret-blink {
+    animation: none;
+  }
+
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
 }
