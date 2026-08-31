@@ -47,7 +47,7 @@ export default function GuidesSection() {
       <div className="text-center">
         <p className="text-xs font-semibold uppercase tracking-[0.2em] text-accent">Typing Speed Blog</p>
         <h2 className="mt-3 text-2xl font-bold tracking-tight text-ink sm:text-3xl">Typing Practice, Speed & Accuracy Guides</h2>
-        <p className="mx-auto mt-3 max-w-2xl text-muted">Practical guides for people searching for typing practice, a typing speed test, better WPM, stronger accuracy, and a faster keyboard.</p>
+        <p className="mx-auto mt-3 max-w-2xl text-muted">Practical guides for people searching for typing practice, a typing speed test, better WPM, a short typing test, stronger accuracy, and a faster keyboard.</p>
       </div>
       <div className="mt-8 grid gap-4 sm:grid-cols-2">
         {GUIDES.map((guide) => (
