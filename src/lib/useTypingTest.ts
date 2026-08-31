@@ -59,7 +59,6 @@ export function useTypingTest(initialDifficulty: Difficulty, initialDuration: nu
   const [typed, setTyped] = useState<string>("");
   const [status, setStatus] = useState<TestStatus>("idle");
   const [result, setResult] = useState<TestResult | null>(null);
-  const [tick, setTick] = useState(0);
   const [sessionId, setSessionId] = useState(0);
 
   // Authoritative refs — always reflect the latest typing-session state so
@@ -190,34 +189,30 @@ export function useTypingTest(initialDifficulty: Difficulty, initialDuration: nu
   const finishRef = useRef(finish);
   finishRef.current = finish;
 
-  // startTimerIfNeeded only marks the start of the session. The high-frequency
-  // update loop is owned by a dedicated effect so it always observes the
-  // most up-to-date duration via the duration ref.
+  // startTimerIfNeeded only marks the start of the session. The timing loop
+  // below owns the timeout check without forcing a React render on every frame.
   const startTimerIfNeeded = useCallback(() => {
     if (startTimeRef.current !== null || finishedRef.current) return;
     startTimeRef.current = Date.now();
     setStatus("running");
   }, []);
 
-  // High-frequency live update loop. Uses requestAnimationFrame so the WPM
-  // can refresh at the display's native rate (~60fps) while the test is
-  // running. This is the key sync that makes the WPM reflect every
-  // keystroke as soon as it lands, and keeps the elapsed-time denominator
-  // fresh between keystrokes — matching Monkeytype's `timerStep` cadence.
+  // Keep the authoritative finish check at animation-frame cadence, but do
+  // not update React state on every frame. LiveMetrics owns its own rAF loop
+  // and reads the authoritative refs directly for its live display.
   useEffect(() => {
     if (statusRef.current !== "running") return;
     let rafId = 0;
-    const tickFn = () => {
+    const checkTimer = () => {
       if (finishedRef.current) return;
       const elapsed = startTimeRef.current ? Date.now() - startTimeRef.current : 0;
       if (elapsed >= durationRef.current * 1000) {
         finishRef.current();
         return;
       }
-      setTick((t) => t + 1);
-      rafId = requestAnimationFrame(tickFn);
+      rafId = requestAnimationFrame(checkTimer);
     };
-    rafId = requestAnimationFrame(tickFn);
+    rafId = requestAnimationFrame(checkTimer);
     return () => cancelAnimationFrame(rafId);
   }, [status]);
 
@@ -398,8 +393,8 @@ export function useTypingTest(initialDifficulty: Difficulty, initialDuration: nu
   );
 
   // Live elapsed time: always read straight from the authoritative ref so the
-  // value is precise on every render, even between keystrokes and between
-  // rAF ticks.
+  // value is precise on every render. LiveMetrics handles the continuous
+  // visual timer/WPM updates directly from the refs.
   const elapsedMs = status === "idle" || startTimeRef.current === null
     ? 0
     : Date.now() - startTimeRef.current;
@@ -457,7 +452,7 @@ export function useTypingTest(initialDifficulty: Difficulty, initialDuration: nu
       accuracy,
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [typed, targetText, tick, elapsedMs, isCustom, customMode]);
+  }, [typed, targetText, elapsedMs, isCustom, customMode]);
 
   return {
     difficulty,
