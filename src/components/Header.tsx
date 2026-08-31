@@ -16,12 +16,18 @@ function GoatMark() {
   return (
     <svg
       aria-hidden="true"
-      className="h-7 w-8 shrink-0 text-accent"
-      viewBox="0 0 40 32"
-      fill="currentColor"
+      className="ml-1.5 h-7 w-9 shrink-0 text-accent"
+      viewBox="0 0 48 44"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2.8"
+      strokeLinecap="round"
+      strokeLinejoin="round"
     >
-      <path d="M14.5 10.2C11.8 8.4 9.7 5.5 10.5 2.1c2.8.5 5.5 2.4 7.2 5.3 1.3-.8 2.8-1.2 4.3-1.2s3 .4 4.3 1.2c1.7-2.9 4.4-4.8 7.2-5.3.8 3.4-1.3 6.3-4 8.1 1.6 2.2 2.4 4.9 2.2 7.5-.4 5.3-4.4 10.4-9.7 10.4s-9.3-5.1-9.7-10.4c-.2-2.6.6-5.3 2.2-7.5Z" />
-      <path d="M12.2 11.2C8.4 9.7 5.1 9.1 1.5 10.3c2 3.7 5.6 5.8 9.6 5.3M27.8 11.2c3.8-1.5 7.1-2.1 10.7-.9-2 3.7-5.6 5.8-9.6 5.3" />
+      <path d="M18 13.5C15.1 11.4 13 8.2 13.7 4.8c2.9.5 5.7 2.1 7.6 4.8 1.2-.8 2.8-1.2 4.7-1.2s3.5.4 4.7 1.2c1.9-2.7 4.7-4.3 7.6-4.8.7 3.4-1.4 6.6-4.3 8.7" />
+      <path d="M16.2 15.1c-5-1.9-9.8-1.8-13.7.2 2.4 4.1 6.4 6 11.5 5.2M31.8 15.1c5-1.9 9.8-1.8 13.7.2-2.4 4.1-6.4 6-11.5 5.2" />
+      <path d="M14.7 18.2c-.3 2.6-.2 5.8.6 9.1 1.6 6.8 5.8 11.8 10.7 11.8s9.1-5 10.7-11.8c.8-3.3.9-6.5.6-9.1" />
+      <path d="M22.2 39.1 24 42l1.8-2.9M25.8 39.1 24 42" />
     </svg>
   );
 }
@@ -141,7 +147,7 @@ export default function Header() {
     <>
       <header className={cn("sticky top-0 z-50 w-full border-b transition-all duration-300", scrolled ? "border-white/10 bg-bg/85 shadow-[0_8px_24px_-20px_rgba(0,255,102,0.35)] backdrop-blur-md" : "border-transparent bg-transparent")}>
         <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
-          <a href="/" className="flex items-center gap-2 select-none tracking-[-0.03em]" aria-label="GOATTYPE home">
+          <a href="/" className="flex items-center gap-0 select-none tracking-[-0.03em]" aria-label="GOATTYPE home">
             <span className="text-lg font-extrabold text-accent">GOAT</span><span className="text-lg font-extrabold text-ink">TYPE</span>
             <GoatMark />
           </a>
