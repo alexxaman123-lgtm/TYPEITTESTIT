@@ -25,6 +25,8 @@ const LABEL_STYLES: Record<string, string> = {
   POOR: "text-muted border-white/10 bg-white/5",
 };
 
+const MIN_STATS_DURATION_SEC = 60;
+
 export default function ResultPanel({
   result,
   targetText,
@@ -35,12 +37,13 @@ export default function ResultPanel({
   onCustomTest,
   reducedMotion,
 }: Props) {
-  const wpm = useCountUp(result.wpm, 800, reducedMotion);
+  const statsAvailable = result.isCustom || result.durationSec >= MIN_STATS_DURATION_SEC;
+  const wpm = useCountUp(statsAvailable ? result.wpm : 0, 800, reducedMotion);
   const [shareStatus, setShareStatus] = useState<string | null>(null);
-  const measuredWpm = result.wpm;
+  const measuredWpm = statsAvailable ? result.wpm : 0;
   const speedTier = getSpeedTier(measuredWpm);
   const label = speedTier.name;
-  const isProfileBest = Boolean(
+  const isProfileBest = statsAvailable && Boolean(
     profileBest &&
     profileBest.wpm === result.wpm &&
     profileBest.accuracy === result.accuracy
@@ -75,54 +78,74 @@ export default function ResultPanel({
         </span>
         <span className="mt-1 text-sm font-semibold uppercase tracking-[0.25em] text-muted">ACTUAL WPM</span>
 
-        <div className="mt-4 flex items-center gap-3">
-          <span className="text-xl font-bold text-ink">{result.accuracy}%</span>
-          <span className="text-sm uppercase tracking-wide text-muted">Accuracy</span>
-        </div>
-
-        <span
-          className={cn(
-            "mt-5 inline-block rounded-full border px-4 py-1.5 text-xs font-bold uppercase tracking-[0.2em]",
-            LABEL_STYLES[label]
-          )}
-        >
-          {label}
-        </span>
-
-        <div className="mt-5 w-full max-w-2xl rounded-xl border border-white/10 bg-surface3/50 px-4 py-4 text-left sm:px-5">
-          <div className="flex flex-wrap items-center justify-between gap-3">
-            <div>
-              <span className="text-[10px] font-semibold uppercase tracking-[0.2em] text-faint">Typing speed level</span>
-              <div className="mt-1 flex items-center gap-2">
-                <span className="text-lg font-bold text-ink">{speedTier.name}</span>
-                <span className="rounded-full border border-accent/30 bg-accent/10 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-accent">
-                  {Math.round(measuredWpm * 10) / 10} WPM
-                </span>
-              </div>
+        {statsAvailable ? (
+          <>
+            <div className="mt-4 flex items-center gap-3">
+              <span className="text-xl font-bold text-ink">{result.accuracy}%</span>
+              <span className="text-sm uppercase tracking-wide text-muted">Accuracy</span>
             </div>
-            <div className="text-right text-xs text-muted">
-              {speedTier.nextTarget === null ? (
-                <span>Elite benchmark reached</span>
-              ) : (
-                <span>
-                  <span className="text-accent">↑ {Math.max(0, speedTier.nextTarget - measuredWpm).toFixed(1)} WPM</span>{" "}
-                  to reach {speedTier.nextTarget} WPM
-                </span>
+
+            <span
+              className={cn(
+                "mt-5 inline-block rounded-full border px-4 py-1.5 text-xs font-bold uppercase tracking-[0.2em]",
+                LABEL_STYLES[label]
               )}
+            >
+              {label}
+            </span>
+
+            <div className="mt-5 w-full max-w-2xl rounded-xl border border-white/10 bg-surface3/50 px-4 py-4 text-left sm:px-5">
+              <div className="flex flex-wrap items-center justify-between gap-3">
+                <div>
+                  <span className="text-[10px] font-semibold uppercase tracking-[0.2em] text-faint">Typing speed level</span>
+                  <div className="mt-1 flex items-center gap-2">
+                    <span className="text-lg font-bold text-ink">{speedTier.name}</span>
+                    <span className="rounded-full border border-accent/30 bg-accent/10 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-accent">
+                      {Math.round(measuredWpm * 10) / 10} WPM
+                    </span>
+                  </div>
+                </div>
+                <div className="text-right text-xs text-muted">
+                  {speedTier.nextTarget === null ? (
+                    <span>Elite benchmark reached</span>
+                  ) : (
+                    <span>
+                      <span className="text-accent">↑ {Math.max(0, speedTier.nextTarget - measuredWpm).toFixed(1)} WPM</span>{" "}
+                      to reach {speedTier.nextTarget} WPM
+                    </span>
+                  )}
+                </div>
+              </div>
+              <p className="mt-3 text-sm leading-6 text-muted">
+                {speedTier.message} {speedTier.nextTarget !== null ? `Aim for ${speedTier.nextTarget} WPM next while keeping accuracy high.` : "Keep accuracy high and work on consistency to stay in the elite range."}
+              </p>
             </div>
+          </>
+        ) : (
+          <div className="mt-5 w-full max-w-2xl rounded-xl border border-accent/20 bg-accent/5 px-5 py-5">
+            <p className="text-sm font-semibold text-accent">
+              Please complete at least 1 minute to check your stats.
+            </p>
+            <p className="mt-2 text-xs leading-5 text-muted">
+              Results such as WPM, accuracy, and the performance breakdown become available after you have completed at least one minute.
+            </p>
           </div>
-          <p className="mt-3 text-sm leading-6 text-muted">
-            {speedTier.message} {speedTier.nextTarget !== null ? `Aim for ${speedTier.nextTarget} WPM next while keeping accuracy high.` : "Keep accuracy high and work on consistency to stay in the elite range."}
-          </p>
-        </div>
+        )}
       </div>
 
-      <div className="mt-8 grid grid-cols-2 gap-3 sm:grid-cols-4">
-        <StatBox label="Letters Correct" value={result.correctChars} />
-        <StatBox label="Letters Incorrect" value={result.incorrectChars} />
-        <StatBox label="Words Written" value={wordsWritten} />
-        <StatBox label="Letters Typed" value={result.totalTyped} />
-      </div>
+      {statsAvailable ? (
+        <div className="mt-8 grid grid-cols-2 gap-3 sm:grid-cols-4">
+          <StatBox label="Letters Correct" value={result.correctChars} />
+          <StatBox label="Letters Incorrect" value={result.incorrectChars} />
+          <StatBox label="Words Written" value={wordsWritten} />
+          <StatBox label="Letters Typed" value={result.totalTyped} />
+        </div>
+      ) : (
+        <div className="mt-8 rounded-xl border border-white/10 bg-surface3/50 px-5 py-6 text-center">
+          <div className="text-[10px] font-semibold uppercase tracking-[0.2em] text-faint">Stats unavailable</div>
+          <p className="mt-2 text-sm text-muted">Please complete at least 1 minute to check your stats.</p>
+        </div>
+      )}
 
       <div className="mt-8 rounded-xl border border-white/10 bg-surface3/70 p-5 sm:p-6">
         <div className="text-[10px] font-semibold uppercase tracking-[0.2em] text-faint">What you typed in the test</div>
