@@ -14,14 +14,14 @@ export default function Hero() {
         className="animate-fade-up mt-4 text-4xl font-extrabold tracking-[-0.035em] text-ink sm:text-5xl lg:text-6xl"
         style={{ animationDelay: "80ms" }}
       >
-        TYPING TESTER
+        TIPPYTYPE TYPING TEST
       </h1>
 
       <p
         className="animate-fade-up mx-auto mt-4 max-w-2xl text-base text-muted sm:text-lg"
         style={{ animationDelay: "160ms" }}
       >
-        Take a free online typing speed test to measure your WPM and typing accuracy in real time.
+        TippyType is a free online typing speed test for measuring WPM and typing accuracy in real time.
         Sign in with Google to save progress to an account and participate in leaderboard features.
       </p>
 
