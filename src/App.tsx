@@ -9,6 +9,7 @@ import HowItWorks from "./components/HowItWorks";
 import GuidesSection from "./components/GuidesSection";
 import AboutPage from "./components/AboutPage";
 import ContactPage from "./components/ContactPage";
+import LeaderboardPage from "./components/LeaderboardPage";
 import PrivacyPolicyPage from "./components/PrivacyPolicyPage";
 import TermsOfUsePage from "./components/TermsOfUsePage";
 import FaqSection from "./components/FaqSection";
@@ -16,6 +17,7 @@ import FaqSection from "./components/FaqSection";
 const PAGE_CONFIG = {
   "/about": { title: "About GOATTYPE | Typing Speed Test", description: "Learn about GOATTYPE, a free online typing speed test for measuring WPM, accuracy, and typing progress." },
   "/contact": { title: "Contact GOATTYPE | Typing Speed Test", description: "Contact GOATTYPE with questions, suggestions, or feedback about our free typing speed test." },
+  "/leaderboard": { title: "GOATTYPE Leaderboard | Top WPM & Accuracy", description: "View the GOATTYPE typing leaderboard, compare WPM and accuracy, and see the fastest and most accurate typists." },
   "/privacy-policy": { title: "GOATTYPE Privacy Policy", description: "Read the GOATTYPE Privacy Policy for account data, typing tests, local storage, and advertising." },
   "/terms-of-use": { title: "GOATTYPE Terms of Use", description: "Read the GOATTYPE Terms of Use for using our free online typing test and leaderboard features." },
 } as const;
@@ -38,6 +40,7 @@ export default function App() {
   const renderPage = () => {
     if (path === "/about") return <AboutPage />;
     if (path === "/contact") return <ContactPage />;
+    if (path === "/leaderboard") return <LeaderboardPage />;
     if (path === "/privacy-policy") return <PrivacyPolicyPage />;
     if (path === "/terms-of-use") return <TermsOfUsePage />;
     if (dedicatedPage) return null;
