@@ -134,23 +134,27 @@ export function useTypingTest(initialDifficulty: Difficulty, initialDuration: nu
       totalTyped = letters;
       wordsWritten = computeWordsWritten(typedValue);
       accuracy = letters > 0 ? 100 : 100;
-      actualWpm = elapsedSec > 0 ? calculateWpm(correctWord, elapsedSec) : 0;
+      actualWpm = elapsedSec > 0 ? wordsWritten / (elapsedSec / 60) : 0;
     } else {
       const counts = countAllChars(targetValue, typedValue, true);
       correctWord = counts.correctWord;
       allCorrect = counts.allCorrect;
       incorrect = counts.incorrect;
       extra = counts.extra;
-      totalTyped = allCorrect + incorrect + extra;
+      // Letters Typed = Letters Correct + Letters Incorrect (no "extra" overflow).
+      totalTyped = correctWord + incorrect;
       wordsWritten = computeWordsWritten(typedValue);
       wordErrorsCount = countWordErrors(targetValue, typedValue, true);
-      accuracy = computeAccuracyFromChars(correctWord, incorrect, extra);
-      actualWpm = elapsedSec > 0 ? calculateWpm(correctWord, elapsedSec) : 0;
-      // "Predicted WPM" mirrors Monkeytype's raw WPM (includes every typed
-      // character) so the user can see how the rate would look if errors
-      // were credited too.
+      // Accuracy = correct / (correct + incorrect) — matches Letters Typed.
+      accuracy = totalTyped > 0
+        ? Math.round((correctWord / totalTyped) * 10000) / 100
+        : 100;
+      // Actual WPM = words the user actually wrote / elapsed minutes.
+      // Matches the "Words Written" stat: a 1-minute test with 27 words
+      // written reads 27.0 WPM.
+      actualWpm = elapsedSec > 0 ? wordsWritten / (elapsedSec / 60) : 0;
       predictedWpm = elapsedSec > 0
-        ? Math.round(calculateWpm(totalTyped, elapsedSec) * 10) / 10
+        ? Math.round(calculateWpm(correctWord, elapsedSec) * 10) / 10
         : null;
     }
 
@@ -168,11 +172,11 @@ export function useTypingTest(initialDifficulty: Difficulty, initialDuration: nu
       predictedWpm,
       accuracy,
       correctChars: correctWord,
-      incorrectChars: incorrect + extra,
+      incorrectChars: incorrect,
       characterErrors: incorrect,
       wordErrors: wordErrorsCount,
       mistakes: errorsRef.current,
-      totalTyped: totalTyped || lettersTyped,
+      totalTyped,
       typedText: typedValue,
       durationSec: durationSec || durationValue,
       targetDurationSec: durationValue,
@@ -349,8 +353,11 @@ export function useTypingTest(initialDifficulty: Difficulty, initialDuration: nu
         const clipped = value.slice(0, MAX_CUSTOM_TEXT_LENGTH);
         setTyped(clipped);
         typedRef.current = clipped;
-        // Free-typing: every non-space char counts as correctWord.
-        liveCharCountRef.current = getLettersOnlyCount(clipped);
+        // Feed LiveMetrics `wordsWritten * 5` so its formula
+        // `liveCharCountRef / 5 / elapsedMinutes` becomes
+        // `wordsWritten / minutes` — the WPM the user actually wrote.
+        const words = computeWordsWritten(clipped);
+        liveCharCountRef.current = words * 5;
         startTimerIfNeeded();
         return;
       }
@@ -380,13 +387,11 @@ export function useTypingTest(initialDifficulty: Difficulty, initialDuration: nu
 
       setTyped(clipped);
       typedRef.current = clipped;
-      // liveCharCountRef now carries the Monkeytype "correctWord" count
-      // (chars that count toward a correct word, including the partial
-      // prefix of the current word). The LiveMetrics component reads
-      // this ref every animation frame and divides by 5/elapsedMinutes,
-      // so the live Actual WPM card is now the Monkeytype net WPM.
-      const liveCounts = countAllChars(currentTarget, clipped, true);
-      liveCharCountRef.current = liveCounts.correctWord;
+      // Feed LiveMetrics `wordsWritten * 5` so its formula
+      // `liveCharCountRef / 5 / elapsedMinutes` becomes
+      // `wordsWritten / minutes` — the WPM the user actually wrote.
+      const words = computeWordsWritten(clipped);
+      liveCharCountRef.current = words * 5;
       startTimerIfNeeded();
     },
     [startTimerIfNeeded]
@@ -400,9 +405,9 @@ export function useTypingTest(initialDifficulty: Difficulty, initialDuration: nu
     : Date.now() - startTimeRef.current;
   const remainingMs = Math.max(0, duration * 1000 - elapsedMs);
 
-  // Live stats — same Monkeytype formulas as the final result, just with
-  // the current `elapsedMs` denominator. The result above is the snapshot
-  // at finish; this is the rolling read while the test is running.
+  // Live stats — same formulas as the final result, just with the current
+  // `elapsedMs` denominator. The result above is the snapshot at finish;
+  // this is the rolling read while the test is running.
   const liveStats = useMemo(() => {
     const elapsedSec = elapsedMs / 1000;
 
@@ -410,7 +415,7 @@ export function useTypingTest(initialDifficulty: Difficulty, initialDuration: nu
       const lettersTyped = getLettersOnlyCount(typed);
       const accuracy = lettersTyped > 0 ? 100 : 100;
       const wordsWritten = computeWordsWritten(typed);
-      const actualWpm = elapsedSec > 0 ? calculateWpm(lettersTyped, elapsedSec) : 0;
+      const actualWpm = elapsedSec > 0 ? wordsWritten / (elapsedSec / 60) : 0;
       return {
         correct: lettersTyped,
         incorrect: 0,
@@ -428,16 +433,21 @@ export function useTypingTest(initialDifficulty: Difficulty, initialDuration: nu
     const correctWord = counts.correctWord;
     const incorrect = counts.incorrect;
     const extra = counts.extra;
-    const totalTyped = counts.allCorrect + incorrect + extra;
+    // Letters Typed = Letters Correct + Letters Incorrect (drop extra overflow).
+    const totalTyped = correctWord + incorrect;
     const wordsWritten = computeWordsWritten(typed);
-    const actualWpm = elapsedSec > 0 ? calculateWpm(correctWord, elapsedSec) : 0;
+    // Actual WPM = words the user actually wrote / elapsed minutes.
+    const actualWpm = elapsedSec > 0 ? wordsWritten / (elapsedSec / 60) : 0;
+    // Predicted WPM = Monkeytype's net WPM on the correctWord count.
     const predictedWpm = elapsedSec > 0
-      ? Math.round(calculateWpm(totalTyped, elapsedSec) * 10) / 10
+      ? Math.round(calculateWpm(correctWord, elapsedSec) * 10) / 10
       : null;
-    const accuracy = computeAccuracyFromChars(correctWord, incorrect, extra);
+    const accuracy = totalTyped > 0
+      ? Math.round((correctWord / totalTyped) * 10000) / 100
+      : 100;
     return {
       correct: correctWord,
-      incorrect: incorrect + extra,
+      incorrect,
       wpm: actualWpm,
       wordProgress: wordsWritten,
       wordsWritten,
