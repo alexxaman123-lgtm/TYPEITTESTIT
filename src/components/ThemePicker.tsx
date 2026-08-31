@@ -66,23 +66,23 @@ export default function ThemePicker() {
         <div
           role="dialog"
           aria-label="Choose a theme"
-          className="absolute right-0 top-[calc(100%+10px)] z-[70] w-[340px] rounded-2xl border border-white/10 bg-surface2/96 p-4 shadow-[0_26px_80px_-30px_rgba(0,0,0,0.9)] backdrop-blur-2xl"
+          className="fixed inset-x-3 top-[76px] z-[70] mx-auto max-h-[calc(100vh-88px)] w-auto max-w-[420px] overflow-y-auto rounded-2xl border border-white/10 bg-surface2/96 p-3 shadow-[0_26px_80px_-30px_rgba(0,0,0,0.9)] backdrop-blur-2xl sm:absolute sm:inset-x-auto sm:right-0 sm:top-[calc(100%+10px)] sm:max-h-none sm:w-[340px] sm:max-w-none sm:overflow-visible sm:p-4"
         >
           <div className="px-1 pb-3">
             <div className="flex items-center justify-between gap-3">
-              <div>
+              <div className="min-w-0">
                 <p className="text-[11px] font-bold uppercase tracking-[0.2em] text-faint">Choose a theme</p>
                 <p className="mt-1 text-xs text-muted">Saved automatically on this device.</p>
               </div>
               <span
-                className="h-2.5 w-2.5 rounded-full shadow-[0_0_16px_var(--color-accent)]"
+                className="h-2.5 w-2.5 shrink-0 rounded-full shadow-[0_0_16px_var(--color-accent)]"
                 style={{ backgroundColor: "var(--color-accent)" }}
                 aria-hidden="true"
               />
             </div>
           </div>
 
-          <div className="grid grid-cols-2 gap-2.5">
+          <div className="grid grid-cols-2 gap-2 sm:gap-2.5">
             {THEMES.map((theme) => {
               const selected = theme.id === themeId;
               const themeBackground = theme.variables["--color-bg"] ?? "#050706";
@@ -97,35 +97,35 @@ export default function ThemePicker() {
                     setOpen(false);
                   }}
                   className={cn(
-                    "group rounded-xl border p-3 text-left transition-all duration-200",
+                    "group min-w-0 rounded-xl border p-2.5 text-left transition-all duration-200 sm:p-3",
                     selected
                       ? "border-accent/55 bg-accent/8 shadow-[0_10px_28px_-20px_var(--color-accent)]"
                       : "border-white/8 bg-surface1/65 hover:-translate-y-px hover:border-white/18 hover:bg-surface1"
                   )}
                   aria-pressed={selected}
                 >
-                  <div className="mb-3 flex items-center justify-between">
-                    <span className="text-[10px] font-semibold uppercase tracking-[0.14em] text-faint">
+                  <div className="mb-2 flex items-center justify-between gap-2 sm:mb-3">
+                    <span className="text-[9px] font-semibold uppercase tracking-[0.14em] text-faint sm:text-[10px]">
                       Palette
                     </span>
-                    {selected && <span className="text-xs font-bold text-accent">Selected</span>}
+                    {selected && <span className="text-[10px] font-bold text-accent sm:text-xs">Selected</span>}
                   </div>
 
-                  <span className="mb-2.5 flex items-center gap-2" aria-hidden="true">
+                  <span className="mb-2.5 flex items-center gap-1.5 sm:gap-2" aria-hidden="true">
                     <span
-                      className="h-9 w-9 rounded-full border border-white/15 shadow-[0_0_14px_rgba(0,0,0,0.18)]"
+                      className="h-8 w-8 shrink-0 rounded-full border border-white/15 shadow-[0_0_14px_rgba(0,0,0,0.18)] sm:h-9 sm:w-9"
                       style={{ backgroundColor: theme.accent }}
                     />
                     <span
-                      className="h-9 w-9 rounded-full border border-white/15 shadow-[0_0_14px_rgba(0,0,0,0.18)]"
+                      className="h-8 w-8 shrink-0 rounded-full border border-white/15 shadow-[0_0_14px_rgba(0,0,0,0.18)] sm:h-9 sm:w-9"
                       style={{ backgroundColor: themeBackground }}
                     />
                   </span>
 
-                  <span className={cn("block truncate text-xs font-semibold", selected ? "text-accent" : "text-ink-soft")}>
+                  <span className={cn("block truncate text-[11px] font-semibold sm:text-xs", selected ? "text-accent" : "text-ink-soft")}>
                     {theme.name}
                   </span>
-                  <span className="mt-1 block text-[10px] text-faint">Accent + background</span>
+                  <span className="mt-1 block text-[9px] text-faint sm:text-[10px]">Accent + background</span>
                 </button>
               );
             })}
