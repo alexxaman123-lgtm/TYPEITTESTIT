@@ -102,6 +102,12 @@ export default function TypingTester() {
               }}
               onCancel={() => setViewMode("test")}
             />
+          ) : test.status === "finished" && test.result && test.elapsedMs < 60_000 ? (
+            <div className="flex min-h-[220px] items-center justify-center rounded-2xl border border-white/10 bg-surface3/60 px-6 py-12 text-center">
+              <p className="text-base font-semibold text-ink">
+                Please complete at least 1 minute to check your stats.
+              </p>
+            </div>
           ) : test.status === "finished" && test.result ? (
             <ResultPanel
               result={test.result}
