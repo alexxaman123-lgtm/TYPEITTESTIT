@@ -29,7 +29,7 @@ const GUIDES = [
   },
   {
     title: "Typing Test for Jobs, School, and Daily Work",
-    body: "Typing speed can matter in data entry, customer support, administration, writing, coding, schoolwork, and timed assessments. The most useful preparation is to practice with varied text and the same kind of time pressure you expect in the real task. Use TYPEITTESTIT to measure a baseline, repeat the exercise, and watch your personal best improve.",
+    body: "Typing speed can matter in data entry, customer support, administration, writing, coding, schoolwork, and timed assessments. The most useful preparation is to practice with varied text and the same kind of time pressure you expect in the real task. Use TippyType to measure a baseline, repeat the exercise, and watch your personal best improve.",
   },
   {
     title: "How to Get Faster at Typing Long Sentences and Punctuation",
