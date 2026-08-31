@@ -15,10 +15,10 @@ export default function Footer() {
         <div className="flex flex-col items-start justify-between gap-8 md:flex-row md:items-center">
           <div>
             <div className="font-mono text-base font-bold text-ink">
-              TYPING<span className="text-accent">TEST</span>
+              TIPPY<span className="text-accent">TYPE</span>
             </div>
             <p className="mt-2 max-w-sm text-sm text-faint">
-              TYPEITTESTIT is a free online typing speed test and typing practice tool to measure WPM,
+              TippyType is a free online typing speed test and typing practice tool to measure WPM,
               accuracy, and consistency in seconds.
             </p>
           </div>
@@ -37,7 +37,7 @@ export default function Footer() {
         </div>
 
         <div className="mt-10 flex flex-col gap-2 border-t border-white/5 pt-6 text-xs text-faint sm:flex-row sm:items-center sm:justify-between">
-          <p>&copy; {new Date().getFullYear()} TYPEITTESTIT. All rights reserved.</p>
+          <p>&copy; {new Date().getFullYear()} TippyType. All rights reserved.</p>
           <p>Built for typists who want real, honest numbers.</p>
         </div>
       </div>
