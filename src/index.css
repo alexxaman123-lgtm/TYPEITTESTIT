@@ -62,118 +62,148 @@ body {
   outline-offset: 2px;
 }
 
-/* Distributed, slow-moving ambient fields for the page background. */
+/* Wide, soft atmospheric fields. The base stays black while theme colour flows through the entire viewport. */
 .ambient-glow {
   pointer-events: none;
   contain: paint;
   backface-visibility: hidden;
-  filter: blur(84px);
-  opacity: 0.78;
+  filter: blur(92px);
+  opacity: 0.82;
   will-change: transform, opacity;
   transform: translate3d(0, 0, 0) scale(1);
 }
 
 .ambient-glow-primary {
-  animation: ambientPrimary 20s ease-in-out infinite;
+  animation: ambientPrimary 24s ease-in-out infinite;
 }
 
 .ambient-glow-secondary {
-  animation: ambientSecondary 26s ease-in-out infinite;
+  animation: ambientSecondary 29s ease-in-out infinite;
 }
 
 .ambient-glow-tertiary {
-  animation: ambientTertiary 23s ease-in-out infinite;
+  animation: ambientTertiary 27s ease-in-out infinite;
 }
 
 .ambient-glow-center {
-  opacity: 0.42;
-  filter: blur(110px);
-  animation: ambientCenter 18s ease-in-out infinite;
+  opacity: 0.48;
+  filter: blur(116px);
+  animation: ambientCenter 21s ease-in-out infinite;
 }
 
 .ambient-glow-fourth {
   opacity: 0.34;
+  filter: blur(102px);
+  animation: ambientFourth 33s ease-in-out infinite;
+}
+
+.ambient-glow-fifth {
+  opacity: 0.28;
   filter: blur(96px);
-  animation: ambientFourth 29s ease-in-out infinite;
+  animation: ambientFifth 31s ease-in-out infinite;
 }
 
 @keyframes ambientPrimary {
   0%,
   100% {
-    transform: translate3d(-7vw, -4vh, 0) scale(0.92);
+    transform: translate3d(-10vw, -4vh, 0) scale(0.94);
     opacity: 0.56;
   }
-  25% {
-    transform: translate3d(1vw, 3vh, 0) scale(1.08);
-    opacity: 0.86;
+  20% {
+    transform: translate3d(-2vw, 3vh, 0) scale(1.04);
+    opacity: 0.76;
   }
-  50% {
-    transform: translate3d(7vw, -1vh, 0) scale(1.02);
-    opacity: 0.72;
-  }
-  75% {
-    transform: translate3d(-1vw, 7vh, 0) scale(1.1);
+  45% {
+    transform: translate3d(9vw, -1vh, 0) scale(1.1);
     opacity: 0.82;
+  }
+  70% {
+    transform: translate3d(4vw, 7vh, 0) scale(1.03);
+    opacity: 0.7;
   }
 }
 
 @keyframes ambientSecondary {
   0%,
   100% {
-    transform: translate3d(8vw, 5vh, 0) scale(0.96);
-    opacity: 0.42;
+    transform: translate3d(11vw, 5vh, 0) scale(0.96);
+    opacity: 0.46;
   }
   25% {
-    transform: translate3d(-4vw, 7vh, 0) scale(1.08);
-    opacity: 0.68;
+    transform: translate3d(2vw, 1vh, 0) scale(1.06);
+    opacity: 0.62;
   }
   50% {
-    transform: translate3d(-8vw, -3vh, 0) scale(1.12);
-    opacity: 0.52;
+    transform: translate3d(-9vw, -4vh, 0) scale(1.12);
+    opacity: 0.76;
   }
-  75% {
-    transform: translate3d(2vw, -6vh, 0) scale(1.04);
-    opacity: 0.64;
+  78% {
+    transform: translate3d(-3vw, 6vh, 0) scale(1.03);
+    opacity: 0.6;
   }
 }
 
 @keyframes ambientTertiary {
   0%,
   100% {
-    transform: translate3d(-3vw, 8vh, 0) scale(0.95);
-    opacity: 0.3;
+    transform: translate3d(-5vw, 11vh, 0) scale(0.94);
+    opacity: 0.34;
   }
   33% {
-    transform: translate3d(6vw, -3vh, 0) scale(1.12);
+    transform: translate3d(4vw, -2vh, 0) scale(1.12);
     opacity: 0.54;
   }
   66% {
-    transform: translate3d(11vw, 5vh, 0) scale(1.02);
-    opacity: 0.42;
+    transform: translate3d(13vw, 5vh, 0) scale(1.04);
+    opacity: 0.48;
   }
 }
 
 @keyframes ambientCenter {
   0%,
   100% {
-    transform: translate3d(-4vw, 2vh, 0) scale(0.88);
+    transform: translate3d(-5vw, 3vh, 0) scale(0.9);
     opacity: 0.2;
   }
+  25% {
+    transform: translate3d(0vw, -2vh, 0) scale(1.02);
+    opacity: 0.32;
+  }
   50% {
-    transform: translate3d(4vw, -2vh, 0) scale(1.18);
-    opacity: 0.46;
+    transform: translate3d(5vw, 1vh, 0) scale(1.16);
+    opacity: 0.5;
+  }
+  75% {
+    transform: translate3d(1vw, 5vh, 0) scale(1.08);
+    opacity: 0.36;
   }
 }
 
 @keyframes ambientFourth {
   0%,
   100% {
-    transform: translate3d(3vw, -2vh, 0) scale(0.94);
+    transform: translate3d(5vw, -2vh, 0) scale(0.95);
     opacity: 0.2;
   }
+  33% {
+    transform: translate3d(-4vw, 4vh, 0) scale(1.1);
+    opacity: 0.38;
+  }
+  66% {
+    transform: translate3d(2vw, -4vh, 0) scale(1.04);
+    opacity: 0.32;
+  }
+}
+
+@keyframes ambientFifth {
+  0%,
+  100% {
+    transform: translate3d(-2vw, -2vh, 0) scale(0.92);
+    opacity: 0.16;
+  }
   50% {
-    transform: translate3d(-5vw, 4vh, 0) scale(1.12);
-    opacity: 0.42;
+    transform: translate3d(5vw, 4vh, 0) scale(1.12);
+    opacity: 0.34;
   }
 }
 
@@ -227,6 +257,7 @@ body {
   contain: paint;
   transform: translate3d(0, 0, 0);
   backface-visibility: hidden;
+  isolation: isolate;
 }
 
 .surface-lift {
@@ -298,7 +329,7 @@ body {
     width: 14px;
   }
 
-  /* Keep the mobile glow compact and close to the existing phone look. */
+  /* Preserve the softer mobile atmosphere from the earlier version. */
   .ambient-glow {
     filter: blur(58px);
     opacity: 0.52;
@@ -309,25 +340,30 @@ body {
     filter: blur(72px);
   }
 
-  .ambient-glow-fourth {
+  .ambient-glow-fourth,
+  .ambient-glow-fifth {
     opacity: 0.2;
     filter: blur(64px);
   }
 
   .ambient-glow-primary {
-    animation-duration: 27s;
-  }
-
-  .ambient-glow-secondary {
-    animation-duration: 32s;
-  }
-
-  .ambient-glow-tertiary {
     animation-duration: 29s;
   }
 
-  .ambient-glow-fourth {
+  .ambient-glow-secondary {
     animation-duration: 34s;
+  }
+
+  .ambient-glow-tertiary {
+    animation-duration: 31s;
+  }
+
+  .ambient-glow-fourth {
+    animation-duration: 36s;
+  }
+
+  .ambient-glow-fifth {
+    animation-duration: 38s;
   }
 }
 
