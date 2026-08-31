@@ -21,7 +21,7 @@ export const THEMES: ThemeDefinition[] = [
     id: "goat-neon",
     name: "GOAT Neon",
     accent: "#00ff66",
-    preview: "linear-gradient(135deg, #00ff66 0 42%, #0a0d0b 42% 100%)",
+    preview: "linear-gradient(135deg, #00ff66 0 50%, #050706 50% 100%)",
     variables: {
       "--color-bg": "#050706",
       "--color-surface1": "#080b09",
@@ -41,7 +41,7 @@ export const THEMES: ThemeDefinition[] = [
     id: "arctic-pulse",
     name: "Arctic Pulse",
     accent: "#55e8ff",
-    preview: "linear-gradient(135deg, #55e8ff 0 42%, #071014 42% 100%)",
+    preview: "linear-gradient(135deg, #55e8ff 0 50%, #050a0d 50% 100%)",
     variables: {
       "--color-bg": "#050a0d",
       "--color-surface1": "#091116",
@@ -61,7 +61,7 @@ export const THEMES: ThemeDefinition[] = [
     id: "royal-amethyst",
     name: "Royal Amethyst",
     accent: "#b58cff",
-    preview: "linear-gradient(135deg, #b58cff 0 42%, #0b0812 42% 100%)",
+    preview: "linear-gradient(135deg, #b58cff 0 50%, #07060b 50% 100%)",
     variables: {
       "--color-bg": "#07060b",
       "--color-surface1": "#0c0913",
@@ -81,7 +81,7 @@ export const THEMES: ThemeDefinition[] = [
     id: "sunset-ember",
     name: "Sunset Ember",
     accent: "#ff8a5b",
-    preview: "linear-gradient(135deg, #ff8a5b 0 42%, #120a08 42% 100%)",
+    preview: "linear-gradient(135deg, #ff8a5b 0 50%, #0a0706 50% 100%)",
     variables: {
       "--color-bg": "#0a0706",
       "--color-surface1": "#100b09",
@@ -101,7 +101,7 @@ export const THEMES: ThemeDefinition[] = [
     id: "rose-rush",
     name: "Rose Rush",
     accent: "#ff6fae",
-    preview: "linear-gradient(135deg, #ff6fae 0 42%, #11070d 42% 100%)",
+    preview: "linear-gradient(135deg, #ff6fae 0 50%, #090609 50% 100%)",
     variables: {
       "--color-bg": "#090609",
       "--color-surface1": "#10090e",
@@ -121,7 +121,7 @@ export const THEMES: ThemeDefinition[] = [
     id: "solar-gold",
     name: "Solar Gold",
     accent: "#ffd166",
-    preview: "linear-gradient(135deg, #ffd166 0 42%, #100d05 42% 100%)",
+    preview: "linear-gradient(135deg, #ffd166 0 50%, #0a0804 50% 100%)",
     variables: {
       "--color-bg": "#0a0804",
       "--color-surface1": "#110e08",
@@ -141,7 +141,7 @@ export const THEMES: ThemeDefinition[] = [
     id: "ocean-drive",
     name: "Ocean Drive",
     accent: "#45b7ff",
-    preview: "linear-gradient(135deg, #45b7ff 0 42%, #060b12 42% 100%)",
+    preview: "linear-gradient(135deg, #45b7ff 0 50%, #05080d 50% 100%)",
     variables: {
       "--color-bg": "#05080d",
       "--color-surface1": "#090f17",
@@ -161,7 +161,7 @@ export const THEMES: ThemeDefinition[] = [
     id: "retro-peach",
     name: "Retro Peach",
     accent: "#ffad7a",
-    preview: "linear-gradient(135deg, #ffad7a 0 42%, #100b09 42% 100%)",
+    preview: "linear-gradient(135deg, #ffad7a 0 50%, #0a0706 50% 100%)",
     variables: {
       "--color-bg": "#0a0706",
       "--color-surface1": "#100b09",
