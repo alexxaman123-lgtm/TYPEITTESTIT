@@ -29,53 +29,6 @@ export interface LeaderboardResultInput {
 const VALID_DIFFICULTIES = new Set<Difficulty>(["easy", "medium", "hard"]);
 const VALID_DURATIONS = new Set([60, 120, 180, 300]);
 
-type AuthUser = {
-  id: string;
-  user_metadata?: Record<string, unknown> | null;
-};
-
-async function ensureUserProfile(user: AuthUser): Promise<boolean> {
-  const { data: profile, error: profileError } = await supabase
-    .from("profiles")
-    .select("user_id, username")
-    .eq("user_id", user.id)
-    .maybeSingle();
-
-  if (profileError) {
-    console.error("Could not check leaderboard profile:", profileError.message);
-    return false;
-  }
-
-  if (typeof profile?.username === "string" && profile.username.trim()) {
-    return true;
-  }
-
-  const metadataUsername =
-    typeof user.user_metadata?.username === "string"
-      ? user.user_metadata.username.trim()
-      : "";
-
-  if (!metadataUsername) {
-    console.error("Cannot save leaderboard score: signed-in user has no username profile.");
-    return false;
-  }
-
-  const { error: upsertError } = await supabase.from("profiles").upsert(
-    {
-      user_id: user.id,
-      username: metadataUsername,
-    },
-    { onConflict: "user_id" },
-  );
-
-  if (upsertError) {
-    console.error("Could not create leaderboard profile:", upsertError.message);
-    return false;
-  }
-
-  return true;
-}
-
 export async function saveLeaderboardScore(result: LeaderboardResultInput): Promise<boolean> {
   if (
     !VALID_DIFFICULTIES.has(result.difficulty) ||
@@ -94,53 +47,24 @@ export async function saveLeaderboardScore(result: LeaderboardResultInput): Prom
   } = await supabase.auth.getUser();
 
   if (!user) return false;
-  if (!(await ensureUserProfile(user))) return false;
 
-  const { data: current, error: currentError } = await supabase
-    .from("leaderboard_scores")
-    .select("wpm, accuracy")
-    .eq("user_id", user.id)
-    .eq("difficulty", result.difficulty)
-    .eq("duration_sec", result.durationSec)
-    .maybeSingle();
-
-  if (currentError) {
-    console.error("Could not read leaderboard score:", currentError.message);
-    return false;
-  }
-
-  const currentWpm = Number(current?.wpm ?? -1);
-  const currentAccuracy = Number(current?.accuracy ?? -1);
-
-  const isBetter =
-    !current ||
-    result.wpm > currentWpm ||
-    (result.wpm === currentWpm && result.accuracy > currentAccuracy);
-
-  if (!isBetter) return false;
-
-  const { error } = await supabase.from("leaderboard_scores").upsert(
-    {
-      user_id: user.id,
-      difficulty: result.difficulty,
-      duration_sec: result.durationSec,
-      wpm: result.wpm,
-      accuracy: result.accuracy,
-      words_written: result.wordsWritten,
-      correct_chars: result.correctChars,
-      incorrect_chars: result.incorrectChars,
-      total_typed: result.totalTyped,
-      submitted_at: new Date().toISOString(),
-    },
-    { onConflict: "user_id,difficulty,duration_sec" },
-  );
+  const { data, error } = await supabase.rpc("submit_leaderboard_score", {
+    p_difficulty: result.difficulty,
+    p_duration_sec: result.durationSec,
+    p_wpm: result.wpm,
+    p_accuracy: result.accuracy,
+    p_words_written: result.wordsWritten,
+    p_correct_chars: result.correctChars,
+    p_incorrect_chars: result.incorrectChars,
+    p_total_typed: result.totalTyped,
+  });
 
   if (error) {
     console.error("Could not save leaderboard score:", error.message);
     return false;
   }
 
-  return true;
+  return data === true;
 }
 
 export async function getProfileBest(
