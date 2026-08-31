@@ -14,10 +14,10 @@ import TermsOfUsePage from "./components/TermsOfUsePage";
 import FaqSection from "./components/FaqSection";
 
 const PAGE_CONFIG = {
-  "/about": { title: "About | TYPEITTESTIT", description: "Learn more about TYPEITTESTIT and our typing speed test." },
-  "/contact": { title: "Contact Us | TYPEITTESTIT", description: "Contact TYPEITTESTIT with questions, suggestions, or feedback." },
-  "/privacy-policy": { title: "Privacy Policy | TYPEITTESTIT", description: "Read the TYPEITTESTIT Privacy Policy." },
-  "/terms-of-use": { title: "Terms of Use | TYPEITTESTIT", description: "Read the TYPEITTESTIT Terms of Use." },
+  "/about": { title: "About TippyType | Typing Speed Test", description: "Learn about TippyType, a free online typing speed test for measuring WPM, accuracy, and typing progress." },
+  "/contact": { title: "Contact TippyType | Typing Speed Test", description: "Contact TippyType with questions, suggestions, or feedback about our free typing speed test." },
+  "/privacy-policy": { title: "TippyType Privacy Policy", description: "Read the TippyType Privacy Policy for account data, typing tests, local storage, and advertising." },
+  "/terms-of-use": { title: "TippyType Terms of Use", description: "Read the TippyType Terms of Use for using our free online typing test and leaderboard features." },
 } as const;
 
 function getPage(pathname: string) {
@@ -30,7 +30,7 @@ export default function App() {
 
   useEffect(() => {
     const config = PAGE_CONFIG[path as keyof typeof PAGE_CONFIG];
-    document.title = config?.title ?? "TYPEITTESTIT — Typing Speed Test";
+    document.title = config?.title ?? "TippyType — Free Typing Speed Test";
     const description = document.querySelector('meta[name="description"]');
     if (description && config) description.setAttribute("content", config.description);
   }, [path]);
