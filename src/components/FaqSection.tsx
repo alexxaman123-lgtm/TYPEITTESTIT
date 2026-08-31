@@ -1,11 +1,11 @@
 const FAQS = [
   {
     q: "What is a typing test and how does an online typing test work?",
-    a: "A typing test is a tool that measures how quickly and accurately you can type a piece of text. TYPEITTESTIT shows you a passage, tracks every character you type, and reports your words per minute (WPM), accuracy, and error count once the timer ends.",
+    a: "A typing test is a tool that measures how quickly and accurately you can type a piece of text. TippyType shows you a passage, tracks every character you type, and reports your words per minute (WPM), accuracy, and error count once the timer ends.",
   },
   {
     q: "How is WPM calculated in a typing speed test?",
-    a: "TYPEITTESTIT shows your actual word progress and a predicted one-minute pace during the test. For standard WPM comparisons, one word is represented by five typed characters. The live display helps you compare your pace while accuracy shows how reliably you typed the passage.",
+    a: "TippyType shows your actual word progress and a one-minute pace during the test. For standard WPM comparisons, one word is represented by five typed characters. The live display helps you compare your pace while accuracy shows how reliably you typed the passage.",
   },
   {
     q: "What is a good typing speed in WPM?",
@@ -13,7 +13,7 @@ const FAQS = [
   },
   {
     q: "Is this typing test free online?",
-    a: "Yes. TYPEITTESTIT is completely free to use. No account is needed to take a test or use the core typing features; Google Sign-In is optional but required for saved account progress and leaderboard participation.",
+    a: "Yes. TippyType is completely free to use. No account is needed to take a test or use the core typing features; Google Sign-In is optional but required for saved account progress and leaderboard participation.",
   },
   {
     q: "What is the difference between a one minute and a five minute typing test?",
@@ -54,7 +54,7 @@ export default function FaqSection() {
         Frequently Asked Questions
       </h2>
       <p className="mt-3 text-muted">
-        Common questions about the TYPEITTESTIT typing tester, WPM scoring, and how to get the
+        Common questions about the TippyType typing tester, WPM scoring, and how to get the
         most out of your practice.
       </p>
 
