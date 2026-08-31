@@ -15,21 +15,17 @@ export default function Footer() {
         <div className="flex flex-col items-start justify-between gap-8 md:flex-row md:items-center">
           <div>
             <div className="font-mono text-base font-bold text-ink">
-              TIPPY<span className="text-accent">TYPE</span>
+              <span className="mr-2" aria-hidden="true">🐐</span>GOAT<span className="text-accent">TYPE</span>
             </div>
             <p className="mt-2 max-w-sm text-sm text-faint">
-              TippyType is a free online typing speed test and typing practice tool to measure WPM,
+              GOATTYPE is a free online typing speed test and typing practice tool to measure WPM,
               accuracy, and consistency in seconds.
             </p>
           </div>
 
           <nav className="flex flex-wrap gap-x-6 gap-y-3 text-sm" aria-label="Footer">
             {FOOTER_LINKS.map((link) => (
-              <a
-                key={link.label}
-                href={link.href}
-                className="text-muted transition-colors hover:text-accent"
-              >
+              <a key={link.label} href={link.href} className="text-muted transition-colors hover:text-accent">
                 {link.label}
               </a>
             ))}
@@ -37,8 +33,8 @@ export default function Footer() {
         </div>
 
         <div className="mt-10 flex flex-col gap-2 border-t border-white/5 pt-6 text-xs text-faint sm:flex-row sm:items-center sm:justify-between">
-          <p>&copy; {new Date().getFullYear()} TippyType. All rights reserved.</p>
-          <p>Built for typists who want real, honest numbers.</p>
+          <p>&copy; {new Date().getFullYear()} GOATTYPE. All rights reserved.</p>
+          <p>TYPE LIKE A GOAT.</p>
         </div>
       </div>
     </footer>
