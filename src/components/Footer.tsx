@@ -10,7 +10,7 @@ const FOOTER_LINKS = [
 
 export default function Footer() {
   return (
-    <footer className="border-t border-white/10 bg-surface1/60 shadow-[0_-20px_50px_-45px_rgba(0,255,102,0.35)]">
+    <footer className="border-t border-white/10 bg-surface1/60 shadow-[0_-20px_50px_-45px_var(--color-accent-glow)]">
       <div className="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8">
         <div className="flex flex-col items-start justify-between gap-8 md:flex-row md:items-center">
           <div>
