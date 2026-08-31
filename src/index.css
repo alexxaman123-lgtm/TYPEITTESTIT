@@ -133,6 +133,14 @@ body {
   box-shadow: 0 8px 24px -20px color-mix(in srgb, var(--color-accent) 35%, transparent);
 }
 
+.theme-accent-glow {
+  box-shadow: 0 0 18px color-mix(in srgb, var(--color-accent) 35%, transparent);
+}
+
+.theme-accent-text-glow {
+  text-shadow: 0 0 18px color-mix(in srgb, var(--color-accent) 18%, transparent);
+}
+
 .test-shell {
   position: relative;
   overflow: hidden;
