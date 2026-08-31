@@ -140,7 +140,7 @@ export default function Header() {
 
   return (
     <>
-      <header className={cn("sticky top-0 z-50 w-full border-b transition-all duration-300", scrolled ? "border-white/10 bg-bg/85 shadow-[0_8px_24px_-20px_rgba(0,255,102,0.35)] backdrop-blur-md" : "border-transparent bg-transparent")}>
+      <header className={cn("sticky top-0 z-50 w-full border-b transition-all duration-300", scrolled ? "border-white/10 bg-bg/85 theme-accent-shadow backdrop-blur-md" : "border-transparent bg-transparent")}>
         <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
           <a href="/" className="flex items-center gap-0 select-none tracking-[-0.03em]" aria-label="GOATTYPE home">
             <span className="text-lg font-extrabold text-accent">GOAT</span><span className="text-lg font-extrabold text-ink">TYPE</span>
