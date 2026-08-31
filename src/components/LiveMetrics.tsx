@@ -9,8 +9,6 @@ interface Props {
   startTimeRef: RefObject<number | null>;
 }
 
-const MIN_STATS_DURATION_MS = 60_000;
-
 export default function LiveMetrics({
   accuracy,
   status,
@@ -46,8 +44,7 @@ export default function LiveMetrics({
       const elapsedMs = Math.max(0, Date.now() - start);
       const elapsedMinutes = elapsedMs / 60000;
       const typedCharacters = liveCharCountRef.current;
-      const statsAvailable = elapsedMs >= MIN_STATS_DURATION_MS;
-      const actualWpm = statsAvailable && elapsedMinutes > 0
+      const actualWpm = elapsedMinutes > 0
         ? Math.max(0, Math.round((typedCharacters / 5 / elapsedMinutes) * 10) / 10)
         : 0;
       const nextWpm = actualWpm.toFixed(1);
