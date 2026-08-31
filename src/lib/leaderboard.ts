@@ -29,7 +29,7 @@ export interface LeaderboardResultInput {
 const VALID_DIFFICULTIES = new Set<Difficulty>(["easy", "medium", "hard"]);
 const VALID_DURATIONS = new Set([60, 120, 180, 300]);
 
-export async function saveLeaderboardScore(result: LeaderboardResultInput): Promise<void> {
+export async function saveLeaderboardScore(result: LeaderboardResultInput): Promise<boolean> {
   if (
     !VALID_DIFFICULTIES.has(result.difficulty) ||
     !VALID_DURATIONS.has(result.durationSec) ||
@@ -39,14 +39,14 @@ export async function saveLeaderboardScore(result: LeaderboardResultInput): Prom
     result.accuracy < 0 ||
     result.accuracy > 100
   ) {
-    return;
+    return false;
   }
 
   const {
     data: { user },
   } = await supabase.auth.getUser();
 
-  if (!user) return;
+  if (!user) return false;
 
   const { data: current, error: currentError } = await supabase
     .from("leaderboard_scores")
@@ -58,7 +58,7 @@ export async function saveLeaderboardScore(result: LeaderboardResultInput): Prom
 
   if (currentError) {
     console.error("Could not read leaderboard score:", currentError.message);
-    return;
+    return false;
   }
 
   const currentWpm = Number(current?.wpm ?? -1);
@@ -69,7 +69,7 @@ export async function saveLeaderboardScore(result: LeaderboardResultInput): Prom
     result.wpm > currentWpm ||
     (result.wpm === currentWpm && result.accuracy > currentAccuracy);
 
-  if (!isBetter) return;
+  if (!isBetter) return false;
 
   const { error } = await supabase.from("leaderboard_scores").upsert(
     {
@@ -89,7 +89,45 @@ export async function saveLeaderboardScore(result: LeaderboardResultInput): Prom
 
   if (error) {
     console.error("Could not save leaderboard score:", error.message);
+    return false;
   }
+
+  return true;
+}
+
+export async function getProfileBest(
+  difficulty: Difficulty,
+  durationSec: number,
+): Promise<{ wpm: number; accuracy: number } | null> {
+  if (!VALID_DIFFICULTIES.has(difficulty) || !VALID_DURATIONS.has(durationSec)) {
+    return null;
+  }
+
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (!user) return null;
+
+  const { data, error } = await supabase
+    .from("leaderboard_scores")
+    .select("wpm, accuracy")
+    .eq("user_id", user.id)
+    .eq("difficulty", difficulty)
+    .eq("duration_sec", durationSec)
+    .maybeSingle();
+
+  if (error) {
+    console.error("Could not load profile best:", error.message);
+    return null;
+  }
+
+  if (!data) return null;
+
+  return {
+    wpm: Number(data.wpm),
+    accuracy: Number(data.accuracy),
+  };
 }
 
 export async function fetchLeaderboardScores(): Promise<LeaderboardScore[]> {
