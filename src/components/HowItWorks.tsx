@@ -13,7 +13,7 @@ const STEPS = [
   },
   {
     title: "Get your results",
-    body: "When the timer hits zero, TYPEITTESTIT instantly shows your WPM, accuracy, and errors. You can take a test without signing in; account-based progress and leaderboard features require Google Sign-In.",
+    body: "When the timer hits zero, TippyType instantly shows your WPM, accuracy, and errors. You can take a test without signing in; account-based progress and leaderboard features require Google Sign-In.",
   },
 ];
 
@@ -23,7 +23,7 @@ export default function HowItWorks() {
       <div className="text-center">
         <h2 className="text-2xl font-bold tracking-tight text-ink sm:text-3xl">How It Works</h2>
         <p className="mx-auto mt-3 max-w-2xl text-muted">
-          TYPEITTESTIT is built to be understood in seconds. No tutorials, no setup screens — just
+          TippyType is built to be understood in seconds. No tutorials, no setup screens — just
           a fast, focused online typing speed test for practice, WPM feedback, and real improvement.
         </p>
       </div>
