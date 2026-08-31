@@ -1,7 +1,8 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useTypingTest } from "../lib/useTypingTest";
 import { useReducedMotion } from "../lib/useReducedMotion";
 import { getPersonalBest, getPreferences, savePreferences } from "../lib/storage";
+import { saveLeaderboardScore } from "../lib/leaderboard";
 import DifficultySelector from "./DifficultySelector";
 import DurationSelector from "./DurationSelector";
 import TypingText from "./TypingText";
@@ -20,6 +21,22 @@ export default function TypingTester() {
   const [viewMode, setViewMode] = useState<ViewMode>("test");
 
   const personalBest = test.isCustom ? null : getPersonalBest(test.difficulty, test.duration);
+
+  useEffect(() => {
+    const result = test.result;
+    if (!result || result.isCustom) return;
+
+    void saveLeaderboardScore({
+      difficulty: result.difficulty,
+      durationSec: result.targetDurationSec,
+      wpm: result.wpm,
+      accuracy: result.accuracy,
+      wordsWritten: result.wordsWritten,
+      correctChars: result.correctChars,
+      incorrectChars: result.incorrectChars,
+      totalTyped: result.totalTyped,
+    });
+  }, [test.result]);
 
   const handleDifficultyChange = (d: typeof test.difficulty) => {
     test.setDifficulty(d);
