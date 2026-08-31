@@ -14,10 +14,10 @@ import TermsOfUsePage from "./components/TermsOfUsePage";
 import FaqSection from "./components/FaqSection";
 
 const PAGE_CONFIG = {
-  "/about": { title: "About TippyType | Typing Speed Test", description: "Learn about TippyType, a free online typing speed test for measuring WPM, accuracy, and typing progress." },
-  "/contact": { title: "Contact TippyType | Typing Speed Test", description: "Contact TippyType with questions, suggestions, or feedback about our free typing speed test." },
-  "/privacy-policy": { title: "TippyType Privacy Policy", description: "Read the TippyType Privacy Policy for account data, typing tests, local storage, and advertising." },
-  "/terms-of-use": { title: "TippyType Terms of Use", description: "Read the TippyType Terms of Use for using our free online typing test and leaderboard features." },
+  "/about": { title: "About GOATTYPE | Typing Speed Test", description: "Learn about GOATTYPE, a free online typing speed test for measuring WPM, accuracy, and typing progress." },
+  "/contact": { title: "Contact GOATTYPE | Typing Speed Test", description: "Contact GOATTYPE with questions, suggestions, or feedback about our free typing speed test." },
+  "/privacy-policy": { title: "GOATTYPE Privacy Policy", description: "Read the GOATTYPE Privacy Policy for account data, typing tests, local storage, and advertising." },
+  "/terms-of-use": { title: "GOATTYPE Terms of Use", description: "Read the GOATTYPE Terms of Use for using our free online typing test and leaderboard features." },
 } as const;
 
 function getPage(pathname: string) {
@@ -30,7 +30,7 @@ export default function App() {
 
   useEffect(() => {
     const config = PAGE_CONFIG[path as keyof typeof PAGE_CONFIG];
-    document.title = config?.title ?? "TippyType — Free Typing Speed Test";
+    document.title = config?.title ?? "GOATTYPE — Free Typing Speed Test";
     const description = document.querySelector('meta[name="description"]');
     if (description && config) description.setAttribute("content", config.description);
   }, [path]);
