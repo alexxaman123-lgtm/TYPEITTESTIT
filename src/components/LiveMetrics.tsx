@@ -22,6 +22,8 @@ export default function LiveMetrics({
   useEffect(() => {
     let animationFrame = 0;
     let mounted = true;
+    let lastWpm = "0.0";
+    let lastTime = formatTime(duration);
 
     const renderLiveMetrics = () => {
       if (!mounted) return;
@@ -31,8 +33,11 @@ export default function LiveMetrics({
       const start = startTimeRef.current;
 
       if (status !== "running" || start === null) {
-        if (actualElement) actualElement.textContent = "0.0";
-        if (timeElement) timeElement.textContent = formatTime(duration);
+        if (actualElement && actualElement.textContent !== "0.0") actualElement.textContent = "0.0";
+        if (timeElement && timeElement.textContent !== lastTime) {
+          lastTime = formatTime(duration);
+          timeElement.textContent = lastTime;
+        }
         return;
       }
 
@@ -42,12 +47,20 @@ export default function LiveMetrics({
       const actualWpm = elapsedMinutes > 0
         ? Math.max(0, Math.round((typedCharacters / 5 / elapsedMinutes) * 10) / 10)
         : 0;
+      const nextWpm = actualWpm.toFixed(1);
 
-      if (actualElement) actualElement.textContent = actualWpm.toFixed(1);
+      if (actualElement && nextWpm !== lastWpm) {
+        lastWpm = nextWpm;
+        actualElement.textContent = nextWpm;
+      }
 
       const remainingMs = Math.max(0, duration * 1000 - elapsedMs);
       const remainingSec = Math.ceil(remainingMs / 1000);
-      if (timeElement) timeElement.textContent = formatTime(remainingSec);
+      const nextTime = formatTime(remainingSec);
+      if (timeElement && nextTime !== lastTime) {
+        lastTime = nextTime;
+        timeElement.textContent = nextTime;
+      }
 
       animationFrame = window.requestAnimationFrame(renderLiveMetrics);
     };
