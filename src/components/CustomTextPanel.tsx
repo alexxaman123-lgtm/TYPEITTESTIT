@@ -118,7 +118,7 @@ export default function CustomTextPanel({ duration, onStartFree, onStartPaste, o
           <button
             type="button"
             onClick={() => onStartFree(localDuration)}
-            className="rounded-lg bg-accent px-6 py-3 text-sm font-bold text-black shadow-[0_0_18px_rgba(0,255,102,0.35)] transition-all duration-200 hover:brightness-110 active:translate-y-0.5"
+            className="theme-accent-glow rounded-lg bg-accent px-6 py-3 text-sm font-bold text-black transition-all duration-200 hover:brightness-110 active:translate-y-0.5"
           >
             Start Free Typing
           </button>
@@ -126,7 +126,7 @@ export default function CustomTextPanel({ duration, onStartFree, onStartPaste, o
           <button
             type="button"
             onClick={handleStartPaste}
-            className="rounded-lg bg-accent px-6 py-3 text-sm font-bold text-black shadow-[0_0_18px_rgba(0,255,102,0.35)] transition-all duration-200 hover:brightness-110 active:translate-y-0.5"
+            className="theme-accent-glow rounded-lg bg-accent px-6 py-3 text-sm font-bold text-black transition-all duration-200 hover:brightness-110 active:translate-y-0.5"
           >
             Use This Text
           </button>
