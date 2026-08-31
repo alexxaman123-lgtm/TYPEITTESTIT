@@ -144,7 +144,7 @@ export default function LeaderboardPage() {
         </div>
 
         <div className="mt-6 overflow-hidden rounded-2xl border border-white/10 bg-surface2/50">
-          <div className="grid grid-cols-[48px_minmax(150px,1fr)_100px_105px_110px_95px] gap-3 border-b border-white/8 px-4 py-3 text-[10px] font-bold uppercase tracking-[0.16em] text-faint sm:px-5">
+          <div className="grid grid-cols-[32px_minmax(100px,1fr)_65px_80px_80px_75px] gap-2 border-b border-white/8 px-3 py-3 text-[9px] font-bold uppercase tracking-[0.12em] text-faint sm:grid-cols-[48px_minmax(150px,1fr)_100px_105px_110px_95px] sm:gap-3 sm:px-5 sm:text-[10px] sm:tracking-[0.16em]">
             <span>#</span>
             <span>Username</span>
             <span className="text-right">WPM</span>
@@ -177,16 +177,16 @@ export default function LeaderboardPage() {
 
 function LeaderboardRow({ rank, score }: { rank: number; score: LeaderboardScore }) {
   return (
-    <div className="grid grid-cols-[48px_minmax(150px,1fr)_100px_105px_110px_95px] gap-3 border-b border-white/6 px-4 py-4 last:border-b-0 sm:px-5">
-      <div className="font-mono text-sm font-bold text-faint">{rank}</div>
+    <div className="grid grid-cols-[32px_minmax(100px,1fr)_65px_80px_80px_75px] gap-2 border-b border-white/6 px-3 py-4 last:border-b-0 sm:grid-cols-[48px_minmax(150px,1fr)_100px_105px_110px_95px] sm:gap-3 sm:px-5">
+      <div className="font-mono text-xs font-bold text-faint sm:text-sm">{rank}</div>
       <div className="min-w-0">
-        <div className="truncate text-sm font-bold text-ink">{score.username}</div>
-        <div className="mt-1 text-[10px] uppercase tracking-[0.12em] text-faint">{score.difficulty}</div>
+        <div className="truncate text-xs font-bold text-ink sm:text-sm">{score.username}</div>
+        <div className="mt-1 text-[9px] uppercase tracking-[0.1em] text-faint sm:text-[10px] sm:tracking-[0.12em]">{score.difficulty}</div>
       </div>
-      <div className="text-right font-mono text-sm font-bold text-accent">{score.wpm.toFixed(1)}</div>
-      <div className="text-right font-mono text-sm font-bold text-ink-soft">{score.accuracy.toFixed(2)}%</div>
-      <div className="text-right font-mono text-sm text-muted">{score.words_written.toFixed(1)}</div>
-      <div className="text-right text-sm text-muted">{score.duration_sec / 60} min</div>
+      <div className="text-right font-mono text-xs font-bold text-accent sm:text-sm">{score.wpm.toFixed(1)}</div>
+      <div className="text-right font-mono text-xs font-bold text-ink-soft sm:text-sm">{score.accuracy.toFixed(2)}%</div>
+      <div className="text-right font-mono text-xs text-muted sm:text-sm">{score.words_written.toFixed(1)}</div>
+      <div className="text-right text-xs text-muted sm:text-sm">{score.duration_sec / 60} min</div>
     </div>
   );
 }
