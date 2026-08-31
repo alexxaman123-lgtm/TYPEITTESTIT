@@ -73,7 +73,7 @@ export default function ResultPanel({
 
       <div className="flex flex-col items-center text-center">
         <span className="text-[10px] font-semibold uppercase tracking-[0.3em] text-faint">Your typing performance</span>
-        <span className="mt-2 font-mono text-7xl font-extrabold tabular-nums text-accent drop-shadow-[0_0_18px_rgba(0,255,102,0.18)] sm:text-8xl">
+        <span className="theme-accent-text-glow mt-2 font-mono text-7xl font-extrabold tabular-nums text-accent sm:text-8xl">
           {wpm.toFixed(1)}
         </span>
         <span className="mt-1 text-sm font-semibold uppercase tracking-[0.25em] text-muted">ACTUAL WPM</span>
@@ -230,7 +230,7 @@ function ActionButton({
       className={cn(
         "rounded-lg px-4 py-2.5 text-sm font-semibold transition-all duration-200 hover:-translate-y-0.5 active:translate-y-0",
         primary
-          ? "bg-accent text-black shadow-[0_0_18px_rgba(0,255,102,0.35)] hover:brightness-110"
+          ? "bg-accent text-black theme-accent-glow hover:brightness-110"
           : "border border-white/12 bg-surface3 text-ink-soft hover:border-accent/40 hover:text-ink"
       )}
     >
