@@ -38,8 +38,10 @@ export default function ThemePicker() {
         type="button"
         onClick={() => setOpen((value) => !value)}
         className={cn(
-          "flex h-9 items-center gap-2 rounded-full border px-3 text-xs font-semibold text-ink-soft transition-colors",
-          open ? "border-accent/40 bg-accent/10 text-ink" : "border-white/10 bg-surface2/70 hover:border-accent/30 hover:text-ink"
+          "flex h-9 items-center gap-2 rounded-full border px-3 text-xs font-semibold text-ink-soft transition-all duration-200",
+          open
+            ? "border-accent/45 bg-accent/10 text-ink shadow-[0_8px_24px_-18px_var(--color-accent)]"
+            : "border-white/10 bg-surface2/70 hover:border-accent/30 hover:text-ink"
         )}
         aria-haspopup="dialog"
         aria-expanded={open}
@@ -48,7 +50,7 @@ export default function ThemePicker() {
       >
         <span
           aria-hidden="true"
-          className="h-3.5 w-3.5 rounded-full border border-white/20"
+          className="h-3.5 w-3.5 rounded-[4px] border border-white/20 shadow-inner"
           style={{ background: currentTheme.preview }}
         />
         <span className="hidden lg:inline">Theme</span>
@@ -58,14 +60,23 @@ export default function ThemePicker() {
         <div
           role="dialog"
           aria-label="Choose a theme"
-          className="absolute right-0 top-[calc(100%+10px)] z-[70] w-[280px] rounded-2xl border border-white/10 bg-surface2/95 p-3 shadow-[0_22px_70px_-28px_rgba(0,0,0,0.95)] backdrop-blur-xl"
+          className="absolute right-0 top-[calc(100%+10px)] z-[70] w-[340px] rounded-2xl border border-white/10 bg-surface2/96 p-4 shadow-[0_26px_80px_-30px_rgba(0,0,0,0.9)] backdrop-blur-2xl"
         >
-          <div className="px-2 pb-2">
-            <p className="text-xs font-bold uppercase tracking-[0.18em] text-faint">Choose a theme</p>
-            <p className="mt-1 text-xs text-muted">Your choice stays saved on this device.</p>
+          <div className="px-1 pb-3">
+            <div className="flex items-center justify-between gap-3">
+              <div>
+                <p className="text-[11px] font-bold uppercase tracking-[0.2em] text-faint">Choose a theme</p>
+                <p className="mt-1 text-xs text-muted">Saved automatically on this device.</p>
+              </div>
+              <span
+                className="h-2.5 w-2.5 rounded-full shadow-[0_0_16px_var(--color-accent)]"
+                style={{ backgroundColor: "var(--color-accent)" }}
+                aria-hidden="true"
+              />
+            </div>
           </div>
 
-          <div className="grid grid-cols-2 gap-2">
+          <div className="grid grid-cols-2 gap-2.5">
             {THEMES.map((theme) => {
               const selected = theme.id === themeId;
               return (
@@ -78,23 +89,32 @@ export default function ThemePicker() {
                     setOpen(false);
                   }}
                   className={cn(
-                    "group rounded-xl border p-2 text-left transition-all",
+                    "group rounded-xl border p-2.5 text-left transition-all duration-200",
                     selected
-                      ? "border-accent/60 bg-accent/10"
-                      : "border-white/8 bg-surface1/70 hover:border-white/20 hover:bg-surface1"
+                      ? "border-accent/55 bg-accent/8 shadow-[0_10px_28px_-20px_var(--color-accent)]"
+                      : "border-white/8 bg-surface1/65 hover:-translate-y-px hover:border-white/18 hover:bg-surface1"
                   )}
                   aria-pressed={selected}
                 >
                   <span
                     aria-hidden="true"
-                    className="mb-2 block h-7 rounded-lg border border-white/10"
+                    className="relative mb-2 block h-12 overflow-hidden rounded-lg border border-white/10 shadow-inner"
                     style={{ background: theme.preview }}
-                  />
+                  >
+                    <span className="absolute inset-0 bg-[linear-gradient(120deg,rgba(255,255,255,0.07),transparent_45%,rgba(0,0,0,0.08))]" />
+                  </span>
                   <span className="flex items-center justify-between gap-2">
                     <span className={cn("truncate text-xs font-semibold", selected ? "text-accent" : "text-ink-soft")}>
                       {theme.name}
                     </span>
-                    {selected && <span className="text-[10px] font-bold text-accent">✓</span>}
+                    <span
+                      aria-hidden="true"
+                      className={cn(
+                        "h-2.5 w-2.5 shrink-0 rounded-full border",
+                        selected ? "border-accent bg-accent" : "border-white/15"
+                      )}
+                      style={!selected ? { backgroundColor: theme.accent } : undefined}
+                    />
                   </span>
                 </button>
               );
