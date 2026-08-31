@@ -14,9 +14,7 @@ export default function Footer() {
       <div className="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8">
         <div className="flex flex-col items-start justify-between gap-8 md:flex-row md:items-center">
           <div>
-            <div className="font-mono text-base font-bold text-ink">
-              <span className="mr-2" aria-hidden="true">🐐</span>GOAT<span className="text-accent">TYPE</span>
-            </div>
+            <div className="font-mono text-base font-bold text-ink">GOATTYPE</div>
             <p className="mt-2 max-w-sm text-sm text-faint">
               GOATTYPE is a free online typing speed test and typing practice tool to measure WPM,
               accuracy, and consistency in seconds.
