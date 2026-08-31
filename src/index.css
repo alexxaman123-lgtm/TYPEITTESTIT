@@ -29,8 +29,6 @@ html {
 }
 
 body {
-  position: relative;
-  isolation: isolate;
   background-color: var(--color-bg);
   color: var(--color-ink);
   font-family: var(--font-sans);
@@ -64,101 +62,118 @@ body {
   outline-offset: 2px;
 }
 
-/* Deliberately visible, slow-moving ambient fields. The fields use the active theme
-   variables, so every theme gets its own animated atmosphere without hard-coded green. */
+/* Distributed, slow-moving ambient fields for the page background. */
 .ambient-glow {
   pointer-events: none;
   contain: paint;
   backface-visibility: hidden;
-  filter: blur(72px);
-  opacity: 0.42;
+  filter: blur(84px);
+  opacity: 0.78;
   will-change: transform, opacity;
   transform: translate3d(0, 0, 0) scale(1);
 }
 
 .ambient-glow-primary {
-  animation: ambientPrimary 22s ease-in-out infinite;
+  animation: ambientPrimary 20s ease-in-out infinite;
 }
 
 .ambient-glow-secondary {
-  animation: ambientSecondary 28s ease-in-out infinite;
+  animation: ambientSecondary 26s ease-in-out infinite;
 }
 
 .ambient-glow-tertiary {
-  animation: ambientTertiary 24s ease-in-out infinite;
+  animation: ambientTertiary 23s ease-in-out infinite;
 }
 
 .ambient-glow-center {
-  opacity: 0.2;
-  filter: blur(96px);
+  opacity: 0.42;
+  filter: blur(110px);
   animation: ambientCenter 18s ease-in-out infinite;
+}
+
+.ambient-glow-fourth {
+  opacity: 0.34;
+  filter: blur(96px);
+  animation: ambientFourth 29s ease-in-out infinite;
 }
 
 @keyframes ambientPrimary {
   0%,
   100% {
-    transform: translate3d(-7vw, -2vh, 0) scale(0.95);
-    opacity: 0.3;
+    transform: translate3d(-7vw, -4vh, 0) scale(0.92);
+    opacity: 0.56;
   }
   25% {
-    transform: translate3d(4vw, 3vh, 0) scale(1.08);
-    opacity: 0.46;
+    transform: translate3d(1vw, 3vh, 0) scale(1.08);
+    opacity: 0.86;
   }
   50% {
-    transform: translate3d(10vw, -1vh, 0) scale(1.02);
-    opacity: 0.38;
+    transform: translate3d(7vw, -1vh, 0) scale(1.02);
+    opacity: 0.72;
   }
   75% {
-    transform: translate3d(1vw, 7vh, 0) scale(1.1);
-    opacity: 0.44;
+    transform: translate3d(-1vw, 7vh, 0) scale(1.1);
+    opacity: 0.82;
   }
 }
 
 @keyframes ambientSecondary {
   0%,
   100% {
-    transform: translate3d(7vw, 2vh, 0) scale(1.02);
-    opacity: 0.22;
+    transform: translate3d(8vw, 5vh, 0) scale(0.96);
+    opacity: 0.42;
   }
   25% {
-    transform: translate3d(-4vw, 6vh, 0) scale(1.12);
-    opacity: 0.36;
+    transform: translate3d(-4vw, 7vh, 0) scale(1.08);
+    opacity: 0.68;
   }
   50% {
-    transform: translate3d(-9vw, -4vh, 0) scale(1.04);
-    opacity: 0.28;
+    transform: translate3d(-8vw, -3vh, 0) scale(1.12);
+    opacity: 0.52;
   }
   75% {
-    transform: translate3d(2vw, -7vh, 0) scale(1.1);
-    opacity: 0.34;
+    transform: translate3d(2vw, -6vh, 0) scale(1.04);
+    opacity: 0.64;
   }
 }
 
 @keyframes ambientTertiary {
   0%,
   100% {
-    transform: translate3d(-3vw, 5vh, 0) scale(1);
-    opacity: 0.16;
+    transform: translate3d(-3vw, 8vh, 0) scale(0.95);
+    opacity: 0.3;
   }
   33% {
-    transform: translate3d(7vw, -4vh, 0) scale(1.12);
-    opacity: 0.28;
+    transform: translate3d(6vw, -3vh, 0) scale(1.12);
+    opacity: 0.54;
   }
   66% {
-    transform: translate3d(12vw, 4vh, 0) scale(0.96);
-    opacity: 0.22;
+    transform: translate3d(11vw, 5vh, 0) scale(1.02);
+    opacity: 0.42;
   }
 }
 
 @keyframes ambientCenter {
   0%,
   100% {
-    transform: translate3d(-2vw, 2vh, 0) scale(0.9);
-    opacity: 0.12;
+    transform: translate3d(-4vw, 2vh, 0) scale(0.88);
+    opacity: 0.2;
   }
   50% {
-    transform: translate3d(2vw, -2vh, 0) scale(1.14);
-    opacity: 0.24;
+    transform: translate3d(4vw, -2vh, 0) scale(1.18);
+    opacity: 0.46;
+  }
+}
+
+@keyframes ambientFourth {
+  0%,
+  100% {
+    transform: translate3d(3vw, -2vh, 0) scale(0.94);
+    opacity: 0.2;
+  }
+  50% {
+    transform: translate3d(-5vw, 4vh, 0) scale(1.12);
+    opacity: 0.42;
   }
 }
 
@@ -283,16 +298,36 @@ body {
     width: 14px;
   }
 
+  /* Keep the mobile glow compact and close to the existing phone look. */
   .ambient-glow {
-    filter: blur(52px);
+    filter: blur(58px);
+    opacity: 0.52;
+  }
+
+  .ambient-glow-center {
+    opacity: 0.26;
+    filter: blur(72px);
+  }
+
+  .ambient-glow-fourth {
+    opacity: 0.2;
+    filter: blur(64px);
   }
 
   .ambient-glow-primary {
-    animation-duration: 26s;
+    animation-duration: 27s;
   }
 
   .ambient-glow-secondary {
     animation-duration: 32s;
+  }
+
+  .ambient-glow-tertiary {
+    animation-duration: 29s;
+  }
+
+  .ambient-glow-fourth {
+    animation-duration: 34s;
   }
 }
 
