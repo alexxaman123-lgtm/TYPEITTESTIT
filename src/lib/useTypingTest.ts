@@ -12,7 +12,6 @@ import { maybeSavePersonalBest } from "./storage";
 import { saveLeaderboardScore } from "./leaderboard";
 
 type TestStatus = "idle" | "running" | "finished";
-
 type CustomMode = "standard" | "free";
 
 export interface TestResult {
@@ -37,6 +36,7 @@ export interface TestResult {
 
 const APPEND_THRESHOLD = 120;
 const MAX_CUSTOM_TEXT_LENGTH = 100_000;
+const MIN_STATS_DURATION_SEC = 60;
 
 function normalize(text: string) {
   return text.replace(/\s+/g, " ").trim().slice(0, MAX_CUSTOM_TEXT_LENGTH);
@@ -62,16 +62,9 @@ export function useTypingTest(initialDifficulty: Difficulty, initialDuration: nu
   const [result, setResult] = useState<TestResult | null>(null);
   const [sessionId, setSessionId] = useState(0);
 
-  // Authoritative refs — always reflect the latest typing-session state so
-  // async callbacks (rAF loop, finish) cannot read a stale value.
   const startTimeRef = useRef<number | null>(null);
   const errorsRef = useRef(0);
   const finishedRef = useRef(false);
-
-  // The LiveMetrics card reads these two refs every animation frame and
-  // computes Actual WPM = liveCharCountRef / 5 / elapsedMinutes. We feed it
-  // the Monkeytype "correctWord" count so the live display is the net WPM
-  // (only chars that count toward a correct word), not the raw count.
   const liveCharCountRef = useRef(0);
 
   const typedRef = useRef(typed);
@@ -98,10 +91,6 @@ export function useTypingTest(initialDifficulty: Difficulty, initialDuration: nu
     setLastPassageId(initial.id);
   }, [initial.id]);
 
-  // finish uses refs so it always reads the latest typing-session data.
-  // The WPM formula matches Monkeytype's `calculateWpm(correctWord, duration)`,
-  // using the chars that count toward a correct word (or a correct prefix
-  // of the current word).
   const finish = useCallback(() => {
     if (finishedRef.current) return;
     finishedRef.current = true;
@@ -115,6 +104,7 @@ export function useTypingTest(initialDifficulty: Difficulty, initialDuration: nu
 
     const elapsedMs = startTimeRef.current ? Date.now() - startTimeRef.current : 0;
     const elapsedSec = elapsedMs / 1000;
+    const statsAvailable = isCustomValue || elapsedSec >= MIN_STATS_DURATION_SEC;
 
     let correctWord = 0;
     let allCorrect = 0;
@@ -141,17 +131,12 @@ export function useTypingTest(initialDifficulty: Difficulty, initialDuration: nu
       allCorrect = counts.allCorrect;
       incorrect = counts.incorrect;
       extra = counts.extra;
-      // Letters Typed = Letters Correct + Letters Incorrect (no "extra" overflow).
       totalTyped = correctWord + incorrect;
       wordsWritten = computeWordsWritten(typedValue);
       wordErrorsCount = countWordErrors(targetValue, typedValue, true);
-      // Accuracy = correct / (correct + incorrect) — matches Letters Typed.
       accuracy = totalTyped > 0
         ? Math.round((correctWord / totalTyped) * 10000) / 100
         : 100;
-      // Actual WPM = words the user actually wrote / elapsed minutes.
-      // Matches the "Words Written" stat: a 1-minute test with 27 words
-      // written reads 27.0 WPM.
       actualWpm = elapsedSec > 0 ? wordsWritten / (elapsedSec / 60) : 0;
       predictedWpm = elapsedSec > 0
         ? Math.round(calculateWpm(correctWord, elapsedSec) * 10) / 10
@@ -161,7 +146,13 @@ export function useTypingTest(initialDifficulty: Difficulty, initialDuration: nu
     const wordProgress = wordsWritten;
     const lettersTyped = getLettersOnlyCount(typedValue);
     const durationSec = Math.round(elapsedMs / 1000);
-    const isNewBest = !isCustomValue
+
+    if (!statsAvailable) {
+      actualWpm = 0;
+      predictedWpm = null;
+    }
+
+    const isNewBest = statsAvailable && !isCustomValue
       ? maybeSavePersonalBest(difficultyValue, durationValue, actualWpm, accuracy)
       : false;
 
@@ -185,11 +176,7 @@ export function useTypingTest(initialDifficulty: Difficulty, initialDuration: nu
       isNewBest,
     });
 
-    // Publish standard authenticated test scores to the public leaderboard.
-    // Keep the existing scoring formulas untouched; this only persists the
-    // exact result already calculated above. The configured test duration is
-    // used as the leaderboard bucket, even when the user stops early.
-    if (!isCustomValue) {
+    if (!isCustomValue && statsAvailable) {
       void saveLeaderboardScore({
         difficulty: difficultyValue,
         durationSec: durationValue,
@@ -208,17 +195,12 @@ export function useTypingTest(initialDifficulty: Difficulty, initialDuration: nu
   const finishRef = useRef(finish);
   finishRef.current = finish;
 
-  // startTimerIfNeeded only marks the start of the session. The timing loop
-  // below owns the timeout check without forcing a React render on every frame.
   const startTimerIfNeeded = useCallback(() => {
     if (startTimeRef.current !== null || finishedRef.current) return;
     startTimeRef.current = Date.now();
     setStatus("running");
   }, []);
 
-  // Keep the authoritative finish check at animation-frame cadence, but do
-  // not update React state on every frame. LiveMetrics owns its own rAF loop
-  // and reads the authoritative refs directly for its live display.
   useEffect(() => {
     if (statusRef.current !== "running") return;
     let rafId = 0;
@@ -251,12 +233,10 @@ export function useTypingTest(initialDifficulty: Difficulty, initialDuration: nu
     [customMode]
   );
 
-  // Retry: same passage, fresh attempt.
   const retry = useCallback(() => {
     resetInternal(targetText, isCustom ? customMode : "standard");
   }, [resetInternal, targetText, isCustom, customMode]);
 
-  // New text: different passage, same difficulty.
   const newText = useCallback(() => {
     if (isCustom) {
       if (customMode === "free") {
@@ -271,7 +251,6 @@ export function useTypingTest(initialDifficulty: Difficulty, initialDuration: nu
     resetInternal(next.text, "standard");
   }, [isCustom, customMode, customSource, difficulty, lastPassageId, resetInternal]);
 
-  // Full reset back to defaults for current difficulty/duration.
   const reset = useCallback(() => {
     if (isCustom) {
       setIsCustom(false);
@@ -282,7 +261,6 @@ export function useTypingTest(initialDifficulty: Difficulty, initialDuration: nu
     resetInternal(next.text, "standard");
   }, [difficulty, isCustom, lastPassageId, resetInternal]);
 
-  // Stop immediately and score based on progress so far.
   const stop = useCallback(() => {
     if (status === "running") {
       finish();
@@ -347,10 +325,6 @@ export function useTypingTest(initialDifficulty: Difficulty, initialDuration: nu
     resetInternal(next.text, "standard");
   }, [difficulty, lastPassageId, resetInternal]);
 
-  // handleInputChange uses refs for every typing-session value it touches.
-  // This guarantees that rapid successive keystrokes are processed against
-  // the authoritative, immediately-up-to-date state, not a captured
-  // snapshot from an older render.
   const handleInputChange = useCallback(
     (value: string) => {
       if (statusRef.current === "finished") return;
@@ -367,16 +341,12 @@ export function useTypingTest(initialDifficulty: Difficulty, initialDuration: nu
         const clipped = value.slice(0, MAX_CUSTOM_TEXT_LENGTH);
         setTyped(clipped);
         typedRef.current = clipped;
-        // Feed LiveMetrics `wordsWritten * 5` so its formula
-        // `liveCharCountRef / 5 / elapsedMinutes` becomes
-        // `wordsWritten / minutes` — the WPM the user actually wrote.
         const words = computeWordsWritten(clipped);
         liveCharCountRef.current = words * 5;
         startTimerIfNeeded();
         return;
       }
 
-      // Ensure enough text remains ahead of the cursor; append more if needed.
       if (currentTarget.length - value.length < APPEND_THRESHOLD) {
         if (isCustomValue) {
           currentTarget = currentTarget + " " + normalize(customSourceValue);
@@ -392,7 +362,6 @@ export function useTypingTest(initialDifficulty: Difficulty, initialDuration: nu
 
       const clipped = value.length > currentTarget.length ? value.slice(0, currentTarget.length) : value;
 
-      // Count freshly typed (non-backspace) characters as errors when wrong.
       if (clipped.length > typedValue.length) {
         for (let i = typedValue.length; i < clipped.length; i++) {
           if (clipped[i] !== currentTarget[i]) errorsRef.current += 1;
@@ -401,9 +370,6 @@ export function useTypingTest(initialDifficulty: Difficulty, initialDuration: nu
 
       setTyped(clipped);
       typedRef.current = clipped;
-      // Feed LiveMetrics `wordsWritten * 5` so its formula
-      // `liveCharCountRef / 5 / elapsedMinutes` becomes
-      // `wordsWritten / minutes` — the WPM the user actually wrote.
       const words = computeWordsWritten(clipped);
       liveCharCountRef.current = words * 5;
       startTimerIfNeeded();
@@ -411,25 +377,20 @@ export function useTypingTest(initialDifficulty: Difficulty, initialDuration: nu
     [startTimerIfNeeded]
   );
 
-  // Live elapsed time: always read straight from the authoritative ref so the
-  // value is precise on every render. LiveMetrics handles the continuous
-  // visual timer/WPM updates directly from the refs.
   const elapsedMs = status === "idle" || startTimeRef.current === null
     ? 0
     : Date.now() - startTimeRef.current;
   const remainingMs = Math.max(0, duration * 1000 - elapsedMs);
 
-  // Live stats — same formulas as the final result, just with the current
-  // `elapsedMs` denominator. The result above is the snapshot at finish;
-  // this is the rolling read while the test is running.
   const liveStats = useMemo(() => {
     const elapsedSec = elapsedMs / 1000;
+    const statsAvailable = isCustom || elapsedSec >= MIN_STATS_DURATION_SEC;
 
     if (isCustom && customMode === "free") {
       const lettersTyped = getLettersOnlyCount(typed);
       const accuracy = lettersTyped > 0 ? 100 : 100;
       const wordsWritten = computeWordsWritten(typed);
-      const actualWpm = elapsedSec > 0 ? wordsWritten / (elapsedSec / 60) : 0;
+      const actualWpm = statsAvailable && elapsedSec > 0 ? wordsWritten / (elapsedSec / 60) : 0;
       return {
         correct: lettersTyped,
         incorrect: 0,
@@ -447,13 +408,10 @@ export function useTypingTest(initialDifficulty: Difficulty, initialDuration: nu
     const correctWord = counts.correctWord;
     const incorrect = counts.incorrect;
     const extra = counts.extra;
-    // Letters Typed = Letters Correct + Letters Incorrect (drop extra overflow).
     const totalTyped = correctWord + incorrect;
     const wordsWritten = computeWordsWritten(typed);
-    // Actual WPM = words the user actually wrote / elapsed minutes.
-    const actualWpm = elapsedSec > 0 ? wordsWritten / (elapsedSec / 60) : 0;
-    // Predicted WPM = Monkeytype's net WPM on the correctWord count.
-    const predictedWpm = elapsedSec > 0
+    const actualWpm = statsAvailable && elapsedSec > 0 ? wordsWritten / (elapsedSec / 60) : 0;
+    const predictedWpm = statsAvailable && elapsedSec > 0
       ? Math.round(calculateWpm(correctWord, elapsedSec) * 10) / 10
       : null;
     const accuracy = totalTyped > 0
@@ -486,8 +444,6 @@ export function useTypingTest(initialDifficulty: Difficulty, initialDuration: nu
     remainingMs,
     elapsedMs,
     liveStats,
-    // Exposed for the LiveMetrics card, which drives its own rAF loop and
-    // reads these every frame to render the live Actual WPM and timer.
     startTimeRef,
     liveCharCountRef,
     setDifficulty,
