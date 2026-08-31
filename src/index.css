@@ -29,11 +29,47 @@ html {
 }
 
 body {
+  position: relative;
+  isolation: isolate;
   background-color: var(--color-bg);
   color: var(--color-ink);
   font-family: var(--font-sans);
   -webkit-font-smoothing: antialiased;
   overflow-x: hidden;
+}
+
+/* Slow, theme-aware atmospheric background inspired by the uploaded reference.
+   It stays behind the UI and animates with compositor-friendly transforms. */
+body::before,
+body::after {
+  content: "";
+  position: fixed;
+  inset: -18%;
+  z-index: -1;
+  pointer-events: none;
+  contain: paint;
+  backface-visibility: hidden;
+  transform: translate3d(0, 0, 0);
+  will-change: transform;
+}
+
+body::before {
+  background:
+    radial-gradient(ellipse 44% 38% at 14% 28%, var(--color-accent-glow), transparent 72%),
+    radial-gradient(ellipse 38% 34% at 86% 66%, var(--color-accent-glow-secondary), transparent 74%),
+    radial-gradient(ellipse 30% 28% at 58% 96%, var(--color-accent-glow), transparent 78%);
+  filter: blur(24px);
+  opacity: 0.95;
+  animation: ambientDriftPrimary 24s ease-in-out infinite;
+}
+
+body::after {
+  background:
+    radial-gradient(ellipse 34% 32% at 78% 22%, var(--color-accent-glow-secondary), transparent 76%),
+    radial-gradient(ellipse 42% 36% at 24% 80%, var(--color-accent-glow), transparent 76%);
+  filter: blur(34px);
+  opacity: 0.8;
+  animation: ambientDriftSecondary 31s ease-in-out infinite;
 }
 
 ::selection {
@@ -60,6 +96,38 @@ body {
 :focus-visible {
   outline: 2px solid var(--color-accent);
   outline-offset: 2px;
+}
+
+@keyframes ambientDriftPrimary {
+  0%,
+  100% {
+    transform: translate3d(-2%, 0%, 0) scale(1);
+  }
+  25% {
+    transform: translate3d(3%, -2%, 0) scale(1.035);
+  }
+  50% {
+    transform: translate3d(1%, 3%, 0) scale(1.02);
+  }
+  75% {
+    transform: translate3d(-3%, 1.5%, 0) scale(1.04);
+  }
+}
+
+@keyframes ambientDriftSecondary {
+  0%,
+  100% {
+    transform: translate3d(2%, 1%, 0) scale(1.04);
+  }
+  25% {
+    transform: translate3d(-2%, 3%, 0) scale(1.02);
+  }
+  50% {
+    transform: translate3d(-4%, -1%, 0) scale(1.05);
+  }
+  75% {
+    transform: translate3d(2%, -3%, 0) scale(1.025);
+  }
 }
 
 @keyframes fadeUp {
@@ -201,6 +269,12 @@ body {
   .animate-drift,
   .caret-blink {
     animation: none;
+  }
+
+  body::before,
+  body::after {
+    animation: none;
+    transform: translate3d(0, 0, 0);
   }
 
   *,
