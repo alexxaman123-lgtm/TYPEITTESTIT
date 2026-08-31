@@ -3,6 +3,7 @@ import { cn } from "../utils/cn";
 import { supabase } from "../supabaseClient";
 import AuthModal from "./AuthModal";
 import UsernameModal from "./UsernameModal";
+import ThemePicker from "./ThemePicker";
 
 const NAV_LINKS = [
   { label: "Typing Speed Test", href: "/#tester" },
@@ -152,12 +153,14 @@ export default function Header() {
             ))}
           </nav>
 
-          <div className="hidden items-center gap-4 md:flex">
+          <div className="hidden items-center gap-3 md:flex">
+            <ThemePicker />
             {accountLabel}
             <a href="/#tester" className="rounded-full border border-accent/40 bg-accent/10 px-4 py-2 text-sm font-semibold text-accent transition-all duration-200 hover:border-accent/70 hover:bg-accent/20">Start Typing</a>
           </div>
 
-          <div className="flex items-center gap-4 md:hidden">
+          <div className="flex items-center gap-3 md:hidden">
+            <ThemePicker />
             {mobileAccountLabel}
             <button type="button" onClick={() => setOpen((o) => !o)} className="flex h-10 w-10 items-center justify-center rounded-lg border border-white/10 text-ink" aria-label={open ? "Close menu" : "Open menu"} aria-expanded={open}>
               <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}>
