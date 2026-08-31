@@ -11,6 +11,8 @@ const SORT_LABELS: Record<SortMode, string> = {
   accuracy: "Top Accuracy",
 };
 
+const MIN_LEADERBOARD_ACCURACY = 95;
+
 export default function LeaderboardPage() {
   const [scores, setScores] = useState<LeaderboardScore[]>([]);
   const [sortMode, setSortMode] = useState<SortMode>("wpm");
@@ -37,12 +39,36 @@ export default function LeaderboardPage() {
 
   const filteredScores = useMemo(() => {
     const filtered = scores.filter((score) => {
+      if (score.accuracy < MIN_LEADERBOARD_ACCURACY) return false;
+
       const difficultyMatch = difficulty === "all" || score.difficulty === difficulty;
       const durationMatch = duration === "all" || score.duration_sec === Number(duration);
       return difficultyMatch && durationMatch;
     });
 
-    return [...filtered].sort((a, b) => {
+    // The public leaderboard shows one entry per account.
+    // When multiple qualifying records are available for a user, keep the
+    // strongest record for the current ranking/filter context.
+    const bestByUser = new Map<string, LeaderboardScore>();
+
+    for (const score of filtered) {
+      const existing = bestByUser.get(score.user_id);
+      if (!existing) {
+        bestByUser.set(score.user_id, score);
+        continue;
+      }
+
+      const isBetter =
+        sortMode === "accuracy"
+          ? score.accuracy > existing.accuracy ||
+            (score.accuracy === existing.accuracy && score.wpm > existing.wpm)
+          : score.wpm > existing.wpm ||
+            (score.wpm === existing.wpm && score.accuracy > existing.accuracy);
+
+      if (isBetter) bestByUser.set(score.user_id, score);
+    }
+
+    return [...bestByUser.values()].sort((a, b) => {
       if (sortMode === "accuracy") {
         return b.accuracy - a.accuracy || b.wpm - a.wpm || a.username.localeCompare(b.username);
       }
@@ -58,7 +84,7 @@ export default function LeaderboardPage() {
             <span className="text-[10px] font-semibold uppercase tracking-[0.3em] text-faint">GOATTYPE</span>
             <h1 className="mt-2 text-3xl font-extrabold tracking-tight text-ink sm:text-4xl">Leaderboard</h1>
             <p className="mt-2 max-w-2xl text-sm leading-6 text-muted">
-              See the fastest and most accurate GOATTYPE typists. Scores are separated by difficulty and test duration.
+              See the fastest and most accurate GOATTYPE typists. One account earns one leaderboard position, with difficulty and test-duration filters.
             </p>
           </div>
 
@@ -106,7 +132,7 @@ export default function LeaderboardPage() {
             <FilterSelect
               label="Duration"
               value={duration}
-              onChange={(value) => setDuration(value as DurationFilter)}
+              onChange={(value) => setDuration(value as DurationFilter)
               options={[
                 ["all", "All durations"],
                 ["60", "1 min"],
@@ -141,7 +167,7 @@ export default function LeaderboardPage() {
             </div>
           ) : (
             filteredScores.map((score, index) => (
-              <LeaderboardRow key={`${score.user_id}-${score.difficulty}-${score.duration_sec}`} rank={index + 1} score={score} />
+              <LeaderboardRow key={score.user_id} rank={index + 1} score={score} />
             ))
           )}
         </div>
