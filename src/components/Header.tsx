@@ -23,17 +23,14 @@ export default function Header() {
   useEffect(() => {
     let frame = 0;
     let lastScrolled = window.scrollY > 8;
-
     setScrolled(lastScrolled);
 
     const onScroll = () => {
       if (frame !== 0) return;
-
       frame = window.requestAnimationFrame(() => {
         frame = 0;
         const nextScrolled = window.scrollY > 8;
         if (nextScrolled === lastScrolled) return;
-
         lastScrolled = nextScrolled;
         setScrolled(nextScrolled);
       });
@@ -50,13 +47,8 @@ export default function Header() {
     let mounted = true;
 
     const syncUser = async () => {
-      const {
-        data: { user },
-        error: authError,
-      } = await supabase.auth.getUser();
-
+      const { data: { user }, error: authError } = await supabase.auth.getUser();
       if (!mounted) return;
-
       if (authError || !user) {
         setIsAuthenticated(false);
         setUsername(null);
@@ -65,7 +57,6 @@ export default function Header() {
       }
 
       setIsAuthenticated(true);
-
       const metadataUsername = typeof user.user_metadata?.username === "string"
         ? user.user_metadata.username.trim()
         : null;
@@ -77,7 +68,6 @@ export default function Header() {
         .maybeSingle();
 
       if (!mounted) return;
-
       if (profileError) {
         console.error("Could not load profile:", profileError.message);
         setUsername(metadataUsername);
@@ -100,7 +90,6 @@ export default function Header() {
         setIsAuthModalOpen(false);
         return;
       }
-
       if (event === "SIGNED_IN" || event === "INITIAL_SESSION" || event === "USER_UPDATED") {
         void syncUser();
         if (event === "SIGNED_IN") setIsAuthModalOpen(false);
@@ -138,8 +127,8 @@ export default function Header() {
     <>
       <header className={cn("sticky top-0 z-50 w-full border-b transition-all duration-300", scrolled ? "border-white/10 bg-bg/85 shadow-[0_8px_24px_-20px_rgba(0,255,102,0.35)] backdrop-blur-md" : "border-transparent bg-transparent")}>
         <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
-          <a href="/" className="select-none text-lg font-extrabold tracking-[-0.03em] text-ink" aria-label="TippyType home">
-            TIPPY<span className="text-accent">TYPE</span>
+          <a href="/" className="select-none text-lg font-extrabold tracking-[-0.03em] text-ink" aria-label="GOATTYPE home">
+            <span className="mr-2" aria-hidden="true">🐐</span><span>GOAT<span className="text-accent">TYPE</span></span>
           </a>
 
           <nav className="hidden items-center gap-8 md:flex" aria-label="Primary">
