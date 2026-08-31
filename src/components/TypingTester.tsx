@@ -106,6 +106,7 @@ export default function TypingTester() {
             <ResultPanel
               result={test.result}
               targetText={test.targetText}
+              profileBest={personalBest}
               reducedMotion={reducedMotion}
               onRetry={test.retry}
               onNewText={test.newText}
