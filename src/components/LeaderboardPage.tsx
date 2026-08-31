@@ -46,9 +46,8 @@ export default function LeaderboardPage() {
       return difficultyMatch && durationMatch;
     });
 
-    // The public leaderboard shows one entry per account.
-    // When multiple qualifying records are available for a user, keep the
-    // strongest record for the current ranking/filter context.
+    // Public rankings always contain one entry per account.
+    // Keep the strongest qualifying performance for the active view.
     const bestByUser = new Map<string, LeaderboardScore>();
 
     for (const score of filtered) {
@@ -132,7 +131,7 @@ export default function LeaderboardPage() {
             <FilterSelect
               label="Duration"
               value={duration}
-              onChange={(value) => setDuration(value as DurationFilter)
+              onChange={(value) => setDuration(value as DurationFilter)}
               options={[
                 ["all", "All durations"],
                 ["60", "1 min"],
