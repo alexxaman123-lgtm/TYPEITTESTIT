@@ -29,7 +29,7 @@ export default function DifficultySelector({ value, onChange, disabled }: Props)
             className={cn(
               "rounded-lg px-3.5 py-2 text-sm font-semibold uppercase tracking-wide transition-all duration-200 disabled:cursor-not-allowed disabled:opacity-50",
               active
-                ? "bg-accent text-black shadow-[0_0_18px_rgba(0,255,102,0.35)]"
+                ? "bg-accent text-black theme-accent-glow"
                 : "text-muted hover:text-ink hover:bg-white/5"
             )}
           >
