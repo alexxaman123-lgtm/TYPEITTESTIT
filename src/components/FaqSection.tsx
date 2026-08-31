@@ -1,5 +1,9 @@
 const FAQS = [
   {
+    q: "What is GOATTYPE?",
+    a: "GOATTYPE is a free online typing speed test and typing practice tool. It measures WPM, typing accuracy, and errors while you practice with timed passages at different difficulty levels.",
+  },
+  {
     q: "What is a typing test and how does an online typing test work?",
     a: "A typing test is a tool that measures how quickly and accurately you can type a piece of text. GOATTYPE shows you a passage, tracks every character you type, and reports your words per minute (WPM), accuracy, and error count once the timer ends.",
   },
@@ -14,6 +18,10 @@ const FAQS = [
   {
     q: "Is this typing test free online?",
     a: "Yes. GOATTYPE is completely free to use. No account is needed to take a test or use the core typing features; Google Sign-In is optional but required for saved account progress and leaderboard participation.",
+  },
+  {
+    q: "Is there a short typing test for quick practice?",
+    a: "Yes. GOATTYPE includes short timed options for quick typing practice as well as longer tests for endurance and consistency. A one minute typing test is useful for a fast benchmark, while longer durations give you more time to settle into a rhythm.",
   },
   {
     q: "What is the difference between a one minute and a five minute typing test?",
