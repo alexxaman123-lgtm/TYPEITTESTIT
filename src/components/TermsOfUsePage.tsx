@@ -9,7 +9,7 @@ export default function TermsOfUsePage() {
           <div>
             <h2 className="font-semibold text-ink-soft">Use of the Service</h2>
             <p className="mt-2">
-              TYPEITTESTIT is provided as a free tool for practicing and measuring typing speed. You may use the
+              TippyType is provided as a free tool for practicing and measuring typing speed. You may use the
               basic typing test without creating an account. Google Sign-In is optional, but is required for
               account-based saved progress and leaderboard participation.
             </p>
@@ -44,21 +44,21 @@ export default function TermsOfUsePage() {
           <div>
             <h2 className="font-semibold text-ink-soft">Content and Acceptable Use</h2>
             <p className="mt-2">
-              The typing passages available on TYPEITTESTIT are provided for practice purposes. Please use the
+              The typing passages available on TippyType are provided for practice purposes. Please use the
               service responsibly and do not attempt to interfere with, disrupt, or abuse the website.
             </p>
           </div>
           <div>
             <h2 className="font-semibold text-ink-soft">Availability</h2>
             <p className="mt-2">
-              We aim to keep TYPEITTESTIT available and useful, but the service is provided without a warranty
+              We aim to keep TippyType available and useful, but the service is provided without a warranty
               that it will always be uninterrupted, error-free, or available in every circumstance.
             </p>
           </div>
           <div>
             <h2 className="font-semibold text-ink-soft">Changes to These Terms</h2>
             <p className="mt-2">
-              These Terms of Use may be updated as the service changes. Continued use of TYPEITTESTIT after an
+              These Terms of Use may be updated as the service changes. Continued use of TippyType after an
               update means you accept the revised terms.
             </p>
           </div>
