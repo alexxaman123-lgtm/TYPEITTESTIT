@@ -1,8 +1,8 @@
 import { useEffect, useMemo, useState } from "react";
 import { useTypingTest } from "../lib/useTypingTest";
 import { useReducedMotion } from "../lib/useReducedMotion";
-import { getPersonalBest, getPreferences, savePreferences } from "../lib/storage";
-import { saveLeaderboardScore } from "../lib/leaderboard";
+import { getPreferences, savePreferences } from "../lib/storage";
+import { getProfileBest } from "../lib/leaderboard";
 import DifficultySelector from "./DifficultySelector";
 import DurationSelector from "./DurationSelector";
 import TypingText from "./TypingText";
@@ -14,29 +14,33 @@ import { cn } from "../utils/cn";
 
 type ViewMode = "test" | "custom";
 
+type PersonalBest = { wpm: number; accuracy: number } | null;
+
 export default function TypingTester() {
   const prefs = useMemo(() => getPreferences(), []);
   const reducedMotion = useReducedMotion();
   const test = useTypingTest(prefs.difficulty, prefs.duration);
   const [viewMode, setViewMode] = useState<ViewMode>("test");
-
-  const personalBest = test.isCustom ? null : getPersonalBest(test.difficulty, test.duration);
+  const [personalBest, setPersonalBest] = useState<PersonalBest>(null);
 
   useEffect(() => {
-    const result = test.result;
-    if (!result || result.isCustom) return;
+    let cancelled = false;
 
-    void saveLeaderboardScore({
-      difficulty: result.difficulty,
-      durationSec: result.targetDurationSec,
-      wpm: result.wpm,
-      accuracy: result.accuracy,
-      wordsWritten: result.wordsWritten,
-      correctChars: result.correctChars,
-      incorrectChars: result.incorrectChars,
-      totalTyped: result.totalTyped,
-    });
-  }, [test.result]);
+    const loadPersonalBest = async () => {
+      if (test.isCustom) {
+        setPersonalBest(null);
+        return;
+      }
+
+      const best = await getProfileBest(test.difficulty, test.duration);
+      if (!cancelled) setPersonalBest(best);
+    };
+
+    void loadPersonalBest();
+    return () => {
+      cancelled = true;
+    };
+  }, [test.difficulty, test.duration, test.isCustom, test.status]);
 
   const handleDifficultyChange = (d: typeof test.difficulty) => {
     test.setDifficulty(d);
@@ -79,7 +83,7 @@ export default function TypingTester() {
 
         {personalBest && viewMode === "test" && test.status !== "finished" && (
           <p className="mt-4 text-center text-xs font-medium uppercase tracking-wide text-faint sm:text-left">
-            Best on this device for {test.difficulty} · {test.duration / 60}min:{" "}
+            Best on your profile for {test.difficulty} · {test.duration / 60}min:{" "}
             <span className="text-accent">{personalBest.wpm} WPM</span> at <span className="text-ink-soft">{personalBest.accuracy}%</span>
           </p>
         )}
