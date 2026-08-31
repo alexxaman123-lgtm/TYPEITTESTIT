@@ -211,7 +211,11 @@ function FilterSelect({
         className="bg-transparent font-semibold text-ink outline-none"
       >
         {options.map(([optionValue, optionLabel]) => (
-          <option key={optionValue} value={optionValue} className="bg-[#0c100d] text-white">
+          <option
+            key={optionValue}
+            value={optionValue}
+            style={{ backgroundColor: "var(--color-surface3)", color: "var(--color-ink)" }}
+          >
             {optionLabel}
           </option>
         ))}
