@@ -37,7 +37,7 @@ body {
 }
 
 ::selection {
-  background-color: rgba(0, 255, 102, 0.28);
+  background-color: color-mix(in srgb, var(--color-accent) 28%, transparent);
   color: #ffffff;
 }
 
@@ -49,7 +49,7 @@ body {
   background: var(--color-bg);
 }
 ::-webkit-scrollbar-thumb {
-  background-color: #1a231c;
+  background-color: color-mix(in srgb, var(--color-accentdark) 38%, var(--color-bg));
   border-radius: 999px;
   border: 2px solid var(--color-bg);
 }
@@ -115,9 +115,9 @@ body {
   backface-visibility: hidden;
 }
 
-/* Premium UI polish — visual only, functionality unchanged. */
+/* Theme-aware visual polish — functionality unchanged. */
 .surface-lift {
-  box-shadow: 0 18px 55px -28px rgba(0, 0, 0, 0.95), inset 0 1px 0 rgba(255, 255, 255, 0.035);
+  box-shadow: 0 18px 55px -28px rgba(0, 0, 0, 0.95), inset 0 1px 0 color-mix(in srgb, var(--color-ink) 3.5%, transparent);
 }
 
 .interactive-lift {
@@ -126,7 +126,11 @@ body {
 
 .interactive-lift:hover {
   transform: translateY(-1px);
-  box-shadow: 0 14px 30px -22px rgba(0, 255, 102, 0.65);
+  box-shadow: 0 14px 30px -22px color-mix(in srgb, var(--color-accent) 65%, transparent);
+}
+
+.theme-accent-shadow {
+  box-shadow: 0 8px 24px -20px color-mix(in srgb, var(--color-accent) 35%, transparent);
 }
 
 .test-shell {
@@ -141,7 +145,7 @@ body {
   inset: 0;
   pointer-events: none;
   border-radius: inherit;
-  background: linear-gradient(135deg, rgba(0,255,102,0.045), transparent 36%, transparent 70%, rgba(255,255,255,0.018));
+  background: linear-gradient(135deg, color-mix(in srgb, var(--color-accent) 4.5%, transparent), transparent 36%, transparent 70%, color-mix(in srgb, var(--color-ink) 1.8%, transparent));
   z-index: -1;
 }
 
@@ -156,15 +160,15 @@ body {
   content: "";
   width: 24px;
   height: 1px;
-  background: rgba(0, 255, 102, 0.35);
+  background: color-mix(in srgb, var(--color-accent) 35%, transparent);
 }
 
 .typing-surface {
-  box-shadow: inset 0 1px 0 rgba(255,255,255,0.03), 0 18px 42px -34px rgba(0,0,0,0.95);
+  box-shadow: inset 0 1px 0 color-mix(in srgb, var(--color-ink) 3%, transparent), 0 18px 42px -34px rgba(0,0,0,0.95);
 }
 
 .metric-surface {
-  box-shadow: inset 0 1px 0 rgba(255,255,255,0.03);
+  box-shadow: inset 0 1px 0 color-mix(in srgb, var(--color-ink) 3%, transparent);
 }
 
 @media (max-width: 640px) {
