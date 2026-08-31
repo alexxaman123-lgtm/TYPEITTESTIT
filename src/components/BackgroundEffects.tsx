@@ -11,49 +11,55 @@ export default function BackgroundEffects() {
         }}
       />
 
-      {/* Large animated ambient fields. They remain subtle, but are intentionally visible on desktop. */}
+      {/* Broad colour fields spread across the whole viewport. The page stays black while themed colour softly fills the atmosphere. */}
       <div
-        className="ambient-glow ambient-glow-primary absolute left-[-22vw] top-[-18vw] h-[72vw] w-[72vw] rounded-full"
+        className="ambient-glow ambient-glow-primary absolute left-[-28vw] top-[-16vw] h-[82vw] w-[82vw] rounded-full"
         style={{
-          background: "radial-gradient(circle, var(--color-accent-glow) 0%, transparent 68%)",
+          background: "radial-gradient(circle, color-mix(in srgb, var(--color-accent) 30%, transparent) 0%, color-mix(in srgb, var(--color-accent) 14%, transparent) 42%, transparent 72%)",
         }}
       />
 
       <div
-        className="ambient-glow ambient-glow-secondary absolute right-[-18vw] top-[18vh] h-[68vw] w-[68vw] rounded-full"
+        className="ambient-glow ambient-glow-secondary absolute right-[-28vw] top-[2vh] h-[82vw] w-[82vw] rounded-full"
         style={{
-          background: "radial-gradient(circle, var(--color-accent-glow-secondary) 0%, transparent 68%)",
+          background: "radial-gradient(circle, color-mix(in srgb, var(--color-accent2) 24%, transparent) 0%, color-mix(in srgb, var(--color-accent2) 11%, transparent) 44%, transparent 74%)",
         }}
       />
 
       <div
-        className="ambient-glow ambient-glow-tertiary absolute left-[10vw] bottom-[-30vw] h-[70vw] w-[70vw] rounded-full"
+        className="ambient-glow ambient-glow-tertiary absolute left-[-8vw] bottom-[-38vw] h-[88vw] w-[88vw] rounded-full"
         style={{
-          background: "radial-gradient(circle, var(--color-accent-glow) 0%, transparent 70%)",
+          background: "radial-gradient(circle, color-mix(in srgb, var(--color-accent) 24%, transparent) 0%, color-mix(in srgb, var(--color-accent) 10%, transparent) 46%, transparent 76%)",
         }}
       />
 
       <div
-        className="ambient-glow ambient-glow-center absolute left-1/2 top-[46%] h-[58vw] w-[58vw] -translate-x-1/2 -translate-y-1/2 rounded-full"
+        className="ambient-glow ambient-glow-center absolute left-1/2 top-1/2 h-[78vw] w-[78vw] -translate-x-1/2 -translate-y-1/2 rounded-full"
         style={{
-          background: "radial-gradient(circle, var(--color-accent-glow-secondary) 0%, transparent 72%)",
+          background: "radial-gradient(circle, color-mix(in srgb, var(--color-accent) 18%, transparent) 0%, color-mix(in srgb, var(--color-accent2) 10%, transparent) 34%, transparent 74%)",
         }}
       />
 
-      {/* Extra low-frequency field keeps the atmosphere distributed rather than side-loaded. */}
       <div
-        className="ambient-glow ambient-glow-fourth absolute left-[34vw] top-[8vh] h-[42vw] w-[42vw] rounded-full"
+        className="ambient-glow ambient-glow-fourth absolute left-[48vw] top-[20vh] h-[62vw] w-[62vw] rounded-full"
         style={{
-          background: "radial-gradient(circle, var(--color-accent-glow) 0%, transparent 74%)",
+          background: "radial-gradient(circle, color-mix(in srgb, var(--color-accent2) 18%, transparent) 0%, transparent 72%)",
         }}
       />
 
-      {/* Vignette keeps the center readable while allowing the moving glow to remain visible. */}
+      <div
+        className="ambient-glow ambient-glow-fifth absolute left-[-22vw] top-[38vh] h-[58vw] w-[58vw] rounded-full"
+        style={{
+          background: "radial-gradient(circle, color-mix(in srgb, var(--color-accent) 16%, transparent) 0%, transparent 72%)",
+        }}
+      />
+
+      {/* Vignette keeps the middle readable while allowing the moving colour to remain visible. */}
       <div
         className="absolute inset-0"
         style={{
           background:
-            "radial-gradient(ellipse at center, rgba(0,0,0,0.02) 18%, rgba(0,0,0,0.16) 62%, rgba(0,0,0,0.38) 100%)",
+            "radial-gradient(ellipse at center, rgba(0,0,0,0.01) 18%, rgba(0,0,0,0.12) 62%, rgba(0,0,0,0.38) 100%)",
         }}
       />
 
