@@ -29,6 +29,53 @@ export interface LeaderboardResultInput {
 const VALID_DIFFICULTIES = new Set<Difficulty>(["easy", "medium", "hard"]);
 const VALID_DURATIONS = new Set([60, 120, 180, 300]);
 
+type AuthUser = {
+  id: string;
+  user_metadata?: Record<string, unknown> | null;
+};
+
+async function ensureUserProfile(user: AuthUser): Promise<boolean> {
+  const { data: profile, error: profileError } = await supabase
+    .from("profiles")
+    .select("user_id, username")
+    .eq("user_id", user.id)
+    .maybeSingle();
+
+  if (profileError) {
+    console.error("Could not check leaderboard profile:", profileError.message);
+    return false;
+  }
+
+  if (typeof profile?.username === "string" && profile.username.trim()) {
+    return true;
+  }
+
+  const metadataUsername =
+    typeof user.user_metadata?.username === "string"
+      ? user.user_metadata.username.trim()
+      : "";
+
+  if (!metadataUsername) {
+    console.error("Cannot save leaderboard score: signed-in user has no username profile.");
+    return false;
+  }
+
+  const { error: upsertError } = await supabase.from("profiles").upsert(
+    {
+      user_id: user.id,
+      username: metadataUsername,
+    },
+    { onConflict: "user_id" },
+  );
+
+  if (upsertError) {
+    console.error("Could not create leaderboard profile:", upsertError.message);
+    return false;
+  }
+
+  return true;
+}
+
 export async function saveLeaderboardScore(result: LeaderboardResultInput): Promise<boolean> {
   if (
     !VALID_DIFFICULTIES.has(result.difficulty) ||
@@ -47,6 +94,7 @@ export async function saveLeaderboardScore(result: LeaderboardResultInput): Prom
   } = await supabase.auth.getUser();
 
   if (!user) return false;
+  if (!(await ensureUserProfile(user))) return false;
 
   const { data: current, error: currentError } = await supabase
     .from("leaderboard_scores")
