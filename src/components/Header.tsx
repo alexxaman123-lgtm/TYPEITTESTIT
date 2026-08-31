@@ -138,8 +138,8 @@ export default function Header() {
     <>
       <header className={cn("sticky top-0 z-50 w-full border-b transition-all duration-300", scrolled ? "border-white/10 bg-bg/85 shadow-[0_8px_24px_-20px_rgba(0,255,102,0.35)] backdrop-blur-md" : "border-transparent bg-transparent")}>
         <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
-          <a href="/" className="select-none text-lg font-extrabold tracking-[-0.03em] text-ink" aria-label="TypeItTestIt home">
-            TYPING<span className="text-accent">TEST</span>
+          <a href="/" className="select-none text-lg font-extrabold tracking-[-0.03em] text-ink" aria-label="TippyType home">
+            TIPPY<span className="text-accent">TYPE</span>
           </a>
 
           <nav className="hidden items-center gap-8 md:flex" aria-label="Primary">
@@ -166,7 +166,7 @@ export default function Header() {
         {open && (
           <div className="border-t border-white/10 bg-bg/95 backdrop-blur-md md:hidden">
             <nav className="flex flex-col gap-1 px-4 py-3" aria-label="Mobile">
-              {NAV_LINKS.map((link) => <a key={link.href} href={link.href} onClick={() => setOpen(false)} className="rounded-lg px-3 py-3 text-sm font-medium text-ink-soft transition-colors hover:bg-white/5 hover:text-ink">{link.label}</a>)}
+              {NAV_LINKS.map((link) => <a key={link.href} href={link.href} onClick={() => setOpen(false)} className="rounded-lg px-3 py-3 text-sm font-medium text-ink-soft hover:bg-white/5 hover:text-ink">{link.label}</a>)}
             </nav>
           </div>
         )}
