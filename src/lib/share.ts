@@ -2,7 +2,7 @@ import type { TestResult } from "./useTypingTest";
 
 export function buildShareText(result: TestResult): string {
   const mode = result.isCustom ? "CUSTOM" : result.difficulty.toUpperCase();
-  return `I just scored ${result.wpm.toFixed(1)} actual WPM with ${result.accuracy}% accuracy on TYPEITTESTIT (${mode} mode, ${result.targetDurationSec}s test). Can you beat my score?\n\nTry it: https://typeittestit.com`;
+  return `I just scored ${result.wpm.toFixed(1)} actual WPM with ${result.accuracy}% accuracy on TippyType (${mode} mode, ${result.targetDurationSec}s test). Can you beat my score?\n\nTry it: https://typeittestit.com`;
 }
 
 function drawShareCard(result: TestResult): HTMLCanvasElement {
@@ -11,7 +11,6 @@ function drawShareCard(result: TestResult): HTMLCanvasElement {
   canvas.height = 630;
   const ctx = canvas.getContext("2d")!;
 
-  // Background
   ctx.fillStyle = "#050706";
   ctx.fillRect(0, 0, canvas.width, canvas.height);
 
@@ -36,20 +35,18 @@ function drawShareCard(result: TestResult): HTMLCanvasElement {
     ctx.stroke();
   }
 
-  // Logo
   ctx.textBaseline = "alphabetic";
   ctx.font = "700 34px 'JetBrains Mono', monospace";
   ctx.fillStyle = "#ffffff";
-  ctx.fillText("TYPING", 80, 100);
-  const typingWidth = ctx.measureText("TYPING").width;
+  ctx.fillText("TIPPY", 80, 100);
+  const tippyWidth = ctx.measureText("TIPPY").width;
   ctx.fillStyle = "#00ff66";
-  ctx.fillText("TEST", 80 + typingWidth, 100);
+  ctx.fillText("TYPE", 80 + tippyWidth, 100);
 
   ctx.font = "600 22px Inter, sans-serif";
   ctx.fillStyle = "#a7aea9";
-  ctx.fillText("TYPING TESTER", 80, 140);
+  ctx.fillText("TIPPYTYPE TYPING TEST", 80, 140);
 
-  // WPM
   ctx.font = "800 190px Inter, sans-serif";
   ctx.fillStyle = "#00ff66";
   ctx.fillText(`${result.wpm}`, 80, 400);
@@ -69,7 +66,7 @@ function drawShareCard(result: TestResult): HTMLCanvasElement {
   ctx.font = "700 30px Inter, sans-serif";
   ctx.fillStyle = "#00d95a";
   ctx.textAlign = "right";
-  ctx.fillText("CAN YOU BEAT THIS? — TYPEITTESTIT", canvas.width - 80, 590);
+  ctx.fillText("CAN YOU BEAT THIS? — TIPPYTYPE", canvas.width - 80, 590);
   ctx.textAlign = "left";
 
   return canvas;
@@ -82,10 +79,10 @@ export async function shareResult(result: TestResult): Promise<"shared" | "copie
     const canvas = drawShareCard(result);
     const blob: Blob | null = await new Promise((resolve) => canvas.toBlob(resolve, "image/png"));
 
-    if (blob && navigator.canShare && navigator.canShare({ files: [new File([blob], "typeittestit-result.png", { type: "image/png" })] })) {
-      const file = new File([blob], "typeittestit-result.png", { type: "image/png" });
+    if (blob && navigator.canShare && navigator.canShare({ files: [new File([blob], "tippytype-result.png", { type: "image/png" })] })) {
+      const file = new File([blob], "tippytype-result.png", { type: "image/png" });
       await navigator.share({
-        title: "TYPEITTESTIT — Typing Tester Result",
+        title: "TippyType — Typing Test Result",
         text,
         files: [file],
       });
@@ -93,18 +90,18 @@ export async function shareResult(result: TestResult): Promise<"shared" | "copie
     }
 
     if (navigator.share) {
-      await navigator.share({ title: "TYPEITTESTIT — Typing Tester Result", text });
+      await navigator.share({ title: "TippyType — Typing Test Result", text });
       return "shared";
     }
 
     if (navigator.clipboard && navigator.clipboard.writeText) {
       await navigator.clipboard.writeText(text);
-      if (blob) downloadBlob(blob, "typeittestit-result.png");
+      if (blob) downloadBlob(blob, "tippytype-result.png");
       return "copied";
     }
 
     if (blob) {
-      downloadBlob(blob, "typeittestit-result.png");
+      downloadBlob(blob, "tippytype-result.png");
       return "downloaded";
     }
 
