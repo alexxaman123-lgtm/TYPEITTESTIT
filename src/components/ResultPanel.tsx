@@ -128,7 +128,7 @@ export default function ResultPanel({
             <p className="text-muted">No text was typed during this test.</p>
           )}
         </div>
-        <p className="mt-3 text-xs text-faint">Correct characters stay green, mistyped characters stay red, and untouched text remains muted.</p>
+        <p className="mt-3 text-xs text-faint">Only the portion you typed is shown. Correct characters stay green, mistyped characters stay red.</p>
       </div>
 
       <div className="mt-8 flex flex-wrap justify-center gap-3">
@@ -149,24 +149,19 @@ export default function ResultPanel({
 }
 
 function ResultPassage({ target, typed }: { target: string; typed: string }) {
+  const visibleTarget = target.slice(0, typed.length);
+
   return (
     <p className="whitespace-pre-wrap break-words">
-      {target.split("").map((ch, index) => {
+      {visibleTarget.split("").map((ch, index) => {
         const typedChar = typed[index];
-        if (index < typed.length) {
-          const correct = typedChar === ch;
-          return (
-            <span
-              key={index}
-              className={correct ? "text-accent2" : "rounded-[3px] bg-danger/10 text-danger"}
-              title={correct ? undefined : `Typed: ${typedChar === " " ? "space" : typedChar}`}
-            >
-              {ch === " " ? "\u00A0" : ch}
-            </span>
-          );
-        }
+        const correct = typedChar === ch;
         return (
-          <span key={index} className="text-faint">
+          <span
+            key={index}
+            className={correct ? "text-accent2" : "rounded-[3px] bg-danger/10 text-danger"}
+            title={correct ? undefined : `Typed: ${typedChar === " " ? "space" : typedChar}`}
+          >
             {ch === " " ? "\u00A0" : ch}
           </span>
         );
