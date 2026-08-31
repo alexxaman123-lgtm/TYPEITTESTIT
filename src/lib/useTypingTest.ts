@@ -68,6 +68,12 @@ export function useTypingTest(initialDifficulty: Difficulty, initialDuration: nu
   const errorsRef = useRef(0);
   const finishedRef = useRef(false);
 
+  // The LiveMetrics card reads these two refs every animation frame and
+  // computes Actual WPM = liveCharCountRef / 5 / elapsedMinutes. We feed it
+  // the Monkeytype "correctWord" count so the live display is the net WPM
+  // (only chars that count toward a correct word), not the raw count.
+  const liveCharCountRef = useRef(0);
+
   const typedRef = useRef(typed);
   const targetTextRef = useRef(targetText);
   const isCustomRef = useRef(isCustom);
@@ -216,6 +222,7 @@ export function useTypingTest(initialDifficulty: Difficulty, initialDuration: nu
       startTimeRef.current = null;
       errorsRef.current = 0;
       finishedRef.current = false;
+      liveCharCountRef.current = 0;
       setTyped("");
       setResult(null);
       setStatus("idle");
@@ -342,6 +349,8 @@ export function useTypingTest(initialDifficulty: Difficulty, initialDuration: nu
         const clipped = value.slice(0, MAX_CUSTOM_TEXT_LENGTH);
         setTyped(clipped);
         typedRef.current = clipped;
+        // Free-typing: every non-space char counts as correctWord.
+        liveCharCountRef.current = getLettersOnlyCount(clipped);
         startTimerIfNeeded();
         return;
       }
@@ -371,6 +380,13 @@ export function useTypingTest(initialDifficulty: Difficulty, initialDuration: nu
 
       setTyped(clipped);
       typedRef.current = clipped;
+      // liveCharCountRef now carries the Monkeytype "correctWord" count
+      // (chars that count toward a correct word, including the partial
+      // prefix of the current word). The LiveMetrics component reads
+      // this ref every animation frame and divides by 5/elapsedMinutes,
+      // so the live Actual WPM card is now the Monkeytype net WPM.
+      const liveCounts = countAllChars(currentTarget, clipped, true);
+      liveCharCountRef.current = liveCounts.correctWord;
       startTimerIfNeeded();
     },
     [startTimerIfNeeded]
@@ -446,6 +462,10 @@ export function useTypingTest(initialDifficulty: Difficulty, initialDuration: nu
     remainingMs,
     elapsedMs,
     liveStats,
+    // Exposed for the LiveMetrics card, which drives its own rAF loop and
+    // reads these every frame to render the live Actual WPM and timer.
+    startTimeRef,
+    liveCharCountRef,
     setDifficulty,
     setDuration,
     handleInputChange,
