@@ -7,6 +7,7 @@ interface Props {
   duration: number;
   liveCharCountRef: RefObject<number>;
   startTimeRef: RefObject<number | null>;
+  focusMode?: boolean;
 }
 
 export default function LiveMetrics({
@@ -15,6 +16,7 @@ export default function LiveMetrics({
   duration,
   liveCharCountRef,
   startTimeRef,
+  focusMode = false,
 }: Props) {
   const actualWpmElementRef = useRef<HTMLSpanElement | null>(null);
   const timeElementRef = useRef<HTMLSpanElement | null>(null);
@@ -74,36 +76,60 @@ export default function LiveMetrics({
   }, [duration, liveCharCountRef, startTimeRef, status]);
 
   return (
-    <div className="metric-surface grid grid-cols-3 divide-x divide-white/10 rounded-2xl border border-white/10 bg-surface2/70">
-      <div className="flex min-h-[88px] flex-col items-center justify-center gap-1 px-3 py-4 sm:py-5">
-        <span className="text-[10px] font-semibold uppercase tracking-[0.18em] text-faint sm:text-xs">
+    <div className={focusMode
+      ? "metric-surface grid grid-cols-3 divide-x divide-white/10 rounded-2xl border border-white/10 bg-surface2/65"
+      : "metric-surface grid grid-cols-3 divide-x divide-white/10 rounded-2xl border border-white/10 bg-surface2/70"
+    }>
+      <div className={focusMode
+        ? "flex min-h-[112px] flex-col items-center justify-center gap-2 px-3 py-5 sm:min-h-[132px] sm:py-6"
+        : "flex min-h-[88px] flex-col items-center justify-center gap-1 px-3 py-4 sm:py-5"
+      }>
+        <span className={focusMode
+          ? "text-[10px] font-semibold uppercase tracking-[0.18em] text-faint sm:text-xs"
+          : "text-[10px] font-semibold uppercase tracking-[0.18em] text-faint sm:text-xs"
+        }>
           Actual WPM
         </span>
         <span
           ref={actualWpmElementRef}
           aria-live="off"
-          className="font-mono text-2xl font-bold tabular-nums text-accent sm:text-3xl"
+          className={focusMode
+            ? "font-mono text-4xl font-bold tabular-nums text-accent sm:text-5xl lg:text-6xl"
+            : "font-mono text-2xl font-bold tabular-nums text-accent sm:text-3xl"
+          }
         >
           0.0
         </span>
       </div>
 
-      <div className="flex min-h-[88px] flex-col items-center justify-center gap-1 px-3 py-4 sm:py-5">
+      <div className={focusMode
+        ? "flex min-h-[112px] flex-col items-center justify-center gap-2 px-3 py-5 sm:min-h-[132px] sm:py-6"
+        : "flex min-h-[88px] flex-col items-center justify-center gap-1 px-3 py-4 sm:py-5"
+      }>
         <span className="text-[10px] font-semibold uppercase tracking-[0.18em] text-faint sm:text-xs">
           Accuracy
         </span>
-        <span className="font-mono text-2xl font-bold tabular-nums text-ink sm:text-3xl">
+        <span className={focusMode
+          ? "font-mono text-4xl font-bold tabular-nums text-ink sm:text-5xl lg:text-6xl"
+          : "font-mono text-2xl font-bold tabular-nums text-ink sm:text-3xl"
+        }>
           {accuracy}%
         </span>
       </div>
 
-      <div className="flex min-h-[88px] flex-col items-center justify-center gap-1 px-3 py-4 sm:py-5">
+      <div className={focusMode
+        ? "flex min-h-[112px] flex-col items-center justify-center gap-2 px-3 py-5 sm:min-h-[132px] sm:py-6"
+        : "flex min-h-[88px] flex-col items-center justify-center gap-1 px-3 py-4 sm:py-5"
+      }>
         <span className="text-[10px] font-semibold uppercase tracking-[0.18em] text-faint sm:text-xs">
           Time
         </span>
         <span
           ref={timeElementRef}
-          className="font-mono text-2xl font-bold tabular-nums text-ink sm:text-3xl"
+          className={focusMode
+            ? "font-mono text-4xl font-bold tabular-nums text-ink sm:text-5xl lg:text-6xl"
+            : "font-mono text-2xl font-bold tabular-nums text-ink sm:text-3xl"
+          }
         >
           {formatTime(duration)}
         </span>
