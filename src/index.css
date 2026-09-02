@@ -62,7 +62,6 @@ body {
   outline-offset: 2px;
 }
 
-/* Wide, soft atmospheric fields. The base stays black while theme colour flows through the entire viewport. */
 .ambient-glow {
   pointer-events: none;
   contain: paint;
@@ -104,118 +103,46 @@ body {
 }
 
 @keyframes ambientPrimary {
-  0%,
-  100% {
-    transform: translate3d(-10vw, -4vh, 0) scale(0.94);
-    opacity: 0.56;
-  }
-  20% {
-    transform: translate3d(-2vw, 3vh, 0) scale(1.04);
-    opacity: 0.76;
-  }
-  45% {
-    transform: translate3d(9vw, -1vh, 0) scale(1.1);
-    opacity: 0.82;
-  }
-  70% {
-    transform: translate3d(4vw, 7vh, 0) scale(1.03);
-    opacity: 0.7;
-  }
+  0%, 100% { transform: translate3d(-10vw, -4vh, 0) scale(0.94); opacity: 0.56; }
+  20% { transform: translate3d(-2vw, 3vh, 0) scale(1.04); opacity: 0.76; }
+  45% { transform: translate3d(9vw, -1vh, 0) scale(1.1); opacity: 0.82; }
+  70% { transform: translate3d(4vw, 7vh, 0) scale(1.03); opacity: 0.7; }
 }
 
 @keyframes ambientSecondary {
-  0%,
-  100% {
-    transform: translate3d(11vw, 5vh, 0) scale(0.96);
-    opacity: 0.46;
-  }
-  25% {
-    transform: translate3d(2vw, 1vh, 0) scale(1.06);
-    opacity: 0.62;
-  }
-  50% {
-    transform: translate3d(-9vw, -4vh, 0) scale(1.12);
-    opacity: 0.76;
-  }
-  78% {
-    transform: translate3d(-3vw, 6vh, 0) scale(1.03);
-    opacity: 0.6;
-  }
+  0%, 100% { transform: translate3d(11vw, 5vh, 0) scale(0.96); opacity: 0.46; }
+  25% { transform: translate3d(2vw, 1vh, 0) scale(1.06); opacity: 0.62; }
+  50% { transform: translate3d(-9vw, -4vh, 0) scale(1.12); opacity: 0.76; }
+  78% { transform: translate3d(-3vw, 6vh, 0) scale(1.03); opacity: 0.6; }
 }
 
 @keyframes ambientTertiary {
-  0%,
-  100% {
-    transform: translate3d(-5vw, 11vh, 0) scale(0.94);
-    opacity: 0.34;
-  }
-  33% {
-    transform: translate3d(4vw, -2vh, 0) scale(1.12);
-    opacity: 0.54;
-  }
-  66% {
-    transform: translate3d(13vw, 5vh, 0) scale(1.04);
-    opacity: 0.48;
-  }
+  0%, 100% { transform: translate3d(-5vw, 11vh, 0) scale(0.94); opacity: 0.34; }
+  33% { transform: translate3d(4vw, -2vh, 0) scale(1.12); opacity: 0.54; }
+  66% { transform: translate3d(13vw, 5vh, 0) scale(1.04); opacity: 0.48; }
 }
 
 @keyframes ambientCenter {
-  0%,
-  100% {
-    transform: translate3d(-5vw, 3vh, 0) scale(0.9);
-    opacity: 0.2;
-  }
-  25% {
-    transform: translate3d(0vw, -2vh, 0) scale(1.02);
-    opacity: 0.32;
-  }
-  50% {
-    transform: translate3d(5vw, 1vh, 0) scale(1.16);
-    opacity: 0.5;
-  }
-  75% {
-    transform: translate3d(1vw, 5vh, 0) scale(1.08);
-    opacity: 0.36;
-  }
+  0%, 100% { transform: translate3d(-5vw, 3vh, 0) scale(0.9); opacity: 0.2; }
+  25% { transform: translate3d(0vw, -2vh, 0) scale(1.02); opacity: 0.32; }
+  50% { transform: translate3d(5vw, 1vh, 0) scale(1.16); opacity: 0.5; }
+  75% { transform: translate3d(1vw, 5vh, 0) scale(1.08); opacity: 0.36; }
 }
 
 @keyframes ambientFourth {
-  0%,
-  100% {
-    transform: translate3d(5vw, -2vh, 0) scale(0.95);
-    opacity: 0.2;
-  }
-  33% {
-    transform: translate3d(-4vw, 4vh, 0) scale(1.1);
-    opacity: 0.38;
-  }
-  66% {
-    transform: translate3d(2vw, -4vh, 0) scale(1.04);
-    opacity: 0.32;
-  }
+  0%, 100% { transform: translate3d(5vw, -2vh, 0) scale(0.95); opacity: 0.2; }
+  33% { transform: translate3d(-4vw, 4vh, 0) scale(1.1); opacity: 0.38; }
+  66% { transform: translate3d(2vw, -4vh, 0) scale(1.04); opacity: 0.32; }
 }
 
 @keyframes ambientFifth {
-  0%,
-  100% {
-    transform: translate3d(-2vw, -2vh, 0) scale(0.92);
-    opacity: 0.16;
-  }
-  50% {
-    transform: translate3d(5vw, 4vh, 0) scale(1.12);
-    opacity: 0.34;
-  }
+  0%, 100% { transform: translate3d(-2vw, -2vh, 0) scale(0.92); opacity: 0.16; }
+  50% { transform: translate3d(5vw, 4vh, 0) scale(1.12); opacity: 0.34; }
 }
 
 @keyframes fadeUp {
-  from {
-    opacity: 0;
-    transform: translateY(8px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
 }
 
 .animate-fade-up {
@@ -223,13 +150,8 @@ body {
 }
 
 @keyframes softPulse {
-  0%,
-  100% {
-    opacity: 1;
-  }
-  50% {
-    opacity: 0.55;
-  }
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.55; }
 }
 
 .caret-blink {
@@ -237,15 +159,9 @@ body {
 }
 
 @keyframes drift {
-  0% {
-    transform: translate3d(0, 0, 0);
-  }
-  50% {
-    transform: translate3d(1.5%, -2%, 0);
-  }
-  100% {
-    transform: translate3d(0, 0, 0);
-  }
+  0% { transform: translate3d(0, 0, 0); }
+  50% { transform: translate3d(1.5%, -2%, 0); }
+  100% { transform: translate3d(0, 0, 0); }
 }
 
 .animate-drift {
@@ -301,13 +217,8 @@ body {
   z-index: -1;
 }
 
-/* Immersive typing mode: remove surrounding UI and give the test the full viewport. */
 .typing-focus-active {
   overflow: hidden;
-}
-
-.typing-focus-active > * {
-  /* Keep the focus shell above the site chrome without changing the normal page layout. */
 }
 
 .typing-focus-active header {
@@ -330,7 +241,9 @@ body {
   box-shadow: none;
   backdrop-filter: blur(18px);
   -webkit-backdrop-filter: blur(18px);
-  animation: typingFocusIn 420ms cubic-bezier(0.16, 1, 0.3, 1) both;
+  transform-origin: 50% 42%;
+  animation: typingFocusIn 760ms cubic-bezier(0.22, 1, 0.36, 1) both;
+  will-change: transform, opacity;
 }
 
 .test-shell-focus::before {
@@ -353,11 +266,15 @@ body {
 }
 
 @keyframes typingFocusIn {
-  from {
+  0% {
     opacity: 0;
-    transform: scale(0.965);
+    transform: scale(0.985);
   }
-  to {
+  55% {
+    opacity: 0.98;
+    transform: scale(0.998);
+  }
+  100% {
     opacity: 1;
     transform: scale(1);
   }
@@ -387,11 +304,8 @@ body {
 
 @media (max-width: 640px) {
   .eyebrow-line::before,
-  .eyebrow-line::after {
-    width: 14px;
-  }
+  .eyebrow-line::after { width: 14px; }
 
-  /* Preserve the softer mobile atmosphere from the earlier version. */
   .ambient-glow {
     filter: blur(58px);
     opacity: 0.52;
@@ -408,37 +322,18 @@ body {
     filter: blur(64px);
   }
 
-  .ambient-glow-primary {
-    animation-duration: 29s;
-  }
+  .ambient-glow-primary { animation-duration: 29s; }
+  .ambient-glow-secondary { animation-duration: 34s; }
+  .ambient-glow-tertiary { animation-duration: 31s; }
+  .ambient-glow-fourth { animation-duration: 36s; }
+  .ambient-glow-fifth { animation-duration: 38s; }
 
-  .ambient-glow-secondary {
-    animation-duration: 34s;
-  }
+  .test-shell-focus { padding: 1rem; }
+  .focus-content { min-height: calc(100dvh - 2rem); }
+  .focus-test-stack { gap: 1rem; }
 
-  .ambient-glow-tertiary {
-    animation-duration: 31s;
-  }
-
-  .ambient-glow-fourth {
-    animation-duration: 36s;
-  }
-
-  .ambient-glow-fifth {
-    animation-duration: 38s;
-  }
-
-  .test-shell-focus {
-    padding: 1rem;
-  }
-
-  .focus-content {
-    min-height: calc(100dvh - 2rem);
-  }
-
-  .focus-test-stack {
-    gap: 1rem;
-  }
+  /* Slightly shorter but still gentle on smaller screens. */
+  .test-shell-focus { animation-duration: 680ms; }
 }
 
 .below-fold-content {
@@ -447,21 +342,15 @@ body {
 }
 
 @media (prefers-reduced-motion: reduce) {
-  html {
-    scroll-behavior: auto;
-  }
+  html { scroll-behavior: auto; }
 
   .animate-fade-up,
   .animate-drift,
   .caret-blink,
   .ambient-glow,
-  .test-shell-focus {
-    animation: none;
-  }
+  .test-shell-focus { animation: none; }
 
-  .ambient-glow {
-    transform: translate3d(0, 0, 0);
-  }
+  .ambient-glow { transform: translate3d(0, 0, 0); }
 
   *,
   *::before,
