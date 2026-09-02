@@ -34,7 +34,6 @@ export default function TypingText({
   onFocusModeRequest,
 }: Props) {
   const inputRef = useRef<HTMLInputElement | null>(null);
-  const lastInputValueRef = useRef("");
   const soundEnabledRef = useRef(getTypingSoundsEnabled());
   const [windowStart, setWindowStart] = useState(0);
   const [focused, setFocused] = useState(false);
@@ -42,7 +41,6 @@ export default function TypingText({
 
   useEffect(() => {
     setWindowStart(0);
-    lastInputValueRef.current = "";
     if (inputRef.current) inputRef.current.value = "";
   }, [resetKey]);
 
@@ -73,23 +71,19 @@ export default function TypingText({
     }
   };
 
-  const handleInput = (value: string) => {
-    const previousValue = lastInputValueRef.current;
+  const handleKeyDown = (event: React.KeyboardEvent<HTMLInputElement>) => {
+    if (disabled || !soundEnabledRef.current) return;
 
-    if (soundEnabledRef.current && value !== previousValue) {
-      if (value.length < previousValue.length) {
-        playTypingSound("backspace");
-      } else if (value.length > previousValue.length) {
-        const newestChar = value[value.length - 1];
-        const newestIndex = value.length - 1;
-        const targetChar = target[newestIndex];
-        const isCorrectCharacter = freeTyping || newestChar === targetChar;
-        playTypingSound(isCorrectCharacter ? "key" : "error");
-      }
+    if (event.key === "Backspace") {
+      playTypingSound("backspace");
+      return;
     }
 
-    lastInputValueRef.current = value;
-    onChange(value);
+    if (event.key.length !== 1 || event.ctrlKey || event.metaKey || event.altKey) return;
+
+    const expected = target[typed.length];
+    const isCorrectCharacter = freeTyping || event.key === expected;
+    playTypingSound(isCorrectCharacter ? "key" : "error");
   };
 
   const toggleSound = () => {
@@ -102,8 +96,6 @@ export default function TypingText({
       unlockTypingSounds();
       playTypingSound("key");
     }
-
-    inputRef.current?.focus();
   };
 
   const windowEnd = Math.min(target.length, windowStart + WINDOW_SIZE);
@@ -160,7 +152,7 @@ export default function TypingText({
               if (state === "incorrect") {
                 return (
                   <span key={absIndex} className={cn("rounded-[3px] text-red-600", ch === " " ? "bg-red-500/25" : "bg-red-500/10")}>
-                    {ch === " " ? "\u00B7" : ch}
+                    {ch === " " ? "·" : ch}
                   </span>
                 );
               }
@@ -182,7 +174,8 @@ export default function TypingText({
           type="text"
           defaultValue=""
           disabled={disabled}
-          onInput={(e) => handleInput(e.currentTarget.value)}
+          onKeyDown={handleKeyDown}
+          onInput={(e) => onChange(e.currentTarget.value)}
           onFocus={() => {
             unlockTypingSounds();
             setFocused(true);
