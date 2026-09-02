@@ -10,6 +10,7 @@ interface Props {
   reducedMotion: boolean;
   freeTyping?: boolean;
   focusMode?: boolean;
+  onFocusModeRequest?: () => void;
 }
 
 const WINDOW_SIZE = 620;
@@ -24,6 +25,7 @@ export default function TypingText({
   reducedMotion,
   freeTyping = false,
   focusMode = false,
+  onFocusModeRequest,
 }: Props) {
   const inputRef = useRef<HTMLInputElement | null>(null);
   const [windowStart, setWindowStart] = useState(0);
@@ -128,7 +130,10 @@ export default function TypingText({
         defaultValue=""
         disabled={disabled}
         onInput={(e) => onChange(e.currentTarget.value)}
-        onFocus={() => setFocused(true)}
+        onFocus={() => {
+          setFocused(true);
+          onFocusModeRequest?.();
+        }}
         onBlur={() => setFocused(false)}
         autoComplete="off"
         autoCorrect="off"
