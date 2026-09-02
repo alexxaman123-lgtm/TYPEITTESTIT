@@ -65,7 +65,7 @@ body {
 
 .focus-content { display:flex; flex-direction:column; justify-content:center; }
 .focus-test-stack { width:min(1200px,calc(100vw - 32px)); margin-inline:auto; gap:16px; }
-.typing-copy { width:min(1280px,100%); margin-inline:auto; text-align:justify; text-align-last:center; text-justify:inter-word; hyphens:none; overflow-wrap:normal; word-break:normal; }
+.typing-copy { width:min(1280px,100%); margin-inline:auto; text-align:left; hyphens:none; overflow-wrap:normal; word-break:normal; }
 
 .typing-surface { box-shadow: none; border-radius: var(--radius-md); }
 .metric-surface { box-shadow: none; }
