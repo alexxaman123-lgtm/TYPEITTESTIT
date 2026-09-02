@@ -1,11 +1,6 @@
 import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { cn } from "../utils/cn";
-import {
-  getTypingSoundsEnabled,
-  playTypingSound,
-  setTypingSoundsEnabled,
-  unlockTypingSounds,
-} from "../lib/useTypingSounds";
+import { getSoundEnabled, setSoundEnabled, useSound } from "../lib/useSound";
 
 interface Props {
   target: string;
@@ -34,10 +29,10 @@ export default function TypingText({
   onFocusModeRequest,
 }: Props) {
   const inputRef = useRef<HTMLInputElement | null>(null);
-  const soundEnabledRef = useRef(getTypingSoundsEnabled());
+  const { playSound } = useSound();
   const [windowStart, setWindowStart] = useState(0);
   const [focused, setFocused] = useState(false);
-  const [soundEnabled, setSoundEnabled] = useState(soundEnabledRef.current);
+  const [soundEnabled, setSoundEnabledState] = useState(getSoundEnabled());
 
   useEffect(() => {
     setWindowStart(0);
@@ -45,9 +40,8 @@ export default function TypingText({
   }, [resetKey]);
 
   useEffect(() => {
-    soundEnabledRef.current = soundEnabled;
-    setTypingSoundsEnabled(soundEnabled);
-  }, [soundEnabled]);
+    setSoundEnabledState(getSoundEnabled());
+  }, [status, resetKey]);
 
   useEffect(() => {
     if (!freeTyping && typed.length - windowStart > SHIFT_THRESHOLD) {
@@ -65,37 +59,19 @@ export default function TypingText({
   const disabled = status === "finished";
 
   const focusInput = () => {
-    if (!disabled) {
-      unlockTypingSounds();
-      inputRef.current?.focus();
-    }
-  };
-
-  const handleKeyDown = (event: React.KeyboardEvent<HTMLInputElement>) => {
-    if (disabled || !soundEnabledRef.current) return;
-
-    if (event.key === "Backspace") {
-      playTypingSound("backspace");
-      return;
-    }
-
-    if (event.key.length !== 1 || event.ctrlKey || event.metaKey || event.altKey) return;
-
-    const expected = target[typed.length];
-    const isCorrectCharacter = freeTyping || event.key === expected;
-    playTypingSound(isCorrectCharacter ? "key" : "error");
+    if (!disabled) inputRef.current?.focus();
   };
 
   const toggleSound = () => {
-    const nextEnabled = !soundEnabledRef.current;
-    soundEnabledRef.current = nextEnabled;
-    setTypingSoundsEnabled(nextEnabled);
+    const nextEnabled = !getSoundEnabled();
     setSoundEnabled(nextEnabled);
+    setSoundEnabledState(nextEnabled);
 
     if (nextEnabled) {
-      unlockTypingSounds();
-      playTypingSound("key");
+      playSound("/piano-noise-suprise.mp3", 0.01);
     }
+
+    inputRef.current?.focus();
   };
 
   const windowEnd = Math.min(target.length, windowStart + WINDOW_SIZE);
@@ -174,10 +150,8 @@ export default function TypingText({
           type="text"
           defaultValue=""
           disabled={disabled}
-          onKeyDown={handleKeyDown}
           onInput={(e) => onChange(e.currentTarget.value)}
           onFocus={() => {
-            unlockTypingSounds();
             setFocused(true);
             onFocusModeRequest?.();
           }}
