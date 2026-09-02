@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useTypingTest } from "../lib/useTypingTest";
 import { useReducedMotion } from "../lib/useReducedMotion";
 import { getPreferences, savePreferences } from "../lib/storage";
@@ -15,6 +15,10 @@ import { cn } from "../utils/cn";
 type ViewMode = "test" | "custom";
 type PersonalBest = { wpm: number; accuracy: number } | null;
 
+type ViewTransitionDocument = Document & {
+  startViewTransition?: (update: () => void | Promise<void>) => { finished: Promise<void> };
+};
+
 export default function TypingTester() {
   const prefs = useMemo(() => getPreferences(), []);
   const reducedMotion = useReducedMotion();
@@ -22,6 +26,7 @@ export default function TypingTester() {
   const [viewMode, setViewMode] = useState<ViewMode>("test");
   const [personalBest, setPersonalBest] = useState<PersonalBest>(null);
   const [focusMode, setFocusMode] = useState(false);
+  const previousStatusRef = useRef(test.status);
 
   useEffect(() => {
     let cancelled = false;
@@ -38,7 +43,10 @@ export default function TypingTester() {
   }, [test.difficulty, test.duration, test.isCustom, test.status]);
 
   useEffect(() => {
-    if (test.status === "finished") setFocusMode(false);
+    const previousStatus = previousStatusRef.current;
+    previousStatusRef.current = test.status;
+    if (test.status === "finished" || test.status === "idle") setFocusMode(false);
+    else if (previousStatus !== "running" && test.status === "running") setFocusMode(true);
   }, [test.status]);
 
   useEffect(() => {
@@ -56,31 +64,42 @@ export default function TypingTester() {
   useEffect(() => {
     if (!focusMode) return;
     const onKeyDown = (event: KeyboardEvent) => {
-      if (event.key === "Escape") {
-        setFocusMode(false);
-        (document.activeElement as HTMLElement | null)?.blur?.();
-      }
+      if (event.key === "Escape") exitFocusMode();
     };
     window.addEventListener("keydown", onKeyDown);
     return () => window.removeEventListener("keydown", onKeyDown);
   }, [focusMode]);
 
+  const animateFocusState = (next: boolean) => {
+    if (focusMode === next) return;
+
+    const doc = document as ViewTransitionDocument;
+    if (!reducedMotion && typeof doc.startViewTransition === "function") {
+      void doc.startViewTransition(() => setFocusMode(next)).finished.catch(() => undefined);
+    } else {
+      setFocusMode(next);
+    }
+  };
+
+  function enterFocusMode() {
+    animateFocusState(true);
+  }
+
+  function exitFocusMode() {
+    animateFocusState(false);
+    (document.activeElement as HTMLElement | null)?.blur?.();
+  }
+
   const handleDifficultyChange = (d: typeof test.difficulty) => {
-    setFocusMode(false);
+    animateFocusState(false);
     test.setDifficulty(d);
     savePreferences(d, test.duration);
   };
 
   const handleDurationChange = (secs: number) => {
-    setFocusMode(false);
+    animateFocusState(false);
     test.setDuration(secs);
     savePreferences(test.difficulty, secs);
-  };
-
-  const enterFocusMode = () => setFocusMode(true);
-  const exitFocusMode = () => {
-    setFocusMode(false);
-    (document.activeElement as HTMLElement | null)?.blur?.();
   };
 
   const controlsDisabled = test.status === "running" || viewMode === "custom";
@@ -114,12 +133,13 @@ export default function TypingTester() {
           ) : test.status === "finished" && test.result && test.elapsedMs < 60_000 ? (
             <div className="flex min-h-[220px] items-center justify-center rounded-2xl border border-white/10 bg-surface3/60 px-6 py-12 text-center"><p className="text-base font-semibold text-ink">Please complete at least 1 minute to check your stats.</p></div>
           ) : test.status === "finished" && test.result ? (
-            <ResultPanel result={test.result} targetText={test.targetText} profileBest={personalBest} reducedMotion={reducedMotion} onRetry={() => { setFocusMode(false); test.retry(); }} onNewText={() => { setFocusMode(false); test.newText(); }} onChangeDifficulty={() => { setFocusMode(false); test.reset(); }} onCustomTest={() => { setFocusMode(false); setViewMode("custom"); }} />
+            <ResultPanel result={test.result} targetText={test.targetText} profileBest={personalBest} reducedMotion={reducedMotion} onRetry={() => { animateFocusState(false); test.retry(); }} onNewText={() => { animateFocusState(false); test.newText(); }} onChangeDifficulty={() => { animateFocusState(false); test.reset(); }} onCustomTest={() => { animateFocusState(false); setViewMode("custom"); }} />
           ) : (
             <div className={cn("space-y-5", focusMode && "focus-test-stack")} onClick={(event) => { if (focusMode) event.stopPropagation(); }}>
               <LiveMetrics status={test.status} duration={test.duration} startTimeRef={test.startTimeRef} liveCharCountRef={test.liveCharCountRef} accuracy={test.liveStats.accuracy} focusMode={focusMode} />
               <TypingText target={test.targetText} typed={test.typed} status={test.status} resetKey={test.sessionId} onChange={test.handleInputChange} reducedMotion={reducedMotion} freeTyping={test.isFreeTyping} focusMode={focusMode} onFocusModeRequest={enterFocusMode} />
-              <TestControls onRestart={() => { setFocusMode(false); test.retry(); }} onReset={() => { setFocusMode(false); test.reset(); }} onStop={() => { setFocusMode(false); test.stop(); }} canStop={test.status === "running"} focusMode={focusMode} />
+              <TestControls onRestart={() => { animateFocusState(false); test.retry(); }} onReset={() => { animateFocusState(false); test.reset(); }} onStop={test.stop} canStop={test.status === "running"} focusMode={focusMode} />
+              {focusMode && <p className="text-center text-[11px] font-medium uppercase tracking-[0.16em] text-faint opacity-70">Click outside the test or press Esc to exit focus mode</p>}
             </div>
           )}
         </div>
