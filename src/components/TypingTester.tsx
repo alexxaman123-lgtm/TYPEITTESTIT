@@ -4,7 +4,7 @@ import { useTypingTest } from "../lib/useTypingTest";
 import { useReducedMotion } from "../lib/useReducedMotion";
 import { getPreferences, savePreferences } from "../lib/storage";
 import { getProfileBest } from "../lib/leaderboard";
-import { playTypingSound } from "../lib/useTypingSounds";
+import { playTestCompleteSound } from "../lib/useTypingSounds";
 import DifficultySelector from "./DifficultySelector";
 import DurationSelector from "./DurationSelector";
 import TypingText from "./TypingText";
@@ -25,11 +25,6 @@ export default function TypingTester() {
   const [personalBest, setPersonalBest] = useState<PersonalBest>(null);
   const [focusMode, setFocusMode] = useState(false);
   const previousStatusRef = useRef(test.status);
-  const previousTypedRef = useRef(test.typed);
-
-  useEffect(() => {
-    previousTypedRef.current = test.typed;
-  }, [test.sessionId]);
 
   useEffect(() => {
     let cancelled = false;
@@ -50,6 +45,11 @@ export default function TypingTester() {
     previousStatusRef.current = test.status;
     if (test.status === "finished" || test.status === "idle") setFocusMode(false);
     else if (previousStatus !== "running" && test.status === "running") setFocusMode(true);
+
+    // Play the goat celebration exactly when an active test finishes.
+    if (previousStatus === "running" && test.status === "finished") {
+      playTestCompleteSound();
+    }
   }, [test.status]);
 
   useEffect(() => {
@@ -104,24 +104,6 @@ export default function TypingTester() {
     test.reset();
   };
 
-  const handleTypingInput = (value: string) => {
-    const previous = previousTypedRef.current;
-
-    if (value.length < previous.length) {
-      playTypingSound("backspace");
-    } else if (value.length > previous.length) {
-      const added = value.slice(previous.length);
-      const firstAdded = added[0];
-      const expected = test.isFreeTyping ? firstAdded : test.targetText[previous.length];
-      playTypingSound(!test.isFreeTyping && firstAdded !== expected ? "error" : "key");
-    } else if (value !== previous) {
-      playTypingSound("key");
-    }
-
-    previousTypedRef.current = value;
-    test.handleInputChange(value);
-  };
-
   const controlsDisabled = test.status === "running" || viewMode === "custom";
 
   const testerShell = (
@@ -173,7 +155,7 @@ export default function TypingTester() {
         ) : (
           <div className={cn("space-y-6", focusMode && "focus-test-stack")} onClick={(event) => { if (focusMode) event.stopPropagation(); }}>
             <LiveMetrics status={test.status} duration={test.duration} startTimeRef={test.startTimeRef} liveCharCountRef={test.liveCharCountRef} accuracy={test.liveStats.accuracy} focusMode={focusMode} />
-            <TypingText target={test.targetText} typed={test.typed} status={test.status} resetKey={test.sessionId} onChange={handleTypingInput} reducedMotion={reducedMotion} freeTyping={test.isFreeTyping} focusMode={focusMode} onFocusModeRequest={enterFocusMode} />
+            <TypingText target={test.targetText} typed={test.typed} status={test.status} resetKey={test.sessionId} onChange={test.handleInputChange} reducedMotion={reducedMotion} freeTyping={test.isFreeTyping} focusMode={focusMode} onFocusModeRequest={enterFocusMode} />
             <TestControls onRestart={() => { animateFocusState(false); test.retry(); }} onReset={() => { animateFocusState(false); test.reset(); }} onStop={test.stop} canStop={test.status === "running"} focusMode={focusMode} />
             {focusMode && <p className="text-center font-caption text-text-faint">Click outside the test or press Esc to exit focus mode</p>}
           </div>
