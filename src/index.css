@@ -2,18 +2,18 @@
 @import "./fonts.css";
 
 @theme {
-  --color-primary: #00ff66;
-  --color-on-primary: #000000;
-  --color-ink: #141414;
-  --color-ink-soft: #262626;
-  --color-text-muted: #666666;
-  --color-text-faint: #999999;
-  --color-canvas: #ffffff;
-  --color-canvas-soft: #f9f9f9;
-  --color-field: #f0f0f0;
-  --color-hairline-soft: #f0f0f0;
-  --color-hairline: #e5e5e5;
-  --color-accent: #00aa44;
+  --color-primary: var(--app-primary);
+  --color-on-primary: var(--app-on-primary);
+  --color-ink: var(--app-ink);
+  --color-ink-soft: var(--app-ink-soft);
+  --color-text-muted: var(--app-text-muted);
+  --color-text-faint: var(--app-text-faint);
+  --color-canvas: var(--app-canvas);
+  --color-canvas-soft: var(--app-canvas-soft);
+  --color-field: var(--app-field);
+  --color-hairline-soft: var(--app-hairline-soft);
+  --color-hairline: var(--app-hairline);
+  --color-accent: var(--app-accent);
 
   --font-sans: "Inter Variable", ui-sans-serif, system-ui, -apple-system, sans-serif;
   --font-mono: "JetBrains Mono Variable", ui-monospace, "SFMono-Regular", Menlo, monospace;
@@ -22,8 +22,39 @@
   --radius-md: 24px;
 }
 
+:root {
+  --app-primary: #00ff66;
+  --app-on-primary: #000000;
+  --app-ink: #141414;
+  --app-ink-soft: #262626;
+  --app-text-muted: #666666;
+  --app-text-faint: #999999;
+  --app-canvas: #ffffff;
+  --app-canvas-soft: #f9f9f9;
+  --app-field: #f0f0f0;
+  --app-hairline-soft: #f0f0f0;
+  --app-hairline: #e5e5e5;
+  --app-accent: #00aa44;
+}
+
+.dark {
+  --app-primary: #00ff66;
+  --app-on-primary: #000000;
+  --app-ink: #ffffff;
+  --app-ink-soft: #e5e5e5;
+  --app-text-muted: #a3a3a3;
+  --app-text-faint: #737373;
+  --app-canvas: #0a0a0a;
+  --app-canvas-soft: #141414;
+  --app-field: #1f1f1f;
+  --app-hairline-soft: #1f1f1f;
+  --app-hairline: #262626;
+  --app-accent: #00ff66;
+  color-scheme: dark;
+}
+
 * { box-sizing: border-box; }
-html { scroll-behavior: smooth; color-scheme: light; }
+html { scroll-behavior: smooth; }
 body {
   background-color: var(--color-canvas);
   color: var(--color-ink);

@@ -1,18 +1,19 @@
 import { useEffect, useRef, useState } from "react";
-import { THEMES, ThemeId, applyTheme, loadTheme } from "../lib/themes";
+import { ThemeMode, applyThemeMode, loadTheme } from "../lib/themes";
 import { cn } from "../utils/cn";
+import { Sun, Moon, Monitor } from "lucide-react";
 
 export default function ThemePicker() {
   const [isOpen, setIsOpen] = useState(false);
-  const [currentTheme, setCurrentTheme] = useState<ThemeId>("goat-neon");
+  const [currentMode, setCurrentMode] = useState<ThemeMode>("system");
   const dropdownRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    setCurrentTheme(loadTheme());
+    setCurrentMode(loadTheme());
 
     const handleThemeChange = (e: Event) => {
-      const customEvent = e as CustomEvent<ThemeId>;
-      setCurrentTheme(customEvent.detail);
+      const customEvent = e as CustomEvent<ThemeMode>;
+      setCurrentMode(customEvent.detail);
     };
     
     window.addEventListener("themechange", handleThemeChange);
@@ -30,7 +31,23 @@ export default function ThemePicker() {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-  const activeThemeDef = THEMES.find((t) => t.id === currentTheme) || THEMES[0];
+  const getIcon = (mode: ThemeMode) => {
+    switch (mode) {
+      case "light": return <Sun size={14} />;
+      case "dark": return <Moon size={14} />;
+      case "system": return <Monitor size={14} />;
+    }
+  };
+
+  const getLabel = (mode: ThemeMode) => {
+    switch (mode) {
+      case "light": return "Light";
+      case "dark": return "Dark";
+      case "system": return "System";
+    }
+  };
+
+  const MODES: ThemeMode[] = ["light", "dark", "system"];
 
   return (
     <div className="relative" ref={dropdownRef}>
@@ -39,35 +56,31 @@ export default function ThemePicker() {
         className="flex h-[36px] items-center justify-center gap-2 rounded-full border border-hairline bg-canvas px-3 font-label text-ink transition-colors hover:bg-canvas-soft"
         aria-label="Pick theme"
       >
-        <div 
-          className="h-3.5 w-3.5 rounded-full border border-hairline shadow-[0_1px_2px_rgba(0,0,0,0.1)]" 
-          style={{ backgroundColor: activeThemeDef.primary }} 
-        />
-        <span className="hidden sm:inline-block">Theme</span>
+        <div className="text-ink">
+          {getIcon(currentMode)}
+        </div>
+        <span className="hidden sm:inline-block">{getLabel(currentMode)}</span>
       </button>
 
       {isOpen && (
-        <div className="absolute right-0 top-full mt-2 w-48 animate-fade-up rounded-[20px] border border-hairline bg-canvas p-2 shadow-sm">
+        <div className="absolute right-0 top-full mt-2 w-36 animate-fade-up rounded-[20px] border border-hairline bg-canvas p-2 shadow-sm">
           <div className="flex flex-col gap-1">
-            {THEMES.map((theme) => (
+            {MODES.map((mode) => (
               <button
-                key={theme.id}
+                key={mode}
                 onClick={() => {
-                  applyTheme(theme.id);
+                  applyThemeMode(mode);
                   setIsOpen(false);
                 }}
                 className={cn(
                   "flex items-center gap-3 rounded-2xl px-3 py-2 font-link transition-colors",
-                  currentTheme === theme.id 
+                  currentMode === mode 
                     ? "bg-canvas-soft text-ink" 
                     : "text-text-muted hover:bg-canvas-soft hover:text-ink"
                 )}
               >
-                <div 
-                  className="h-4 w-4 shrink-0 rounded-full border border-hairline shadow-[0_1px_2px_rgba(0,0,0,0.1)]" 
-                  style={{ backgroundColor: theme.primary }} 
-                />
-                <span className="truncate">{theme.name}</span>
+                {getIcon(mode)}
+                <span className="truncate">{getLabel(mode)}</span>
               </button>
             ))}
           </div>
