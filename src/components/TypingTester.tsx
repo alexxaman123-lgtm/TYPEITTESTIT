@@ -18,6 +18,9 @@ import { cn } from "../utils/cn";
 type ViewMode = "test" | "custom";
 type PersonalBest = { wpm: number; accuracy: number } | null;
 
+const SLOW_GOAT_WPM_THRESHOLD = 30;
+const SLOW_GOAT_SOUND = "/fahhh_KcgAXfs.mp3";
+
 export default function TypingTester() {
   const prefs = useMemo(() => getPreferences(), []);
   const reducedMotion = useReducedMotion();
@@ -73,9 +76,14 @@ export default function TypingTester() {
     else if (previousStatus !== "running" && test.status === "running") setFocusMode(true);
 
     if (previousStatus === "running" && test.status === "finished") {
-      playTestCompleteSound();
+      const finalWpm = test.result?.wpm ?? 0;
+      if (getSoundEnabled() && finalWpm < SLOW_GOAT_WPM_THRESHOLD) {
+        playSound(SLOW_GOAT_SOUND, 0.50);
+      } else {
+        playTestCompleteSound();
+      }
     }
-  }, [test.status]);
+  }, [test.status, test.result, playSound]);
 
   useEffect(() => {
     const body = document.body;
