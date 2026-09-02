@@ -1,5 +1,6 @@
 import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { cn } from "../utils/cn";
+import { playTypingSound } from "../lib/useTypingSounds";
 
 interface Props {
   target: string;
@@ -28,11 +29,14 @@ export default function TypingText({
   onFocusModeRequest,
 }: Props) {
   const inputRef = useRef<HTMLInputElement | null>(null);
+  const lastInputValueRef = useRef("");
   const [windowStart, setWindowStart] = useState(0);
   const [focused, setFocused] = useState(false);
+  const [soundEnabled, setSoundEnabled] = useState(true);
 
   useEffect(() => {
     setWindowStart(0);
+    lastInputValueRef.current = "";
     if (inputRef.current) inputRef.current.value = "";
   }, [resetKey]);
 
@@ -54,12 +58,51 @@ export default function TypingText({
     if (!disabled) inputRef.current?.focus();
   };
 
+  const handleInput = (value: string) => {
+    const previousValue = lastInputValueRef.current;
+
+    if (soundEnabled && value !== previousValue) {
+      if (value.length < previousValue.length) {
+        playTypingSound("backspace");
+      } else if (value.length > previousValue.length) {
+        const newestChar = value[value.length - 1];
+        const newestIndex = value.length - 1;
+        const targetChar = target[newestIndex];
+        const isCorrectCharacter = freeTyping || newestChar === targetChar;
+        playTypingSound(isCorrectCharacter ? "key" : "error");
+      }
+    }
+
+    lastInputValueRef.current = value;
+    onChange(value);
+  };
+
   const windowEnd = Math.min(target.length, windowStart + WINDOW_SIZE);
   const slice = target.slice(windowStart, windowEnd);
   const copyClass = focusMode ? "typing-copy" : "text-left";
 
   return (
     <div className="relative">
+      <button
+        type="button"
+        onMouseDown={(event) => event.preventDefault()}
+        onClick={() => {
+          setSoundEnabled((enabled) => !enabled);
+          inputRef.current?.focus();
+        }}
+        aria-pressed={soundEnabled}
+        aria-label={soundEnabled ? "Mute typing sounds" : "Enable typing sounds"}
+        className={cn(
+          "absolute right-3 top-3 z-30 inline-flex items-center gap-2 rounded-full border px-3 py-2 font-label backdrop-blur transition-colors duration-200",
+          soundEnabled
+            ? "border-accent/30 bg-accent/10 text-accent hover:bg-accent/15"
+            : "border-hairline bg-canvas/90 text-text-muted hover:bg-canvas"
+        )}
+      >
+        <span aria-hidden="true" className="text-base leading-none">{soundEnabled ? "🔊" : "🔇"}</span>
+        <span className="hidden sm:inline">{soundEnabled ? "Sound on" : "Muted"}</span>
+      </button>
+
       <div
         aria-hidden="true"
         tabIndex={-1}
@@ -108,7 +151,7 @@ export default function TypingText({
               if (state === "incorrect") {
                 return (
                   <span key={absIndex} className={cn("rounded-[3px] text-red-600", ch === " " ? "bg-red-500/25" : "bg-red-500/10")}>
-                    {ch === " " ? "\u00B7" : ch}
+                    {ch === " " ? "·" : ch}
                   </span>
                 );
               }
@@ -131,7 +174,7 @@ export default function TypingText({
         type="text"
         defaultValue=""
         disabled={disabled}
-        onInput={(e) => onChange(e.currentTarget.value)}
+        onInput={(e) => handleInput(e.currentTarget.value)}
         onFocus={() => {
           setFocused(true);
           onFocusModeRequest?.();
@@ -143,7 +186,7 @@ export default function TypingText({
         spellCheck={false}
         aria-label={freeTyping ? "Free typing input. Type anything you want." : "Typing test input. Type the passage displayed above this field."}
         tabIndex={disabled ? -1 : 0}
-        className="absolute inset-0 h-full w-full cursor-text opacity-0"
+        className="absolute inset-0 z-10 h-full w-full cursor-text opacity-0"
       />
     </div>
   );
