@@ -122,7 +122,7 @@ body {
   backdrop-filter: blur(18px);
   -webkit-backdrop-filter: blur(18px);
   transform-origin: 50% 42%;
-  animation: typingFocusIn 2s cubic-bezier(0.12, 0.82, 0.18, 1) both;
+  animation: typingFocusIn 520ms cubic-bezier(0.16, 1, 0.3, 1) both;
   will-change: transform, opacity;
 }
 .test-shell-focus::before {
@@ -135,10 +135,8 @@ body {
 .typing-copy { width: min(1280px, 100%); margin-inline: auto; text-align: justify; text-align-last: center; text-justify: inter-word; hyphens: none; overflow-wrap: normal; word-break: normal; }
 
 @keyframes typingFocusIn {
-  0% { opacity: 0; transform: scale(0.985); }
-  35% { opacity: 0.94; transform: scale(0.99); }
-  72% { opacity: 0.985; transform: scale(0.9975); }
-  100% { opacity: 1; transform: scale(1); }
+  from { opacity: 0; transform: scale(0.992); }
+  to { opacity: 1; transform: scale(1); }
 }
 
 .eyebrow-line { display: inline-flex; align-items: center; gap: 0.55rem; }
@@ -175,7 +173,7 @@ body {
   .ambient-glow-tertiary { animation-duration: 31s; }
   .ambient-glow-fourth { animation-duration: 36s; }
   .ambient-glow-fifth { animation-duration: 38s; }
-  .test-shell-focus { padding: 1rem; animation-duration: 2s; }
+  .test-shell-focus { padding: 1rem; animation-duration: 520ms; }
   .focus-content { min-height: calc(100dvh - 2rem); }
   .focus-test-stack { width: 100%; gap: 1rem; }
   .typing-copy { width: min(100%, calc(100vw - 2rem)); }
