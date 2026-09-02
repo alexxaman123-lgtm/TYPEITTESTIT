@@ -1,4 +1,4 @@
-const FAQS = [
+export const FAQS = [
   {
     q: "How can I test my typing?",
     a: "You can test your typing easily using a <strong>free online typing test</strong> like <strong>FreeTypingTestGoat</strong>. Simply select a 1, 2, 3, or 5-minute test and start typing to instantly measure your <strong>WPM</strong> and <strong>typing accuracy</strong>.",
@@ -106,25 +106,8 @@ const FAQS = [
 ];
 
 export default function FaqSection() {
-  const jsonLd = {
-    "@context": "https://schema.org",
-    "@type": "FAQPage",
-    "mainEntity": FAQS.map((faq) => ({
-      "@type": "Question",
-      "name": faq.q,
-      "acceptedAnswer": {
-        "@type": "Answer",
-        "text": faq.a
-      }
-    }))
-  };
-
   return (
     <section id="faq" className="mx-auto max-w-4xl scroll-mt-20 px-4 py-16 sm:px-6 lg:px-8">
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
-      />
       <h2 className="font-heading-4 text-ink">Frequently Asked Questions</h2>
       <p className="mt-3 font-body text-text-muted">Answers about free typing tests, WPM, accuracy, typing test practice, durations, and using FreeTypingTestGoat.</p>
 

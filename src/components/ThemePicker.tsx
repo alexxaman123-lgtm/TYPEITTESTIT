@@ -1,19 +1,19 @@
 import { useEffect, useRef, useState } from "react";
-import { ThemeMode, applyThemeMode, loadTheme } from "../lib/themes";
+import { THEMES, ThemeId, applyTheme, loadTheme } from "../lib/themes";
 import { cn } from "../utils/cn";
-import { Sun, Moon, Monitor } from "lucide-react";
+import { Palette, Check } from "lucide-react";
 
 export default function ThemePicker() {
   const [isOpen, setIsOpen] = useState(false);
-  const [currentMode, setCurrentMode] = useState<ThemeMode>("system");
+  const [currentThemeId, setCurrentThemeId] = useState<ThemeId>("ivory-black");
   const dropdownRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    setCurrentMode(loadTheme());
+    setCurrentThemeId(loadTheme());
 
     const handleThemeChange = (e: Event) => {
-      const customEvent = e as CustomEvent<ThemeMode>;
-      setCurrentMode(customEvent.detail);
+      const customEvent = e as CustomEvent<ThemeId>;
+      setCurrentThemeId(customEvent.detail);
     };
     
     window.addEventListener("themechange", handleThemeChange);
@@ -31,58 +31,67 @@ export default function ThemePicker() {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-  const getIcon = (mode: ThemeMode) => {
-    switch (mode) {
-      case "light": return <Sun size={14} />;
-      case "dark": return <Moon size={14} />;
-      case "system": return <Monitor size={14} />;
-    }
-  };
-
-  const getLabel = (mode: ThemeMode) => {
-    switch (mode) {
-      case "light": return "Light";
-      case "dark": return "Dark";
-      case "system": return "System";
-    }
-  };
-
-  const MODES: ThemeMode[] = ["light", "dark", "system"];
+  const currentTheme = THEMES.find(t => t.id === currentThemeId) ?? THEMES[0];
 
   return (
     <div className="relative" ref={dropdownRef}>
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="flex h-[36px] items-center justify-center gap-2 rounded-full border border-hairline bg-canvas px-3 font-label text-ink transition-colors hover:bg-canvas-soft"
+        className={cn(
+          "flex h-[36px] items-center justify-center gap-2 rounded-full border px-3 font-label transition-colors",
+          isOpen 
+            ? "border-primary bg-primary/10 text-primary" 
+            : "border-hairline bg-canvas text-ink hover:bg-canvas-soft"
+        )}
         aria-label="Pick theme"
       >
-        <div className="text-ink">
-          {getIcon(currentMode)}
+        <div className={isOpen ? "text-primary" : "text-ink"}>
+          <Palette size={14} />
         </div>
-        <span className="hidden sm:inline-block">{getLabel(currentMode)}</span>
+        <span className="hidden sm:inline-block">Theme</span>
       </button>
 
       {isOpen && (
-        <div className="absolute right-0 top-full mt-2 w-36 animate-fade-up rounded-[20px] border border-hairline bg-canvas p-2 shadow-sm">
-          <div className="flex flex-col gap-1">
-            {MODES.map((mode) => (
-              <button
-                key={mode}
-                onClick={() => {
-                  applyThemeMode(mode);
-                  setIsOpen(false);
-                }}
-                className={cn(
-                  "flex items-center gap-3 rounded-2xl px-3 py-2 font-link transition-colors",
-                  currentMode === mode 
-                    ? "bg-canvas-soft text-ink" 
-                    : "text-text-muted hover:bg-canvas-soft hover:text-ink"
-                )}
-              >
-                {getIcon(mode)}
-                <span className="truncate">{getLabel(mode)}</span>
-              </button>
-            ))}
+        <div className="absolute right-0 top-full mt-2 w-64 max-h-[60vh] flex flex-col overflow-hidden animate-fade-up rounded-[20px] border border-hairline bg-canvas-soft shadow-2xl">
+          <div className="flex-1 overflow-y-auto p-2 scrollbar-hide">
+            <div className="flex flex-col gap-1">
+              {THEMES.map((theme) => {
+                const isActive = currentThemeId === theme.id;
+                return (
+                  <button
+                    key={theme.id}
+                    onClick={() => applyTheme(theme.id)}
+                    className={cn(
+                      "group flex w-full items-center justify-between rounded-[14px] px-3 py-2 transition-all",
+                      isActive 
+                        ? "bg-canvas text-ink shadow-sm border border-hairline" 
+                        : "border border-transparent text-text-muted hover:bg-canvas hover:text-ink hover:shadow-sm hover:border-hairline"
+                    )}
+                  >
+                    <div className="flex items-center gap-2">
+                      <div className="flex w-4 justify-center">
+                        {isActive && <Check size={14} className="text-primary" />}
+                      </div>
+                      <span className="font-mono text-sm lowercase">{theme.name}</span>
+                    </div>
+                    
+                    {/* 3-Dot Swatch Pill */}
+                    <div 
+                      className="flex items-center gap-1 rounded-full p-1 border border-black/5 dark:border-white/5"
+                      style={{ backgroundColor: theme.canvas }}
+                    >
+                      {theme.swatch.map((color, i) => (
+                        <div 
+                          key={i}
+                          className="h-2.5 w-2.5 rounded-full"
+                          style={{ backgroundColor: color }}
+                        />
+                      ))}
+                    </div>
+                  </button>
+                );
+              })}
+            </div>
           </div>
         </div>
       )}

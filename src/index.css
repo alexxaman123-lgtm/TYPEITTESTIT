@@ -25,21 +25,6 @@
 :root {
   --app-primary: #00ff66;
   --app-on-primary: #000000;
-  --app-ink: #141414;
-  --app-ink-soft: #262626;
-  --app-text-muted: #666666;
-  --app-text-faint: #999999;
-  --app-canvas: #ffffff;
-  --app-canvas-soft: #f9f9f9;
-  --app-field: #f0f0f0;
-  --app-hairline-soft: #f0f0f0;
-  --app-hairline: #e5e5e5;
-  --app-accent: #00aa44;
-}
-
-.dark {
-  --app-primary: #00ff66;
-  --app-on-primary: #000000;
   --app-ink: #ffffff;
   --app-ink-soft: #e5e5e5;
   --app-text-muted: #a3a3a3;
@@ -50,7 +35,6 @@
   --app-hairline-soft: #1f1f1f;
   --app-hairline: #262626;
   --app-accent: #00ff66;
-  color-scheme: dark;
 }
 
 * { box-sizing: border-box; }

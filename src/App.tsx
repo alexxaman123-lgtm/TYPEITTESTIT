@@ -13,6 +13,7 @@ import LeaderboardPage from "./components/LeaderboardPage";
 import PrivacyPolicyPage from "./components/PrivacyPolicyPage";
 import TermsOfUsePage from "./components/TermsOfUsePage";
 import FaqSection from "./components/FaqSection";
+import FaqSchema from "./components/FaqSchema";
 
 const SITE_URL = "https://typeittestit.com";
 const DEFAULT_TITLE = "Free Typing Test Online | WPM & Typing Practice | FreeTypingTestGoat";
@@ -109,6 +110,7 @@ export default function App() {
 
   return (
     <div className="relative min-h-screen">
+      <FaqSchema />
       <Header />
       <main>{renderPage()}</main>
       <Footer />
