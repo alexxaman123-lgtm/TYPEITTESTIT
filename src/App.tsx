@@ -38,7 +38,13 @@ export default function App() {
     if (description && config) description.setAttribute("content", config.description);
     
     // Send pageview to Google Analytics using the current path
-    ReactGA.send({ hitType: "pageview", page: path });
+    try {
+      const payload = { hitType: "pageview", page: path };
+      ReactGA.send(payload);
+      console.log("[GA] Event queued successfully:", payload);
+    } catch (error) {
+      console.error("[GA] Failed to queue event:", error);
+    }
   }, [path]);
 
   const renderPage = () => {
