@@ -1,6 +1,11 @@
 import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { cn } from "../utils/cn";
-import { playTypingSound, unlockTypingSounds } from "../lib/useTypingSounds";
+import {
+  getTypingSoundsEnabled,
+  playTypingSound,
+  setTypingSoundsEnabled,
+  unlockTypingSounds,
+} from "../lib/useTypingSounds";
 
 interface Props {
   target: string;
@@ -30,15 +35,21 @@ export default function TypingText({
 }: Props) {
   const inputRef = useRef<HTMLInputElement | null>(null);
   const lastInputValueRef = useRef("");
+  const soundEnabledRef = useRef(getTypingSoundsEnabled());
   const [windowStart, setWindowStart] = useState(0);
   const [focused, setFocused] = useState(false);
-  const [soundEnabled, setSoundEnabled] = useState(true);
+  const [soundEnabled, setSoundEnabled] = useState(soundEnabledRef.current);
 
   useEffect(() => {
     setWindowStart(0);
     lastInputValueRef.current = "";
     if (inputRef.current) inputRef.current.value = "";
   }, [resetKey]);
+
+  useEffect(() => {
+    soundEnabledRef.current = soundEnabled;
+    setTypingSoundsEnabled(soundEnabled);
+  }, [soundEnabled]);
 
   useEffect(() => {
     if (!freeTyping && typed.length - windowStart > SHIFT_THRESHOLD) {
@@ -65,7 +76,7 @@ export default function TypingText({
   const handleInput = (value: string) => {
     const previousValue = lastInputValueRef.current;
 
-    if (soundEnabled && value !== previousValue) {
+    if (soundEnabledRef.current && value !== previousValue) {
       if (value.length < previousValue.length) {
         playTypingSound("backspace");
       } else if (value.length > previousValue.length) {
@@ -82,9 +93,17 @@ export default function TypingText({
   };
 
   const toggleSound = () => {
-    const nextEnabled = !soundEnabled;
+    const nextEnabled = !soundEnabledRef.current;
+    soundEnabledRef.current = nextEnabled;
+    setTypingSoundsEnabled(nextEnabled);
     setSoundEnabled(nextEnabled);
-    if (nextEnabled) unlockTypingSounds();
+
+    if (nextEnabled) {
+      unlockTypingSounds();
+      playTypingSound("key");
+    }
+
+    inputRef.current?.focus();
   };
 
   const windowEnd = Math.min(target.length, windowStart + WINDOW_SIZE);
@@ -183,6 +202,7 @@ export default function TypingText({
       <div className="mt-3 flex justify-end">
         <button
           type="button"
+          onMouseDown={(event) => event.preventDefault()}
           onClick={toggleSound}
           aria-pressed={soundEnabled}
           aria-label={soundEnabled ? "Turn typing sounds off" : "Turn typing sounds on"}
