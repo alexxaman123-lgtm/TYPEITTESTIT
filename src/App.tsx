@@ -93,6 +93,39 @@ export default function App() {
     }
   }, [path]);
 
+  useEffect(() => {
+    const elements = Array.from(document.querySelectorAll<HTMLElement>("[data-reveal]"));
+    if (elements.length === 0) return;
+
+    const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    if (reducedMotion || !("IntersectionObserver" in window)) {
+      elements.forEach((element) => element.classList.add("reveal-visible"));
+      return;
+    }
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (!entry.isIntersecting) return;
+          const element = entry.target as HTMLElement;
+          element.classList.add("reveal-visible");
+          observer.unobserve(element);
+        });
+      },
+      {
+        threshold: 0.08,
+        rootMargin: "0px 0px -8% 0px",
+      }
+    );
+
+    elements.forEach((element, index) => {
+      element.style.setProperty("--reveal-index", String(index % 5));
+      observer.observe(element);
+    });
+
+    return () => observer.disconnect();
+  }, [path]);
+
   const renderPage = () => {
     if (path === "/about") return <AboutPage />;
     if (path === "/contact") return <ContactPage />;
@@ -103,11 +136,21 @@ export default function App() {
     return (
       <>
         <Hero />
-        <div className="mx-auto max-w-6xl px-4 pb-16 sm:px-6 lg:px-8"><TypingTester /></div>
-        <div className="border-t border-hairline below-fold-content"><SeoContent /></div>
-        <div className="border-t border-hairline below-fold-content"><HowItWorks /></div>
-        <div className="border-t border-hairline below-fold-content"><GuidesSection /></div>
-        <div className="border-t border-hairline below-fold-content"><FaqSection /></div>
+        <div className="mx-auto max-w-6xl px-4 pb-16 sm:px-6 lg:px-8" data-reveal="up">
+          <TypingTester />
+        </div>
+        <div className="border-t border-hairline below-fold-content" data-reveal="up">
+          <SeoContent />
+        </div>
+        <div className="border-t border-hairline below-fold-content" data-reveal="up">
+          <HowItWorks />
+        </div>
+        <div className="border-t border-hairline below-fold-content" data-reveal="up">
+          <GuidesSection />
+        </div>
+        <div className="border-t border-hairline below-fold-content" data-reveal="up">
+          <FaqSection />
+        </div>
       </>
     );
   };
