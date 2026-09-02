@@ -4,7 +4,7 @@ export default function SeoContent() {
       id="typing-practice"
       className="mx-auto max-w-4xl px-4 py-16 sm:px-6 lg:px-8"
     >
-      <div className="text-muted space-y-12 [&_h2]:text-2xl [&_h2]:font-bold [&_h2]:text-ink [&_h2]:tracking-tight [&_h3]:text-xl [&_h3]:font-bold [&_h3]:text-ink [&_h3]:tracking-tight [&_h3]:mt-8 [&_p]:mt-3 [&_p]:leading-7 [&_ul]:mt-4 [&_ul]:list-disc [&_ul]:pl-6 [&_ul]:space-y-2">
+      <div className="font-body text-text-muted space-y-12 [&_h2]:font-heading-4 [&_h2]:text-ink [&_h3]:font-heading-5 [&_h3]:text-ink [&_h3]:mt-8 [&_p]:mt-3 [&_ul]:mt-4 [&_ul]:list-disc [&_ul]:pl-6 [&_ul]:space-y-2 [&_strong]:text-ink [&_strong]:font-semibold">
         <div>
           <h2>What Is a Free Typing Test?</h2>
           <p>
@@ -91,13 +91,13 @@ export default function SeoContent() {
           </p>
         </div>
 
-        <div id="typing-speed-levels" className="scroll-mt-20 mt-16 pt-8 border-t border-white/10">
+        <div id="typing-speed-levels" className="scroll-mt-20 mt-16 pt-8 border-t border-hairline">
           <h2>Typing Speed Chart</h2>
           <p>
             WPM is a useful benchmark, but your result can change with passage difficulty, test duration, familiarity with the words, and concentration. Use the ranges below as practical reference points rather than strict grades.
           </p>
-          <div className="mt-6 overflow-hidden rounded-2xl border border-white/10 bg-surface1/50">
-            <div className="grid grid-cols-3 border-b border-white/10 px-4 py-3 text-[10px] font-bold uppercase tracking-[0.16em] text-faint sm:grid-cols-4">
+          <div className="mt-6 overflow-hidden rounded-[24px] border border-hairline bg-canvas shadow-sm">
+            <div className="grid grid-cols-3 border-b border-hairline bg-canvas-soft px-4 py-3 font-caption text-text-muted sm:grid-cols-4">
               <span>Level</span><span>WPM</span><span className="col-span-1 hidden sm:block">What it means</span><span>Next target</span>
             </div>
             {[
@@ -108,11 +108,11 @@ export default function SeoContent() {
               ["Advanced", "80–99", "High-speed typing with an emphasis on maintaining accuracy.", "100"],
               ["100+", "100+", "A very fast benchmark reached by highly skilled typists.", "—"],
             ].map(([level, range, meaning, next]) => (
-              <div key={level} className="grid grid-cols-3 items-center gap-3 border-b border-white/5 px-4 py-4 last:border-b-0 sm:grid-cols-4">
-                <span className="font-semibold text-ink">{level}</span>
+              <div key={level} className="grid grid-cols-3 items-center gap-3 border-b border-hairline px-4 py-4 last:border-b-0 sm:grid-cols-4">
+                <span className="font-heading-6 text-ink">{level}</span>
                 <span className="font-mono font-bold text-accent">{range}</span>
-                <span className="col-span-1 hidden text-sm leading-6 text-muted sm:block">{meaning}</span>
-                <span className="text-right text-sm font-semibold text-muted">{next === "—" ? "—" : `↑ ${next} WPM`}</span>
+                <span className="col-span-1 hidden font-body-sm text-text-muted sm:block">{meaning}</span>
+                <span className="text-right font-body-sm font-semibold text-text-muted">{next === "—" ? "—" : `↑ ${next} WPM`}</span>
               </div>
             ))}
           </div>

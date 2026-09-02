@@ -15,7 +15,7 @@ interface Props {
 
 export default function DurationSelector({ value, onChange, disabled }: Props) {
   return (
-    <div role="radiogroup" aria-label="Test duration" className="flex items-center gap-1.5 rounded-xl bg-surface2 p-1.5">
+    <div role="radiogroup" aria-label="Test duration" className="flex items-center gap-1 rounded-full bg-canvas-soft p-1">
       {OPTIONS.map((opt) => {
         const active = opt.value === value;
         return (
@@ -27,10 +27,10 @@ export default function DurationSelector({ value, onChange, disabled }: Props) {
             disabled={disabled}
             onClick={() => onChange(opt.value)}
             className={cn(
-              "rounded-lg px-3.5 py-2 text-sm font-semibold tracking-wide transition-all duration-200 disabled:cursor-not-allowed disabled:opacity-50",
+              "rounded-full px-4 py-1.5 font-label transition-all duration-200 disabled:cursor-not-allowed disabled:opacity-50",
               active
-                ? "bg-accent text-black theme-accent-glow"
-                : "text-muted hover:text-ink hover:bg-white/5"
+                ? "bg-canvas shadow-sm text-ink"
+                : "text-text-muted hover:text-ink hover:bg-canvas-soft"
             )}
           >
             {opt.label}

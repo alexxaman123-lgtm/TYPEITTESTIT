@@ -12,26 +12,26 @@ const FOOTER_LINKS = [
 
 export default function Footer() {
   return (
-    <footer className="border-t border-white/10 bg-surface1/60 shadow-[0_-20px_50px_-45px_var(--color-accent-glow)]">
+    <footer className="border-t border-hairline bg-canvas">
       <div className="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8">
         <div className="flex flex-col items-start justify-between gap-8 md:flex-row md:items-center">
           <div>
-            <div className="font-mono text-base font-bold text-ink">FreeTypingTestGoat</div>
-            <p className="mt-2 max-w-sm text-sm text-faint">
+            <div className="font-title text-ink tracking-tight">FreeTypingTest<span className="text-accent">Goat</span></div>
+            <p className="mt-3 max-w-sm font-body-sm text-text-muted">
               FreeTypingTestGoat is a free online typing test and typing practice tool for measuring WPM, accuracy, and typing consistency.
             </p>
           </div>
 
-          <nav className="flex flex-wrap gap-x-6 gap-y-3 text-sm" aria-label="Footer">
+          <nav className="flex flex-wrap gap-x-6 gap-y-3 font-link text-ink" aria-label="Footer">
             {FOOTER_LINKS.map((link) => (
-              <a key={link.label} href={link.href} className="text-muted transition-colors hover:text-accent">
+              <a key={link.label} href={link.href} className="text-text-muted transition-colors hover:text-ink">
                 {link.label}
               </a>
             ))}
           </nav>
         </div>
 
-        <div className="mt-10 flex flex-col gap-2 border-t border-white/5 pt-6 text-xs text-faint sm:flex-row sm:items-center sm:justify-between">
+        <div className="mt-12 flex flex-col gap-2 border-t border-hairline pt-6 font-caption text-text-faint sm:flex-row sm:items-center sm:justify-between">
           <p>&copy; {new Date().getFullYear()} FreeTypingTestGoat. All rights reserved.</p>
           <p>TYPE LIKE A GOAT.</p>
         </div>

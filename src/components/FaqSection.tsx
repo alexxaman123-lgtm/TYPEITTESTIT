@@ -48,17 +48,17 @@ const FAQS = [
 export default function FaqSection() {
   return (
     <section id="faq" className="mx-auto max-w-4xl scroll-mt-20 px-4 py-16 sm:px-6 lg:px-8">
-      <h2 className="text-2xl font-bold tracking-tight text-ink sm:text-3xl">Frequently Asked Questions</h2>
-      <p className="mt-3 text-muted">Answers about free typing tests, WPM, accuracy, typing test practice, durations, and using FreeTypingTestGoat.</p>
+      <h2 className="font-heading-4 text-ink">Frequently Asked Questions</h2>
+      <p className="mt-3 font-body text-text-muted">Answers about free typing tests, WPM, accuracy, typing test practice, durations, and using FreeTypingTestGoat.</p>
 
-      <div className="mt-8 divide-y divide-white/10 rounded-2xl border border-white/10 bg-surface1/50 shadow-[inset_0_1px_0_rgba(255,255,255,0.025)]">
+      <div className="mt-8 divide-y divide-hairline rounded-[24px] border border-hairline bg-canvas shadow-sm">
         {FAQS.map((item) => (
-          <details key={item.q} className="group px-5 py-4 open:pb-5 sm:px-6">
-            <summary className="flex cursor-pointer list-none items-center justify-between gap-4 py-1 text-left font-semibold text-ink-soft marker:content-none">
+          <details key={item.q} className="group px-6 py-5 open:pb-6">
+            <summary className="flex cursor-pointer list-none items-center justify-between gap-4 py-1 text-left font-heading-5 text-ink marker:content-none">
               {item.q}
               <span className="shrink-0 text-lg text-accent transition-transform duration-200 group-open:rotate-45">+</span>
             </summary>
-            <p className="mt-3 leading-7 text-muted">{item.a}</p>
+            <p className="mt-4 font-body text-text-muted">{item.a}</p>
           </details>
         ))}
       </div>

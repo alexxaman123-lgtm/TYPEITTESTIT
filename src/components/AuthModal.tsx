@@ -23,23 +23,23 @@ export default function AuthModal({
   return (
     <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
       <div
-        className="fixed inset-0 bg-black/60 backdrop-blur-sm transition-opacity"
+        className="fixed inset-0 bg-ink/10 backdrop-blur-[2px] transition-opacity"
         onClick={onClose}
       />
 
-      <div className="relative w-full max-w-md animate-fade-up overflow-hidden rounded-2xl border border-white/10 bg-[#080b09] p-6 shadow-2xl sm:p-8">
+      <div className="relative w-full max-w-md animate-fade-up overflow-hidden rounded-[24px] border border-hairline bg-canvas p-6 shadow-sm sm:p-8">
         <button
           onClick={onClose}
-          className="absolute right-4 top-4 rounded-lg p-1 text-[#a7aea9] transition-colors hover:bg-white/10 hover:text-white"
+          className="absolute right-4 top-4 rounded-full p-2 text-text-muted transition-colors hover:bg-canvas-soft hover:text-ink"
           aria-label="Close"
         >
           <X className="h-5 w-5" />
         </button>
 
-        <h2 className="mb-2 text-2xl font-bold tracking-tight text-white">
-          Welcome to Type It Test It
+        <h2 className="mb-2 font-heading-4 text-ink">
+          Welcome to FreeTypingTestGoat
         </h2>
-        <p className="mb-8 text-sm text-[#a7aea9]">
+        <p className="mb-8 font-body text-text-muted">
           Google Sign-In is optional. Take any typing test without signing in; sign in to choose a unique
           username for saved-progress and leaderboard features.
         </p>
@@ -47,7 +47,7 @@ export default function AuthModal({
         <button
           type="button"
           onClick={handleGoogleSignIn}
-          className="flex w-full items-center justify-center gap-3 rounded-xl border border-white/10 bg-[#0c100d] px-4 py-3 text-sm font-semibold text-white transition-all hover:bg-white/5 active:scale-[0.98]"
+          className="flex w-full items-center justify-center gap-3 rounded-full border border-hairline bg-canvas px-4 py-3 font-link text-ink transition-colors hover:border-text-muted hover:bg-canvas-soft active:scale-[0.98]"
         >
           <svg className="h-5 w-5" viewBox="0 0 24 24" aria-hidden="true">
             <path

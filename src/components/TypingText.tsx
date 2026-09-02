@@ -65,11 +65,11 @@ export default function TypingText({
         tabIndex={-1}
         onClick={focusInput}
         className={cn(
-          "typing-surface relative cursor-text select-none rounded-2xl border bg-surface2/70 font-sans tracking-normal transition-[border-color,box-shadow] duration-300",
+          "typing-surface relative cursor-text select-none rounded-[24px] border bg-canvas-soft/70 font-sans tracking-normal transition-[border-color,box-shadow] duration-300",
           focusMode
             ? "min-h-[220px] p-6 text-[22px] leading-[1.68] sm:min-h-[260px] sm:p-8 sm:text-[24px] sm:leading-[1.72] lg:min-h-[300px] lg:p-9 lg:text-[26px] lg:leading-[1.72]"
             : "min-h-[132px] p-4 text-[16px] leading-7 sm:min-h-[150px] sm:p-5 sm:text-[17px] sm:leading-8",
-          focused ? "border-accent/45 shadow-[0_0_0_1px_color-mix(in_srgb,var(--color-accent)_5%,transparent),0_0_35px_-20px_color-mix(in_srgb,var(--color-accent)_45%,transparent)]" : "border-white/10",
+          focused ? "border-accent shadow-sm" : "border-hairline",
           disabled && "opacity-60"
         )}
       >
@@ -102,24 +102,23 @@ export default function TypingText({
                   </span>
                 );
               }
-              if (state === "correct") return <span key={absIndex} className="text-accent2">{ch}</span>;
+              if (state === "correct") return <span key={absIndex} className="text-ink">{ch}</span>;
               if (state === "incorrect") {
                 return (
-                  <span key={absIndex} className={cn("rounded-[3px] text-danger", ch === " " ? "bg-danger/25" : "bg-danger/10")}>
+                  <span key={absIndex} className={cn("rounded-[3px] text-red-600", ch === " " ? "bg-red-500/25" : "bg-red-500/10")}>
                     {ch === " " ? "\u00B7" : ch}
                   </span>
                 );
               }
-              return <span key={absIndex} className="text-faint">{ch}</span>;
+              return <span key={absIndex} className="text-text-faint">{ch}</span>;
             })}
           </p>
         )}
-
         {!focused && status !== "finished" && (
-          <div className="pointer-events-none absolute inset-0 flex items-center justify-center rounded-2xl bg-bg/70 backdrop-blur-[2px]">
+          <div className="pointer-events-none absolute inset-0 flex items-center justify-center rounded-[24px] bg-canvas/70 backdrop-blur-[2px]">
             <span className={cn(
-              "rounded-full border border-accent/40 bg-accent/10 px-5 py-2.5 text-sm font-semibold text-accent",
-              focusMode && "px-6 py-3 text-base sm:text-lg"
+              "rounded-full border border-accent bg-accent/10 px-6 py-3 font-link text-accent",
+              focusMode && "px-8 py-4 text-[18px]"
             )}>Click here and start typing</span>
           </div>
         )}

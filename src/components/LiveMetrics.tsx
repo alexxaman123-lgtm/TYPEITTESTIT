@@ -74,15 +74,15 @@ export default function LiveMetrics({
 
   const cell = focusMode
     ? "flex min-h-[112px] flex-col items-center justify-center gap-2 px-3 py-5 sm:min-h-[132px] sm:py-6"
-    : "flex min-h-[72px] flex-col items-center justify-center gap-0.5 px-2.5 py-3 sm:min-h-[78px] sm:py-3.5";
+    : "flex min-h-[72px] flex-col items-center justify-center gap-1 px-2.5 py-3 sm:min-h-[78px] sm:py-3.5";
 
   return (
     <div className={focusMode
-      ? "metric-surface grid grid-cols-3 divide-x divide-white/10 rounded-2xl border border-white/10 bg-surface2/65"
-      : "metric-surface grid grid-cols-3 divide-x divide-white/10 rounded-2xl border border-white/10 bg-surface2/70"
+      ? "metric-surface grid grid-cols-3 divide-x divide-hairline rounded-[24px] border border-hairline bg-canvas-soft"
+      : "metric-surface grid grid-cols-3 divide-x divide-hairline rounded-[24px] border border-hairline bg-canvas-soft"
     }>
       <div className={cell}>
-        <span className="text-[9px] font-semibold uppercase tracking-[0.16em] text-faint sm:text-[10px]">Actual WPM</span>
+        <span className="font-label text-text-muted">Actual WPM</span>
         <span
           ref={actualWpmElementRef}
           aria-live="off"
@@ -91,14 +91,14 @@ export default function LiveMetrics({
       </div>
 
       <div className={cell}>
-        <span className="text-[9px] font-semibold uppercase tracking-[0.16em] text-faint sm:text-[10px]">Accuracy</span>
+        <span className="font-label text-text-muted">Accuracy</span>
         <span className={focusMode ? "font-mono text-4xl font-bold tabular-nums text-ink sm:text-5xl lg:text-6xl" : "font-mono text-2xl font-bold tabular-nums text-ink sm:text-[28px]"}>
           {accuracy}%
         </span>
       </div>
 
       <div className={cell}>
-        <span className="text-[9px] font-semibold uppercase tracking-[0.16em] text-faint sm:text-[10px]">Time</span>
+        <span className="font-label text-text-muted">Time</span>
         <span
           ref={timeElementRef}
           className={focusMode ? "font-mono text-4xl font-bold tabular-nums text-ink sm:text-5xl lg:text-6xl" : "font-mono text-2xl font-bold tabular-nums text-ink sm:text-[28px]"}

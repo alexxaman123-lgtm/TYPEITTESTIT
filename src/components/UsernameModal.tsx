@@ -80,12 +80,12 @@ export default function UsernameModal({ isOpen, initialUsername = "", onSaved }:
 
   return (
     <div className="fixed inset-0 z-[110] flex items-center justify-center p-4">
-      <div className="fixed inset-0 bg-black/70 backdrop-blur-sm" />
-      <div className="relative w-full max-w-md rounded-2xl border border-white/10 bg-[#080b09] p-6 shadow-2xl sm:p-8">
-        <h2 className="text-2xl font-bold tracking-tight text-white">Choose your username</h2>
-        <p className="mt-2 text-sm leading-6 text-[#a7aea9]">This name may be displayed with your leaderboard results.</p>
+      <div className="fixed inset-0 bg-ink/10 backdrop-blur-[2px] transition-opacity" />
+      <div className="relative w-full max-w-md rounded-[24px] border border-hairline bg-canvas p-6 shadow-sm sm:p-8 animate-fade-up">
+        <h2 className="font-heading-4 text-ink">Choose your username</h2>
+        <p className="mt-2 font-body text-text-muted">This name may be displayed with your leaderboard results.</p>
         <form onSubmit={saveUsername} className="mt-6">
-          <label htmlFor="username" className="text-xs font-medium text-[#a7aea9]">Username</label>
+          <label htmlFor="username" className="font-label text-text-muted">Username</label>
           <input
             id="username"
             value={username}
@@ -95,11 +95,11 @@ export default function UsernameModal({ isOpen, initialUsername = "", onSaved }:
             autoComplete="nickname"
             aria-describedby="username-help username-error"
             placeholder="e.g. SpeedTyper"
-            className="mt-2 w-full rounded-xl border border-white/10 bg-[#0c100d] px-4 py-3 text-sm text-white outline-none transition-all focus:border-[#00ff66] focus:bg-[#101510] focus:ring-1 focus:ring-[#00ff66]"
+            className="mt-2 w-full rounded-full border border-hairline bg-canvas px-4 py-3 font-link text-ink outline-none transition-all focus:border-ink"
           />
-          <p id="username-help" className="mt-2 text-xs leading-5 text-[#a7aea9]">Use 3–24 letters, numbers, underscores, or hyphens. Usernames are unique and must be respectful.</p>
-          {error && <p id="username-error" className="mt-2 text-xs text-red-400" role="alert">{error}</p>}
-          <button type="submit" disabled={saving} className="mt-5 w-full rounded-xl bg-[#00ff66] px-4 py-3 text-sm font-bold text-black transition-transform hover:-translate-y-[1px] disabled:opacity-50">
+          <p id="username-help" className="mt-2 font-caption text-text-muted">Use 3–24 letters, numbers, underscores, or hyphens. Usernames are unique and must be respectful.</p>
+          {error && <p id="username-error" className="mt-2 font-caption text-error" role="alert">{error}</p>}
+          <button type="submit" disabled={saving} className="mt-5 w-full rounded-full bg-primary px-4 py-3 font-link text-on-primary transition-opacity hover:opacity-90 disabled:opacity-50">
             {saving ? "Saving..." : "Continue"}
           </button>
         </form>

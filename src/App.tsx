@@ -1,6 +1,5 @@
 import { useEffect } from "react";
 import ReactGA from "react-ga4";
-import BackgroundEffects from "./components/BackgroundEffects";
 import Header from "./components/Header";
 import Footer from "./components/Footer";
 import Hero from "./components/Hero";
@@ -100,17 +99,16 @@ export default function App() {
       <>
         <Hero />
         <div className="mx-auto max-w-6xl px-4 pb-16 sm:px-6 lg:px-8"><TypingTester /></div>
-        <div className="border-t border-white/8 below-fold-content"><SeoContent /></div>
-        <div className="border-t border-white/8 below-fold-content"><HowItWorks /></div>
-        <div className="border-t border-white/8 below-fold-content"><GuidesSection /></div>
-        <div className="border-t border-white/8 below-fold-content"><FaqSection /></div>
+        <div className="border-t border-hairline below-fold-content"><SeoContent /></div>
+        <div className="border-t border-hairline below-fold-content"><HowItWorks /></div>
+        <div className="border-t border-hairline below-fold-content"><GuidesSection /></div>
+        <div className="border-t border-hairline below-fold-content"><FaqSection /></div>
       </>
     );
   };
 
   return (
     <div className="relative min-h-screen">
-      <BackgroundEffects />
       <Header />
       <main>{renderPage()}</main>
       <Footer />

@@ -1,8 +1,11 @@
 import { StrictMode, useEffect } from "react";
 import { createRoot } from "react-dom/client";
+import { loadTheme } from "./lib/themes";
 import "./index.css";
 import App from "./App";
 import SecurityBoundary from "./components/SecurityBoundary";
+
+loadTheme();
 
 function RootApp() {
   // Google Analytics is already initialized via gtag.js in index.html

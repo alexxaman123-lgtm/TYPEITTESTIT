@@ -29,7 +29,7 @@ const GUIDES = [
   },
   {
     title: "Typing Test for Jobs, School, and Daily Work",
-    body: "Typing speed can matter in data entry, customer support, administration, writing, coding, schoolwork, and timed assessments. The most useful preparation is to practice with varied text and the same kind of time pressure you expect in the real task. Use GOATTYPE to measure a baseline, repeat the exercise, and watch your personal best improve.",
+    body: "Typing speed can matter in data entry, customer support, administration, writing, coding, schoolwork, and timed assessments. The most useful preparation is to practice with varied text and the same kind of time pressure you expect in the real task. Use FreeTypingTestGoat to measure a baseline, repeat the exercise, and watch your personal best improve.",
   },
   {
     title: "How to Get Faster at Typing Long Sentences and Punctuation",
@@ -45,19 +45,19 @@ export default function GuidesSection() {
   return (
     <section id="guides" className="mx-auto max-w-5xl scroll-mt-20 px-4 py-16 sm:px-6 lg:px-8">
       <div className="text-center">
-        <p className="text-xs font-semibold uppercase tracking-[0.2em] text-accent">Typing Speed Blog</p>
-        <h2 className="mt-3 text-2xl font-bold tracking-tight text-ink sm:text-3xl">Typing Practice, Speed & Accuracy Guides</h2>
-        <p className="mx-auto mt-3 max-w-2xl text-muted">Practical guides for people searching for typing practice, a free typing test, better WPM, a 1 minute typing test, stronger accuracy, and faster keyboard typing.</p>
+        <p className="font-label text-accent">Typing Speed Blog</p>
+        <h2 className="mt-3 font-heading-4 text-ink">Typing Practice, Speed & Accuracy Guides</h2>
+        <p className="mx-auto mt-3 max-w-2xl font-body text-text-muted">Practical guides for people searching for typing practice, a free typing test, better WPM, a 1 minute typing test, stronger accuracy, and faster keyboard typing.</p>
       </div>
       <div className="mt-8 grid gap-4 sm:grid-cols-2">
         {GUIDES.map((guide) => (
-          <details key={guide.title} className="interactive-lift group rounded-2xl border border-white/10 bg-surface1/50 p-5 open:border-accent/30">
-            <summary className="flex cursor-pointer list-none items-center justify-between gap-4 font-semibold text-ink-soft marker:content-none">
+          <details key={guide.title} className="group rounded-[24px] border border-hairline bg-canvas p-6 shadow-sm open:border-ink">
+            <summary className="flex cursor-pointer list-none items-center justify-between gap-4 font-heading-5 text-ink marker:content-none">
               {guide.title}
               <span className="shrink-0 text-lg text-accent transition-transform duration-200 group-open:rotate-45">+</span>
             </summary>
-            <p className="mt-3 text-sm leading-6 text-muted">{guide.body}</p>
-            <a href="#tester" className="mt-3 inline-block text-sm font-semibold text-accent hover:underline">Take a free typing test &rarr;</a>
+            <p className="mt-4 font-body-sm text-text-muted">{guide.body}</p>
+            <a href="#tester" className="mt-4 inline-block font-link text-accent hover:underline">Take a free typing test &rarr;</a>
           </details>
         ))}
       </div>

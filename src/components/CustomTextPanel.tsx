@@ -32,39 +32,39 @@ export default function CustomTextPanel({ duration, onStartFree, onStartPaste, o
   };
 
   return (
-    <div className="animate-fade-up rounded-2xl border border-white/10 bg-surface2/70 p-6 shadow-[0_18px_50px_-30px_rgba(0,0,0,0.95)] sm:p-8">
+    <div className="animate-fade-up rounded-[24px] border border-hairline bg-canvas p-6 shadow-sm sm:p-8">
       <div className="flex items-center justify-between">
         <div>
-          <span className="text-[10px] font-semibold uppercase tracking-[0.2em] text-accent">Custom mode</span>
-          <h3 className="mt-1 text-lg font-bold text-ink">Custom Typing Test</h3>
+          <span className="font-label text-accent">Custom mode</span>
+          <h3 className="mt-1 font-heading-5 text-ink">Custom Typing Test</h3>
         </div>
         <button
           type="button"
           onClick={onCancel}
-          className="text-sm font-medium text-muted transition-colors hover:text-ink"
+          className="font-link text-text-muted transition-colors hover:text-ink"
         >
           Cancel
         </button>
       </div>
-      <p className="mt-1 text-sm text-muted">
+      <p className="mt-2 font-body text-text-muted">
         Choose how you want to use Custom Text, then start typing or load your own passage.
       </p>
 
-      <div className="mt-5 grid gap-2 sm:grid-cols-2" role="tablist" aria-label="Custom text mode">
+      <div className="mt-6 grid gap-3 sm:grid-cols-2" role="tablist" aria-label="Custom text mode">
         <button
           type="button"
           role="tab"
           aria-selected={mode === "free"}
           onClick={() => selectMode("free")}
           className={cn(
-            "interactive-lift rounded-xl border px-4 py-3 text-left text-sm font-semibold transition-all duration-200",
+            "rounded-[20px] border px-4 py-4 text-left font-link transition-colors duration-200",
             mode === "free"
-              ? "border-accent/50 bg-accent/10 text-accent"
-              : "border-white/12 bg-surface3/50 text-ink-soft hover:border-accent/40 hover:text-ink"
+              ? "border-accent bg-accent/10 text-accent"
+              : "border-hairline bg-canvas-soft text-ink hover:border-text-muted"
           )}
         >
           <span className="block">Type Your Own Text</span>
-          <span className="mt-1 block text-xs font-normal text-muted">Start writing immediately</span>
+          <span className={cn("mt-1 block font-caption", mode === "free" ? "text-accent/80" : "text-text-muted")}>Start writing immediately</span>
         </button>
         <button
           type="button"
@@ -72,20 +72,20 @@ export default function CustomTextPanel({ duration, onStartFree, onStartPaste, o
           aria-selected={mode === "paste"}
           onClick={() => selectMode("paste")}
           className={cn(
-            "interactive-lift rounded-xl border px-4 py-3 text-left text-sm font-semibold transition-all duration-200",
+            "rounded-[20px] border px-4 py-4 text-left font-link transition-colors duration-200",
             mode === "paste"
-              ? "border-accent/50 bg-accent/10 text-accent"
-              : "border-white/12 bg-surface3/50 text-ink-soft hover:border-accent/40 hover:text-ink"
+              ? "border-accent bg-accent/10 text-accent"
+              : "border-hairline bg-canvas-soft text-ink hover:border-text-muted"
           )}
         >
           <span className="block">Paste Text</span>
-          <span className="mt-1 block text-xs font-normal text-muted">Use a passage as the source</span>
+          <span className={cn("mt-1 block font-caption", mode === "paste" ? "text-accent/80" : "text-text-muted")}>Use a passage as the source</span>
         </button>
       </div>
 
       {mode === "free" ? (
-        <div className="mt-5 rounded-xl border border-accent/10 bg-surface3/70 p-5 shadow-[inset_0_1px_0_rgba(255,255,255,0.03)] sm:p-6">
-          <p className="text-sm leading-6 text-muted">
+        <div className="mt-6 rounded-[20px] border border-hairline bg-canvas-soft p-5 sm:p-6">
+          <p className="font-body text-text-muted">
             Type anything you want. The timer starts with your first character and the same live WPM and
             accuracy metrics are used during the test.
           </p>
@@ -99,26 +99,24 @@ export default function CustomTextPanel({ duration, onStartFree, onStartPaste, o
             rows={6}
             aria-label="Custom text passage"
             className={cn(
-              "mt-4 w-full resize-none rounded-xl border bg-surface3/80 p-4 font-sans text-sm text-ink-soft placeholder:text-faint focus:outline-none",
-              error ? "border-danger/50" : "border-white/10 focus:border-accent/50"
+              "mt-5 w-full resize-none rounded-[20px] border bg-canvas-soft p-4 font-body text-ink placeholder:text-text-faint focus:outline-none",
+              error ? "border-red-500" : "border-hairline focus:border-accent"
             )}
           />
-
-          {error && <p className="mt-2 text-sm text-danger">{error}</p>}
+          {error && <p className="mt-2 font-caption text-red-500">{error}</p>}
         </>
       )}
 
-      <div className="mt-5 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+      <div className="mt-8 flex flex-col gap-5 sm:flex-row sm:items-end sm:justify-between">
         <div>
-          <span className="mb-2 block text-xs font-semibold uppercase tracking-wide text-faint">Duration</span>
+          <span className="mb-3 block font-label text-text-muted">Duration</span>
           <DurationSelector value={localDuration} onChange={setLocalDuration} />
         </div>
-
         {mode === "free" ? (
           <button
             type="button"
             onClick={() => onStartFree(localDuration)}
-            className="theme-accent-glow rounded-lg bg-accent px-6 py-3 text-sm font-bold text-black transition-all duration-200 hover:brightness-110 active:translate-y-0.5"
+            className="rounded-full bg-primary px-6 py-3 font-link text-on-primary transition-opacity hover:opacity-90"
           >
             Start Free Typing
           </button>
@@ -126,7 +124,7 @@ export default function CustomTextPanel({ duration, onStartFree, onStartPaste, o
           <button
             type="button"
             onClick={handleStartPaste}
-            className="theme-accent-glow rounded-lg bg-accent px-6 py-3 text-sm font-bold text-black transition-all duration-200 hover:brightness-110 active:translate-y-0.5"
+            className="rounded-full bg-primary px-6 py-3 font-link text-on-primary transition-opacity hover:opacity-90"
           >
             Use This Text
           </button>
