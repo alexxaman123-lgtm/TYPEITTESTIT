@@ -18,22 +18,6 @@ export type CharCounts = {
   missed: number;
 };
 
-/**
- * Count characters in `inputWord` against `targetWord` and categorize them.
- * This is a direct port of Monkeytype's `countChars` from
- * frontend/src/ts/utils/strings.ts.
- *
- * Categories:
- *   - allCorrect  : characters that match the target, regardless of word correctness
- *   - correctWord : characters that count toward the WPM. Only credited when
- *                   the whole word is correct, or when `creditPartial` is true
- *                   and the typed word is a prefix of the target word.
- *   - incorrect   : characters typed in the wrong place
- *   - extra       : characters typed past the end of the target word
- *   - missed      : target characters that were never typed (only counted when
- *                   `creditPartial` is false, i.e. for the final word in a
- *                   word-count test)
- */
 export function countChars(
   inputWord: string,
   targetWord: string,
@@ -63,18 +47,13 @@ export function countChars(
         correctWord += 1;
       }
     } else if (inputChar === undefined) {
-      // missed char
-      if (!creditPartial) {
-        missed += 1;
-      }
+      if (!creditPartial) missed += 1;
     } else if (
       targetChar === undefined ||
       (targetChar === " " && inputChar !== " " && !inputWord.includes(" "))
     ) {
-      // extra char (past target, or typed in place of word-ending space)
       extra += 1;
     } else {
-      // incorrect char
       incorrect += 1;
     }
   }
@@ -82,11 +61,6 @@ export function countChars(
   return { allCorrect, correctWord, incorrect, extra, missed };
 }
 
-/**
- * Sum char counts across every word the user has touched.
- * The trailing (partial) word is credited partially when `creditPartialLast`
- * is true, which is what we want for time-based tests.
- */
 export function countAllChars(
   targetText: string,
   typedText: string,
@@ -120,16 +94,6 @@ export function countAllChars(
   return acc;
 }
 
-/**
- * Monkeytype's WPM formula. Direct port of
- * frontend/src/ts/utils/numbers.ts → calculateWpm.
- *   WPM = (chars / 5) / (durationSeconds / 60)
- * Five characters = one "word" by the standard typing-test convention.
- *
- * Pass `correctWord` (chars that count toward a correct word) for the
- * Monkeytype "Actual WPM" display. Pass `allCorrect + incorrect + extra`
- * for the "Raw WPM".
- */
 export function calculateWpm(
   charCount: number,
   durationSeconds: number,
@@ -138,19 +102,11 @@ export function calculateWpm(
   return charCount / 5 / (durationSeconds / 60);
 }
 
-/**
- * Backwards-compatible alias for the raw-char WPM (the previous build
- * of this file used `computeRawWpm(totalTyped, elapsedMs)`).
- */
 export function computeRawWpm(totalTyped: number, elapsedMs: number): number {
   if (elapsedMs <= 0 || totalTyped <= 0) return 0;
   return calculateWpm(totalTyped, elapsedMs / 1000);
 }
 
-/**
- * Accuracy in [0, 100]. Mirrors Monkeytype's
- *   acc = correctWord / (correctWord + incorrect + extra) * 100
- */
 export function computeAccuracyFromChars(
   correctWord: number,
   incorrect: number,
@@ -161,10 +117,6 @@ export function computeAccuracyFromChars(
   return Math.max(0, Math.min(100, (correctWord / total) * 100));
 }
 
-/**
- * Original accuracy helper (correct chars / total typed). Kept for
- * backwards compatibility with call sites that already use it.
- */
 export function computeAccuracy(
   correctChars: number,
   totalTyped: number,
@@ -173,17 +125,11 @@ export function computeAccuracy(
   return Math.max(0, Math.min(100, Math.round((correctChars / totalTyped) * 100)));
 }
 
-/** Count complete word units actually entered by the user. */
 export function computeWordsWritten(typedText: string): number {
   if (!typedText.trim()) return 0;
   return typedText.trim().split(/\s+/u).filter(Boolean).length;
 }
 
-/**
- * Count how many typed words contain at least one error. Mirrors
- * the previous logic but accepts the partial-last-word flag from
- * Monkeytype.
- */
 export function countWordErrors(
   targetText: string,
   typedText: string,
@@ -226,7 +172,7 @@ export function getPerformanceLabel(wpm: number, accuracy: number): PerformanceL
 }
 
 export type SpeedTier = {
-  name: "POOR" | "AVERAGE" | "GOOD" | "FAST" | "EXCELLENT" | "ELITE";
+  name: "SLOW GOAT" | "AVERAGE GOAT" | "THE GOAT" | "ACE GOAT" | "ADVANCED GOAT" | "MYTHICAL GOAT";
   minWpm: number;
   maxWpm: number | null;
   message: string;
@@ -234,12 +180,48 @@ export type SpeedTier = {
 };
 
 export const SPEED_TIERS: SpeedTier[] = [
-  { name: "POOR", minWpm: 0, maxWpm: 29.9, message: "You are building your typing foundation. Focus on accuracy and steady rhythm first.", nextTarget: 30 },
-  { name: "AVERAGE", minWpm: 30, maxWpm: 44.9, message: "You are around the everyday range. Keep practicing to move toward a stronger, more comfortable pace.", nextTarget: 45 },
-  { name: "GOOD", minWpm: 45, maxWpm: 59.9, message: "Good typing speed. You have a solid foundation for school, work, and everyday typing.", nextTarget: 60 },
-  { name: "FAST", minWpm: 60, maxWpm: 79.9, message: "You are typing faster than most everyday users. Keep accuracy high while pushing your pace.", nextTarget: 80 },
-  { name: "EXCELLENT", minWpm: 80, maxWpm: 99.9, message: "Excellent speed. You are in an advanced territory and well above a typical everyday typing pace.", nextTarget: 100 },
-  { name: "ELITE", minWpm: 100, maxWpm: null, message: "Elite typing speed. Staying above 100 WPM with high accuracy is a strong competitive benchmark.", nextTarget: null },
+  {
+    name: "SLOW GOAT",
+    minWpm: 0,
+    maxWpm: 31.9,
+    message: "You are a slow goat. No stress — build your typing rhythm and keep practicing.",
+    nextTarget: 32,
+  },
+  {
+    name: "AVERAGE GOAT",
+    minWpm: 32,
+    maxWpm: 47.9,
+    message: "You're an average goat. Solid start — a little more practice can make you noticeably faster.",
+    nextTarget: 48,
+  },
+  {
+    name: "THE GOAT",
+    minWpm: 48,
+    maxWpm: 59.9,
+    message: "You're the goat everybody talks about. Your typing speed is seriously impressive.",
+    nextTarget: 60,
+  },
+  {
+    name: "ACE GOAT",
+    minWpm: 60,
+    maxWpm: 79.9,
+    message: "You're an ace goat. Fast, confident, and getting close to elite territory.",
+    nextTarget: 80,
+  },
+  {
+    name: "ADVANCED GOAT",
+    minWpm: 80,
+    maxWpm: 99.9,
+    message: "You're an advanced goat. That's some serious typing speed — keep accuracy high.",
+    nextTarget: 100,
+  },
+  {
+    name: "MYTHICAL GOAT",
+    minWpm: 100,
+    maxWpm: null,
+    message: "You are a mythical goat. 100+ WPM is an extraordinary typing benchmark.",
+    nextTarget: null,
+  },
 ];
 
 export function getSpeedTier(wpm: number): SpeedTier {
