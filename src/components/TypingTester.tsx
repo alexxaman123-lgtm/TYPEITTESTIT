@@ -36,7 +36,7 @@ export default function TypingTester() {
     if (test.status !== "running") return;
     const currentErrors = test.liveStats.characterErrors;
     if (currentErrors > prevErrorCountRef.current) {
-      playSound("/piano-noise-suprise.mp3", 0.5);
+      playSound("/piano-noise-suprise.mp3", 0.25);
     }
     prevErrorCountRef.current = currentErrors;
   }, [test.liveStats.characterErrors, test.status, playSound]);
