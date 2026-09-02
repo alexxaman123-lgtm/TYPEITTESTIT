@@ -80,10 +80,10 @@ export default function LeaderboardPage() {
       <section className="rounded-3xl border border-white/10 bg-surface1/75 p-5 shadow-[0_0_70px_-24px_rgba(0,0,0,0.7)] backdrop-blur-sm sm:p-8">
         <div className="flex flex-col gap-5 border-b border-white/8 pb-6 lg:flex-row lg:items-end lg:justify-between">
           <div>
-            <span className="text-[10px] font-semibold uppercase tracking-[0.3em] text-faint">GOATTYPE</span>
-            <h1 className="mt-2 text-3xl font-extrabold tracking-tight text-ink sm:text-4xl">Leaderboard</h1>
+            <span className="text-[10px] font-semibold uppercase tracking-[0.3em] text-faint">FreeTypingTestGoat</span>
+            <h1 className="mt-2 text-3xl font-extrabold tracking-tight text-ink sm:text-4xl">Typing Test Leaderboard</h1>
             <p className="mt-2 max-w-2xl text-sm leading-6 text-muted">
-              See the fastest and most accurate GOATTYPE typists. One account earns one leaderboard position, with difficulty and test-duration filters.
+              See the fastest and most accurate FreeTypingTestGoat typists. One account earns one leaderboard position, with difficulty and test-duration filters.
             </p>
           </div>
 
