@@ -29,31 +29,39 @@ export function unlockTypingSounds(): void {
   }
 }
 
-function playPianoNote(context: AudioContext, frequency: number, duration = 0.18, volume = 0.052): void {
+function playPianoNote(
+  context: AudioContext,
+  frequency: number,
+  duration = 0.16,
+  volume = 0.07,
+): void {
   const now = context.currentTime;
   const master = context.createGain();
   master.gain.setValueAtTime(0.0001, now);
-  master.gain.exponentialRampToValueAtTime(volume, now + 0.004);
+  master.gain.exponentialRampToValueAtTime(volume, now + 0.003);
+  master.gain.exponentialRampToValueAtTime(volume * 0.42, now + 0.055);
   master.gain.exponentialRampToValueAtTime(0.0001, now + duration);
   master.connect(context.destination);
 
   const partials = [
-    { multiple: 1, gain: 1, type: "triangle" as OscillatorType },
-    { multiple: 2, gain: 0.22, type: "sine" as OscillatorType },
-    { multiple: 3, gain: 0.08, type: "sine" as OscillatorType },
-    { multiple: 4, gain: 0.025, type: "sine" as OscillatorType },
+    { multiple: 1, gain: 1.0, type: "triangle" as OscillatorType, detune: 0 },
+    { multiple: 2, gain: 0.28, type: "sine" as OscillatorType, detune: 1 },
+    { multiple: 3, gain: 0.11, type: "sine" as OscillatorType, detune: -1 },
+    { multiple: 4, gain: 0.035, type: "sine" as OscillatorType, detune: 2 },
   ];
 
-  partials.forEach(({ multiple, gain: partialGain, type }) => {
+  partials.forEach(({ multiple, gain: partialGain, type, detune }) => {
     const oscillator = context.createOscillator();
     const gain = context.createGain();
     oscillator.type = type;
     oscillator.frequency.setValueAtTime(frequency * multiple, now);
+    oscillator.detune.setValueAtTime(detune, now);
     gain.gain.setValueAtTime(partialGain, now);
+    gain.gain.exponentialRampToValueAtTime(0.0001, now + duration);
     oscillator.connect(gain);
     gain.connect(master);
     oscillator.start(now);
-    oscillator.stop(now + duration + 0.03);
+    oscillator.stop(now + duration + 0.02);
   });
 }
 
@@ -61,7 +69,7 @@ function playGoatBleat(context: AudioContext): void {
   const now = context.currentTime;
   const master = context.createGain();
   master.gain.setValueAtTime(0.0001, now);
-  master.gain.exponentialRampToValueAtTime(0.1, now + 0.012);
+  master.gain.exponentialRampToValueAtTime(0.11, now + 0.012);
   master.gain.exponentialRampToValueAtTime(0.0001, now + 0.95);
   master.connect(context.destination);
 
@@ -71,15 +79,13 @@ function playGoatBleat(context: AudioContext): void {
   voice.type = "sawtooth";
   wobble.type = "sine";
   wobble.frequency.setValueAtTime(8.5, now);
-  wobbleGain.gain.setValueAtTime(75, now);
+  wobbleGain.gain.setValueAtTime(70, now);
   wobble.connect(wobbleGain);
   wobbleGain.connect(voice.frequency);
-
   voice.frequency.setValueAtTime(390, now);
   voice.frequency.exponentialRampToValueAtTime(245, now + 0.25);
   voice.frequency.exponentialRampToValueAtTime(335, now + 0.48);
   voice.frequency.exponentialRampToValueAtTime(205, now + 0.92);
-
   voice.connect(master);
   voice.start(now);
   wobble.start(now);
@@ -97,9 +103,9 @@ export function playTypingSound(type: "key" | "error" | "backspace"): void {
 
   const play = () => {
     if (!soundsEnabled || context.state !== "running") return;
-    if (type === "key") playPianoNote(context, note, 0.18, 0.052);
-    else if (type === "backspace") playPianoNote(context, note * 0.75, 0.13, 0.04);
-    else playPianoNote(context, 185, 0.1, 0.032);
+    if (type === "key") playPianoNote(context, note, 0.16, 0.07);
+    else if (type === "backspace") playPianoNote(context, note * 0.75, 0.12, 0.048);
+    else playPianoNote(context, 185, 0.11, 0.035);
   };
 
   try {
