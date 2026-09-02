@@ -5,7 +5,7 @@ import { useReducedMotion } from "../lib/useReducedMotion";
 import { getPreferences, savePreferences } from "../lib/storage";
 import { getProfileBest } from "../lib/leaderboard";
 import { playTestCompleteSound } from "../lib/useTypingSounds";
-import { useSound } from "../lib/useSound";
+import { getSoundEnabled, useSound } from "../lib/useSound";
 import DifficultySelector from "./DifficultySelector";
 import DurationSelector from "./DurationSelector";
 import TypingText from "./TypingText";
@@ -26,18 +26,29 @@ export default function TypingTester() {
   const [personalBest, setPersonalBest] = useState<PersonalBest>(null);
   const [focusMode, setFocusMode] = useState(false);
   const previousStatusRef = useRef(test.status);
-  
-  // Sound effect for wrong key presses (10% volume)
+
+  // Uploaded sound for wrong key presses only.
   const { playSound } = useSound();
   const prevErrorCountRef = useRef(0);
-  
-  // Play sound when a new error is detected
+
+  useEffect(() => {
+    // Each new test starts a fresh error counter so the first mistake can trigger the sound.
+    prevErrorCountRef.current = 0;
+  }, [test.sessionId]);
+
   useEffect(() => {
     if (test.status !== "running") return;
+
     const currentErrors = test.liveStats.characterErrors;
-    if (currentErrors > prevErrorCountRef.current) {
-      playSound("/piano-noise-suprise.mp3", 0.10);
+    const previousErrors = prevErrorCountRef.current;
+
+    if (currentErrors > previousErrors && getSoundEnabled()) {
+      const errorCount = currentErrors - previousErrors;
+      for (let i = 0; i < errorCount; i += 1) {
+        playSound("/piano-noise-suprise.mp3", 0.10);
+      }
     }
+
     prevErrorCountRef.current = currentErrors;
   }, [test.liveStats.characterErrors, test.status, playSound]);
 
@@ -61,7 +72,6 @@ export default function TypingTester() {
     if (test.status === "finished" || test.status === "idle") setFocusMode(false);
     else if (previousStatus !== "running" && test.status === "running") setFocusMode(true);
 
-    // Play the goat celebration exactly when an active test finishes.
     if (previousStatus === "running" && test.status === "finished") {
       playTestCompleteSound();
     }
