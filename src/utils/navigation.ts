@@ -14,7 +14,3 @@ export function navigateTo(href: string): void {
   window.history.pushState({}, "", nextUrl);
   window.dispatchEvent(new PopStateEvent("popstate"));
 }
-
-export function shouldHandleClientNavigation(event: React.MouseEvent<HTMLAnchorElement>): boolean {
-  return event.button === 0 && !event.metaKey && !event.ctrlKey && !event.shiftKey && !event.altKey && !event.defaultPrevented;
-}
