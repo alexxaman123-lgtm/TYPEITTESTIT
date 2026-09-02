@@ -9,7 +9,6 @@ import ThemePicker from "./ThemePicker";
 const NAV_LINKS = [
   { label: "Typing Speed Test", href: "/#tester" },
   { label: "Leaderboard", href: "/leaderboard" },
-  { label: "Guides", href: "/#guides" },
   { label: "How It Works", href: "/#how-it-works" },
   { label: "About", href: "/about" },
   { label: "Contact", href: "/contact" },
