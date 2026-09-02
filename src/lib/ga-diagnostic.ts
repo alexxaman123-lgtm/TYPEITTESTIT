@@ -79,6 +79,9 @@ export function runGADiagnostic() {
 }
 
 // Attach to the window object so it can be called manually in the browser DevTools console
-if (typeof window !== "undefined") {
-  (window as any).runGADiagnostic = runGADiagnostic;
+declare global {
+  interface Window {
+    runGADiagnostic?: () => void;
+  }
 }
+window.runGADiagnostic = runGADiagnostic;
