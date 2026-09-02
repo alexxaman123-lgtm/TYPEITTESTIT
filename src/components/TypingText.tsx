@@ -56,9 +56,7 @@ export default function TypingText({
 
   const windowEnd = Math.min(target.length, windowStart + WINDOW_SIZE);
   const slice = target.slice(windowStart, windowEnd);
-  const copyClass = focusMode
-    ? "typing-copy"
-    : "text-left";
+  const copyClass = focusMode ? "typing-copy" : "text-left";
 
   return (
     <div className="relative">
@@ -67,10 +65,10 @@ export default function TypingText({
         tabIndex={-1}
         onClick={focusInput}
         className={cn(
-          "typing-surface relative min-h-[168px] cursor-text select-none rounded-2xl border bg-surface2/70 p-5 font-sans leading-8 tracking-normal transition-[border-color,box-shadow] duration-300 sm:p-7 sm:text-[19px] sm:leading-9",
+          "typing-surface relative cursor-text select-none rounded-2xl border bg-surface2/70 font-sans tracking-normal transition-[border-color,box-shadow] duration-300",
           focusMode
             ? "min-h-[220px] p-6 text-[22px] leading-[1.68] sm:min-h-[260px] sm:p-8 sm:text-[24px] sm:leading-[1.72] lg:min-h-[300px] lg:p-9 lg:text-[26px] lg:leading-[1.72]"
-            : "text-[17px]",
+            : "min-h-[132px] p-4 text-[16px] leading-7 sm:min-h-[150px] sm:p-5 sm:text-[17px] sm:leading-8",
           focused ? "border-accent/45 shadow-[0_0_0_1px_color-mix(in_srgb,var(--color-accent)_5%,transparent),0_0_35px_-20px_color-mix(in_srgb,var(--color-accent)_45%,transparent)]" : "border-white/10",
           disabled && "opacity-60"
         )}
@@ -120,7 +118,8 @@ export default function TypingText({
         {!focused && status !== "finished" && (
           <div className="pointer-events-none absolute inset-0 flex items-center justify-center rounded-2xl bg-bg/70 backdrop-blur-[2px]">
             <span className={cn(
-              "rounded-full border border-accent/40 bg-accent/10 px-5 py-2.5 text-sm font-semibold text-accent"
+              "rounded-full border border-accent/40 bg-accent/10 px-5 py-2.5 text-sm font-semibold text-accent",
+              focusMode && "px-6 py-3 text-base sm:text-lg"
             )}>Click here and start typing</span>
           </div>
         )}
