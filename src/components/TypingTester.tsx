@@ -16,6 +16,10 @@ import { cn } from "../utils/cn";
 type ViewMode = "test" | "custom";
 type PersonalBest = { wpm: number; accuracy: number } | null;
 
+type ViewTransitionDocument = Document & {
+  startViewTransition?: (update: () => void | Promise<void>) => { finished: Promise<void> };
+};
+
 export default function TypingTester() {
   const prefs = useMemo(() => getPreferences(), []);
   const reducedMotion = useReducedMotion();
@@ -69,7 +73,13 @@ export default function TypingTester() {
 
   const animateFocusState = (next: boolean) => {
     if (focusMode === next) return;
-    setFocusMode(next);
+
+    const doc = document as ViewTransitionDocument;
+    if (!reducedMotion && typeof doc.startViewTransition === "function") {
+      void doc.startViewTransition(() => setFocusMode(next)).finished.catch(() => undefined);
+    } else {
+      setFocusMode(next);
+    }
   };
 
   function enterFocusMode() {
