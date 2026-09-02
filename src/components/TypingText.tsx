@@ -102,7 +102,9 @@ export default function TypingText({
                   </span>
                 );
               }
-              if (state === "correct") return <span key={absIndex} className="text-ink">{ch}</span>;
+              if (state === "correct") {
+                return <span key={absIndex} className="typing-correct">{ch}</span>;
+              }
               if (state === "incorrect") {
                 return (
                   <span key={absIndex} className={cn("rounded-[3px] text-red-600", ch === " " ? "bg-red-500/25" : "bg-red-500/10")}>
@@ -110,7 +112,7 @@ export default function TypingText({
                   </span>
                 );
               }
-              return <span key={absIndex} className="text-text-faint">{ch}</span>;
+              return <span key={absIndex} className="typing-pending">{ch}</span>;
             })}
           </p>
         )}
