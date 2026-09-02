@@ -6,7 +6,6 @@ import Hero from "./components/Hero";
 import TypingTester from "./components/TypingTester";
 import SeoContent from "./components/SeoContent";
 import HowItWorks from "./components/HowItWorks";
-import GuidesSection from "./components/GuidesSection";
 import AboutPage from "./components/AboutPage";
 import ContactPage from "./components/ContactPage";
 import LeaderboardPage from "./components/LeaderboardPage";
@@ -119,7 +118,7 @@ export default function App() {
     );
 
     elements.forEach((element, index) => {
-      element.style.setProperty("--reveal-index", String(index % 5));
+      element.style.setProperty("--reveal-index", String(index));
       observer.observe(element);
     });
 
@@ -144,9 +143,6 @@ export default function App() {
         </div>
         <div className="border-t border-hairline below-fold-content" data-reveal="up">
           <HowItWorks />
-        </div>
-        <div className="border-t border-hairline below-fold-content" data-reveal="up">
-          <GuidesSection />
         </div>
         <div className="border-t border-hairline below-fold-content" data-reveal="up">
           <FaqSection />
