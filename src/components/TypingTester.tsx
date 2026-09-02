@@ -102,6 +102,11 @@ export default function TypingTester() {
     savePreferences(test.difficulty, secs);
   };
 
+  const resetShortTest = () => {
+    animateFocusState(false);
+    test.reset();
+  };
+
   const controlsDisabled = test.status === "running" || viewMode === "custom";
 
   return (
@@ -131,7 +136,18 @@ export default function TypingTester() {
           {viewMode === "custom" ? (
             <CustomTextPanel duration={test.duration} onStartFree={(secs) => { test.startFreeTypingTest(secs); setViewMode("test"); }} onStartPaste={(text, secs) => { test.startCustomTest(text, secs); setViewMode("test"); }} onCancel={() => setViewMode("test")} />
           ) : test.status === "finished" && test.result && test.elapsedMs < 60_000 ? (
-            <div className="flex min-h-[220px] items-center justify-center rounded-2xl border border-white/10 bg-surface3/60 px-6 py-12 text-center"><p className="text-base font-semibold text-ink">Please complete at least 1 minute to check your stats.</p></div>
+            <div className="flex flex-col items-center justify-center gap-6 rounded-2xl border border-white/10 bg-surface3/60 px-6 py-12 text-center sm:gap-5 sm:py-14">
+              <p className="max-w-md text-base font-semibold leading-6 text-ink sm:text-lg">
+                Please complete at least 1 minute to check your stats.
+              </p>
+              <button
+                type="button"
+                onClick={resetShortTest}
+                className="rounded-lg border border-white/12 bg-surface2 px-5 py-2.5 text-sm font-semibold text-ink-soft transition-all duration-200 hover:-translate-y-0.5 hover:border-accent/45 hover:bg-accent/10 hover:text-accent active:translate-y-0 sm:px-6 sm:py-3"
+              >
+                Start Again
+              </button>
+            </div>
           ) : test.status === "finished" && test.result ? (
             <ResultPanel result={test.result} targetText={test.targetText} profileBest={personalBest} reducedMotion={reducedMotion} onRetry={() => { animateFocusState(false); test.retry(); }} onNewText={() => { animateFocusState(false); test.newText(); }} onChangeDifficulty={() => { animateFocusState(false); test.reset(); }} onCustomTest={() => { animateFocusState(false); setViewMode("custom"); }} />
           ) : (
