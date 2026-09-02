@@ -1,4 +1,5 @@
 import { useEffect } from "react";
+import ReactGA from "react-ga4";
 import BackgroundEffects from "./components/BackgroundEffects";
 import Header from "./components/Header";
 import Footer from "./components/Footer";
@@ -35,6 +36,9 @@ export default function App() {
     document.title = config?.title ?? "GOATTYPE — Free Typing Speed Test";
     const description = document.querySelector('meta[name="description"]');
     if (description && config) description.setAttribute("content", config.description);
+    
+    // Send pageview to Google Analytics using the current path
+    ReactGA.send({ hitType: "pageview", page: path });
   }, [path]);
 
   const renderPage = () => {
