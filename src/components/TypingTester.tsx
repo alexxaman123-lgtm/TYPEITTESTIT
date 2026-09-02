@@ -116,18 +116,18 @@ export default function TypingTester() {
         )}
       >
         {!focusMode && (
-          <div className="flex flex-col gap-4 border-b border-white/8 pb-5 lg:flex-row lg:items-center lg:justify-between">
-            <div className="flex flex-wrap items-center gap-3"><SettingLabel text="Difficulty" /><DifficultySelector value={test.difficulty} onChange={handleDifficultyChange} disabled={controlsDisabled} /></div>
-            <div className="flex flex-wrap items-center gap-3"><SettingLabel text="Duration" /><DurationSelector value={test.duration} onChange={handleDurationChange} disabled={controlsDisabled} /></div>
+          <div className="flex flex-col gap-3 border-b border-white/8 pb-4 lg:flex-row lg:items-center lg:justify-between">
+            <div className="flex flex-wrap items-center gap-2"><SettingLabel text="Difficulty" /><DifficultySelector value={test.difficulty} onChange={handleDifficultyChange} disabled={controlsDisabled} /></div>
+            <div className="flex flex-wrap items-center gap-2"><SettingLabel text="Duration" /><DurationSelector value={test.duration} onChange={handleDurationChange} disabled={controlsDisabled} /></div>
             <button type="button" onClick={() => setViewMode(viewMode === "custom" ? "test" : "custom")} disabled={test.status === "running"} className={cn("rounded-lg border px-4 py-2.5 text-sm font-semibold transition-all duration-200 disabled:cursor-not-allowed disabled:opacity-40", viewMode === "custom" ? "border-accent/50 bg-accent/10 text-accent" : "border-white/12 bg-surface2 text-ink-soft hover:border-accent/40 hover:text-ink")}>Custom Test</button>
           </div>
         )}
 
         {!focusMode && personalBest && viewMode === "test" && test.status !== "finished" && (
-          <p className="mt-4 text-center text-xs font-medium uppercase tracking-wide text-faint sm:text-left">Best on your profile for {test.difficulty} · {test.duration / 60}min: <span className="text-accent">{personalBest.wpm} WPM</span> at <span className="text-ink-soft">{personalBest.accuracy}%</span></p>
+          <p className="mt-3 text-center text-xs font-medium uppercase tracking-wide text-faint sm:text-left">Best on your profile for {test.difficulty} · {test.duration / 60}min: <span className="text-accent">{personalBest.wpm} WPM</span> at <span className="text-ink-soft">{personalBest.accuracy}%</span></p>
         )}
 
-        <div className={cn("mt-6", focusMode && "focus-content mt-0")}>
+        <div className={cn("mt-4", focusMode && "focus-content mt-0")}>
           {viewMode === "custom" ? (
             <CustomTextPanel duration={test.duration} onStartFree={(secs) => { test.startFreeTypingTest(secs); setViewMode("test"); }} onStartPaste={(text, secs) => { test.startCustomTest(text, secs); setViewMode("test"); }} onCancel={() => setViewMode("test")} />
           ) : test.status === "finished" && test.result && test.elapsedMs < 60_000 ? (
@@ -135,7 +135,7 @@ export default function TypingTester() {
           ) : test.status === "finished" && test.result ? (
             <ResultPanel result={test.result} targetText={test.targetText} profileBest={personalBest} reducedMotion={reducedMotion} onRetry={() => { animateFocusState(false); test.retry(); }} onNewText={() => { animateFocusState(false); test.newText(); }} onChangeDifficulty={() => { animateFocusState(false); test.reset(); }} onCustomTest={() => { animateFocusState(false); setViewMode("custom"); }} />
           ) : (
-            <div className={cn("space-y-5", focusMode && "focus-test-stack")} onClick={(event) => { if (focusMode) event.stopPropagation(); }}>
+            <div className={cn("space-y-4", focusMode && "focus-test-stack")} onClick={(event) => { if (focusMode) event.stopPropagation(); }}>
               <LiveMetrics status={test.status} duration={test.duration} startTimeRef={test.startTimeRef} liveCharCountRef={test.liveCharCountRef} accuracy={test.liveStats.accuracy} focusMode={focusMode} />
               <TypingText target={test.targetText} typed={test.typed} status={test.status} resetKey={test.sessionId} onChange={test.handleInputChange} reducedMotion={reducedMotion} freeTyping={test.isFreeTyping} focusMode={focusMode} onFocusModeRequest={enterFocusMode} />
               <TestControls onRestart={() => { animateFocusState(false); test.retry(); }} onReset={() => { animateFocusState(false); test.reset(); }} onStop={test.stop} canStop={test.status === "running"} focusMode={focusMode} />
