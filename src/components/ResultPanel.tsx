@@ -17,12 +17,12 @@ interface Props {
 }
 
 const LABEL_STYLES: Record<string, string> = {
-  ELITE: "text-accent border-accent/40 bg-accent/10",
-  EXCELLENT: "text-accent border-accent/40 bg-accent/10",
-  FAST: "text-accent border-accent/40 bg-accent/10",
-  GOOD: "text-ink border-hairline bg-canvas",
-  AVERAGE: "text-text-muted border-hairline bg-canvas",
-  POOR: "text-text-muted border-hairline bg-canvas",
+  "MYTHICAL GOAT": "text-accent border-accent/40 bg-accent/10",
+  "ADVANCED GOAT": "text-accent border-accent/40 bg-accent/10",
+  "ACE GOAT": "text-accent border-accent/40 bg-accent/10",
+  "THE GOAT": "text-ink border-accent/40 bg-accent/10",
+  "AVERAGE GOAT": "text-text-muted border-hairline bg-canvas",
+  "SLOW GOAT": "text-text-muted border-hairline bg-canvas",
 };
 
 const MIN_STATS_DURATION_SEC = 60;
@@ -117,7 +117,7 @@ export default function ResultPanel({
                 </div>
               </div>
               <p className="mt-4 font-body-sm text-text-muted">
-                {speedTier.message} {speedTier.nextTarget !== null ? `Aim for ${speedTier.nextTarget} WPM next while keeping accuracy high.` : "Keep accuracy high and work on consistency to stay in the elite range."}
+                {speedTier.message} {speedTier.nextTarget !== null ? `Aim for ${speedTier.nextTarget} WPM next while keeping accuracy high.` : "Keep accuracy high and work on consistency to stay in the mythical range."}
               </p>
             </div>
           </>
