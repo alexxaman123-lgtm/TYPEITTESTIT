@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import ReactGA from "react-ga4";
 import Header from "./components/Header";
 import Footer from "./components/Footer";
@@ -62,8 +62,13 @@ function setCanonical(url: string) {
 }
 
 export default function App() {
-  const path = getPage(window.location.pathname);
-  const dedicatedPage = path !== "/" && path in PAGE_CONFIG;
+  const [path, setPath] = useState(() => getPage(window.location.pathname));
+
+  useEffect(() => {
+    const handlePopState = () => setPath(getPage(window.location.pathname));
+    window.addEventListener("popstate", handlePopState);
+    return () => window.removeEventListener("popstate", handlePopState);
+  }, []);
 
   useEffect(() => {
     const config = PAGE_CONFIG[path as keyof typeof PAGE_CONFIG];
@@ -94,7 +99,6 @@ export default function App() {
     if (path === "/leaderboard") return <LeaderboardPage />;
     if (path === "/privacy-policy") return <PrivacyPolicyPage />;
     if (path === "/terms-of-use") return <TermsOfUsePage />;
-    if (dedicatedPage) return null;
 
     return (
       <>
