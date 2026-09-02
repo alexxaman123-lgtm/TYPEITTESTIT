@@ -17,31 +17,6 @@ export function unlockTypingSounds(): void {
   if (c && c.state !== "running") void c.resume();
 }
 
-let wrongKeyAudio: HTMLAudioElement | null = null;
-function getWrongKeyAudio(): HTMLAudioElement | null {
-  if (typeof window === "undefined") return null;
-  if (!wrongKeyAudio) {
-    const audio = new Audio("/piano-noise-suprise.mp3");
-    audio.preload = "auto";
-    audio.volume = 0.25;
-    wrongKeyAudio = audio;
-  }
-  return wrongKeyAudio;
-}
-
-function playWrongKeySound(): void {
-  if (!soundsEnabled) return;
-  const audio = getWrongKeyAudio();
-  if (!audio) return;
-  try {
-    audio.currentTime = 0;
-    audio.volume = 0.25;
-    void audio.play().catch(() => undefined);
-  } catch {
-    // Decorative only.
-  }
-}
-
 function tone(frequency: number, duration: number, volume: number): void {
   const c = getContext();
   if (!c || !soundsEnabled) return;
@@ -65,10 +40,7 @@ function tone(frequency: number, duration: number, volume: number): void {
 }
 
 export function playTypingSound(type: "key" | "error" | "backspace"): void {
-  if (type === "error") {
-    playWrongKeySound();
-    return;
-  }
+  if (type === "error") return;
   if (type === "key") tone(440, 0.12, 0.055);
   else tone(330, 0.10, 0.045);
 }
