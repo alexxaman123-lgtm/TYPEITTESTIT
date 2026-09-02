@@ -56,6 +56,9 @@ export default function TypingText({
 
   const windowEnd = Math.min(target.length, windowStart + WINDOW_SIZE);
   const slice = target.slice(windowStart, windowEnd);
+  const copyClass = focusMode
+    ? "mx-auto max-w-[1220px] text-center"
+    : "text-left";
 
   return (
     <div className="relative">
@@ -64,7 +67,7 @@ export default function TypingText({
         tabIndex={-1}
         onClick={focusInput}
         className={cn(
-          "typing-surface relative min-h-[168px] cursor-text select-none rounded-2xl border bg-surface2/70 p-5 font-sans leading-8 tracking-normal transition-all duration-300 sm:p-7 sm:text-[19px] sm:leading-9",
+          "typing-surface relative min-h-[168px] cursor-text select-none rounded-2xl border bg-surface2/70 p-5 font-sans leading-8 tracking-normal transition-[border-color,box-shadow] duration-300 sm:p-7 sm:text-[19px] sm:leading-9",
           focusMode
             ? "min-h-[260px] p-7 text-[24px] leading-[1.9] sm:min-h-[320px] sm:p-10 sm:text-[30px] sm:leading-[1.9] lg:min-h-[360px] lg:p-12 lg:text-[34px]"
             : "text-[17px]",
@@ -73,7 +76,7 @@ export default function TypingText({
         )}
       >
         {freeTyping ? (
-          <p className="whitespace-pre-wrap break-words text-ink-soft">
+          <p className={cn("whitespace-pre-wrap break-words text-ink-soft", copyClass)}>
             {typed.length > 0 ? typed : <span className="text-faint">Start typing anything you want...</span>}
             {status !== "finished" && typed.length > 0 && (
               <span
@@ -86,7 +89,7 @@ export default function TypingText({
             )}
           </p>
         ) : (
-          <p className="whitespace-pre-wrap break-words">
+          <p className={cn("whitespace-pre-wrap break-words", copyClass)}>
             {slice.split("").map((ch, i) => {
               const absIndex = windowStart + i;
               let state: "correct" | "incorrect" | "current" | "pending" = "pending";
