@@ -29,73 +29,106 @@ export function unlockTypingSounds(): void {
   }
 }
 
-function playMechanicalClick(
-  context: AudioContext,
-  startFrequency: number,
-  endFrequency: number,
-  duration: number,
-  volume: number,
-  noiseVolume: number,
-): void {
+function playPianoNote(context: AudioContext, frequency: number, duration = 0.18, volume = 0.052): void {
   const now = context.currentTime;
+  const master = context.createGain();
+  master.gain.setValueAtTime(0.0001, now);
+  master.gain.exponentialRampToValueAtTime(volume, now + 0.004);
+  master.gain.exponentialRampToValueAtTime(0.0001, now + duration);
+  master.connect(context.destination);
 
-  const oscillator = context.createOscillator();
-  const oscillatorGain = context.createGain();
-  oscillator.type = "triangle";
-  oscillator.frequency.setValueAtTime(startFrequency, now);
-  oscillator.frequency.exponentialRampToValueAtTime(endFrequency, now + duration);
-  oscillatorGain.gain.setValueAtTime(0.0001, now);
-  oscillatorGain.gain.exponentialRampToValueAtTime(volume, now + 0.0015);
-  oscillatorGain.gain.exponentialRampToValueAtTime(0.0001, now + duration);
-  oscillator.connect(oscillatorGain);
-  oscillatorGain.connect(context.destination);
-  oscillator.start(now);
-  oscillator.stop(now + duration + 0.004);
+  const partials = [
+    { multiple: 1, gain: 1, type: "triangle" as OscillatorType },
+    { multiple: 2, gain: 0.22, type: "sine" as OscillatorType },
+    { multiple: 3, gain: 0.08, type: "sine" as OscillatorType },
+    { multiple: 4, gain: 0.025, type: "sine" as OscillatorType },
+  ];
 
-  const noiseBuffer = context.createBuffer(1, Math.max(1, Math.floor(context.sampleRate * 0.012)), context.sampleRate);
-  const noiseData = noiseBuffer.getChannelData(0);
-  for (let i = 0; i < noiseData.length; i++) {
-    const envelope = 1 - i / noiseData.length;
-    noiseData[i] = (Math.random() * 2 - 1) * envelope * envelope;
-  }
+  partials.forEach(({ multiple, gain: partialGain, type }) => {
+    const oscillator = context.createOscillator();
+    const gain = context.createGain();
+    oscillator.type = type;
+    oscillator.frequency.setValueAtTime(frequency * multiple, now);
+    gain.gain.setValueAtTime(partialGain, now);
+    oscillator.connect(gain);
+    gain.connect(master);
+    oscillator.start(now);
+    oscillator.stop(now + duration + 0.03);
+  });
+}
 
-  const noise = context.createBufferSource();
-  const noiseFilter = context.createBiquadFilter();
-  const noiseGain = context.createGain();
-  noise.buffer = noiseBuffer;
-  noiseFilter.type = "bandpass";
-  noiseFilter.frequency.setValueAtTime(2800, now);
-  noiseFilter.Q.setValueAtTime(1.3, now);
-  noiseGain.gain.setValueAtTime(noiseVolume, now);
-  noiseGain.gain.exponentialRampToValueAtTime(0.0001, now + 0.012);
-  noise.connect(noiseFilter);
-  noiseFilter.connect(noiseGain);
-  noiseGain.connect(context.destination);
-  noise.start(now);
+function playGoatBleat(context: AudioContext): void {
+  const now = context.currentTime;
+  const master = context.createGain();
+  master.gain.setValueAtTime(0.0001, now);
+  master.gain.exponentialRampToValueAtTime(0.1, now + 0.012);
+  master.gain.exponentialRampToValueAtTime(0.0001, now + 0.95);
+  master.connect(context.destination);
+
+  const voice = context.createOscillator();
+  const wobble = context.createOscillator();
+  const wobbleGain = context.createGain();
+  voice.type = "sawtooth";
+  wobble.type = "sine";
+  wobble.frequency.setValueAtTime(8.5, now);
+  wobbleGain.gain.setValueAtTime(75, now);
+  wobble.connect(wobbleGain);
+  wobbleGain.connect(voice.frequency);
+
+  voice.frequency.setValueAtTime(390, now);
+  voice.frequency.exponentialRampToValueAtTime(245, now + 0.25);
+  voice.frequency.exponentialRampToValueAtTime(335, now + 0.48);
+  voice.frequency.exponentialRampToValueAtTime(205, now + 0.92);
+
+  voice.connect(master);
+  voice.start(now);
+  wobble.start(now);
+  voice.stop(now + 0.96);
+  wobble.stop(now + 0.96);
 }
 
 export function playTypingSound(type: "key" | "error" | "backspace"): void {
   if (!soundsEnabled) return;
-
   const context = getAudioContext();
   if (!context) return;
 
-  const settings = {
-    key: { start: 2450, end: 760, duration: 0.048, volume: 0.085, noise: 0.07 },
-    error: { start: 520, end: 220, duration: 0.07, volume: 0.06, noise: 0.04 },
-    backspace: { start: 1350, end: 420, duration: 0.055, volume: 0.065, noise: 0.045 },
-  }[type];
+  const pianoNotes = [261.63, 293.66, 329.63, 349.23, 392.0, 440.0, 493.88, 523.25];
+  const note = pianoNotes[Math.floor(Math.random() * pianoNotes.length)];
+
+  const play = () => {
+    if (!soundsEnabled || context.state !== "running") return;
+    if (type === "key") playPianoNote(context, note, 0.18, 0.052);
+    else if (type === "backspace") playPianoNote(context, note * 0.75, 0.13, 0.04);
+    else playPianoNote(context, 185, 0.1, 0.032);
+  };
 
   try {
     if (context.state !== "running") {
-      void context.resume().then(() => {
-        if (soundsEnabled && context.state === "running") {
-          playMechanicalClick(context, settings.start, settings.end, settings.duration, settings.volume, settings.noise);
-        }
-      }).catch(() => undefined);
+      void context.resume().then(play).catch(() => undefined);
       return;
     }
-    playMechanicalClick(context, settings.start, settings.end, settings.duration, settings.volume, settings.noise);
+    play();
+  } catch {
+    // Sound is decorative only. Never affect typing behavior.
+  }
+}
+
+export function playTestCompleteSound(): void {
+  if (!soundsEnabled) return;
+  const context = getAudioContext();
+  if (!context) return;
+
+  const play = () => {
+    if (!soundsEnabled || context.state !== "running") return;
+    playGoatBleat(context);
+  };
+
+  try {
+    if (context.state !== "running") {
+      void context.resume().then(play).catch(() => undefined);
+      return;
+    }
+    play();
   } catch {
     // Sound is decorative only. Never affect typing behavior.
   }
