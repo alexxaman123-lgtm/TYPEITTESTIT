@@ -1,6 +1,6 @@
 import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { cn } from "../utils/cn";
-import { playTypingSound } from "../lib/useTypingSounds";
+import { playTypingSound, unlockTypingSounds } from "../lib/useTypingSounds";
 
 interface Props {
   target: string;
@@ -54,8 +54,12 @@ export default function TypingText({
   }, [typed]);
 
   const disabled = status === "finished";
+
   const focusInput = () => {
-    if (!disabled) inputRef.current?.focus();
+    if (!disabled) {
+      unlockTypingSounds();
+      inputRef.current?.focus();
+    }
   };
 
   const handleInput = (value: string) => {
@@ -77,32 +81,21 @@ export default function TypingText({
     onChange(value);
   };
 
+  const toggleSound = () => {
+    setSoundEnabled((enabled) => {
+      const nextEnabled = !enabled;
+      if (nextEnabled) unlockTypingSounds();
+      return nextEnabled;
+    });
+    inputRef.current?.focus();
+  };
+
   const windowEnd = Math.min(target.length, windowStart + WINDOW_SIZE);
   const slice = target.slice(windowStart, windowEnd);
   const copyClass = focusMode ? "typing-copy" : "text-left";
 
   return (
     <div className="relative">
-      <button
-        type="button"
-        onMouseDown={(event) => event.preventDefault()}
-        onClick={() => {
-          setSoundEnabled((enabled) => !enabled);
-          inputRef.current?.focus();
-        }}
-        aria-pressed={soundEnabled}
-        aria-label={soundEnabled ? "Mute typing sounds" : "Enable typing sounds"}
-        className={cn(
-          "absolute right-3 top-3 z-30 inline-flex items-center gap-2 rounded-full border px-3 py-2 font-label backdrop-blur transition-colors duration-200",
-          soundEnabled
-            ? "border-accent/30 bg-accent/10 text-accent hover:bg-accent/15"
-            : "border-hairline bg-canvas/90 text-text-muted hover:bg-canvas"
-        )}
-      >
-        <span aria-hidden="true" className="text-base leading-none">{soundEnabled ? "🔊" : "🔇"}</span>
-        <span className="hidden sm:inline">{soundEnabled ? "Sound on" : "Muted"}</span>
-      </button>
-
       <div
         aria-hidden="true"
         tabIndex={-1}
@@ -167,27 +160,47 @@ export default function TypingText({
             )}>Click here and start typing</span>
           </div>
         )}
+
+        <input
+          ref={inputRef}
+          type="text"
+          defaultValue=""
+          disabled={disabled}
+          onInput={(e) => handleInput(e.currentTarget.value)}
+          onFocus={() => {
+            unlockTypingSounds();
+            setFocused(true);
+            onFocusModeRequest?.();
+          }}
+          onBlur={() => setFocused(false)}
+          autoComplete="off"
+          autoCorrect="off"
+          autoCapitalize="off"
+          spellCheck={false}
+          aria-label={freeTyping ? "Free typing input. Type anything you want." : "Typing test input. Type the passage displayed above this field."}
+          tabIndex={disabled ? -1 : 0}
+          className="absolute inset-0 z-10 h-full w-full cursor-text opacity-0"
+        />
       </div>
 
-      <input
-        ref={inputRef}
-        type="text"
-        defaultValue=""
-        disabled={disabled}
-        onInput={(e) => handleInput(e.currentTarget.value)}
-        onFocus={() => {
-          setFocused(true);
-          onFocusModeRequest?.();
-        }}
-        onBlur={() => setFocused(false)}
-        autoComplete="off"
-        autoCorrect="off"
-        autoCapitalize="off"
-        spellCheck={false}
-        aria-label={freeTyping ? "Free typing input. Type anything you want." : "Typing test input. Type the passage displayed above this field."}
-        tabIndex={disabled ? -1 : 0}
-        className="absolute inset-0 z-10 h-full w-full cursor-text opacity-0"
-      />
+      <div className={cn("mt-3 flex", focusMode ? "justify-center sm:justify-end" : "justify-end")}>
+        <button
+          type="button"
+          onMouseDown={(event) => event.preventDefault()}
+          onClick={toggleSound}
+          aria-pressed={soundEnabled}
+          aria-label={soundEnabled ? "Mute typing sounds" : "Enable typing sounds"}
+          className={cn(
+            "inline-flex items-center gap-2 rounded-full border px-4 py-2 font-label transition-colors duration-200",
+            soundEnabled
+              ? "border-accent/30 bg-accent/10 text-accent hover:bg-accent/15"
+              : "border-hairline bg-canvas-soft text-text-muted hover:bg-canvas"
+          )}
+        >
+          <span aria-hidden="true" className="text-base leading-none">{soundEnabled ? "🔊" : "🔇"}</span>
+          <span>{soundEnabled ? "Sound on" : "Sound off"}</span>
+        </button>
+      </div>
     </div>
   );
 }
