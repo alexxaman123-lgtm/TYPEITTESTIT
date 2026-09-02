@@ -147,7 +147,7 @@ export default function Header() {
           : "border-transparent bg-transparent"
       )}>
         <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
-          <a href="/" className="flex items-center gap-0 select-none tracking-[-0.03em]" aria-label="GOATTYPE home">
+          <a href="/" className="flex items-center gap-0 select-none tracking-[-0.03em]" aria-label="FreeTypingTestGoat home">
             <span className="text-lg font-extrabold text-ink">FREETYPINGTEST</span><span className="text-lg font-extrabold text-accent">GOAT</span>
             <GoatMark />
           </a>
