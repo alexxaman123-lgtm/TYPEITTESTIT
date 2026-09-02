@@ -72,30 +72,19 @@ body {
   transform: translate3d(0, 0, 0) scale(1);
 }
 
-.ambient-glow-primary {
-  animation: ambientPrimary 24s ease-in-out infinite;
-}
-
-.ambient-glow-secondary {
-  animation: ambientSecondary 29s ease-in-out infinite;
-}
-
-.ambient-glow-tertiary {
-  animation: ambientTertiary 27s ease-in-out infinite;
-}
-
+.ambient-glow-primary { animation: ambientPrimary 24s ease-in-out infinite; }
+.ambient-glow-secondary { animation: ambientSecondary 29s ease-in-out infinite; }
+.ambient-glow-tertiary { animation: ambientTertiary 27s ease-in-out infinite; }
 .ambient-glow-center {
   opacity: 0.48;
   filter: blur(116px);
   animation: ambientCenter 21s ease-in-out infinite;
 }
-
 .ambient-glow-fourth {
   opacity: 0.34;
   filter: blur(102px);
   animation: ambientFourth 33s ease-in-out infinite;
 }
-
 .ambient-glow-fifth {
   opacity: 0.28;
   filter: blur(96px);
@@ -145,18 +134,14 @@ body {
   to { opacity: 1; transform: translateY(0); }
 }
 
-.animate-fade-up {
-  animation: fadeUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) both;
-}
+.animate-fade-up { animation: fadeUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) both; }
 
 @keyframes softPulse {
   0%, 100% { opacity: 1; }
   50% { opacity: 0.55; }
 }
 
-.caret-blink {
-  animation: softPulse 1s ease-in-out infinite;
-}
+.caret-blink { animation: softPulse 1s ease-in-out infinite; }
 
 @keyframes drift {
   0% { transform: translate3d(0, 0, 0); }
@@ -205,6 +190,7 @@ body {
   position: relative;
   overflow: hidden;
   isolation: isolate;
+  view-transition-name: typing-test-shell;
 }
 
 .test-shell::before {
@@ -215,6 +201,19 @@ body {
   border-radius: inherit;
   background: linear-gradient(135deg, color-mix(in srgb, var(--color-accent) 4.5%, transparent), transparent 36%, transparent 70%, color-mix(in srgb, var(--color-ink) 1.8%, transparent));
   z-index: -1;
+}
+
+/* Browser View Transition API provides a true shared-element-style morph between the card and full-screen state. */
+::view-transition-group(typing-test-shell) {
+  animation-duration: 1100ms;
+  animation-timing-function: cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+::view-transition-old(typing-test-shell),
+::view-transition-new(typing-test-shell) {
+  animation-duration: 1100ms;
+  animation-timing-function: cubic-bezier(0.16, 1, 0.3, 1);
+  backface-visibility: hidden;
 }
 
 .typing-focus-active {
@@ -242,8 +241,6 @@ body {
   backdrop-filter: blur(18px);
   -webkit-backdrop-filter: blur(18px);
   transform-origin: 50% 42%;
-  animation: typingFocusIn 760ms cubic-bezier(0.22, 1, 0.36, 1) both;
-  will-change: transform, opacity;
 }
 
 .test-shell-focus::before {
@@ -263,21 +260,6 @@ body {
 .focus-test-stack {
   width: min(1400px, 100%);
   margin-inline: auto;
-}
-
-@keyframes typingFocusIn {
-  0% {
-    opacity: 0;
-    transform: scale(0.985);
-  }
-  55% {
-    opacity: 0.98;
-    transform: scale(0.998);
-  }
-  100% {
-    opacity: 1;
-    transform: scale(1);
-  }
 }
 
 .eyebrow-line {
@@ -331,9 +313,6 @@ body {
   .test-shell-focus { padding: 1rem; }
   .focus-content { min-height: calc(100dvh - 2rem); }
   .focus-test-stack { gap: 1rem; }
-
-  /* Slightly shorter but still gentle on smaller screens. */
-  .test-shell-focus { animation-duration: 680ms; }
 }
 
 .below-fold-content {
