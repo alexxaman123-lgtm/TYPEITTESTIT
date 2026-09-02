@@ -82,12 +82,9 @@ export default function TypingText({
   };
 
   const toggleSound = () => {
-    setSoundEnabled((enabled) => {
-      const nextEnabled = !enabled;
-      if (nextEnabled) unlockTypingSounds();
-      return nextEnabled;
-    });
-    inputRef.current?.focus();
+    const nextEnabled = !soundEnabled;
+    setSoundEnabled(nextEnabled);
+    if (nextEnabled) unlockTypingSounds();
   };
 
   const windowEnd = Math.min(target.length, windowStart + WINDOW_SIZE);
@@ -144,7 +141,7 @@ export default function TypingText({
               if (state === "incorrect") {
                 return (
                   <span key={absIndex} className={cn("rounded-[3px] text-red-600", ch === " " ? "bg-red-500/25" : "bg-red-500/10")}>
-                    {ch === " " ? "·" : ch}
+                    {ch === " " ? "\u00B7" : ch}
                   </span>
                 );
               }
@@ -183,13 +180,12 @@ export default function TypingText({
         />
       </div>
 
-      <div className={cn("mt-3 flex", focusMode ? "justify-center sm:justify-end" : "justify-end")}>
+      <div className="mt-3 flex justify-end">
         <button
           type="button"
-          onMouseDown={(event) => event.preventDefault()}
           onClick={toggleSound}
           aria-pressed={soundEnabled}
-          aria-label={soundEnabled ? "Mute typing sounds" : "Enable typing sounds"}
+          aria-label={soundEnabled ? "Turn typing sounds off" : "Turn typing sounds on"}
           className={cn(
             "inline-flex items-center gap-2 rounded-full border px-4 py-2 font-label transition-colors duration-200",
             soundEnabled
