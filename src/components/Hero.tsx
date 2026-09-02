@@ -66,7 +66,7 @@ export default function Hero() {
           className="animate-fade-up mx-auto mt-5 max-w-2xl font-caption text-text-faint"
           style={{ animationDelay: "200ms" }}
         >
-          Popular searches include free typing test online, free typing test WPM, typing test practice, and how to test your typing speed. You can also use FreeTypingTestGoat as an alternative to tools such as Monkeytype and 10FastFingers when you want a simple browser-based typing test.
+          Popular searches include free typing test online, free typing test WPM, typing test practice, and how to test your typing speed. FreeTypingTestGoat gives you a simple browser-based typing test with multiple durations and practice options.
         </p>
       </div>
     </section>
