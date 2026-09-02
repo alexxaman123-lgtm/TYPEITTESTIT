@@ -6,7 +6,7 @@ export default function Hero() {
     >
       <div className="hero-banner-grid" aria-hidden="true" />
 
-      <div className="relative mx-auto flex min-h-[680px] max-w-7xl items-center py-14 sm:min-h-[720px] sm:py-20">
+      <div className="relative mx-auto grid min-h-[680px] max-w-7xl items-center gap-10 py-14 lg:grid-cols-[minmax(0,1.08fr)_minmax(360px,0.92fr)] lg:gap-14 sm:min-h-[720px] sm:py-20">
         <div className="w-full max-w-4xl">
           <div className="animate-fade-up flex flex-wrap items-center gap-3" style={{ animationDelay: "40ms" }}>
             <span className="hero-kicker font-label">FREE TYPING TEST</span>
@@ -75,6 +75,27 @@ export default function Hero() {
             <div className="hero-stat">
               <span className="hero-stat-value font-heading-3">1–5 min</span>
               <span className="hero-stat-label font-caption">Quick or sustained practice</span>
+            </div>
+          </div>
+        </div>
+
+        <div
+          className="animate-fade-up relative mx-auto w-full max-w-[560px] lg:max-w-none"
+          style={{ animationDelay: "150ms" }}
+          aria-label="Goat typing video"
+        >
+          <div className="hero-video-shell relative overflow-hidden rounded-[32px] border border-current/10 bg-canvas-soft shadow-2xl">
+            <video
+              className="block aspect-[4/5] h-auto w-full object-cover lg:aspect-[5/6]"
+              src="/goat-typing.mp4"
+              autoPlay
+              muted
+              loop
+              playsInline
+              preload="metadata"
+            />
+            <div className="pointer-events-none absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/45 via-black/5 to-transparent px-5 pb-5 pt-20">
+              <p className="font-caption font-semibold text-white">The GOAT is typing.</p>
             </div>
           </div>
         </div>
