@@ -27,7 +27,7 @@ export default function TypingTester() {
   const [focusMode, setFocusMode] = useState(false);
   const previousStatusRef = useRef(test.status);
   
-  // Sound effect for wrong key presses (50% volume)
+  // Sound effect for wrong key presses (10% volume)
   const { playSound } = useSound();
   const prevErrorCountRef = useRef(0);
   
@@ -36,7 +36,7 @@ export default function TypingTester() {
     if (test.status !== "running") return;
     const currentErrors = test.liveStats.characterErrors;
     if (currentErrors > prevErrorCountRef.current) {
-      playSound("/piano-noise-suprise.mp3", 0.25);
+      playSound("/piano-noise-suprise.mp3", 0.10);
     }
     prevErrorCountRef.current = currentErrors;
   }, [test.liveStats.characterErrors, test.status, playSound]);
