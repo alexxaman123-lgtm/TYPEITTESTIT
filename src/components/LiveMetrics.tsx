@@ -29,7 +29,6 @@ export default function LiveMetrics({
 
     const renderLiveMetrics = () => {
       if (!mounted) return;
-
       const actualElement = actualWpmElementRef.current;
       const timeElement = timeElementRef.current;
       const start = startTimeRef.current;
@@ -57,8 +56,7 @@ export default function LiveMetrics({
       }
 
       const remainingMs = Math.max(0, duration * 1000 - elapsedMs);
-      const remainingSec = Math.ceil(remainingMs / 1000);
-      const nextTime = formatTime(remainingSec);
+      const nextTime = formatTime(Math.ceil(remainingMs / 1000));
       if (timeElement && nextTime !== lastTime) {
         lastTime = nextTime;
         timeElement.textContent = nextTime;
@@ -68,68 +66,42 @@ export default function LiveMetrics({
     };
 
     renderLiveMetrics();
-
     return () => {
       mounted = false;
       window.cancelAnimationFrame(animationFrame);
     };
   }, [duration, liveCharCountRef, startTimeRef, status]);
 
+  const cell = focusMode
+    ? "flex min-h-[112px] flex-col items-center justify-center gap-2 px-3 py-5 sm:min-h-[132px] sm:py-6"
+    : "flex min-h-[72px] flex-col items-center justify-center gap-0.5 px-2.5 py-3 sm:min-h-[78px] sm:py-3.5";
+
   return (
     <div className={focusMode
       ? "metric-surface grid grid-cols-3 divide-x divide-white/10 rounded-2xl border border-white/10 bg-surface2/65"
       : "metric-surface grid grid-cols-3 divide-x divide-white/10 rounded-2xl border border-white/10 bg-surface2/70"
     }>
-      <div className={focusMode
-        ? "flex min-h-[112px] flex-col items-center justify-center gap-2 px-3 py-5 sm:min-h-[132px] sm:py-6"
-        : "flex min-h-[88px] flex-col items-center justify-center gap-1 px-3 py-4 sm:py-5"
-      }>
-        <span className={focusMode
-          ? "text-[10px] font-semibold uppercase tracking-[0.18em] text-faint sm:text-xs"
-          : "text-[10px] font-semibold uppercase tracking-[0.18em] text-faint sm:text-xs"
-        }>
-          Actual WPM
-        </span>
+      <div className={cell}>
+        <span className="text-[9px] font-semibold uppercase tracking-[0.16em] text-faint sm:text-[10px]">Actual WPM</span>
         <span
           ref={actualWpmElementRef}
           aria-live="off"
-          className={focusMode
-            ? "font-mono text-4xl font-bold tabular-nums text-accent sm:text-5xl lg:text-6xl"
-            : "font-mono text-2xl font-bold tabular-nums text-accent sm:text-3xl"
-          }
-        >
-          0.0
-        </span>
+          className={focusMode ? "font-mono text-4xl font-bold tabular-nums text-accent sm:text-5xl lg:text-6xl" : "font-mono text-2xl font-bold tabular-nums text-accent sm:text-[28px]"}
+        >0.0</span>
       </div>
 
-      <div className={focusMode
-        ? "flex min-h-[112px] flex-col items-center justify-center gap-2 px-3 py-5 sm:min-h-[132px] sm:py-6"
-        : "flex min-h-[88px] flex-col items-center justify-center gap-1 px-3 py-4 sm:py-5"
-      }>
-        <span className="text-[10px] font-semibold uppercase tracking-[0.18em] text-faint sm:text-xs">
-          Accuracy
-        </span>
-        <span className={focusMode
-          ? "font-mono text-4xl font-bold tabular-nums text-ink sm:text-5xl lg:text-6xl"
-          : "font-mono text-2xl font-bold tabular-nums text-ink sm:text-3xl"
-        }>
+      <div className={cell}>
+        <span className="text-[9px] font-semibold uppercase tracking-[0.16em] text-faint sm:text-[10px]">Accuracy</span>
+        <span className={focusMode ? "font-mono text-4xl font-bold tabular-nums text-ink sm:text-5xl lg:text-6xl" : "font-mono text-2xl font-bold tabular-nums text-ink sm:text-[28px]"}>
           {accuracy}%
         </span>
       </div>
 
-      <div className={focusMode
-        ? "flex min-h-[112px] flex-col items-center justify-center gap-2 px-3 py-5 sm:min-h-[132px] sm:py-6"
-        : "flex min-h-[88px] flex-col items-center justify-center gap-1 px-3 py-4 sm:py-5"
-      }>
-        <span className="text-[10px] font-semibold uppercase tracking-[0.18em] text-faint sm:text-xs">
-          Time
-        </span>
+      <div className={cell}>
+        <span className="text-[9px] font-semibold uppercase tracking-[0.16em] text-faint sm:text-[10px]">Time</span>
         <span
           ref={timeElementRef}
-          className={focusMode
-            ? "font-mono text-4xl font-bold tabular-nums text-ink sm:text-5xl lg:text-6xl"
-            : "font-mono text-2xl font-bold tabular-nums text-ink sm:text-3xl"
-          }
+          className={focusMode ? "font-mono text-4xl font-bold tabular-nums text-ink sm:text-5xl lg:text-6xl" : "font-mono text-2xl font-bold tabular-nums text-ink sm:text-[28px]"}
         >
           {formatTime(duration)}
         </span>
