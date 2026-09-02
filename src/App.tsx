@@ -15,16 +15,50 @@ import PrivacyPolicyPage from "./components/PrivacyPolicyPage";
 import TermsOfUsePage from "./components/TermsOfUsePage";
 import FaqSection from "./components/FaqSection";
 
+const SITE_URL = "https://typeittestit.com";
+const DEFAULT_TITLE = "Free Typing Test Online | WPM & Typing Practice | FreeTypingTestGoat";
+const DEFAULT_DESCRIPTION = "Take a free typing test online to measure WPM, accuracy, and errors. Practice with 1, 2, 3, or 5 minute tests and improve your typing speed.";
+
 const PAGE_CONFIG = {
-  "/about": { title: "About GOATTYPE | Typing Speed Test", description: "Learn about GOATTYPE, a free online typing speed test for measuring WPM, accuracy, and typing progress." },
-  "/contact": { title: "Contact GOATTYPE | Typing Speed Test", description: "Contact GOATTYPE with questions, suggestions, or feedback about our free typing speed test." },
-  "/leaderboard": { title: "GOATTYPE Leaderboard | Top WPM & Accuracy", description: "View the GOATTYPE typing leaderboard, compare WPM and accuracy, and see the fastest and most accurate typists." },
-  "/privacy-policy": { title: "GOATTYPE Privacy Policy", description: "Read the GOATTYPE Privacy Policy for account data, typing tests, local storage, and advertising." },
-  "/terms-of-use": { title: "GOATTYPE Terms of Use", description: "Read the GOATTYPE Terms of Use for using our free online typing test and leaderboard features." },
+  "/about": {
+    title: "About FreeTypingTestGoat | Free Typing Test",
+    description: "Learn about FreeTypingTestGoat, a free online typing test for measuring WPM, accuracy, and typing progress.",
+  },
+  "/contact": {
+    title: "Contact FreeTypingTestGoat | Free Typing Test",
+    description: "Contact FreeTypingTestGoat with questions, suggestions, or feedback about our free online typing test.",
+  },
+  "/leaderboard": {
+    title: "Typing Test Leaderboard | WPM & Accuracy | FreeTypingTestGoat",
+    description: "View the FreeTypingTestGoat leaderboard, compare qualifying WPM and accuracy results, and explore typing performance.",
+  },
+  "/privacy-policy": {
+    title: "Privacy Policy | FreeTypingTestGoat",
+    description: "Read the FreeTypingTestGoat Privacy Policy covering account data, typing tests, local storage, and advertising.",
+  },
+  "/terms-of-use": {
+    title: "Terms of Use | FreeTypingTestGoat",
+    description: "Read the FreeTypingTestGoat Terms of Use for the free online typing test, accounts, and leaderboard features.",
+  },
 } as const;
 
 function getPage(pathname: string) {
   return pathname.replace(/\/$/, "") || "/";
+}
+
+function setMeta(name: string, content: string) {
+  const element = document.querySelector(`meta[name="${name}"]`);
+  if (element) element.setAttribute("content", content);
+}
+
+function setProperty(property: string, content: string) {
+  const element = document.querySelector(`meta[property="${property}"]`);
+  if (element) element.setAttribute("content", content);
+}
+
+function setCanonical(url: string) {
+  const element = document.querySelector('link[rel="canonical"]');
+  if (element) element.setAttribute("href", url);
 }
 
 export default function App() {
@@ -33,15 +67,22 @@ export default function App() {
 
   useEffect(() => {
     const config = PAGE_CONFIG[path as keyof typeof PAGE_CONFIG];
-    document.title = config?.title ?? "Free Typing Test — Online WPM Typing Test Practice | GOATTYPE";
-    const description = document.querySelector('meta[name="description"]');
-    if (description && config) description.setAttribute("content", config.description);
-    
-    // Send pageview to Google Analytics using the current path
+    const title = config?.title ?? DEFAULT_TITLE;
+    const description = config?.description ?? DEFAULT_DESCRIPTION;
+    const canonicalUrl = `${SITE_URL}${path === "/" ? "/" : path}`;
+
+    document.title = title;
+    setMeta("description", description);
+    setProperty("og:title", title);
+    setProperty("og:description", description);
+    setProperty("og:url", canonicalUrl);
+    setMeta("twitter:title", title);
+    setMeta("twitter:description", description);
+    setCanonical(canonicalUrl);
+
     try {
       const payload = { hitType: "pageview", page: path };
       ReactGA.send(payload);
-      console.log("[GA] Event queued successfully:", payload);
     } catch (error) {
       console.error("[GA] Failed to queue event:", error);
     }
