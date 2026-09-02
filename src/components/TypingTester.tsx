@@ -38,10 +38,8 @@ export default function TypingTester() {
   }, [test.difficulty, test.duration, test.isCustom, test.status]);
 
   useEffect(() => {
-    if (test.status === "finished" || test.status === "idle") {
-      setFocusMode(false);
-    }
-  }, [test.status, test.sessionId]);
+    if (test.status === "finished") setFocusMode(false);
+  }, [test.status]);
 
   useEffect(() => {
     const body = document.body;
@@ -121,7 +119,7 @@ export default function TypingTester() {
             <div className={cn("space-y-5", focusMode && "focus-test-stack")} onClick={(event) => { if (focusMode) event.stopPropagation(); }}>
               <LiveMetrics status={test.status} duration={test.duration} startTimeRef={test.startTimeRef} liveCharCountRef={test.liveCharCountRef} accuracy={test.liveStats.accuracy} focusMode={focusMode} />
               <TypingText target={test.targetText} typed={test.typed} status={test.status} resetKey={test.sessionId} onChange={test.handleInputChange} reducedMotion={reducedMotion} freeTyping={test.isFreeTyping} focusMode={focusMode} onFocusModeRequest={enterFocusMode} />
-              <TestControls onRestart={() => { setFocusMode(false); test.retry(); }} onReset={() => { setFocusMode(false); test.reset(); }} onStop={test.stop} canStop={test.status === "running"} focusMode={focusMode} />
+              <TestControls onRestart={() => { setFocusMode(false); test.retry(); }} onReset={() => { setFocusMode(false); test.reset(); }} onStop={() => { setFocusMode(false); test.stop(); }} canStop={test.status === "running"} focusMode={focusMode} />
             </div>
           )}
         </div>
