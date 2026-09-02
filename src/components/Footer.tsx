@@ -1,7 +1,9 @@
 const FOOTER_LINKS = [
   { label: "Typing Tester", href: "/#tester" },
+  { label: "Typing Practice", href: "/#typing-practice" },
   { label: "Guides", href: "/#guides" },
   { label: "How It Works", href: "/#how-it-works" },
+  { label: "FAQ", href: "/#faq" },
   { label: "About", href: "/about" },
   { label: "Contact", href: "/contact" },
   { label: "Privacy Policy", href: "/privacy-policy" },
@@ -14,10 +16,9 @@ export default function Footer() {
       <div className="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8">
         <div className="flex flex-col items-start justify-between gap-8 md:flex-row md:items-center">
           <div>
-            <div className="font-mono text-base font-bold text-ink">GOATTYPE</div>
+            <div className="font-mono text-base font-bold text-ink">FreeTypingTestGoat</div>
             <p className="mt-2 max-w-sm text-sm text-faint">
-              GOATTYPE is a free online typing speed test and typing practice tool to measure WPM,
-              accuracy, and consistency in seconds.
+              FreeTypingTestGoat is a free online typing test and typing practice tool for measuring WPM, accuracy, and typing consistency.
             </p>
           </div>
 
@@ -31,7 +32,7 @@ export default function Footer() {
         </div>
 
         <div className="mt-10 flex flex-col gap-2 border-t border-white/5 pt-6 text-xs text-faint sm:flex-row sm:items-center sm:justify-between">
-          <p>&copy; {new Date().getFullYear()} GOATTYPE. All rights reserved.</p>
+          <p>&copy; {new Date().getFullYear()} FreeTypingTestGoat. All rights reserved.</p>
           <p>TYPE LIKE A GOAT.</p>
         </div>
       </div>
