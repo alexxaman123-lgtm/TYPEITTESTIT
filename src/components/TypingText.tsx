@@ -57,7 +57,7 @@ export default function TypingText({
   const windowEnd = Math.min(target.length, windowStart + WINDOW_SIZE);
   const slice = target.slice(windowStart, windowEnd);
   const copyClass = focusMode
-    ? "mx-auto max-w-[1220px] text-center"
+    ? "typing-copy"
     : "text-left";
 
   return (
@@ -69,7 +69,7 @@ export default function TypingText({
         className={cn(
           "typing-surface relative min-h-[168px] cursor-text select-none rounded-2xl border bg-surface2/70 p-5 font-sans leading-8 tracking-normal transition-[border-color,box-shadow] duration-300 sm:p-7 sm:text-[19px] sm:leading-9",
           focusMode
-            ? "min-h-[260px] p-7 text-[24px] leading-[1.9] sm:min-h-[320px] sm:p-10 sm:text-[30px] sm:leading-[1.9] lg:min-h-[360px] lg:p-12 lg:text-[34px]"
+            ? "min-h-[250px] p-6 text-[22px] leading-[1.75] sm:min-h-[310px] sm:p-9 sm:text-[27px] sm:leading-[1.82] lg:min-h-[340px] lg:p-10 lg:text-[30px] lg:leading-[1.82]"
             : "text-[17px]",
           focused ? "border-accent/45 shadow-[0_0_0_1px_color-mix(in_srgb,var(--color-accent)_5%,transparent),0_0_35px_-20px_color-mix(in_srgb,var(--color-accent)_45%,transparent)]" : "border-white/10",
           disabled && "opacity-60"
