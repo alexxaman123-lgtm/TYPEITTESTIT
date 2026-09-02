@@ -10,41 +10,58 @@ function getAudioContext(): AudioContext | null {
   return audioContext;
 }
 
-function playTone(
-  context: AudioContext,
-  frequency: number,
-  duration: number,
-  volume: number,
-): void {
-  const now = context.currentTime;
-  const oscillator = context.createOscillator();
-  const gain = context.createGain();
-
-  oscillator.type = "square";
-  oscillator.frequency.setValueAtTime(frequency, now);
-  oscillator.frequency.exponentialRampToValueAtTime(
-    Math.max(40, frequency * 0.65),
-    now + duration
-  );
-
-  gain.gain.setValueAtTime(0.0001, now);
-  gain.gain.exponentialRampToValueAtTime(volume, now + 0.004);
-  gain.gain.exponentialRampToValueAtTime(0.0001, now + duration);
-
-  oscillator.connect(gain);
-  gain.connect(context.destination);
-  oscillator.start(now);
-  oscillator.stop(now + duration + 0.005);
-}
-
 export function unlockTypingSounds(): void {
   const context = getAudioContext();
   if (!context) return;
   try {
-    if (context.state === "suspended") void context.resume();
+    if (context.state !== "running") void context.resume();
   } catch {
     // Sound is decorative only. Never affect typing behavior.
   }
+}
+
+function playMechanicalClick(
+  context: AudioContext,
+  startFrequency: number,
+  endFrequency: number,
+  duration: number,
+  volume: number,
+  noiseVolume: number,
+): void {
+  const now = context.currentTime;
+
+  const oscillator = context.createOscillator();
+  const oscillatorGain = context.createGain();
+  oscillator.type = "triangle";
+  oscillator.frequency.setValueAtTime(startFrequency, now);
+  oscillator.frequency.exponentialRampToValueAtTime(endFrequency, now + duration);
+  oscillatorGain.gain.setValueAtTime(0.0001, now);
+  oscillatorGain.gain.exponentialRampToValueAtTime(volume, now + 0.002);
+  oscillatorGain.gain.exponentialRampToValueAtTime(0.0001, now + duration);
+  oscillator.connect(oscillatorGain);
+  oscillatorGain.connect(context.destination);
+  oscillator.start(now);
+  oscillator.stop(now + duration + 0.004);
+
+  const noiseBuffer = context.createBuffer(1, Math.max(1, Math.floor(context.sampleRate * 0.014)), context.sampleRate);
+  const noiseData = noiseBuffer.getChannelData(0);
+  for (let i = 0; i < noiseData.length; i++) {
+    const envelope = 1 - i / noiseData.length;
+    noiseData[i] = (Math.random() * 2 - 1) * envelope * envelope;
+  }
+
+  const noise = context.createBufferSource();
+  const noiseFilter = context.createBiquadFilter();
+  const noiseGain = context.createGain();
+  noise.buffer = noiseBuffer;
+  noiseFilter.type = "highpass";
+  noiseFilter.frequency.setValueAtTime(1200, now);
+  noiseGain.gain.setValueAtTime(noiseVolume, now);
+  noiseGain.gain.exponentialRampToValueAtTime(0.0001, now + 0.014);
+  noise.connect(noiseFilter);
+  noiseFilter.connect(noiseGain);
+  noiseGain.connect(context.destination);
+  noise.start(now);
 }
 
 export function playTypingSound(type: "key" | "error" | "backspace"): void {
@@ -52,19 +69,21 @@ export function playTypingSound(type: "key" | "error" | "backspace"): void {
   if (!context) return;
 
   const settings = {
-    key: { frequency: 220, duration: 0.055, volume: 0.055 },
-    error: { frequency: 125, duration: 0.075, volume: 0.05 },
-    backspace: { frequency: 165, duration: 0.065, volume: 0.05 },
+    key: { start: 2050, end: 920, duration: 0.052, volume: 0.09, noise: 0.055 },
+    error: { start: 560, end: 250, duration: 0.075, volume: 0.075, noise: 0.035 },
+    backspace: { start: 1180, end: 470, duration: 0.058, volume: 0.08, noise: 0.04 },
   }[type];
 
   try {
-    if (context.state === "suspended") {
+    if (context.state !== "running") {
       void context.resume().then(() => {
-        playTone(context, settings.frequency, settings.duration, settings.volume);
+        if (context.state === "running") {
+          playMechanicalClick(context, settings.start, settings.end, settings.duration, settings.volume, settings.noise);
+        }
       }).catch(() => undefined);
       return;
     }
-    playTone(context, settings.frequency, settings.duration, settings.volume);
+    playMechanicalClick(context, settings.start, settings.end, settings.duration, settings.volume, settings.noise);
   } catch {
     // Sound is decorative only. Never affect typing behavior.
   }
