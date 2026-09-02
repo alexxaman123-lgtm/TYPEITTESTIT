@@ -9,17 +9,17 @@ export default function Hero() {
         Measure · Practice · Improve
       </div>
       <h1 className="animate-fade-up mt-4 text-4xl font-extrabold tracking-[-0.035em] text-ink sm:text-5xl lg:text-6xl" style={{ animationDelay: "80ms" }}>
-        GOATTYPE TYPING TEST
+        FREE TYPING TEST
       </h1>
       <p className="animate-fade-up mx-auto mt-3 text-lg font-bold uppercase tracking-[0.18em] text-accent" style={{ animationDelay: "120ms" }}>
-        TYPE LIKE A GOAT
+        ONLINE WPM TYPING TEST PRACTICE
       </p>
       <p className="animate-fade-up mx-auto mt-4 max-w-2xl text-base text-muted sm:text-lg" style={{ animationDelay: "160ms" }}>
-        GOATTYPE is a free online typing speed test for measuring WPM and typing accuracy in real time.
-        Sign in with Google to save progress to an account and participate in leaderboard features.
+        Use our free typing test to check your typing speed, measure your words per minute (WPM), and track your accuracy. 
+        Whether you need a quick 1 minute typing test or want to practice typing test skills for a job, start typing to improve.
       </p>
       <p className="animate-fade-up mx-auto mt-5 max-w-xl text-sm font-semibold text-ink-soft sm:text-base" style={{ animationDelay: "220ms" }}>
-        Are you a pro typer? Measure your typing speed, beat your personal best, and see how fast you can really type.
+        Ready to see how fast you type? Start the live typing speed test below, beat your personal best, and master keyboard typing.
       </p>
     </div>
   );

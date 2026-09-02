@@ -47,7 +47,7 @@ export default function GuidesSection() {
       <div className="text-center">
         <p className="text-xs font-semibold uppercase tracking-[0.2em] text-accent">Typing Speed Blog</p>
         <h2 className="mt-3 text-2xl font-bold tracking-tight text-ink sm:text-3xl">Typing Practice, Speed & Accuracy Guides</h2>
-        <p className="mx-auto mt-3 max-w-2xl text-muted">Practical guides for people searching for typing practice, a typing speed test, better WPM, a short typing test, stronger accuracy, and a faster keyboard.</p>
+        <p className="mx-auto mt-3 max-w-2xl text-muted">Practical guides for people searching for typing practice, a free typing test, better WPM, a 1 minute typing test, stronger accuracy, and faster keyboard typing.</p>
       </div>
       <div className="mt-8 grid gap-4 sm:grid-cols-2">
         {GUIDES.map((guide) => (
@@ -57,7 +57,7 @@ export default function GuidesSection() {
               <span className="shrink-0 text-lg text-accent transition-transform duration-200 group-open:rotate-45">+</span>
             </summary>
             <p className="mt-3 text-sm leading-6 text-muted">{guide.body}</p>
-            <a href="#tester" className="mt-3 inline-block text-sm font-semibold text-accent hover:underline">Take a typing speed test &rarr;</a>
+            <a href="#tester" className="mt-3 inline-block text-sm font-semibold text-accent hover:underline">Take a free typing test &rarr;</a>
           </details>
         ))}
       </div>

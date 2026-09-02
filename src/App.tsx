@@ -33,7 +33,7 @@ export default function App() {
 
   useEffect(() => {
     const config = PAGE_CONFIG[path as keyof typeof PAGE_CONFIG];
-    document.title = config?.title ?? "GOATTYPE — Free Typing Speed Test";
+    document.title = config?.title ?? "Free Typing Test — Online WPM Typing Test Practice | GOATTYPE";
     const description = document.querySelector('meta[name="description"]');
     if (description && config) description.setAttribute("content", config.description);
     
