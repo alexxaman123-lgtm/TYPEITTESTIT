@@ -142,24 +142,24 @@ export default function Header() {
     <>
       <header className="sticky top-6 z-50 w-full px-4 sm:px-6 pointer-events-none">
         <div className={cn(
-          "pointer-events-auto mx-auto flex h-14 max-w-5xl items-center justify-between rounded-full px-4 sm:px-6 transition-all duration-300",
+          "pointer-events-auto mx-auto flex h-14 max-w-7xl items-center justify-between rounded-full px-4 sm:px-6 transition-all duration-300",
           scrolled ? "bg-canvas-soft/95 shadow-sm backdrop-blur-md" : "bg-canvas-soft"
         )}>
-          <a href="/" className="flex items-center gap-1 select-none" aria-label="FreeTypingTestGoat home">
+          <a href="/" className="flex items-center gap-1 select-none whitespace-nowrap" aria-label="FreeTypingTestGoat home">
             <span className="font-title text-ink tracking-tight">FreeTypingTest</span><span className="font-title text-primary tracking-tight">Goat</span>
             <div className="w-5 h-5 ml-1 text-primary"><GoatMark /></div>
           </a>
 
-          <nav className="hidden items-center gap-6 md:flex" aria-label="Primary">
+          <nav className="hidden items-center gap-4 lg:gap-6 md:flex" aria-label="Primary">
             {NAV_LINKS.map((link) => (
-              <a key={link.href} href={link.href} className="font-link text-ink transition-colors duration-200 hover:text-text-muted">{link.label}</a>
+              <a key={link.href} href={link.href} className="whitespace-nowrap font-link text-ink transition-colors duration-200 hover:text-text-muted">{link.label}</a>
             ))}
           </nav>
 
-          <div className="hidden items-center gap-4 md:flex">
+          <div className="hidden items-center gap-3 lg:gap-4 md:flex">
             <ThemePicker />
             {accountLabel}
-            <a href="/#tester" className="flex items-center justify-center h-[36px] rounded-full bg-primary px-4 font-link text-on-primary transition-opacity hover:opacity-90">Start Typing</a>
+            <a href="/#tester" className="whitespace-nowrap flex items-center justify-center h-[36px] rounded-full bg-primary px-4 font-link text-on-primary transition-opacity hover:opacity-90">Start Typing</a>
           </div>
 
           <div className="flex items-center gap-3 md:hidden">
@@ -174,7 +174,7 @@ export default function Header() {
         </div>
 
         {open && (
-          <div className="pointer-events-auto mx-auto mt-2 max-w-5xl rounded-2xl bg-canvas-soft p-2 shadow-lg md:hidden backdrop-blur-md">
+          <div className="pointer-events-auto mx-auto mt-2 max-w-7xl rounded-2xl bg-canvas-soft p-2 shadow-lg md:hidden backdrop-blur-md">
             <nav className="flex flex-col gap-1" aria-label="Mobile">
               {NAV_LINKS.map((link) => (
                 <a key={link.href} href={link.href} onClick={() => setOpen(false)} className="rounded-xl px-4 py-3 font-link text-ink hover:bg-canvas">
