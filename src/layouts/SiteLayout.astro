@@ -1,14 +1,158 @@
 ---
 import "../index.css";
 import { THEMES, DEFAULT_THEME } from "../lib/themes";
-interface AlternateLink{hreflang:string;href:string}
-interface Props{title:string;description:string;canonicalPath?:string;structuredData?:Record<string,unknown>[];locale?:string;alternates?:AlternateLink[]}
-const{title,description,canonicalPath="/",structuredData=[],locale="en",alternates=[]}=Astro.props;
-const siteUrl="https://typeittestit.com";
-const canonicalUrl=`${siteUrl}${canonicalPath}`;
-const knownSpanishEquivalents:string[]=["/","/about","/contact","/privacy-policy","/terms-of-use","/leaderboard"];
-const normalizedPath=canonicalPath.replace(/\/+$/g,"")||"/";
-const autoAlternates=locale==="en"&&knownSpanishEquivalents.includes(normalizedPath)?[...alternates,{hreflang:"es",href:`${siteUrl}${normalizedPath==="/"?"/es/":`/es${normalizedPath}/`}`},{hreflang:"x-default",href:canonicalUrl}]:alternates;
-const themeMap=Object.fromEntries(THEMES.map(theme=>[theme.id,{type:theme.type,variables:theme.variables}]));
+
+interface AlternateLink {
+  hreflang: string;
+  href: string;
+}
+
+interface Props {
+  title: string;
+  description: string;
+  canonicalPath?: string;
+  structuredData?: Record<string, unknown>[];
+  locale?: string;
+  alternates?: AlternateLink[];
+}
+
+const {
+  title,
+  description,
+  canonicalPath = "/",
+  structuredData = [],
+  locale = "en",
+  alternates = [],
+} = Astro.props;
+
+const siteUrl = "https://typeittestit.com";
+const canonicalUrl = `${siteUrl}${canonicalPath}`;
+const themeMap = Object.fromEntries(
+  THEMES.map((theme) => [theme.id, { type: theme.type, variables: theme.variables }])
+);
+
+const knownSpanishEquivalents = ["/", "/about", "/contact", "/privacy-policy", "/terms-of-use", "/leaderboard"];
+const normalizedPath = canonicalPath.replace(/\/+$/g, "") || "/";
+const automaticAlternates = locale === "en" && knownSpanishEquivalents.includes(normalizedPath)
+  ? [
+      ...alternates,
+      { hreflang: "es", href: `${siteUrl}${normalizedPath === "/" ? "/es/" : `/es${normalizedPath}/`}` },
+      { hreflang: "x-default", href: canonicalUrl },
+    ]
+  : alternates;
 ---
-<!doctype html><html lang={locale}><head><script is:inline src="/ga-init.js"></script><script async src="https://www.googletagmanager.com/gtag/js?id=G-SGDYN5GEJT"></script><script is:inline>{`if(typeof window!=='undefined'){window.wx=window.wx||{};window.my=window.my||{};window.tt=window.tt||{};window.swan=window.swan||{};window.qq=window.qq||{};window.ks=window.ks||{};window.jd=window.jd||{};window.xhs=window.xhs||{};window.qh=window.qh||{};window.bb=window.bb||{}}`}</script><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-9769426845506731" crossorigin="anonymous"></script><meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/><title>{title}</title><meta name="description" content={description}/><meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1"/><meta name="googlebot" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1"/><meta name="referrer" content="strict-origin-when-cross-origin"/><meta name="author" content="FreeTypingTestGoat"/><link rel="canonical" href={canonicalUrl}/>{autoAlternates.map((alternate)=><link rel="alternate" hreflang={alternate.hreflang} href={alternate.href}/>)}<meta property="og:type" content="website"/><meta property="og:site_name" content="FreeTypingTestGoat"/><meta property="og:title" content={title}/><meta property="og:description" content={description}/><meta property="og:url" content={canonicalUrl}/><meta property="og:image" content={`${siteUrl}/og-image.png`}/><meta property="og:image:alt" content="FreeTypingTestGoat free online typing test and WPM practice"/><meta name="twitter:card" content="summary_large_image"/><meta name="twitter:title" content={title}/><meta name="twitter:description" content={description}/><meta name="twitter:image" content={`${siteUrl}/og-image.png`}/><meta name="twitter:image:alt" content="FreeTypingTestGoat free online typing test and WPM practice"/><meta name="theme-color" content="#050706"/><link rel="icon" type="image/svg+xml" href="/favicon.svg"/>{structuredData.map((data)=><script type="application/ld+json" set:html={JSON.stringify(data)}/>)}<script is:inline define:vars={{themeMap,defaultTheme:DEFAULT_THEME}}>{`(()=>{try{const saved=localStorage.getItem('goattype-theme-v5');const theme=(saved&&themeMap[saved])?themeMap[saved]:themeMap[defaultTheme];if(!theme)return;const root=document.documentElement;if(theme.type==='dark'){root.classList.add('dark');root.style.colorScheme='dark'}else{root.classList.remove('dark');root.style.colorScheme='light'}Object.entries(theme.variables).forEach(([name,value])=>root.style.setProperty(name,value))}catch(_){}})()`}</script></head><body><slot/><script is:inline>{`(()=>{const elements=Array.from(document.querySelectorAll('[data-reveal]'));if(!elements.length)return;const reducedMotion=window.matchMedia('(prefers-reduced-motion: reduce)').matches;if(reducedMotion||!('IntersectionObserver'in window)){elements.forEach(element=>element.classList.add('reveal-visible'));return}const observer=new IntersectionObserver(entries=>{entries.forEach(entry=>{if(!entry.isIntersecting)return;entry.target.classList.add('reveal-visible');observer.unobserve(entry.target)})},{threshold:.08,rootMargin:'0px 0px -8% 0px'});elements.forEach((element,index)=>{element.style.setProperty('--reveal-index',String(index));observer.observe(element)})})()`}</script></body></html>
+<!doctype html>
+<html lang={locale}>
+  <head>
+    <!-- Preserve the site's existing analytics bootstrap and AdSense integration. -->
+    <script is:inline src="/ga-init.js"></script>
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-SGDYN5GEJT"></script>
+
+    <script is:inline>
+      if (typeof window !== 'undefined') {
+        window.wx = window.wx || {};
+        window.my = window.my || {};
+        window.tt = window.tt || {};
+        window.swan = window.swan || {};
+        window.qq = window.qq || {};
+        window.ks = window.ks || {};
+        window.jd = window.jd || {};
+        window.xhs = window.xhs || {};
+        window.qh = window.qh || {};
+        window.bb = window.bb || {};
+      }
+      if (typeof globalThis !== 'undefined') {
+        globalThis.wx = globalThis.wx || {};
+        globalThis.my = globalThis.my || {};
+        globalThis.tt = globalThis.tt || {};
+        globalThis.swan = globalThis.swan || {};
+        globalThis.qq = globalThis.qq || {};
+        globalThis.ks = globalThis.ks || {};
+        globalThis.jd = globalThis.jd || {};
+        globalThis.xhs = globalThis.xhs || {};
+        globalThis.qh = globalThis.qh || {};
+        globalThis.bb = globalThis.bb || {};
+      }
+    </script>
+
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-9769426845506731" crossorigin="anonymous"></script>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>{title}</title>
+    <meta name="description" content={description} />
+    <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1" />
+    <meta name="googlebot" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1" />
+    <meta name="referrer" content="strict-origin-when-cross-origin" />
+    <meta name="author" content="FreeTypingTestGoat" />
+    <link rel="canonical" href={canonicalUrl} />
+    {automaticAlternates.map((alternate) => <link rel="alternate" hreflang={alternate.hreflang} href={alternate.href} />)}
+
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="FreeTypingTestGoat" />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:url" content={canonicalUrl} />
+    <meta property="og:image" content={`${siteUrl}/og-image.png`} />
+    <meta property="og:image:alt" content="FreeTypingTestGoat free online typing test and WPM practice" />
+
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content={title} />
+    <meta name="twitter:description" content={description} />
+    <meta name="twitter:image" content={`${siteUrl}/og-image.png`} />
+    <meta name="twitter:image:alt" content="FreeTypingTestGoat free online typing test and WPM practice" />
+
+    <meta name="theme-color" content="#050706" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+
+    {structuredData.map((data) => (
+      <script type="application/ld+json" set:html={JSON.stringify(data)} />
+    ))}
+
+    <script is:inline define:vars={{ themeMap, defaultTheme: DEFAULT_THEME }}>
+      (() => {
+        try {
+          const saved = localStorage.getItem('goattype-theme-v5');
+          const themes = themeMap;
+          const theme = (saved && themes[saved]) ? themes[saved] : themes[defaultTheme];
+          if (!theme) return;
+          const root = document.documentElement;
+          if (theme.type === 'dark') {
+            root.classList.add('dark');
+            root.style.colorScheme = 'dark';
+          } else {
+            root.classList.remove('dark');
+            root.style.colorScheme = 'light';
+          }
+          Object.entries(theme.variables).forEach(([name, value]) => root.style.setProperty(name, value));
+        } catch (_) {
+          // Theme loading is cosmetic and must never block page rendering.
+        }
+      })();
+    </script>
+  </head>
+  <body>
+    <slot />
+    <script is:inline>
+      (() => {
+        const elements = Array.from(document.querySelectorAll('[data-reveal]'));
+        if (!elements.length) return;
+        const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+        if (reducedMotion || !('IntersectionObserver' in window)) {
+          elements.forEach((element) => element.classList.add('reveal-visible'));
+          return;
+        }
+        const observer = new IntersectionObserver((entries) => {
+          entries.forEach((entry) => {
+            if (!entry.isIntersecting) return;
+            entry.target.classList.add('reveal-visible');
+            observer.unobserve(entry.target);
+          });
+        }, { threshold: 0.08, rootMargin: '0px 0px -8% 0px' });
+        elements.forEach((element, index) => {
+          element.style.setProperty('--reveal-index', String(index));
+          observer.observe(element);
+        });
+      })();
+    </script>
+  </body>
+</html>
