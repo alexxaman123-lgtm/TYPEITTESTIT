@@ -245,8 +245,10 @@ const translations = {
   },
 } as const;
 
-export function tr(locale: Locale, section: keyof typeof translations, key: string): string {
-  const value = (translations[locale]?.[section] as Record<string, string> | undefined)?.[key];
+type TranslationSection = keyof typeof translations.en;
+
+export function tr(locale: Locale, section: TranslationSection, key: string): string {
+  const value = (translations[locale][section] as Record<string, string> | undefined)?.[key];
   const fallback = (translations.en[section] as Record<string, string> | undefined)?.[key];
   return value ?? fallback ?? key;
 }
