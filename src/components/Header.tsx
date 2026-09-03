@@ -32,10 +32,21 @@ function handleInternalNavigation(event: MouseEvent<HTMLAnchorElement>, href: st
     return;
   }
 
+  // Let Astro's real document routes use native browser navigation. Hash links
+  // remain native too, so the browser handles scrolling and history correctly.
+  // This avoids the old SPA pushState route interception now that routes have
+  // dedicated Astro documents.
   if (href.startsWith("/") && !href.startsWith("/#")) {
-    event.preventDefault();
-    navigateTo(href);
+    return;
   }
+
+  // Kept for compatibility with any future same-document navigation that may
+  // use this helper. Current header routes are ordinary anchors.
+  if (href.startsWith("/#")) {
+    return;
+  }
+
+  navigateTo(href);
 }
 
 export default function Header() {
