@@ -18,7 +18,7 @@ export default function SpanishHero() {
           </p>
           <div className="mt-9 flex flex-col items-start gap-3 animate-fade-up sm:flex-row" style={{ animationDelay: "190ms" }}>
             <a href="#tester" className="hero-primary-cta inline-flex min-h-14 items-center justify-center rounded-full px-7 font-link transition-transform duration-200 hover:-translate-y-0.5">Empezar test de mecanografía →</a>
-            <a href="/leaderboard" className="hero-secondary-cta inline-flex min-h-14 items-center justify-center rounded-full border px-7 font-link transition-colors duration-200">Ver clasificación</a>
+            <a href="/es/leaderboard/" className="hero-secondary-cta inline-flex min-h-14 items-center justify-center rounded-full border px-7 font-link transition-colors duration-200">Ver clasificación</a>
           </div>
           <div className="mt-10 flex flex-wrap gap-2 animate-fade-up" style={{ animationDelay: "240ms" }} aria-label="Funciones del test de mecanografía">
             <span className="hero-feature font-caption">Test de mecanografía gratis</span>
@@ -36,7 +36,7 @@ export default function SpanishHero() {
           <div className="hero-video-shell relative overflow-hidden rounded-[32px] border border-current/10 bg-canvas-soft shadow-2xl">
             <video className="block aspect-[4/5] h-auto w-full object-cover lg:aspect-[5/6]" src="/Goat_typing_on_laptop_1080p_202609030103.mp4" autoPlay muted loop playsInline preload="metadata" />
             <div className="pointer-events-none absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/45 via-black/5 to-transparent px-5 pb-5 pt-20">
-              <p className="font-caption font-semibold text-white">La GOAT está escribiendo.</p>
+              <p className="font-caption font-semibold text-white">La cabra está escribiendo.</p>
             </div>
           </div>
         </div>
