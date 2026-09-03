@@ -221,7 +221,7 @@ export default function TypingTester({ locale = "en" }: { locale?: Locale }) {
               <TypingLanguageSelector
                 value={test.locale}
                 onChange={test.setLocale}
-                disabled={test.status === "running" || viewMode === "custom"}
+                disabled={test.status === "running"}
               />
             )}
             <LiveMetrics
