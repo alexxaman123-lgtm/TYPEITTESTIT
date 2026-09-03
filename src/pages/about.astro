@@ -1,0 +1,16 @@
+---
+import SiteLayout from "../layouts/SiteLayout.astro";
+import Header from "../components/Header";
+import AboutPage from "../components/AboutPage";
+import Footer from "../components/Footer";
+
+const title = "About FreeTypingTestGoat | Free Typing Test";
+const description = "Learn about FreeTypingTestGoat, a free online typing test for measuring WPM, accuracy, and typing progress.";
+---
+<SiteLayout title={title} description={description} canonicalPath="/about">
+  <div class="relative min-h-screen">
+    <Header client:load />
+    <main><AboutPage /></main>
+    <Footer />
+  </div>
+</SiteLayout>
