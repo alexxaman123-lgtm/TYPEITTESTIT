@@ -20,7 +20,7 @@ const LABEL_STYLES: Record<string, string> = {
   "MYTHICAL GOAT": "text-accent border-accent/40 bg-accent/10",
   "HONORABLE GOAT": "text-accent border-accent/40 bg-accent/10",
   "ACE GOAT": "text-accent border-accent/40 bg-accent/10",
-  "THE GOAT": "text-ink border-accent/40 bg-accent/10",
+  "THE GOAT EVERYBODY TALKS ABOUT": "text-ink border-accent/40 bg-accent/10",
   "AVERAGE GOAT": "text-text-muted border-hairline bg-canvas",
   "SLOW GOAT": "text-text-muted border-hairline bg-canvas",
 };
