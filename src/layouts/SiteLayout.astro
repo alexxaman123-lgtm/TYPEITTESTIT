@@ -1,0 +1,121 @@
+---
+import "../index.css";
+import { THEMES, DEFAULT_THEME } from "../lib/themes";
+
+interface Props {
+  title: string;
+  description: string;
+  canonicalPath?: string;
+  structuredData?: Record<string, unknown>[];
+}
+
+const {
+  title,
+  description,
+  canonicalPath = "/",
+  structuredData = [],
+} = Astro.props;
+
+const siteUrl = "https://typeittestit.com";
+const canonicalUrl = `${siteUrl}${canonicalPath}`;
+const themeMap = Object.fromEntries(
+  THEMES.map((theme) => [theme.id, { type: theme.type, variables: theme.variables }])
+);
+---
+<!doctype html>
+<html lang="en">
+  <head>
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-SGDYN5GEJT"></script>
+    <script is:inline>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', 'G-SGDYN5GEJT');
+    </script>
+
+    <script is:inline>
+      if (typeof window !== 'undefined') {
+        window.wx = window.wx || {};
+        window.my = window.my || {};
+        window.tt = window.tt || {};
+        window.swan = window.swan || {};
+        window.qq = window.qq || {};
+        window.ks = window.ks || {};
+        window.jd = window.jd || {};
+        window.xhs = window.xhs || {};
+        window.qh = window.qh || {};
+        window.bb = window.bb || {};
+      }
+      if (typeof globalThis !== 'undefined') {
+        globalThis.wx = globalThis.wx || {};
+        globalThis.my = globalThis.my || {};
+        globalThis.tt = globalThis.tt || {};
+        globalThis.swan = globalThis.swan || {};
+        globalThis.qq = globalThis.qq || {};
+        globalThis.ks = globalThis.ks || {};
+        globalThis.jd = globalThis.jd || {};
+        globalThis.xhs = globalThis.xhs || {};
+        globalThis.qh = globalThis.qh || {};
+        globalThis.bb = globalThis.bb || {};
+      }
+    </script>
+
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-9769426845506731" crossorigin="anonymous"></script>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>{title}</title>
+    <meta name="description" content={description} />
+    <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1" />
+    <meta name="googlebot" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1" />
+    <meta name="referrer" content="strict-origin-when-cross-origin" />
+    <meta name="author" content="FreeTypingTestGoat" />
+    <link rel="canonical" href={canonicalUrl} />
+
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="FreeTypingTestGoat" />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:url" content={canonicalUrl} />
+    <meta property="og:image" content={`${siteUrl}/og-image.png`} />
+    <meta property="og:image:alt" content="FreeTypingTestGoat free online typing test and WPM practice" />
+
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content={title} />
+    <meta name="twitter:description" content={description} />
+    <meta name="twitter:image" content={`${siteUrl}/og-image.png`} />
+    <meta name="twitter:image:alt" content="FreeTypingTestGoat free online typing test and WPM practice" />
+
+    <meta name="theme-color" content="#050706" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+
+    {structuredData.map((data) => (
+      <script type="application/ld+json" set:html={JSON.stringify(data)} />
+    ))}
+
+    <script is:inline define:vars={{ themeMap, defaultTheme: DEFAULT_THEME }}>
+      (() => {
+        try {
+          const saved = localStorage.getItem('goattype-theme-v5');
+          const themes = themeMap;
+          const theme = (saved && themes[saved]) ? themes[saved] : themes[defaultTheme];
+          if (!theme) return;
+          const root = document.documentElement;
+          if (theme.type === 'dark') {
+            root.classList.add('dark');
+            root.style.colorScheme = 'dark';
+          } else {
+            root.classList.remove('dark');
+            root.style.colorScheme = 'light';
+          }
+          Object.entries(theme.variables).forEach(([name, value]) => root.style.setProperty(name, value));
+        } catch (_) {
+          // Theme loading is cosmetic and must never block page rendering.
+        }
+      })();
+    </script>
+  </head>
+  <body>
+    <slot />
+  </body>
+</html>
