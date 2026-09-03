@@ -7,6 +7,7 @@ interface Props {
   description: string;
   canonicalPath?: string;
   structuredData?: Record<string, unknown>[];
+  locale?: string;
 }
 
 const {
@@ -14,6 +15,7 @@ const {
   description,
   canonicalPath = "/",
   structuredData = [],
+  locale = "en",
 } = Astro.props;
 
 const siteUrl = "https://typeittestit.com";
@@ -23,7 +25,7 @@ const themeMap = Object.fromEntries(
 );
 ---
 <!doctype html>
-<html lang="en">
+<html lang={locale}>
   <head>
     <!-- Preserve the site's existing analytics bootstrap and AdSense integration. -->
     <script is:inline src="/ga-init.js"></script>
@@ -56,7 +58,7 @@ const themeMap = Object.fromEntries(
       }
     </script>
 
-    <script async src="https://pagead2.googlesyndication.com/pagead/js?client=ca-pub-9769426845506731" crossorigin="anonymous"></script>
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-9769426845506731" crossorigin="anonymous"></script>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>{title}</title>
