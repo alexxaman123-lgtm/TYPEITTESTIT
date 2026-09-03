@@ -25,14 +25,9 @@ const themeMap = Object.fromEntries(
 <!doctype html>
 <html lang="en">
   <head>
-    <!-- Google tag (gtag.js) -->
+    <!-- Preserve the site's existing analytics bootstrap and AdSense integration. -->
+    <script src="/ga-init.js"></script>
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-SGDYN5GEJT"></script>
-    <script is:inline>
-      window.dataLayer = window.dataLayer || [];
-      function gtag(){dataLayer.push(arguments);}
-      gtag('js', new Date());
-      gtag('config', 'G-SGDYN5GEJT');
-    </script>
 
     <script is:inline>
       if (typeof window !== 'undefined') {
@@ -61,7 +56,7 @@ const themeMap = Object.fromEntries(
       }
     </script>
 
-    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-9769426845506731" crossorigin="anonymous"></script>
+    <script async src="https://pagead2.googlesyndication.com/pagead/js?id=ca-pub-9769426845506731&client=ca-pub-9769426845506731" crossorigin="anonymous"></script>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>{title}</title>
