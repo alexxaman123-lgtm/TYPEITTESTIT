@@ -1,0 +1,16 @@
+---
+import SiteLayout from "../layouts/SiteLayout.astro";
+import Header from "../components/Header";
+import PrivacyPolicyPage from "../components/PrivacyPolicyPage";
+import Footer from "../components/Footer";
+
+const title = "Privacy Policy | FreeTypingTestGoat";
+const description = "Read the FreeTypingTestGoat Privacy Policy covering account data, typing tests, local storage, and advertising.";
+---
+<SiteLayout title={title} description={description} canonicalPath="/privacy-policy">
+  <div class="relative min-h-screen">
+    <Header client:load />
+    <main><PrivacyPolicyPage /></main>
+    <Footer />
+  </div>
+</SiteLayout>
