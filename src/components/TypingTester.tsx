@@ -20,6 +20,10 @@ type PersonalBest = { wpm: number; accuracy: number } | null;
 
 const SLOW_GOAT_WPM_THRESHOLD = 30;
 const SLOW_GOAT_SOUND = "/fahhh_KcgAXfs.mp3";
+const AVERAGE_GOAT_MIN_WPM = 32;
+const AVERAGE_GOAT_MAX_WPM = 47;
+const AVERAGE_GOAT_SOUND = "/vine-boom.mp3";
+const AVERAGE_GOAT_SOUND_VOLUME = 1.0;
 
 export default function TypingTester() {
   const prefs = useMemo(() => getPreferences(), []);
@@ -53,8 +57,14 @@ export default function TypingTester() {
 
     if (previousStatus === "running" && test.status === "finished") {
       const finalWpm = test.result?.wpm ?? 0;
-      if (getSoundEnabled() && finalWpm < SLOW_GOAT_WPM_THRESHOLD) {
+      const soundEnabled = getSoundEnabled();
+
+      if (!soundEnabled) return;
+
+      if (finalWpm < SLOW_GOAT_WPM_THRESHOLD) {
         playSound(SLOW_GOAT_SOUND, 0.50);
+      } else if (finalWpm >= AVERAGE_GOAT_MIN_WPM && finalWpm <= AVERAGE_GOAT_MAX_WPM) {
+        playSound(AVERAGE_GOAT_SOUND, AVERAGE_GOAT_SOUND_VOLUME);
       } else {
         playTestCompleteSound();
       }
