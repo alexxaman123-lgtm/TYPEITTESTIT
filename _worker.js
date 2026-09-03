@@ -1,18 +1,12 @@
 export default {
   async fetch(request, env, ctx) {
     // Let Cloudflare serve real static assets first.
-    let response = await env.ASSETS.fetch(request);
+    const response = await env.ASSETS.fetch(request);
 
     // Astro generates dedicated HTML documents for the site's routes.
-    // Keep the index fallback as a defensive compatibility path for any
-    // legacy SPA-style URL that does not have a generated document.
+    // Do not rewrite unknown URLs to the homepage; real 404s should remain 404s.
     if (response.status === 404) {
-      const accept = request.headers.get("accept") || "";
-      if (accept.includes("text/html")) {
-        const url = new URL(request.url);
-        url.pathname = "/index.html";
-        response = await env.ASSETS.fetch(new Request(url, request));
-      }
+      return response;
     }
 
     // For HTML pages, add our security headers.
@@ -37,7 +31,7 @@ export default {
       headers.set("X-Permitted-Cross-Domain-Policies", "none");
       headers.set("Origin-Agent-Cluster", "?1");
 
-      response = new Response(response.body, {
+      return new Response(response.body, {
         status: response.status,
         statusText: response.statusText,
         headers,
