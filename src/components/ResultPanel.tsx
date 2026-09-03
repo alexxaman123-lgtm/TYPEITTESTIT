@@ -18,7 +18,6 @@ interface Props {
 
 const LABEL_STYLES: Record<string, string> = {
   "MYTHICAL GOAT": "text-accent border-accent/40 bg-accent/10",
-  "ADVANCED GOAT": "text-accent border-accent/40 bg-accent/10",
   "HONORABLE GOAT": "text-accent border-accent/40 bg-accent/10",
   "ACE GOAT": "text-accent border-accent/40 bg-accent/10",
   "THE GOAT": "text-ink border-accent/40 bg-accent/10",
