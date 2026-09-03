@@ -12,6 +12,11 @@ import Footer from "../components/Footer";
 
 const title = "Free Typing Test Online | WPM & Typing Practice | FreeTypingTestGoat";
 const description = "Take a free typing test online to measure WPM, accuracy, and errors. Practice with 1, 2, 3, or 5 minute tests and improve your typing speed.";
+const alternates = [
+  { hreflang: "en", href: "https://typeittestit.com/" },
+  { hreflang: "es", href: "https://typeittestit.com/es/" },
+  { hreflang: "x-default", href: "https://typeittestit.com/" },
+];
 
 const webApplicationSchema = {
   "@context": "https://schema.org",
@@ -49,7 +54,7 @@ const websiteSchema = {
 };
 ---
 
-<SiteLayout title={title} description={description} structuredData={[webApplicationSchema, websiteSchema]}>
+<SiteLayout title={title} description={description} structuredData={[webApplicationSchema, websiteSchema]} alternates={alternates}>
   <div class="relative min-h-screen">
     <Header client:load />
     <main>
