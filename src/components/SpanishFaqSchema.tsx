@@ -14,5 +14,10 @@ export default function SpanishFaqSchema() {
     })),
   };
 
-  return <script type="application/ld+json" set:html={JSON.stringify(jsonLd)} />;
+  return (
+    <script
+      type="application/ld+json"
+      dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+    />
+  );
 }
