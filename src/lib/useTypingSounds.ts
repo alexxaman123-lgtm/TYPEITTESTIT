@@ -117,7 +117,7 @@ export function playTypingKeySound(kind: TypingBufferKind): void {
   if (playBuffer(kind, kind === "correct" ? 0.72 : 0.09)) return;
 
   const fallback = kind === "correct" ? [440, 0.045, 0.032] as const : [270, 0.035, 0.02] as const;
-  tone(...fallback);
+  tone(fallback[0], fallback[1], fallback[2]);
   void loadTypingBuffer(kind);
 }
 
