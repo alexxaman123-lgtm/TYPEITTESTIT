@@ -3,9 +3,9 @@ export default {
     // Let Cloudflare serve real static assets first.
     let response = await env.ASSETS.fetch(request);
 
-    // This is a single-page React application. Dedicated URLs such as
-    // /about and /leaderboard do not have physical HTML files, so fall back
-    // to index.html when the asset lookup returns a 404 for an HTML request.
+    // Astro generates dedicated HTML documents for the site's routes.
+    // Keep the index fallback as a defensive compatibility path for any
+    // legacy SPA-style URL that does not have a generated document.
     if (response.status === 404) {
       const accept = request.headers.get("accept") || "";
       if (accept.includes("text/html")) {
