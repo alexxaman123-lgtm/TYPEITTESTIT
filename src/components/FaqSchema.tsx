@@ -9,7 +9,7 @@ export default function FaqSchema() {
       name: faq.q,
       acceptedAnswer: {
         "@type": "Answer",
-        text: faq.a,
+        text: faq.a.replace(/<[^>]*>/g, ""),
       },
     })),
   };
