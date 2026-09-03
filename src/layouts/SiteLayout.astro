@@ -35,13 +35,15 @@ const themeMap = Object.fromEntries(
 
 const knownSpanishEquivalents = ["/", "/about", "/contact", "/privacy-policy", "/terms-of-use", "/leaderboard"];
 const normalizedPath = canonicalPath.replace(/\/+$/g, "") || "/";
-const automaticAlternates = locale === "en" && knownSpanishEquivalents.includes(normalizedPath)
+const automaticAlternates: AlternateLink[] = locale === "en" && knownSpanishEquivalents.includes(normalizedPath)
   ? [
       ...alternates,
+      { hreflang: "en", href: canonicalUrl },
       { hreflang: "es", href: `${siteUrl}${normalizedPath === "/" ? "/es/" : `/es${normalizedPath}/`}` },
       { hreflang: "x-default", href: canonicalUrl },
     ]
   : alternates;
+const hreflangLinks = Array.from(new Map(automaticAlternates.map((alternate) => [alternate.hreflang, alternate])).values());
 ---
 <!doctype html>
 <html lang={locale}>
@@ -87,7 +89,7 @@ const automaticAlternates = locale === "en" && knownSpanishEquivalents.includes(
     <meta name="referrer" content="strict-origin-when-cross-origin" />
     <meta name="author" content={localizedBrand} />
     <link rel="canonical" href={canonicalUrl} />
-    {automaticAlternates.map((alternate) => <link rel="alternate" hreflang={alternate.hreflang} href={alternate.href} />)}
+    {hreflangLinks.map((alternate) => <link rel="alternate" hreflang={alternate.hreflang} href={alternate.href} />)}
 
     <meta property="og:type" content="website" />
     <meta property="og:site_name" content={localizedBrand} />
