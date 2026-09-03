@@ -1,0 +1,16 @@
+---
+import SiteLayout from "../layouts/SiteLayout.astro";
+import Header from "../components/Header";
+import LeaderboardPage from "../components/LeaderboardPage";
+import Footer from "../components/Footer";
+
+const title = "Typing Test Leaderboard | WPM & Accuracy | FreeTypingTestGoat";
+const description = "View the FreeTypingTestGoat leaderboard, compare qualifying WPM and accuracy results, and explore typing performance.";
+---
+<SiteLayout title={title} description={description} canonicalPath="/leaderboard">
+  <div class="relative min-h-screen">
+    <Header client:load />
+    <main><LeaderboardPage client:load /></main>
+    <Footer />
+  </div>
+</SiteLayout>
