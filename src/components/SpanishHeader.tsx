@@ -1,5 +1,4 @@
 import { useEffect, useState } from "react";
-import { cn } from "../utils/cn";
 import { supabase } from "../supabaseClient";
 import AuthModal from "./AuthModal";
 import UsernameModal from "./UsernameModal";
@@ -93,9 +92,9 @@ export default function SpanishHeader() {
   );
 
   const mobileAccountLabel = username ? (
-    <span className="max-w-[78px] truncate text-[12px] font-semibold leading-none text-ink sm:max-w-[110px] sm:text-sm" title={username}>{username}</span>
+    <span className="max-w-[68px] truncate text-[12px] font-semibold leading-none text-ink sm:max-w-[110px] sm:text-sm" title={username}>{username}</span>
   ) : (
-    <button type="button" onClick={() => setIsAuthModalOpen(true)} className="max-w-[84px] truncate whitespace-nowrap text-[12px] font-semibold leading-none text-ink transition-colors hover:text-text-muted sm:max-w-[110px] sm:text-sm">
+    <button type="button" onClick={() => setIsAuthModalOpen(true)} className="max-w-[68px] truncate whitespace-nowrap text-[11px] font-semibold leading-none text-ink transition-colors hover:text-text-muted sm:max-w-[110px] sm:text-sm">
       {isAuthenticated ? "Sesión iniciada" : "Iniciar sesión"}
     </button>
   );
@@ -103,15 +102,15 @@ export default function SpanishHeader() {
   return (
     <>
       <header className="sticky top-3 z-50 w-full px-2 pointer-events-none sm:top-5 sm:px-4 lg:px-6">
-        <div className={cn(
+        <div className={[
           "pointer-events-auto mx-auto flex w-full max-w-none min-w-0 items-center rounded-full border border-hairline/70 shadow-sm",
-          "h-12 gap-1.5 bg-canvas-soft px-2.5 sm:h-14 sm:gap-2 sm:px-4 lg:gap-3 lg:px-5",
-          scrolled && "bg-canvas-soft/95 backdrop-blur-md"
-        )}>
-          <a href="/es/" className="flex min-w-0 flex-[1.15] items-center select-none" aria-label="Inicio de Test de mecanografía Cabra">
-            <span className="font-title min-w-0 truncate text-[13px] font-semibold leading-none tracking-tight sm:text-lg lg:text-xl">Test de mecanografía</span>
-            <span className="font-title ml-1 shrink-0 text-[13px] font-semibold leading-none tracking-tight text-primary sm:text-lg lg:text-xl">Cabra</span>
-            <GoatMark />
+          "h-11 gap-1 bg-canvas-soft px-2 sm:h-14 sm:gap-2 sm:px-4 lg:gap-3 lg:px-5",
+          scrolled && "bg-canvas-soft/95 backdrop-blur-md",
+        ].filter(Boolean).join(" ")}>
+          <a href="/es/" className="flex min-w-0 flex-1 items-center select-none" aria-label="Inicio de Test de mecanografía Cabra">
+            <span className="font-title min-w-0 truncate text-[12px] font-semibold leading-none tracking-tight sm:text-lg lg:text-xl">Test de mecanografía</span>
+            <span className="font-title hidden shrink-0 text-[12px] font-semibold leading-none tracking-tight text-primary sm:inline sm:text-lg lg:text-xl"> Cabra</span>
+            <span className="hidden sm:block"><GoatMark /></span>
           </a>
           <nav className="hidden shrink-0 items-center gap-3 lg:gap-5 md:flex" aria-label="Navegación principal">
             {NAV_LINKS.map((link) => (
