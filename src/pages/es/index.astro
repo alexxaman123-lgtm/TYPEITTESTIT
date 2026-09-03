@@ -58,17 +58,17 @@ const websiteSchema = {
 
 <SiteLayout title={title} description={description} canonicalPath="/es/" locale="es" alternates={alternates} structuredData={[webApplicationSchema, websiteSchema]}>
   <div class="relative min-h-screen">
-    <Header client:load />
+    <Header client:load locale="es" />
     <main>
       <SpanishHero />
       <div class="mx-auto max-w-6xl px-4 pb-16 sm:px-6 lg:px-8" data-reveal="up">
-        <TypingTesterIsland client:load />
+        <TypingTesterIsland client:load locale="es" />
       </div>
       <div class="border-t border-hairline below-fold-content" data-reveal="up"><SpanishSeoContent /></div>
       <div class="border-t border-hairline below-fold-content" data-reveal="up"><SpanishHowItWorks /></div>
       <div class="border-t border-hairline below-fold-content" data-reveal="up"><SpanishFaqSection /></div>
     </main>
-    <Footer />
+    <Footer locale="es" />
     <SpanishFaqSchema />
   </div>
 </SiteLayout>
