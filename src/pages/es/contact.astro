@@ -1,0 +1,7 @@
+---
+import SiteLayout from "../../layouts/SiteLayout.astro";
+import SpanishHeader from "../../components/SpanishHeader";
+import Footer from "../../components/Footer";
+const title="Contacto | FreeTypingTestGoat"; const description="Contacta con FreeTypingTestGoat para preguntas, sugerencias o consultas sobre el test de mecanografía."; const alternates=[{hreflang:"en",href:"https://typeittestit.com/contact/"},{hreflang:"es",href:"https://typeittestit.com/es/contact/"},{hreflang:"x-default",href:"https://typeittestit.com/contact/"}];
+---
+<SiteLayout title={title} description={description} canonicalPath="/es/contact/" locale="es" alternates={alternates}><div class="relative min-h-screen"><SpanishHeader/><main><section class="mx-auto max-w-4xl px-4 py-16 sm:px-6 lg:px-8"><div class="rounded-[24px] border border-hairline bg-canvas p-6 text-center shadow-sm sm:p-10"><p class="font-label text-accent">Contacto</p><h1 class="mt-3 font-heading-3 text-ink">CONTACTA CON FREETYPINGTESTGOAT</h1><p class="mx-auto mt-6 max-w-2xl font-body text-text-muted">¿Tienes una pregunta, sugerencia o consulta sobre FreeTypingTestGoat? Estaremos encantados de escucharte. Escríbenos a la dirección de correo electrónico y haremos todo lo posible por ayudarte.</p><a href="mailto:typeittestit@gmail.com" class="mt-8 inline-flex items-center rounded-full border border-hairline bg-canvas-soft px-8 py-4 font-link text-ink hover:border-text-muted hover:bg-canvas">typeittestit@gmail.com</a></div></section></main><Footer locale="es"/></div></SiteLayout>
