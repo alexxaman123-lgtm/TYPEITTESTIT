@@ -18,9 +18,9 @@ export default function Hero() {
             className="hero-title mt-7 animate-fade-up font-display"
             style={{ animationDelay: "90ms" }}
           >
-            Free typing test.
+            Free Typing Test Online.
             <br />
-            Measure your WPM.
+            Measure Your WPM.
           </h1>
 
           <p
@@ -69,8 +69,8 @@ export default function Hero() {
               <span className="hero-stat-label font-caption">Measure your typing speed</span>
             </div>
             <div className="hero-stat">
-              <span className="hero-stat-value font-heading-3">95%+</span>
-              <span className="hero-stat-label font-caption">Accuracy matters too</span>
+              <span className="hero-stat-value font-heading-3">Accuracy</span>
+              <span className="hero-stat-label font-caption">See speed and accuracy together</span>
             </div>
             <div className="hero-stat">
               <span className="hero-stat-value font-heading-3">1–5 min</span>
@@ -93,6 +93,7 @@ export default function Hero() {
               loop
               playsInline
               preload="metadata"
+              aria-label="Animated goat typing on a laptop"
             />
             <div className="pointer-events-none absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/45 via-black/5 to-transparent px-5 pb-5 pt-20">
               <p className="font-caption font-semibold text-white">The GOAT is typing.</p>
