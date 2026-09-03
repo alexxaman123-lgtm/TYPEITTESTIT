@@ -80,9 +80,9 @@ const translations = {
       contact: "Contacto",
       privacy: "Política de privacidad",
       terms: "Términos de uso",
-      description: "FreeTypingTestGoat es un test de mecanografía online gratis para medir WPM, precisión y constancia al escribir.",
+      description: "Test de mecanografía Cabra es un test de mecanografía online gratis para medir WPM, precisión y constancia al escribir.",
       rights: "Todos los derechos reservados.",
-      tagline: "ESCRIBE COMO UNA GOAT.",
+      tagline: "ESCRIBE COMO UNA CABRA.",
     },
     tester: {
       difficulty: "Dificultad",
