@@ -1,6 +1,6 @@
 ---
 import SiteLayout from "../../layouts/SiteLayout.astro";
-import Header from "../../components/Header";
+import SpanishHeader from "../../components/SpanishHeader";
 import TypingTesterIsland from "../../components/TypingTesterIsland";
 import SpanishHero from "../../components/SpanishHero";
 import SpanishSeoContent from "../../components/SpanishSeoContent";
@@ -58,11 +58,11 @@ const websiteSchema = {
 
 <SiteLayout title={title} description={description} canonicalPath="/es/" locale="es" alternates={alternates} structuredData={[webApplicationSchema, websiteSchema]}>
   <div class="relative min-h-screen">
-    <Header client:load locale="es" />
+    <SpanishHeader client:load />
     <main>
       <SpanishHero />
       <div class="mx-auto max-w-6xl px-4 pb-16 sm:px-6 lg:px-8" data-reveal="up">
-        <TypingTesterIsland client:load locale="es" />
+        <TypingTesterIsland client:load />
       </div>
       <div class="border-t border-hairline below-fold-content" data-reveal="up"><SpanishSeoContent /></div>
       <div class="border-t border-hairline below-fold-content" data-reveal="up"><SpanishHowItWorks /></div>
