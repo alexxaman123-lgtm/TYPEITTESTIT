@@ -18,11 +18,7 @@ export type CharCounts = {
   missed: number;
 };
 
-export function countChars(
-  inputWord: string,
-  targetWord: string,
-  creditPartial: boolean,
-): CharCounts {
+export function countChars(inputWord: string, targetWord: string, creditPartial: boolean): CharCounts {
   let allCorrect = 0;
   let correctWord = 0;
   let incorrect = 0;
@@ -48,10 +44,7 @@ export function countChars(
       }
     } else if (inputChar === undefined) {
       if (!creditPartial) missed += 1;
-    } else if (
-      targetChar === undefined ||
-      (targetChar === " " && inputChar !== " " && !inputWord.includes(" "))
-    ) {
+    } else if (targetChar === undefined || (targetChar === " " && inputChar !== " " && !inputWord.includes(" "))) {
       extra += 1;
     } else {
       incorrect += 1;
@@ -61,18 +54,8 @@ export function countChars(
   return { allCorrect, correctWord, incorrect, extra, missed };
 }
 
-export function countAllChars(
-  targetText: string,
-  typedText: string,
-  creditPartialLast: boolean,
-): CharCounts {
-  const acc: CharCounts = {
-    allCorrect: 0,
-    correctWord: 0,
-    incorrect: 0,
-    extra: 0,
-    missed: 0,
-  };
+export function countAllChars(targetText: string, typedText: string, creditPartialLast: boolean): CharCounts {
+  const acc: CharCounts = { allCorrect: 0, correctWord: 0, incorrect: 0, extra: 0, missed: 0 };
   if (!typedText) return acc;
 
   const targetWords = targetText.split(/ +/);
@@ -133,9 +116,7 @@ export function countWordErrors(targetText: string, typedText: string, creditPar
     const comparableLength = Math.min(typedWord.length, targetWord.length);
     const isFinalPartialWord = finalWordIsPartial && i === typedWords.length - 1;
     const shouldSkipPartial = isFinalPartialWord && !creditPartialLast;
-    let wordHasError =
-      (!shouldSkipPartial && typedWord.length !== targetWord.length) ||
-      typedWord.length > targetWord.length;
+    let wordHasError = (!shouldSkipPartial && typedWord.length !== targetWord.length) || typedWord.length > targetWord.length;
 
     for (let j = 0; j < comparableLength; j++) {
       if (typedWord[j] !== targetWord[j]) {
@@ -158,7 +139,7 @@ export function getPerformanceLabel(wpm: number, accuracy: number): PerformanceL
 }
 
 export type SpeedTier = {
-  name: "SLOW GOAT" | "AVERAGE GOAT" | "THE GOAT" | "ACE GOAT" | "HONORABLE GOAT" | "ADVANCED GOAT" | "MYTHICAL GOAT";
+  name: "SLOW GOAT" | "AVERAGE GOAT" | "THE GOAT EVERYBODY TALKS ABOUT" | "ACE GOAT" | "HONORABLE GOAT" | "MYTHICAL GOAT";
   minWpm: number;
   maxWpm: number | null;
   message: string;
@@ -168,7 +149,7 @@ export type SpeedTier = {
 export const SPEED_TIERS: SpeedTier[] = [
   { name: "SLOW GOAT", minWpm: 0, maxWpm: 31.9, message: "You are a slow goat.", nextTarget: 32 },
   { name: "AVERAGE GOAT", minWpm: 32, maxWpm: 47.9, message: "You're an average goat.", nextTarget: 48 },
-  { name: "THE GOAT", minWpm: 48, maxWpm: 59.9, message: "You're the goat everybody talks about.", nextTarget: 60 },
+  { name: "THE GOAT EVERYBODY TALKS ABOUT", minWpm: 48, maxWpm: 59.9, message: "You're the goat everybody talks about.", nextTarget: 60 },
   { name: "ACE GOAT", minWpm: 60, maxWpm: 79.9, message: "You're an ace goat.", nextTarget: 80 },
   { name: "HONORABLE GOAT", minWpm: 80, maxWpm: 99.9, message: "You're an honorable goat.", nextTarget: 100 },
   { name: "MYTHICAL GOAT", minWpm: 100, maxWpm: null, message: "You are a mythical goat.", nextTarget: null },
