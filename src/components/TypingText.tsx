@@ -16,6 +16,8 @@ interface Props {
 
 const WINDOW_SIZE = 620;
 const SHIFT_THRESHOLD = 460;
+const CORRECT_KEY_SOUND = "/koiroylers-keyboard-press-351952_[cut_0sec].mp3";
+const CORRECT_KEY_VOLUME = 0.10;
 
 export default function TypingText({
   target,
@@ -60,6 +62,17 @@ export default function TypingText({
 
   const focusInput = () => {
     if (!disabled) inputRef.current?.focus();
+  };
+
+  const handleKeyDown = (event: React.KeyboardEvent<HTMLInputElement>) => {
+    if (disabled || !getSoundEnabled()) return;
+    if (event.key.length !== 1 || event.ctrlKey || event.metaKey || event.altKey) return;
+    if (freeTyping) return;
+
+    const expected = target[typed.length];
+    if (event.key === expected) {
+      playSound(CORRECT_KEY_SOUND, CORRECT_KEY_VOLUME);
+    }
   };
 
   const toggleSound = () => {
@@ -150,6 +163,7 @@ export default function TypingText({
           type="text"
           defaultValue=""
           disabled={disabled}
+          onKeyDown={handleKeyDown}
           onInput={(e) => onChange(e.currentTarget.value)}
           onFocus={() => {
             setFocused(true);
