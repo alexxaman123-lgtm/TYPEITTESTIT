@@ -24,6 +24,11 @@ const AVERAGE_GOAT_MIN_WPM = 32;
 const AVERAGE_GOAT_MAX_WPM = 47;
 const AVERAGE_GOAT_SOUND = "/vine-boom.mp3";
 const AVERAGE_GOAT_SOUND_VOLUME = 1.0;
+const GOAT_TALKS_MIN_WPM = 48;
+const GOAT_TALKS_MAX_WPM = 59;
+const GOAT_TALKS_SOUND = "/rizz-sound-effect.mp3";
+const GOAT_TALKS_SOUND_VOLUME = 1.0;
+const MINIMUM_RESULT_DURATION_MS = 60_000;
 
 export default function TypingTester() {
   const prefs = useMemo(() => getPreferences(), []);
@@ -61,15 +66,20 @@ export default function TypingTester() {
 
       if (!soundEnabled) return;
 
+      // Only celebrate results after a completed test of at least one minute.
+      if (test.elapsedMs < MINIMUM_RESULT_DURATION_MS) return;
+
       if (finalWpm < SLOW_GOAT_WPM_THRESHOLD) {
         playSound(SLOW_GOAT_SOUND, 0.50);
       } else if (finalWpm >= AVERAGE_GOAT_MIN_WPM && finalWpm <= AVERAGE_GOAT_MAX_WPM) {
         playSound(AVERAGE_GOAT_SOUND, AVERAGE_GOAT_SOUND_VOLUME);
+      } else if (finalWpm >= GOAT_TALKS_MIN_WPM && finalWpm <= GOAT_TALKS_MAX_WPM) {
+        playSound(GOAT_TALKS_SOUND, GOAT_TALKS_SOUND_VOLUME);
       } else {
         playTestCompleteSound();
       }
     }
-  }, [test.status, test.result, playSound]);
+  }, [test.status, test.result, test.elapsedMs, playSound]);
 
   useEffect(() => {
     const body = document.body;
@@ -156,7 +166,7 @@ export default function TypingTester() {
       <div className={cn("mt-6", focusMode && "focus-content mt-0")}>
         {viewMode === "custom" ? (
           <CustomTextPanel duration={test.duration} onStartFree={(secs) => { test.startFreeTypingTest(secs); setViewMode("test"); }} onStartPaste={(text, secs) => { test.startCustomTest(text, secs); setViewMode("test"); }} onCancel={() => setViewMode("test")} />
-        ) : test.status === "finished" && test.result && test.elapsedMs < 60_000 ? (
+        ) : test.status === "finished" && test.result && test.elapsedMs < MINIMUM_RESULT_DURATION_MS ? (
           <div className="flex flex-col items-center justify-center gap-5 rounded-2xl border border-hairline bg-canvas-soft px-6 py-12 text-center sm:py-14">
             <p className="max-w-md font-body-lg text-ink">
               Please complete at least 1 minute to check your stats.
