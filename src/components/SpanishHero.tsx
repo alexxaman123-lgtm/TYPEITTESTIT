@@ -8,12 +8,12 @@ export default function SpanishHero() {
             <span className="hero-kicker min-w-0 max-w-full truncate font-label">TEST DE MECANOGRAFÍA</span>
             <span className="hero-kicker-muted min-w-0 max-w-full truncate font-caption">WPM · PRECISIÓN · VELOCIDAD</span>
           </div>
-          <h1 id="hero-title-es" className="hero-title mt-6 max-w-full animate-fade-up font-display sm:mt-7" style={{ animationDelay: "90ms" }}>
+          <h1 id="hero-title-es" className="hero-title mt-6 max-w-full break-words animate-fade-up font-display sm:mt-7" style={{ animationDelay: "90ms", fontSize: "clamp(2.55rem, 12vw, 5.2rem)" }}>
             Test de mecanografía gratis.
             <br />
             Mide tu velocidad de escritura.
           </h1>
-          <p className="hero-lede mt-6 max-w-3xl animate-fade-up font-body-lg sm:mt-7" style={{ animationDelay: "140ms" }}>
+          <p className="hero-lede mt-6 max-w-3xl break-words animate-fade-up font-body-lg sm:mt-7" style={{ animationDelay: "140ms" }}>
             Haz un test de mecanografía online para medir tu velocidad de escritura, palabras por minuto (WPM), precisión y errores. Practica con pruebas de 1, 2, 3 o 5 minutos y mejora tus habilidades de teclado con sesiones claras y repetibles.
           </p>
           <div className="mt-8 flex min-w-0 flex-col items-start gap-3 animate-fade-up sm:mt-9 sm:flex-row" style={{ animationDelay: "190ms" }}>
@@ -33,7 +33,7 @@ export default function SpanishHero() {
           </div>
         </div>
         <div className="animate-fade-up relative mx-auto w-full min-w-0 max-w-[560px]" style={{ animationDelay: "150ms" }} aria-label="Vídeo de una cabra escribiendo">
-          <div className="hero-video-shell relative w-full overflow-hidden rounded-[28px] border border-current/10 bg-canvas-soft shadow-2xl sm:rounded-[32px]">
+          <div className="hero-video-shell relative w-full max-w-full overflow-hidden rounded-[28px] border border-current/10 bg-canvas-soft shadow-2xl sm:rounded-[32px]">
             <video className="block aspect-[4/5] h-auto w-full max-w-full object-cover lg:aspect-[5/6]" src="/Goat_typing_on_laptop_1080p_202609030103.mp4" autoPlay muted loop playsInline preload="metadata" />
             <div className="pointer-events-none absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/45 via-black/5 to-transparent px-4 pb-4 pt-16 sm:px-5 sm:pb-5 sm:pt-20">
               <p className="font-caption font-semibold text-white">La cabra está escribiendo.</p>
