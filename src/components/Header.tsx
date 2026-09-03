@@ -18,7 +18,7 @@ function GoatMark() {
   return (
     <svg
       aria-hidden="true"
-      className="ml-1.5 h-7 w-7 shrink-0 text-accent"
+      className="ml-1 h-6 w-6 shrink-0 text-accent sm:h-7 sm:w-7"
       viewBox="0 0 362 400"
       fill="currentColor"
     >
@@ -142,23 +142,24 @@ export default function Header() {
   );
 
   const mobileAccountLabel = username ? (
-    <span className="max-w-[120px] truncate font-link text-ink" title={username}>{username}</span>
+    <span className="max-w-[74px] truncate text-[14px] font-semibold leading-none text-ink sm:max-w-[120px] sm:text-base" title={username}>{username}</span>
   ) : isAuthenticated ? (
-    <span className="font-link text-ink">Signed in</span>
+    <span className="whitespace-nowrap text-[14px] font-semibold leading-none text-ink sm:text-base">Signed in</span>
   ) : (
-    <button onClick={() => setIsAuthModalOpen(true)} className="font-link text-ink transition-colors hover:text-text-muted">Log in</button>
+    <button onClick={() => setIsAuthModalOpen(true)} className="whitespace-nowrap text-[14px] font-semibold leading-none text-ink transition-colors hover:text-text-muted sm:text-base">Log in</button>
   );
 
   return (
     <>
-      <header className="sticky top-6 z-50 w-full px-4 sm:px-6 pointer-events-none">
+      <header className="sticky top-4 z-50 w-full px-3 sm:top-6 sm:px-6 pointer-events-none">
         <div className={cn(
-          "pointer-events-auto mx-auto flex h-14 max-w-7xl items-center justify-between rounded-full px-4 sm:px-6 transition-all duration-300",
-          scrolled ? "bg-canvas-soft/95 shadow-sm backdrop-blur-md" : "bg-canvas-soft"
+          "pointer-events-auto mx-auto flex h-13 min-w-0 max-w-7xl items-center gap-2 rounded-full px-3.5 sm:h-14 sm:px-6",
+          scrolled ? "bg-canvas-soft/95 shadow-sm backdrop-blur-md" : "bg-canvas-soft",
+          "transition-all duration-300"
         )}>
-          <a href="/" onClick={(event) => handleInternalNavigation(event, "/")} className="flex items-center gap-1 select-none whitespace-nowrap" aria-label="FreeTypingTestGoat home">
-            <span className="font-title text-ink tracking-tight">FreeTypingTest</span><span className="font-title text-primary tracking-tight">Goat</span>
-            <div className="w-5 h-5 ml-1 text-primary"><GoatMark /></div>
+          <a href="/" onClick={(event) => handleInternalNavigation(event, "/")} className="flex min-w-0 flex-1 items-center gap-0.5 select-none" aria-label="FreeTypingTestGoat home">
+            <span className="font-title min-w-0 shrink truncate text-[16px] font-semibold leading-tight tracking-tight sm:text-xl">FreeTypingTest</span><span className="font-title shrink-0 text-[16px] font-semibold leading-tight tracking-tight text-primary sm:text-xl">Goat</span>
+            <div className="shrink-0 text-primary"><GoatMark /></div>
           </a>
 
           <nav className="hidden items-center gap-4 lg:gap-6 md:flex" aria-label="Primary">
@@ -173,11 +174,11 @@ export default function Header() {
             <a href="/#tester" className="whitespace-nowrap flex items-center justify-center h-[36px] rounded-full bg-primary px-4 font-link text-on-primary transition-opacity hover:opacity-90">Start Typing</a>
           </div>
 
-          <div className="flex items-center gap-3 md:hidden">
+          <div className="flex shrink-0 items-center gap-2 sm:gap-3 md:hidden">
             <ThemePicker />
             {mobileAccountLabel}
-            <button type="button" onClick={() => setOpen((o) => !o)} className="flex h-10 w-10 items-center justify-center rounded-full bg-canvas text-ink shadow-sm" aria-label={open ? "Close menu" : "Open menu"} aria-expanded={open}>
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}>
+            <button type="button" onClick={() => setOpen((o) => !o)} className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-canvas text-ink shadow-sm sm:h-10 sm:w-10" aria-label={open ? "Close menu" : "Open menu"} aria-expanded={open}>
+              <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}>
                 {open ? <path d="M6 6l12 12M18 6l-12 12" strokeLinecap="round" /> : <path d="M3 6h18M3 12h18M3 18h18" strokeLinecap="round" />}
               </svg>
             </button>
