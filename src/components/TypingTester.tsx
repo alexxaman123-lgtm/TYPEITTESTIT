@@ -125,6 +125,7 @@ export default function TypingTester({ locale = "en" }: { locale?: Locale }) {
   };
 
   const controlsDisabled = test.status === "running" || viewMode === "custom";
+  const showTypingLanguageSelector = locale !== "en" && viewMode === "test" && test.status !== "finished";
 
   const testerShell = (
     <div
@@ -216,11 +217,13 @@ export default function TypingTester({ locale = "en" }: { locale?: Locale }) {
               if (focusMode) event.stopPropagation();
             }}
           >
-            <TypingLanguageSelector
-              value={test.locale}
-              onChange={test.setLocale}
-              disabled={test.status === "running" || viewMode === "custom"}
-            />
+            {showTypingLanguageSelector && (
+              <TypingLanguageSelector
+                value={test.locale}
+                onChange={test.setLocale}
+                disabled={test.status === "running" || viewMode === "custom"}
+              />
+            )}
             <LiveMetrics
               status={test.status}
               duration={test.duration}
