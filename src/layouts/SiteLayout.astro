@@ -2,12 +2,18 @@
 import "../index.css";
 import { THEMES, DEFAULT_THEME } from "../lib/themes";
 
+interface AlternateLink {
+  hreflang: string;
+  href: string;
+}
+
 interface Props {
   title: string;
   description: string;
   canonicalPath?: string;
   structuredData?: Record<string, unknown>[];
   locale?: string;
+  alternates?: AlternateLink[];
 }
 
 const {
@@ -16,6 +22,7 @@ const {
   canonicalPath = "/",
   structuredData = [],
   locale = "en",
+  alternates = [],
 } = Astro.props;
 
 const siteUrl = "https://typeittestit.com";
@@ -68,6 +75,7 @@ const themeMap = Object.fromEntries(
     <meta name="referrer" content="strict-origin-when-cross-origin" />
     <meta name="author" content="FreeTypingTestGoat" />
     <link rel="canonical" href={canonicalUrl} />
+    {alternates.map((alternate) => <link rel="alternate" hreflang={alternate.hreflang} href={alternate.href} />)}
 
     <meta property="og:type" content="website" />
     <meta property="og:site_name" content="FreeTypingTestGoat" />
