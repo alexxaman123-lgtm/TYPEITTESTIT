@@ -17,7 +17,9 @@ interface Props {
 const WINDOW_SIZE = 620;
 const SHIFT_THRESHOLD = 460;
 const CORRECT_KEY_SOUND = "/koiroylers-keyboard-press-351952_[cut_0sec].mp3";
+const WRONG_KEY_SOUND = "/piano-noise-suprise.mp3";
 const CORRECT_KEY_VOLUME = 1.0;
+const WRONG_KEY_VOLUME = 0.10;
 
 export default function TypingText({
   target,
@@ -31,7 +33,7 @@ export default function TypingText({
   onFocusModeRequest,
 }: Props) {
   const inputRef = useRef<HTMLInputElement | null>(null);
-  const { playSound } = useSound();
+  const { playSound, stopSound } = useSound();
   const [windowStart, setWindowStart] = useState(0);
   const [focused, setFocused] = useState(false);
   const [soundEnabled, setSoundEnabledState] = useState(getSoundEnabled());
@@ -69,9 +71,17 @@ export default function TypingText({
     if (event.key.length !== 1 || event.ctrlKey || event.metaKey || event.altKey) return;
     if (freeTyping) return;
 
-    const expected = target[typed.length];
+    // Use the native input value so audio is based on the real current position,
+    // even when React state is one or more keystrokes behind during very fast typing.
+    const currentValueLength = inputRef.current?.value.length ?? typed.length;
+    const expected = target[currentValueLength];
+
     if (event.key === expected) {
+      // A correct key cancels any lingering wrong-key audio immediately.
+      stopSound(WRONG_KEY_SOUND);
       playSound(CORRECT_KEY_SOUND, CORRECT_KEY_VOLUME);
+    } else {
+      playSound(WRONG_KEY_SOUND, WRONG_KEY_VOLUME);
     }
   };
 
@@ -81,7 +91,7 @@ export default function TypingText({
     setSoundEnabledState(nextEnabled);
 
     if (nextEnabled) {
-      playSound("/piano-noise-suprise.mp3", 0.01);
+      playSound(CORRECT_KEY_SOUND, 0.01);
     }
 
     inputRef.current?.focus();
