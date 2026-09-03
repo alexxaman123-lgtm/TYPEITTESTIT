@@ -1,0 +1,72 @@
+---
+import SiteLayout from "../layouts/SiteLayout.astro";
+import Header from "../components/Header";
+import Hero from "../components/Hero";
+import TypingTesterIsland from "../components/TypingTesterIsland";
+import SeoContent from "../components/SeoContent";
+import HowItWorks from "../components/HowItWorks";
+import FaqSection from "../components/FaqSection";
+import FaqSchema from "../components/FaqSchema";
+import Footer from "../components/Footer";
+
+const title = "Free Typing Test Online | WPM & Typing Practice | FreeTypingTestGoat";
+const description = "Take a free typing test online to measure WPM, accuracy, and errors. Practice with 1, 2, 3, or 5 minute tests and improve your typing speed.";
+
+const webApplicationSchema = {
+  "@context": "https://schema.org",
+  "@type": "WebApplication",
+  name: "FreeTypingTestGoat",
+  alternateName: ["Free Typing Test", "FreeTypingTestGoat Typing Test"],
+  url: "https://typeittestit.com/",
+  applicationCategory: "UtilityApplication",
+  applicationSubCategory: "Typing Test",
+  operatingSystem: "Any",
+  browserRequirements: "Requires a modern web browser with JavaScript enabled",
+  featureList: [
+    "Free typing speed test",
+    "WPM typing test",
+    "Typing accuracy test",
+    "Typing practice",
+    "1 minute typing test",
+    "2 minute typing test",
+    "3 minute typing test",
+    "5 minute typing test",
+    "Custom typing test",
+    "Easy, medium, and hard difficulty levels",
+    "Live typing metrics",
+  ],
+  description: "FreeTypingTestGoat is a free online typing test and typing practice tool for measuring typing speed in WPM, accuracy, and errors.",
+  offers: { "@type": "Offer", price: "0", priceCurrency: "USD" },
+};
+
+const websiteSchema = {
+  "@context": "https://schema.org",
+  "@type": "WebSite",
+  name: "FreeTypingTestGoat",
+  alternateName: "Free Typing Test",
+  url: "https://typeittestit.com/",
+};
+---
+
+<SiteLayout title={title} description={description} structuredData={[webApplicationSchema, websiteSchema]}>
+  <div class="relative min-h-screen">
+    <Header client:load />
+    <main>
+      <Hero />
+      <div class="mx-auto max-w-6xl px-4 pb-16 sm:px-6 lg:px-8" data-reveal="up">
+        <TypingTesterIsland client:load />
+      </div>
+      <div class="border-t border-hairline below-fold-content" data-reveal="up">
+        <SeoContent />
+      </div>
+      <div class="border-t border-hairline below-fold-content" data-reveal="up">
+        <HowItWorks />
+      </div>
+      <div class="border-t border-hairline below-fold-content" data-reveal="up">
+        <FaqSection />
+      </div>
+    </main>
+    <Footer />
+    <FaqSchema />
+  </div>
+</SiteLayout>
