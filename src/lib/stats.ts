@@ -94,10 +94,7 @@ export function countAllChars(
   return acc;
 }
 
-export function calculateWpm(
-  charCount: number,
-  durationSeconds: number,
-): number {
+export function calculateWpm(charCount: number, durationSeconds: number): number {
   if (durationSeconds <= 0) return 0;
   return charCount / 5 / (durationSeconds / 60);
 }
@@ -107,20 +104,13 @@ export function computeRawWpm(totalTyped: number, elapsedMs: number): number {
   return calculateWpm(totalTyped, elapsedMs / 1000);
 }
 
-export function computeAccuracyFromChars(
-  correctWord: number,
-  incorrect: number,
-  extra: number,
-): number {
+export function computeAccuracyFromChars(correctWord: number, incorrect: number, extra: number): number {
   const total = correctWord + incorrect + extra;
   if (total <= 0) return 100;
   return Math.max(0, Math.min(100, (correctWord / total) * 100));
 }
 
-export function computeAccuracy(
-  correctChars: number,
-  totalTyped: number,
-): number {
+export function computeAccuracy(correctChars: number, totalTyped: number): number {
   if (totalTyped <= 0) return 100;
   return Math.max(0, Math.min(100, Math.round((correctChars / totalTyped) * 100)));
 }
@@ -130,11 +120,7 @@ export function computeWordsWritten(typedText: string): number {
   return typedText.trim().split(/\s+/u).filter(Boolean).length;
 }
 
-export function countWordErrors(
-  targetText: string,
-  typedText: string,
-  creditPartialLast = true,
-): number {
+export function countWordErrors(targetText: string, typedText: string, creditPartialLast = true): number {
   if (!typedText.trim()) return 0;
   const targetWords = targetText.trim().split(/\s+/);
   const typedWords = typedText.trim().split(/\s+/);
@@ -180,55 +166,12 @@ export type SpeedTier = {
 };
 
 export const SPEED_TIERS: SpeedTier[] = [
-  {
-    name: "SLOW GOAT",
-    minWpm: 0,
-    maxWpm: 31.9,
-    message: "You are a slow goat.",
-    nextTarget: 32,
-  },
-  {
-    name: "AVERAGE GOAT",
-    minWpm: 32,
-    maxWpm: 47.9,
-    message: "You're an average goat.",
-    nextTarget: 48,
-  },
-  {
-    name: "THE GOAT",
-    minWpm: 48,
-    maxWpm: 59.9,
-    message: "You're the goat everybody talks about.",
-    nextTarget: 60,
-  },
-  {
-    name: "ACE GOAT",
-    minWpm: 60,
-    maxWpm: 79.9,
-    message: "You're an ace goat.",
-    nextTarget: 80,
-  },
-  {
-    name: "HONORABLE GOAT",
-    minWpm: 80,
-    maxWpm: 89.9,
-    message: "You're an honorable goat.",
-    nextTarget: 90,
-  },
-  {
-    name: "ADVANCED GOAT",
-    minWpm: 90,
-    maxWpm: 99.9,
-    message: "You're an advanced goat.",
-    nextTarget: 100,
-  },
-  {
-    name: "MYTHICAL GOAT",
-    minWpm: 100,
-    maxWpm: null,
-    message: "You are a mythical goat.",
-    nextTarget: null,
-  },
+  { name: "SLOW GOAT", minWpm: 0, maxWpm: 31.9, message: "You are a slow goat.", nextTarget: 32 },
+  { name: "AVERAGE GOAT", minWpm: 32, maxWpm: 47.9, message: "You're an average goat.", nextTarget: 48 },
+  { name: "THE GOAT", minWpm: 48, maxWpm: 59.9, message: "You're the goat everybody talks about.", nextTarget: 60 },
+  { name: "ACE GOAT", minWpm: 60, maxWpm: 79.9, message: "You're an ace goat.", nextTarget: 80 },
+  { name: "HONORABLE GOAT", minWpm: 80, maxWpm: 99.9, message: "You're an honorable goat.", nextTarget: 100 },
+  { name: "MYTHICAL GOAT", minWpm: 100, maxWpm: null, message: "You are a mythical goat.", nextTarget: null },
 ];
 
 export function getSpeedTier(wpm: number): SpeedTier {
