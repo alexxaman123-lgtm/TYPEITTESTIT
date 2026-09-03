@@ -1,59 +1,71 @@
 export const FAQS = [
   {
-    q: "How can I test my typing?",
-    a: "Use the <strong>free online typing test</strong> on FreeTypingTestGoat, choose a test duration, and start typing the passage shown on screen. Your result includes <strong>WPM</strong>, accuracy, and typing errors.",
+    q: "What is a free typing test?",
+    a: "A <strong>free typing test</strong> measures how quickly and accurately you can type by asking you to enter displayed text for a set amount of time. FreeTypingTestGoat reports useful results such as WPM, accuracy, errors, and words written, so you can understand both your pace and your control. The core test can be taken online without paying for access.",
   },
   {
-    q: "What is WPM in typing?",
-    a: "WPM means <strong>words per minute</strong>. It is a common way to measure typing speed. FreeTypingTestGoat calculates your WPM from the text you type during a timed test.",
+    q: "How can I use this for typing test practice?",
+    a: "Use the test as a repeatable <strong>typing test practice</strong> routine: choose a duration and difficulty, complete an attempt, review your WPM and accuracy, then try again after identifying areas to improve. Keeping the same settings for several sessions makes it easier to see genuine progress before increasing the difficulty or changing the duration.",
+  },
+  {
+    q: "What is WPM in a typing test?",
+    a: "WPM means <strong>words per minute</strong> and is a standard way to describe typing speed. The test uses the common five-character convention for a word, so your score is based on the amount of text typed relative to the time spent typing. WPM is most useful when considered together with accuracy rather than as a speed number on its own.",
   },
   {
     q: "How is typing accuracy calculated?",
-    a: "Typing accuracy compares the characters you enter with the characters in the test text. Correct characters increase your accuracy, while incorrect characters lower the result.",
+    a: "Typing accuracy reflects how closely the characters you enter match the target text. Correct characters contribute to a higher accuracy result, while incorrect characters reduce it. Looking at accuracy alongside WPM helps you tell the difference between typing faster and typing efficiently, because a high-speed attempt with many mistakes is not necessarily a better performance.",
   },
   {
     q: "What is a good typing speed?",
-    a: "A good typing speed depends on your goal, the type of work you do, and how accurately you type. A useful benchmark is the combination of WPM and accuracy rather than speed alone.",
+    a: "There is no single WPM score that is right for everyone. A useful typing speed depends on the work you do, the difficulty of the text, and how accurately you can maintain the pace. Use the speed chart as a general reference, but compare your own results under similar conditions and aim for steady improvement without sacrificing accuracy.",
   },
   {
-    q: "How long are the typing tests?",
-    a: "You can choose <strong>1, 2, 3, or 5 minute</strong> tests. Shorter tests are useful for quick practice, while longer tests give you more time to work on consistency and endurance.",
+    q: "How long is the typing test?",
+    a: "You can choose <strong>1, 2, 3, or 5 minute</strong> tests. A one minute typing test is convenient for a quick benchmark or daily warm-up. Two- and three-minute sessions give you more time to settle into a consistent rhythm, while a five-minute typing test is useful for practicing sustained pace and endurance.",
   },
   {
-    q: "Is FreeTypingTestGoat free to use?",
-    a: "Yes. FreeTypingTestGoat is a <strong>free typing test</strong> and typing practice tool. You can take a typing test without paying for access to the core test experience.",
+    q: "Is there a 1 minute typing test?",
+    a: "Yes. The site includes a <strong>1 minute typing test</strong> that measures your performance over a short, focused session. It is useful when you want a quick speed check or a practice session that is easy to repeat. For a longer view of consistency, you can switch to the 2, 3, or 5 minute options.",
   },
   {
-    q: "Do I need to sign in to take a typing test?",
-    a: "No. You can take a typing test without signing in. Google Sign-In is used for account features such as saving progress and participating in the public leaderboard.",
+    q: "Can I take the typing test online for free?",
+    a: "Yes. FreeTypingTestGoat provides an <strong>online typing test</strong> that runs in a modern web browser. You do not need to install separate typing software to complete the standard test, and the core typing experience is available without a paid subscription.",
+  },
+  {
+    q: "Can I use this as an English typing test?",
+    a: "Yes. The standard passages are in English, so the homepage can be used as an <strong>English typing test</strong> for measuring speed and accuracy while typing English text. It is also useful for keyboard practice because the exercise takes place directly in the browser using your keyboard.",
+  },
+  {
+    q: "Can children and adults use this typing test?",
+    a: "Yes. The test is suitable for beginners, students, adults, and professionals who want to measure or practice keyboard skills. Beginners can start with the Easy difficulty, while experienced typists can choose Medium or Hard. Shorter sessions can be convenient for younger learners or anyone who prefers brief practice periods.",
+  },
+  {
+    q: "Can I use my own text for typing practice?",
+    a: "Yes. The homepage includes a <strong>custom typing test</strong> option that lets you paste your own text and practice with it. This can be useful when you want to work with material that resembles what you type for school, work, writing, or another specific task instead of using the standard passages.",
+  },
+  {
+    q: "Do I need an account to take a typing test?",
+    a: "No. You can take the standard typing test without signing in. Account features are available for users who want to save qualifying progress and participate in the public leaderboard, but an account is not required simply to practice or check your typing speed.",
   },
   {
     q: "Can I save my typing results?",
-    a: "Account features can save qualifying progress and leaderboard results. Anonymous test sessions are not saved to an account.",
-  },
-  {
-    q: "Can I use my own text for a typing test?",
-    a: "Yes. The site includes a <strong>custom typing test</strong> option that lets you paste your own text and practice with it.",
+    a: "Account features can save qualifying progress and leaderboard results. Anonymous test sessions are not saved to an account. If you want to compare your performance over time, using an account and keeping your practice conditions consistent can make those comparisons more useful.",
   },
   {
     q: "How can I improve my typing speed?",
-    a: "Practice regularly, focus on accuracy before forcing speed, keep your hands relaxed, and use varied passages. Comparing WPM and accuracy over repeated tests makes progress easier to track.",
+    a: "Practice regularly and prioritize accuracy before trying to increase your pace. Keep your hands relaxed, work on recurring mistakes, and use a consistent test duration when comparing results. A useful goal is to gradually raise WPM while keeping accuracy stable or improving it. Repeated short sessions can be easier to maintain than occasional long practice sessions.",
   },
   {
-    q: "What is touch typing?",
-    a: "Touch typing is a technique where you use consistent finger positions to type without looking down at the keyboard. Regular practice helps build muscle memory and more efficient keystrokes.",
-  },
-  {
-    q: "What does FreeTypingTestGoat measure?",
-    a: "The typing test can measure <strong>WPM, accuracy, errors, words written, and other live typing metrics</strong>. Results vary with the selected difficulty, duration, and your typing performance.",
+    q: "Does FreeTypingTestGoat provide a typing certificate?",
+    a: "No. FreeTypingTestGoat currently focuses on measuring and practicing typing speed rather than issuing a typing certificate. Your results can show performance metrics such as WPM and accuracy, but the site should not be treated as a certification service.",
   },
 ];
 
 export default function FaqSection() {
   return (
     <section id="faq" className="mx-auto max-w-4xl scroll-mt-20 px-4 py-16 sm:px-6 lg:px-8">
-      <h2 className="font-heading-4 text-ink">Frequently Asked Questions</h2>
-      <p className="mt-3 font-body text-text-muted">Answers about free typing tests, WPM, accuracy, typing practice, test durations, accounts, and custom typing tests.</p>
+      <h2 className="font-heading-4 text-ink">Frequently Asked Questions About Typing Tests</h2>
+      <p className="mt-3 font-body text-text-muted">Clear answers about free typing tests, typing practice, WPM, accuracy, test durations, English typing, custom tests, accounts, and results.</p>
 
       <div className="mt-8 divide-y divide-hairline rounded-[24px] border border-hairline bg-canvas shadow-sm">
         {FAQS.map((item) => (
