@@ -108,27 +108,22 @@ export default function SpanishHeader() {
           "h-12 gap-1.5 bg-canvas-soft px-2.5 sm:h-14 sm:gap-2 sm:px-4 lg:gap-3 lg:px-5",
           scrolled && "bg-canvas-soft/95 backdrop-blur-md"
         )}>
-          <a href="/es/" className="flex min-w-0 flex-[1.15] items-center select-none" aria-label="Inicio de Test de mecanografía Goat">
+          <a href="/es/" className="flex min-w-0 flex-[1.15] items-center select-none" aria-label="Inicio de Test de mecanografía Cabra">
             <span className="font-title min-w-0 truncate text-[13px] font-semibold leading-none tracking-tight sm:text-lg lg:text-xl">Test de mecanografía</span>
-            <span className="font-title ml-1 shrink-0 text-[13px] font-semibold leading-none tracking-tight text-primary sm:text-lg lg:text-xl">Goat</span>
+            <span className="font-title ml-1 shrink-0 text-[13px] font-semibold leading-none tracking-tight text-primary sm:text-lg lg:text-xl">Cabra</span>
             <GoatMark />
           </a>
-
           <nav className="hidden shrink-0 items-center gap-3 lg:gap-5 md:flex" aria-label="Navegación principal">
             {NAV_LINKS.map((link) => (
-              <a key={link.href} href={link.href} className="whitespace-nowrap font-link text-sm text-ink transition-colors duration-200 hover:text-text-muted lg:text-[15px]">
-                {link.label}
-              </a>
+              <a key={link.href} href={link.href} className="whitespace-nowrap font-link text-sm text-ink transition-colors duration-200 hover:text-text-muted lg:text-[15px]">{link.label}</a>
             ))}
           </nav>
-
           <div className="hidden shrink-0 items-center gap-2.5 lg:gap-3 md:flex">
             <LanguagePicker locale="es" />
             <SpanishThemePicker />
             {accountLabel}
             <a href="/es/#tester" className="flex h-9 shrink-0 items-center justify-center whitespace-nowrap rounded-full bg-primary px-4 font-link text-sm text-on-primary transition-opacity hover:opacity-90">Empezar a escribir</a>
           </div>
-
           <div className="flex min-w-0 shrink-0 items-center gap-1 sm:gap-2 md:hidden">
             <LanguagePicker locale="es" />
             <SpanishThemePicker />
@@ -140,7 +135,6 @@ export default function SpanishHeader() {
             </button>
           </div>
         </div>
-
         {open && (
           <div className="pointer-events-auto mx-1 mt-2 rounded-2xl border border-hairline/70 bg-canvas-soft p-2 shadow-lg md:hidden">
             <nav className="flex flex-col gap-1" aria-label="Menú móvil">
@@ -152,7 +146,6 @@ export default function SpanishHeader() {
           </div>
         )}
       </header>
-
       <AuthModal isOpen={isAuthModalOpen} onClose={() => setIsAuthModalOpen(false)} locale="es" />
       <UsernameModal isOpen={isUsernameModalOpen && isAuthenticated} initialUsername={username || ""} onSaved={(value) => { setUsername(value); setIsUsernameModalOpen(false); }} locale="es" />
     </>
