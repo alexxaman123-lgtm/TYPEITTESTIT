@@ -34,11 +34,11 @@ export default function ThemePicker() {
   const currentTheme = THEMES.find((t) => t.id === currentThemeId) ?? THEMES[0];
 
   return (
-    <div className="relative" ref={dropdownRef}>
+    <div className="relative shrink-0" ref={dropdownRef}>
       <button
         onClick={() => setIsOpen(!isOpen)}
         className={cn(
-          "flex h-[36px] items-center justify-center gap-2 rounded-full border px-3 font-label transition-colors",
+          "flex h-[34px] items-center justify-center gap-2 rounded-full border px-2.5 font-label transition-colors sm:h-[36px] sm:px-3",
           isOpen
             ? "border-primary bg-primary/10 text-primary"
             : "border-hairline bg-canvas text-ink hover:bg-canvas-soft"
@@ -52,7 +52,7 @@ export default function ThemePicker() {
       </button>
 
       {isOpen && (
-        <div className="absolute right-0 top-full mt-2 w-72 max-h-[60vh] flex flex-col overflow-hidden animate-fade-up rounded-[20px] border border-hairline bg-canvas-soft shadow-2xl">
+        <div className="absolute right-0 top-full mt-2 flex max-h-[65vh] w-[min(18rem,calc(100vw-1rem))] max-w-[calc(100vw-1rem)] flex-col overflow-hidden rounded-[20px] border border-hairline bg-canvas-soft shadow-2xl animate-fade-up">
           <div className="border-b border-hairline px-3 py-2">
             <p className="font-caption text-text-muted">Three-tone palettes: background, text, typed</p>
           </div>
@@ -65,21 +65,21 @@ export default function ThemePicker() {
                     key={theme.id}
                     onClick={() => applyTheme(theme.id)}
                     className={cn(
-                      "group flex w-full items-center justify-between rounded-[14px] px-3 py-2.5 transition-all",
+                      "group flex w-full min-w-0 items-center justify-between rounded-[14px] px-3 py-2.5 transition-all",
                       isActive
                         ? "bg-canvas text-ink shadow-sm border border-hairline"
                         : "border border-transparent text-text-muted hover:bg-canvas hover:text-ink hover:shadow-sm hover:border-hairline"
                     )}
                   >
-                    <div className="flex items-center gap-2">
-                      <div className="flex w-4 justify-center">
+                    <div className="flex min-w-0 items-center gap-2">
+                      <div className="flex w-4 shrink-0 justify-center">
                         {isActive && <Check size={14} className="text-primary" />}
                       </div>
-                      <span className="font-mono text-sm lowercase">{theme.name}</span>
+                      <span className="truncate font-mono text-sm lowercase">{theme.name}</span>
                     </div>
 
                     <div
-                      className="flex items-center gap-1 rounded-full border border-black/5 bg-canvas p-1 dark:border-white/5"
+                      className="ml-2 flex shrink-0 items-center gap-1 rounded-full border border-black/5 bg-canvas p-1 dark:border-white/5"
                       aria-label={`${theme.name} colors`}
                     >
                       {theme.swatch.map((color, i) => (
