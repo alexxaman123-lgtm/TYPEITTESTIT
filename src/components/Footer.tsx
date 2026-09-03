@@ -1,16 +1,19 @@
-const FOOTER_LINKS = [
-  { label: "Typing Tester", href: "/#tester" },
-  { label: "Typing Practice", href: "/#typing-practice" },
-  { label: "Guides", href: "/#guides" },
-  { label: "How It Works", href: "/#how-it-works" },
-  { label: "FAQ", href: "/#faq" },
-  { label: "About", href: "/about" },
-  { label: "Contact", href: "/contact" },
-  { label: "Privacy Policy", href: "/privacy-policy" },
-  { label: "Terms", href: "/terms-of-use" },
-];
+import type { Locale } from "../lib/i18n";
+import { tr } from "../lib/i18n";
 
-export default function Footer() {
+const FOOTER_KEYS = [
+  ["typingTester", "/#tester"],
+  ["typingPractice", "/#typing-practice"],
+  ["guides", "/#guides"],
+  ["howItWorks", "/#how-it-works"],
+  ["faq", "/#faq"],
+  ["about", "/about"],
+  ["contact", "/contact"],
+  ["privacy", "/privacy-policy"],
+  ["terms", "/terms-of-use"],
+] as const;
+
+export default function Footer({ locale = "en" as Locale }: { locale?: Locale }) {
   return (
     <footer className="border-t border-hairline bg-canvas">
       <div className="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8">
@@ -18,22 +21,22 @@ export default function Footer() {
           <div>
             <div className="font-title text-ink tracking-tight">FreeTypingTest<span className="text-accent">Goat</span></div>
             <p className="mt-3 max-w-sm font-body-sm text-text-muted">
-              FreeTypingTestGoat is a free online typing test and typing practice tool for measuring WPM, accuracy, and typing consistency.
+              {tr(locale, "footer", "description")}
             </p>
           </div>
 
-          <nav className="flex flex-wrap gap-x-6 gap-y-3 font-link text-ink" aria-label="Footer">
-            {FOOTER_LINKS.map((link) => (
-              <a key={link.label} href={link.href} className="text-text-muted transition-colors hover:text-ink">
-                {link.label}
+          <nav className="flex flex-wrap gap-x-6 gap-y-3 font-link text-ink" aria-label={locale === "es" ? "Pie de página" : "Footer"}>
+            {FOOTER_KEYS.map(([key, href]) => (
+              <a key={href} href={href} className="text-text-muted transition-colors hover:text-ink">
+                {tr(locale, "footer", key)}
               </a>
             ))}
           </nav>
         </div>
 
         <div className="mt-12 flex flex-col gap-2 border-t border-hairline pt-6 font-caption text-text-faint sm:flex-row sm:items-center sm:justify-between">
-          <p>&copy; {new Date().getFullYear()} FreeTypingTestGoat. All rights reserved.</p>
-          <p>TYPE LIKE A GOAT.</p>
+          <p>&copy; {new Date().getFullYear()} FreeTypingTestGoat. {tr(locale, "footer", "rights")}</p>
+          <p>{tr(locale, "footer", "tagline")}</p>
         </div>
       </div>
     </footer>
