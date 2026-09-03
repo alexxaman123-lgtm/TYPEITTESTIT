@@ -1,0 +1,16 @@
+---
+import SiteLayout from "../layouts/SiteLayout.astro";
+import Header from "../components/Header";
+import ContactPage from "../components/ContactPage";
+import Footer from "../components/Footer";
+
+const title = "Contact FreeTypingTestGoat | Free Typing Test";
+const description = "Contact FreeTypingTestGoat with questions, suggestions, or feedback about our free online typing test.";
+---
+<SiteLayout title={title} description={description} canonicalPath="/contact">
+  <div class="relative min-h-screen">
+    <Header client:load />
+    <main><ContactPage /></main>
+    <Footer />
+  </div>
+</SiteLayout>
