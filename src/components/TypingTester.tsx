@@ -29,31 +29,7 @@ export default function TypingTester() {
   const [personalBest, setPersonalBest] = useState<PersonalBest>(null);
   const [focusMode, setFocusMode] = useState(false);
   const previousStatusRef = useRef(test.status);
-
-  // Uploaded sound for wrong key presses only.
   const { playSound } = useSound();
-  const prevErrorCountRef = useRef(0);
-
-  useEffect(() => {
-    // Each new test starts a fresh error counter so the first mistake can trigger the sound.
-    prevErrorCountRef.current = 0;
-  }, [test.sessionId]);
-
-  useEffect(() => {
-    if (test.status !== "running") return;
-
-    const currentErrors = test.liveStats.characterErrors;
-    const previousErrors = prevErrorCountRef.current;
-
-    if (currentErrors > previousErrors && getSoundEnabled()) {
-      const errorCount = currentErrors - previousErrors;
-      for (let i = 0; i < errorCount; i += 1) {
-        playSound("/piano-noise-suprise.mp3", 0.10);
-      }
-    }
-
-    prevErrorCountRef.current = currentErrors;
-  }, [test.liveStats.characterErrors, test.status, playSound]);
 
   useEffect(() => {
     let cancelled = false;
