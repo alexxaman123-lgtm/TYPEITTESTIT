@@ -172,7 +172,7 @@ export function getPerformanceLabel(wpm: number, accuracy: number): PerformanceL
 }
 
 export type SpeedTier = {
-  name: "SLOW GOAT" | "AVERAGE GOAT" | "THE GOAT" | "ACE GOAT" | "ADVANCED GOAT" | "MYTHICAL GOAT";
+  name: "SLOW GOAT" | "AVERAGE GOAT" | "THE GOAT" | "ACE GOAT" | "HONORABLE GOAT" | "ADVANCED GOAT" | "MYTHICAL GOAT";
   minWpm: number;
   maxWpm: number | null;
   message: string;
@@ -209,8 +209,15 @@ export const SPEED_TIERS: SpeedTier[] = [
     nextTarget: 80,
   },
   {
-    name: "ADVANCED GOAT",
+    name: "HONORABLE GOAT",
     minWpm: 80,
+    maxWpm: 89.9,
+    message: "You're an honorable goat.",
+    nextTarget: 90,
+  },
+  {
+    name: "ADVANCED GOAT",
+    minWpm: 90,
     maxWpm: 99.9,
     message: "You're an advanced goat.",
     nextTarget: 100,
