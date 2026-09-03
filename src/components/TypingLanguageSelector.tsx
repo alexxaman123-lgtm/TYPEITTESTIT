@@ -9,13 +9,14 @@ interface Props {
 
 export default function TypingLanguageSelector({ value, onChange, disabled = false }: Props) {
   return (
-    <div className="flex justify-center pb-1 pt-1" aria-label="Typing language">
+    <div className="flex justify-center pb-1 pt-1" aria-label="Idioma de escritura">
       <div className="inline-flex items-center rounded-full border border-hairline bg-canvas-soft p-1 shadow-sm">
         <button
           type="button"
           onClick={() => onChange("es")}
           disabled={disabled}
           aria-pressed={value === "es"}
+          aria-label="Escribir en español"
           className={cn(
             "rounded-full px-4 py-1.5 text-xs font-semibold uppercase tracking-[0.12em] transition-colors",
             value === "es" ? "bg-primary text-on-primary" : "text-text-muted hover:bg-canvas hover:text-ink",
@@ -29,6 +30,7 @@ export default function TypingLanguageSelector({ value, onChange, disabled = fal
           onClick={() => onChange("en")}
           disabled={disabled}
           aria-pressed={value === "en"}
+          aria-label="Escribir en inglés"
           className={cn(
             "rounded-full px-4 py-1.5 text-xs font-semibold uppercase tracking-[0.12em] transition-colors",
             value === "en" ? "bg-primary text-on-primary" : "text-text-muted hover:bg-canvas hover:text-ink",
