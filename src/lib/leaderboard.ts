@@ -26,6 +26,24 @@ export interface LeaderboardResultInput {
   totalTyped: number;
 }
 
+type LeaderboardScoreRow = {
+  user_id: string;
+  difficulty: Difficulty | string;
+  duration_sec: number | string;
+  wpm: number | string;
+  accuracy: number | string;
+  words_written: number | string;
+  correct_chars: number | string;
+  incorrect_chars: number | string;
+  total_typed: number | string;
+  submitted_at: string;
+};
+
+type ProfileRow = {
+  user_id: string;
+  username: string | null;
+};
+
 const VALID_DIFFICULTIES = new Set<Difficulty>(["easy", "medium", "hard"]);
 const VALID_DURATIONS = new Set([60, 120, 180, 300]);
 
@@ -112,9 +130,10 @@ export async function fetchLeaderboardScores(): Promise<LeaderboardScore[]> {
     .order("accuracy", { ascending: false });
 
   if (scoreError) throw new Error(scoreError.message);
-  if (!scores?.length) return [];
+  const scoreRows = (scores ?? []) as unknown as LeaderboardScoreRow[];
+  if (!scoreRows.length) return [];
 
-  const userIds = [...new Set(scores.map((score) => score.user_id))];
+  const userIds = [...new Set(scoreRows.map((score: LeaderboardScoreRow) => score.user_id))];
   const { data: profiles, error: profileError } = await supabase
     .from("profiles")
     .select("user_id, username")
@@ -123,14 +142,14 @@ export async function fetchLeaderboardScores(): Promise<LeaderboardScore[]> {
   if (profileError) throw new Error(profileError.message);
 
   const usernames = new Map<string, string>();
-  for (const profile of profiles ?? []) {
+  for (const profile of (profiles ?? []) as unknown as ProfileRow[]) {
     if (typeof profile.username === "string" && profile.username.trim()) {
       usernames.set(profile.user_id, profile.username.trim());
     }
   }
 
-  return scores
-    .map((score) => ({
+  return scoreRows
+    .map((score: LeaderboardScoreRow) => ({
       user_id: score.user_id,
       username: usernames.get(score.user_id) ?? "Anonymous",
       difficulty: score.difficulty as Difficulty,
