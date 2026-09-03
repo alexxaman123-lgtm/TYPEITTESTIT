@@ -17,7 +17,7 @@ interface Props {
 const WINDOW_SIZE = 620;
 const SHIFT_THRESHOLD = 460;
 const CORRECT_KEY_SOUND = "/koiroylers-keyboard-press-351952_[cut_0sec].mp3";
-const CORRECT_KEY_VOLUME = 0.10;
+const CORRECT_KEY_VOLUME = 1.0;
 
 export default function TypingText({
   target,
