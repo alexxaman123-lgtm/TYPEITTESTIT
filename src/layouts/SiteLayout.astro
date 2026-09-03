@@ -27,6 +27,8 @@ const {
 
 const siteUrl = "https://typeittestit.com";
 const canonicalUrl = `${siteUrl}${canonicalPath}`;
+const localizedBrand = locale === "es" ? "Test de mecanografía Cabra" : "FreeTypingTestGoat";
+const localizedImageAlt = locale === "es" ? "Test de mecanografía Cabra, test de mecanografía gratis y práctica de WPM" : "FreeTypingTestGoat free online typing test and WPM practice";
 const themeMap = Object.fromEntries(
   THEMES.map((theme) => [theme.id, { type: theme.type, variables: theme.variables }])
 );
@@ -83,23 +85,23 @@ const automaticAlternates = locale === "en" && knownSpanishEquivalents.includes(
     <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1" />
     <meta name="googlebot" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1" />
     <meta name="referrer" content="strict-origin-when-cross-origin" />
-    <meta name="author" content="FreeTypingTestGoat" />
+    <meta name="author" content={localizedBrand} />
     <link rel="canonical" href={canonicalUrl} />
     {automaticAlternates.map((alternate) => <link rel="alternate" hreflang={alternate.hreflang} href={alternate.href} />)}
 
     <meta property="og:type" content="website" />
-    <meta property="og:site_name" content="FreeTypingTestGoat" />
+    <meta property="og:site_name" content={localizedBrand} />
     <meta property="og:title" content={title} />
     <meta property="og:description" content={description} />
     <meta property="og:url" content={canonicalUrl} />
     <meta property="og:image" content={`${siteUrl}/og-image.png`} />
-    <meta property="og:image:alt" content="FreeTypingTestGoat free online typing test and WPM practice" />
+    <meta property="og:image:alt" content={localizedImageAlt} />
 
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:title" content={title} />
     <meta name="twitter:description" content={description} />
     <meta name="twitter:image" content={`${siteUrl}/og-image.png`} />
-    <meta name="twitter:image:alt" content="FreeTypingTestGoat free online typing test and WPM practice" />
+    <meta name="twitter:image:alt" content={localizedImageAlt} />
 
     <meta name="theme-color" content="#050706" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
