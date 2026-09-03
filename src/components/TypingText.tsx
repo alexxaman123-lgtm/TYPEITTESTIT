@@ -1,6 +1,7 @@
-import { useEffect, useLayoutEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { cn } from "../utils/cn";
-import { getSoundEnabled, setSoundEnabled, useSound } from "../lib/useSound";
+import { getSoundEnabled, setSoundEnabled } from "../lib/useSound";
+import { playTypingKeySound, preloadTypingSounds, unlockTypingSounds } from "../lib/useTypingSounds";
 
 interface Props {
   target: string;
@@ -14,12 +15,9 @@ interface Props {
   onFocusModeRequest?: () => void;
 }
 
-const WINDOW_SIZE = 620;
-const SHIFT_THRESHOLD = 460;
-const CORRECT_KEY_SOUND = "/koiroylers-keyboard-press-351952_[cut_0sec].mp3";
-const WRONG_KEY_SOUND = "/piano-noise-suprise.mp3";
-const CORRECT_KEY_VOLUME = 1.0;
-const WRONG_KEY_VOLUME = 0.10;
+// Keep the visible DOM small so low-power phones do less work on every keystroke.
+const WINDOW_SIZE = 360;
+const SHIFT_THRESHOLD = 260;
 
 export default function TypingText({
   target,
@@ -33,7 +31,6 @@ export default function TypingText({
   onFocusModeRequest,
 }: Props) {
   const inputRef = useRef<HTMLInputElement | null>(null);
-  const { playSound, stopSound } = useSound();
   const [windowStart, setWindowStart] = useState(0);
   const [focused, setFocused] = useState(false);
   const [soundEnabled, setSoundEnabledState] = useState(getSoundEnabled());
@@ -48,22 +45,24 @@ export default function TypingText({
   }, [status, resetKey]);
 
   useEffect(() => {
+    // Decode the key sounds ahead of time. This is intentionally fire-and-forget
+    // so network/audio work can never delay an input event.
+    preloadTypingSounds();
+  }, []);
+
+  useEffect(() => {
     if (!freeTyping && typed.length - windowStart > SHIFT_THRESHOLD) {
       setWindowStart(Math.max(0, typed.length - 80));
     }
   }, [typed.length, windowStart, freeTyping]);
 
-  useLayoutEffect(() => {
-    const el = inputRef.current;
-    if (el && document.activeElement === el) {
-      el.setSelectionRange(el.value.length, el.value.length);
-    }
-  }, [typed]);
-
   const disabled = status === "finished";
 
   const focusInput = () => {
-    if (!disabled) inputRef.current?.focus();
+    if (!disabled) {
+      unlockTypingSounds();
+      inputRef.current?.focus();
+    }
   };
 
   const handleKeyDown = (event: React.KeyboardEvent<HTMLInputElement>) => {
@@ -71,18 +70,15 @@ export default function TypingText({
     if (event.key.length !== 1 || event.ctrlKey || event.metaKey || event.altKey) return;
     if (freeTyping) return;
 
-    // Use the native input value so audio is based on the real current position,
-    // even when React state is one or more keystrokes behind during very fast typing.
+    // Read the native value. React state may render a little later on mobile,
+    // but the browser input already knows the exact current character index.
     const currentValueLength = inputRef.current?.value.length ?? typed.length;
     const expected = target[currentValueLength];
 
-    if (event.key === expected) {
-      // A correct key cancels any lingering wrong-key audio immediately.
-      stopSound(WRONG_KEY_SOUND);
-      playSound(CORRECT_KEY_SOUND, CORRECT_KEY_VOLUME);
-    } else {
-      playSound(WRONG_KEY_SOUND, WRONG_KEY_VOLUME);
-    }
+    // Sound is decorative and completely independent from the typing state.
+    // It uses a decoded Web Audio buffer when available and a tiny immediate
+    // fallback when the asset is still loading.
+    playTypingKeySound(event.key === expected ? "correct" : "wrong");
   };
 
   const toggleSound = () => {
@@ -91,7 +87,9 @@ export default function TypingText({
     setSoundEnabledState(nextEnabled);
 
     if (nextEnabled) {
-      playSound(CORRECT_KEY_SOUND, 0.01);
+      unlockTypingSounds();
+      preloadTypingSounds();
+      // Do not force an MP3 decode/play just to preview the toggle.
     }
 
     inputRef.current?.focus();
@@ -107,6 +105,7 @@ export default function TypingText({
         aria-hidden="true"
         tabIndex={-1}
         onClick={focusInput}
+        onPointerDown={unlockTypingSounds}
         className={cn(
           "typing-surface relative cursor-text select-none rounded-[24px] border bg-canvas-soft/70 font-sans tracking-normal transition-[border-color,box-shadow] duration-300",
           focusMode
@@ -177,6 +176,8 @@ export default function TypingText({
           onInput={(e) => onChange(e.currentTarget.value)}
           onFocus={() => {
             setFocused(true);
+            unlockTypingSounds();
+            preloadTypingSounds();
             onFocusModeRequest?.();
           }}
           onBlur={() => setFocused(false)}
