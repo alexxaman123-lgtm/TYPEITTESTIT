@@ -1,24 +1,15 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-  <url>
-    <loc>https://typeittestit.com/</loc>
-  </url>
-  <url>
-    <loc>https://typeittestit.com/es/</loc>
-  </url>
-  <url>
-    <loc>https://typeittestit.com/about</loc>
-  </url>
-  <url>
-    <loc>https://typeittestit.com/contact</loc>
-  </url>
-  <url>
-    <loc>https://typeittestit.com/leaderboard</loc>
-  </url>
-  <url>
-    <loc>https://typeittestit.com/privacy-policy</loc>
-  </url>
-  <url>
-    <loc>https://typeittestit.com/terms-of-use</loc>
-  </url>
+  <url><loc>https://typeittestit.com/</loc></url>
+  <url><loc>https://typeittestit.com/about/</loc></url>
+  <url><loc>https://typeittestit.com/contact/</loc></url>
+  <url><loc>https://typeittestit.com/leaderboard/</loc></url>
+  <url><loc>https://typeittestit.com/privacy-policy/</loc></url>
+  <url><loc>https://typeittestit.com/terms-of-use/</loc></url>
+  <url><loc>https://typeittestit.com/es/</loc></url>
+  <url><loc>https://typeittestit.com/es/about/</loc></url>
+  <url><loc>https://typeittestit.com/es/contact/</loc></url>
+  <url><loc>https://typeittestit.com/es/leaderboard/</loc></url>
+  <url><loc>https://typeittestit.com/es/privacy-policy/</loc></url>
+  <url><loc>https://typeittestit.com/es/terms-of-use/</loc></url>
 </urlset>
