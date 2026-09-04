@@ -1,5 +1,6 @@
 import { supabase } from "../supabaseClient";
 import type { Difficulty } from "../data/texts";
+import { saveTypingHistory } from "./typingHistory";
 
 export interface LeaderboardScore {
   user_id: string;
@@ -79,28 +80,27 @@ export async function saveLeaderboardScore(result: LeaderboardResultInput): Prom
     p_total_typed: result.totalTyped,
   });
 
-  const { error: historyError } = await supabase.from("typing_history").insert({
-    user_id: user.id,
-    difficulty: result.difficulty,
-    duration_sec: result.durationSec,
-    target_duration_sec: result.durationSec,
-    wpm: result.wpm,
-    accuracy: result.accuracy,
-    words_written: result.wordsWritten,
-    correct_chars: result.correctChars,
-    incorrect_chars: result.incorrectChars,
-    total_typed: result.totalTyped,
-    language,
-    is_custom: false,
-  });
-
-  if (historyError) {
-    console.error("Could not save typing history:", historyError.message);
-  }
-
   if (error) {
     console.error("Could not save leaderboard score:", error.message);
     return false;
+  }
+
+  const historySaved = await saveTypingHistory({
+    difficulty: result.difficulty,
+    durationSec: result.durationSec,
+    targetDurationSec: result.durationSec,
+    wpm: result.wpm,
+    accuracy: result.accuracy,
+    wordsWritten: result.wordsWritten,
+    correctChars: result.correctChars,
+    incorrectChars: result.incorrectChars,
+    totalTyped: result.totalTyped,
+    language,
+    isCustom: false,
+  });
+
+  if (!historySaved) {
+    console.error("Typing history was not saved after the completed test.");
   }
 
   return data === true;
