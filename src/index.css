@@ -79,6 +79,41 @@ body {
 .theme-accent-glow { box-shadow: 0 0 18px color-mix(in srgb, var(--color-accent) 35%, transparent); }
 .theme-accent-text-glow { text-shadow: 0 0 18px color-mix(in srgb, var(--color-accent) 18%, transparent); }
 
+/* Full-width footer wordmark: visual layer stays edge-to-edge while footer content remains contained above it. */
+.footer-wordmark-stage {
+  position: relative;
+  width: 100vw;
+  margin-left: 50%;
+  margin-right: -50vw;
+  min-height: clamp(7rem, 15vw, 16rem);
+  overflow: hidden;
+  pointer-events: none;
+}
+.footer-wordmark {
+  position: absolute;
+  left: 50%;
+  bottom: -0.12em;
+  width: max-content;
+  white-space: nowrap;
+  color: #000000;
+  font-family: var(--font-sans);
+  font-size: clamp(5rem, 15vw, 16rem);
+  font-weight: 750;
+  line-height: 0.78;
+  letter-spacing: -0.075em;
+  text-align: center;
+  transform: translate3d(-50%, 150px, 0);
+  transform-origin: 50% 100%;
+  will-change: transform;
+}
+@media (max-width: 640px) {
+  .footer-wordmark-stage { min-height: 5.75rem; }
+  .footer-wordmark { font-size: clamp(3.4rem, 15vw, 6rem); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .footer-wordmark { transform: translate3d(-50%, 0, 0) !important; }
+}
+
 /* Homepage hero: bold, full-width, high-contrast landing treatment while remaining theme-driven. */
 .hero-banner {
   color: var(--color-ink);
@@ -258,36 +293,3 @@ body {
 .font-body-lg { font-size: 20px; font-weight: 300; line-height: 1.38; }
 .font-body { font-size: 16px; font-weight: 450; line-height: 1.38; }
 .font-body-sm { font-size: 14px; font-weight: 450; line-height: 1.43; }
-.font-link { font-size: 16px; font-weight: 600; line-height: 1.38; }
-.font-label { font-size: 12px; font-weight: 600; line-height: 1.33; }
-.font-caption { font-size: 12px; font-weight: 450; line-height: 1.33; }
-
-@media (max-width: 1100px) { .focus-test-stack { width: min(100%, calc(100vw - 48px)); } }
-@media (max-width: 640px) {
-  .hero-title { font-size: clamp(3.3rem, 16vw, 5.2rem); line-height: 0.94; }
-  .hero-banner .max-w-7xl { min-height: 620px; }
-  .hero-lede { font-size: 1.05rem; }
-  .hero-stat { min-height: 96px; }
-  .eyebrow-line::before, .eyebrow-line::after { width: 14px; }
-  .ambient-glow { filter: blur(58px); opacity: 0.52; }
-  .ambient-glow-center { opacity: 0.26; filter: blur(72px); }
-  .ambient-glow-fourth, .ambient-glow-fifth { opacity: 0.2; filter: blur(64px); }
-  .ambient-glow-primary { animation-duration: 29s; }
-  .ambient-glow-secondary { animation-duration: 34s; }
-  .ambient-glow-tertiary { animation-duration: 31s; }
-  .ambient-glow-fourth { animation-duration: 36s; }
-  .ambient-glow-fifth { animation-duration: 38s; }
-  .test-shell-focus { padding: 1rem; animation-duration: 520ms; }
-  .focus-content { min-height: calc(100dvh - 2rem); }
-  .focus-test-stack { width: 100%; gap: 1rem; }
-  .typing-copy { width: min(100%, calc(100vw - 2rem)); }
-  [data-reveal] { transition-duration: 560ms; transition-delay: 0ms; }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  html { scroll-behavior: auto; }
-  .animate-fade-up, .animate-drift, .caret-blink, .ambient-glow, .test-shell-focus { animation: none; }
-  [data-reveal] { opacity: 1; transform: none; transition: none; }
-  .ambient-glow { transform: translate3d(0, 0, 0); }
-  *, *::before, *::after { animation-duration: 0.01ms !important; animation-iteration-count: 1 !important; transition-duration: 0.01ms !important; scroll-behavior: auto !important; }
-}
