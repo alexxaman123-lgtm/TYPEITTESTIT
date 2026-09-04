@@ -32,8 +32,8 @@ export default function Footer({ locale = "en" as Locale }: { locale?: Locale })
       const rect = footer.getBoundingClientRect();
       const viewport = window.innerHeight || 1;
       const progress = Math.max(0, Math.min(1, (viewport - rect.top) / (viewport + rect.height)));
-      const offset = 28 - progress * 56;
-      wordmark.style.transform = `translate3d(0, ${offset.toFixed(1)}px, 0)`;
+      const offset = 108 - progress * 216;
+      wordmark.style.transform = `translate3d(-50%, ${offset.toFixed(1)}px, 0)`;
     };
     const onScroll = () => {
       if (!frame) frame = window.requestAnimationFrame(update);
@@ -54,8 +54,8 @@ export default function Footer({ locale = "en" as Locale }: { locale?: Locale })
       <div className="pointer-events-none absolute inset-x-0 bottom-0 overflow-hidden" aria-hidden="true">
         <div
           ref={wordmarkRef}
-          className="w-full max-w-full whitespace-nowrap text-center font-display font-semibold leading-[0.85] tracking-[-0.07em] text-ink/10 transition-transform duration-150 ease-out sm:px-6 lg:px-8"
-          style={{ fontSize: "clamp(2.75rem, 8.5vw, 10rem)", transform: "translate3d(0, 28px, 0)" }}
+          className="absolute bottom-0 left-1/2 w-screen whitespace-nowrap text-center font-display font-semibold leading-[0.8] tracking-[-0.07em] text-black"
+          style={{ fontSize: "clamp(4rem, 10.5vw, 12rem)", transform: "translate3d(-50%, 108px, 0)" }}
         >
           TYPE IT. TEST IT.
         </div>
