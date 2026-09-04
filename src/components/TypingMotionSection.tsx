@@ -8,18 +8,18 @@ interface TypingMotionSectionProps {
 // to the section's center. The Mobbin-style burst starts every tile stacked
 // at the center and springs them out to these anchor points.
 const LETTERS = [
-  { value: "A", position: "top-[8%] left-[10%]", size: "h-20 w-20 sm:h-24 sm:w-24", rotate: "-8deg", floatDelay: "-1.2s", floatDuration: "5.3s", emergeX: 40, emergeY: 42, emergeDelay: 0.05 },
-  { value: "S", position: "top-[18%] left-[29%]", size: "h-16 w-16 sm:h-20 sm:w-20", rotate: "6deg", floatDelay: "-4s", floatDuration: "5.9s", emergeX: 21, emergeY: 32, emergeDelay: 0.12 },
-  { value: "D", position: "top-[6%] right-[28%]", size: "h-16 w-16 sm:h-20 sm:w-20", rotate: "-5deg", floatDelay: "-7s", floatDuration: "6.6s", emergeX: -22, emergeY: 44, emergeDelay: 0.19 },
-  { value: "F", position: "top-[15%] right-[8%]", size: "h-20 w-20 sm:h-24 sm:w-24", rotate: "9deg", floatDelay: "-2.4s", floatDuration: "5.6s", emergeX: -42, emergeY: 35, emergeDelay: 0.26 },
-  { value: "J", position: "top-[43%] left-[3%]", size: "h-16 w-16 sm:h-20 sm:w-20", rotate: "7deg", floatDelay: "-6.2s", floatDuration: "6.9s", emergeX: 47, emergeY: 7, emergeDelay: 0.33 },
-  { value: "K", position: "top-[46%] right-[3%]", size: "h-20 w-20 sm:h-24 sm:w-24", rotate: "-7deg", floatDelay: "-3.1s", floatDuration: "6.1s", emergeX: -47, emergeY: 4, emergeDelay: 0.4 },
-  { value: "L", position: "bottom-[12%] left-[11%]", size: "h-20 w-20 sm:h-24 sm:w-24", rotate: "-10deg", floatDelay: "-5.7s", floatDuration: "6.4s", emergeX: 39, emergeY: -38, emergeDelay: 0.47 },
-  { value: ";", position: "bottom-[8%] right-[12%]", size: "h-16 w-16 sm:h-20 sm:w-20", rotate: "8deg", floatDelay: "-8s", floatDuration: "5.8s", emergeX: -38, emergeY: -42, emergeDelay: 0.54 },
-  { value: "Q", position: "bottom-[20%] left-[29%]", size: "h-14 w-14 sm:h-16 sm:w-16", rotate: "5deg", floatDelay: "-2.8s", floatDuration: "5.5s", emergeX: 21, emergeY: -30, emergeDelay: 0.61 },
-  { value: "P", position: "bottom-[21%] right-[29%]", size: "h-14 w-14 sm:h-16 sm:w-16", rotate: "-6deg", floatDelay: "-6.5s", floatDuration: "6.8s", emergeX: -21, emergeY: -29, emergeDelay: 0.68 },
-  { value: "1", position: "top-[61%] left-[17%]", size: "h-12 w-12 sm:h-14 sm:w-14", rotate: "-4deg", floatDelay: "-1.8s", floatDuration: "5.1s", emergeX: 33, emergeY: -11, emergeDelay: 0.75 },
-  { value: "0", position: "top-[65%] right-[17%]", size: "h-12 w-12 sm:h-14 sm:w-14", rotate: "6deg", floatDelay: "-4.9s", floatDuration: "6.1s", emergeX: -33, emergeY: -15, emergeDelay: 0.82 },
+  { value: "A", position: "top-[8%] left-[10%]", size: "h-20 w-20 sm:h-24 sm:w-24", rotate: "-8deg", floatDelay: "-1.2s", floatDuration: "2.7s", emergeX: 40, emergeY: 42, emergeDelay: 0.05 },
+  { value: "S", position: "top-[18%] left-[29%]", size: "h-16 w-16 sm:h-20 sm:w-20", rotate: "6deg", floatDelay: "-4s", floatDuration: "3.0s", emergeX: 21, emergeY: 32, emergeDelay: 0.12 },
+  { value: "D", position: "top-[6%] right-[28%]", size: "h-16 w-16 sm:h-20 sm:w-20", rotate: "-5deg", floatDelay: "-7s", floatDuration: "3.3s", emergeX: -22, emergeY: 44, emergeDelay: 0.19 },
+  { value: "F", position: "top-[15%] right-[8%]", size: "h-20 w-20 sm:h-24 sm:w-24", rotate: "9deg", floatDelay: "-2.4s", floatDuration: "2.8s", emergeX: -42, emergeY: 35, emergeDelay: 0.26 },
+  { value: "J", position: "top-[43%] left-[3%]", size: "h-16 w-16 sm:h-20 sm:w-20", rotate: "7deg", floatDelay: "-6.2s", floatDuration: "3.5s", emergeX: 47, emergeY: 7, emergeDelay: 0.33 },
+  { value: "K", position: "top-[46%] right-[3%]", size: "h-20 w-20 sm:h-24 sm:w-24", rotate: "-7deg", floatDelay: "-3.1s", floatDuration: "3.1s", emergeX: -47, emergeY: 4, emergeDelay: 0.4 },
+  { value: "L", position: "bottom-[12%] left-[11%]", size: "h-20 w-20 sm:h-24 sm:w-24", rotate: "-10deg", floatDelay: "-5.7s", floatDuration: "3.2s", emergeX: 39, emergeY: -38, emergeDelay: 0.47 },
+  { value: ";", position: "bottom-[8%] right-[12%]", size: "h-16 w-16 sm:h-20 sm:w-20", rotate: "8deg", floatDelay: "-8s", floatDuration: "2.9s", emergeX: -38, emergeY: -42, emergeDelay: 0.54 },
+  { value: "Q", position: "bottom-[20%] left-[29%]", size: "h-14 w-14 sm:h-16 sm:w-16", rotate: "5deg", floatDelay: "-2.8s", floatDuration: "2.8s", emergeX: 21, emergeY: -30, emergeDelay: 0.61 },
+  { value: "P", position: "bottom-[21%] right-[29%]", size: "h-14 w-14 sm:h-16 sm:w-16", rotate: "-6deg", floatDelay: "-6.5s", floatDuration: "3.4s", emergeX: -21, emergeY: -29, emergeDelay: 0.68 },
+  { value: "1", position: "top-[61%] left-[17%]", size: "h-12 w-12 sm:h-14 sm:w-14", rotate: "-4deg", floatDelay: "-1.8s", floatDuration: "2.6s", emergeX: 33, emergeY: -11, emergeDelay: 0.75 },
+  { value: "0", position: "top-[65%] right-[17%]", size: "h-12 w-12 sm:h-14 sm:w-14", rotate: "6deg", floatDelay: "-4.9s", floatDuration: "3.1s", emergeX: -33, emergeY: -15, emergeDelay: 0.82 },
 ] as const;
 
 export default function TypingMotionSection({ locale = "en" }: TypingMotionSectionProps) {
@@ -214,7 +214,7 @@ export default function TypingMotionSection({ locale = "en" }: TypingMotionSecti
 
         @keyframes typingMotionFloat {
           0%, 100% { transform: rotate(var(--tile-rotation)) translate3d(0, 0, 0); }
-          50% { transform: rotate(var(--tile-rotation)) translate3d(7px, -15px, 0); }
+          50% { transform: rotate(var(--tile-rotation)) translate3d(12px, -22px, 0); }
         }
 
         @media (max-width: 700px) {
