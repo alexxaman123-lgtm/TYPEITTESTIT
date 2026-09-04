@@ -63,7 +63,7 @@ export async function saveTypingHistory(result: TypingHistoryInput): Promise<boo
     return false;
   }
 
-  return data === true;
+  return data !== null && data !== undefined;
 }
 
 export async function fetchTypingHistory(limit = 50): Promise<TypingHistoryEntry[]> {
