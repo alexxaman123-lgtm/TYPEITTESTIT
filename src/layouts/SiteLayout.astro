@@ -131,6 +131,41 @@ const hreflangLinks = Array.from(new Map(automaticAlternates.map((alternate) => 
         });
       })();
 
+      // Defer the large hero video until the page has finished loading so the
+      // first render is not competing with a multi-megabyte media request.
+      (() => {
+        const loadDeferredVideos = () => {
+          const videos = Array.from(document.querySelectorAll<HTMLVideoElement>('[data-deferred-video]'));
+          videos.forEach((video) => {
+            const src = video.dataset.deferredVideo;
+            if (!src || video.currentSrc || video.src) return;
+            video.muted = true;
+            video.defaultMuted = true;
+            video.volume = 0;
+            video.src = src;
+            video.load();
+            const play = () => {
+              video.muted = true;
+              video.volume = 0;
+              void video.play().catch(() => {});
+            };
+            if (video.readyState >= 2) play();
+            else video.addEventListener('loadeddata', play, { once: true });
+          });
+        };
+
+        const schedule = () => {
+          if ('requestIdleCallback' in window) {
+            window.requestIdleCallback(loadDeferredVideos, { timeout: 2000 });
+          } else {
+            window.setTimeout(loadDeferredVideos, 900);
+          }
+        };
+
+        if (document.readyState === 'complete') schedule();
+        else window.addEventListener('load', schedule, { once: true });
+      })();
+
       // Gate infinite CSS animations behind viewport visibility so off-screen
       // sections (e.g. the typing motion showcase below the fold) don't burn
       // GPU compositor time on every page load.
