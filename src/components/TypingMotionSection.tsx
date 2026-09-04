@@ -4,19 +4,22 @@ interface TypingMotionSectionProps {
   locale?: "en" | "es";
 }
 
+// emergeX / emergeY are the offset (in cqw / cqh) from each letter's anchor
+// to the section's center. The Mobbin-style burst starts every tile stacked
+// at the center and springs them out to these anchor points.
 const LETTERS = [
-  { value: "A", position: "top-[8%] left-[10%]", size: "h-20 w-20 sm:h-24 sm:w-24", rotate: "-8deg", delay: "-1.2s", duration: "3.41s", side: "left" },
-  { value: "S", position: "top-[18%] left-[29%]", size: "h-16 w-16 sm:h-20 sm:w-20", rotate: "6deg", delay: "-4s", duration: "3.81s", side: "left" },
-  { value: "D", position: "top-[6%] right-[28%]", size: "h-16 w-16 sm:h-20 sm:w-20", rotate: "-5deg", delay: "-7s", duration: "4.21s", side: "right" },
-  { value: "F", position: "top-[15%] right-[8%]", size: "h-20 w-20 sm:h-24 sm:w-24", rotate: "9deg", delay: "-2.4s", duration: "3.57s", side: "right" },
-  { value: "J", position: "top-[43%] left-[3%]", size: "h-16 w-16 sm:h-20 sm:w-20", rotate: "7deg", delay: "-6.2s", duration: "4.41s", side: "left" },
-  { value: "K", position: "top-[46%] right-[3%]", size: "h-20 w-20 sm:h-24 sm:w-24", rotate: "-7deg", delay: "-3.1s", duration: "3.93s", side: "right" },
-  { value: "L", position: "bottom-[12%] left-[11%]", size: "h-20 w-20 sm:h-24 sm:w-24", rotate: "-10deg", delay: "-5.7s", duration: "4.09s", side: "left" },
-  { value: ";", position: "bottom-[8%] right-[12%]", size: "h-16 w-16 sm:h-20 sm:w-20", rotate: "8deg", delay: "-8s", duration: "3.69s", side: "right" },
-  { value: "Q", position: "bottom-[20%] left-[29%]", size: "h-14 w-14 sm:h-16 sm:w-16", rotate: "5deg", delay: "-2.8s", duration: "3.53s", side: "left" },
-  { value: "P", position: "bottom-[21%] right-[29%]", size: "h-14 w-14 sm:h-16 sm:w-16", rotate: "-6deg", delay: "-6.5s", duration: "4.33s", side: "right" },
-  { value: "1", position: "top-[61%] left-[17%]", size: "h-12 w-12 sm:h-14 sm:w-14", rotate: "-4deg", delay: "-1.8s", duration: "3.28s", side: "left" },
-  { value: "0", position: "top-[65%] right-[17%]", size: "h-12 w-12 sm:h-14 sm:w-14", rotate: "6deg", delay: "-4.9s", duration: "3.89s", side: "right" },
+  { value: "A", position: "top-[8%] left-[10%]", size: "h-20 w-20 sm:h-24 sm:w-24", rotate: "-8deg", floatDelay: "-1.2s", floatDuration: "8.5s", emergeX: 40, emergeY: 42, emergeDelay: 0.05 },
+  { value: "S", position: "top-[18%] left-[29%]", size: "h-16 w-16 sm:h-20 sm:w-20", rotate: "6deg", floatDelay: "-4s", floatDuration: "9.5s", emergeX: 21, emergeY: 32, emergeDelay: 0.12 },
+  { value: "D", position: "top-[6%] right-[28%]", size: "h-16 w-16 sm:h-20 sm:w-20", rotate: "-5deg", floatDelay: "-7s", floatDuration: "10.5s", emergeX: -22, emergeY: 44, emergeDelay: 0.19 },
+  { value: "F", position: "top-[15%] right-[8%]", size: "h-20 w-20 sm:h-24 sm:w-24", rotate: "9deg", floatDelay: "-2.4s", floatDuration: "8.9s", emergeX: -42, emergeY: 35, emergeDelay: 0.26 },
+  { value: "J", position: "top-[43%] left-[3%]", size: "h-16 w-16 sm:h-20 sm:w-20", rotate: "7deg", floatDelay: "-6.2s", floatDuration: "11s", emergeX: 47, emergeY: 7, emergeDelay: 0.33 },
+  { value: "K", position: "top-[46%] right-[3%]", size: "h-20 w-20 sm:h-24 sm:w-24", rotate: "-7deg", floatDelay: "-3.1s", floatDuration: "9.8s", emergeX: -47, emergeY: 4, emergeDelay: 0.4 },
+  { value: "L", position: "bottom-[12%] left-[11%]", size: "h-20 w-20 sm:h-24 sm:w-24", rotate: "-10deg", floatDelay: "-5.7s", floatDuration: "10.2s", emergeX: 39, emergeY: -38, emergeDelay: 0.47 },
+  { value: ";", position: "bottom-[8%] right-[12%]", size: "h-16 w-16 sm:h-20 sm:w-20", rotate: "8deg", floatDelay: "-8s", floatDuration: "9.2s", emergeX: -38, emergeY: -42, emergeDelay: 0.54 },
+  { value: "Q", position: "bottom-[20%] left-[29%]", size: "h-14 w-14 sm:h-16 sm:w-16", rotate: "5deg", floatDelay: "-2.8s", floatDuration: "8.8s", emergeX: 21, emergeY: -30, emergeDelay: 0.61 },
+  { value: "P", position: "bottom-[21%] right-[29%]", size: "h-14 w-14 sm:h-16 sm:w-16", rotate: "-6deg", floatDelay: "-6.5s", floatDuration: "10.8s", emergeX: -21, emergeY: -29, emergeDelay: 0.68 },
+  { value: "1", position: "top-[61%] left-[17%]", size: "h-12 w-12 sm:h-14 sm:w-14", rotate: "-4deg", floatDelay: "-1.8s", floatDuration: "8.2s", emergeX: 33, emergeY: -11, emergeDelay: 0.75 },
+  { value: "0", position: "top-[65%] right-[17%]", size: "h-12 w-12 sm:h-14 sm:w-14", rotate: "6deg", floatDelay: "-4.9s", floatDuration: "9.7s", emergeX: -33, emergeY: -15, emergeDelay: 0.82 },
 ] as const;
 
 export default function TypingMotionSection({ locale = "en" }: TypingMotionSectionProps) {
@@ -71,16 +74,17 @@ export default function TypingMotionSection({ locale = "en" }: TypingMotionSecti
           </div>
         </div>
 
-        {LETTERS.map((item, index) => (
+        {LETTERS.map((item) => (
           <div
             key={`${item.value}-${item.position}`}
             className={`typing-motion-float absolute ${item.position} ${item.size}`}
             style={{
               ["--tile-rotation" as string]: item.rotate,
-              ["--entry-x" as string]: item.side === "left" ? "calc(-100vw - 120px)" : "calc(100vw + 120px)",
-              ["--entry-delay" as string]: `${Math.min(index * 45, 480)}ms`,
-              ["--float-duration" as string]: item.duration,
-              ["--float-delay" as string]: item.delay,
+              ["--emerge-x" as string]: `${item.emergeX}cqw`,
+              ["--emerge-y" as string]: `${item.emergeY}cqh`,
+              ["--emerge-delay" as string]: `${item.emergeDelay}s`,
+              ["--float-duration" as string]: item.floatDuration,
+              ["--float-delay" as string]: item.floatDelay,
             }}
             aria-hidden="true"
           >
@@ -98,6 +102,10 @@ export default function TypingMotionSection({ locale = "en" }: TypingMotionSecti
           isolation: isolate;
           content-visibility: auto;
           contain-intrinsic-size: 700px;
+          /* Container query units make the emerge offset
+             proportional to the section, so the burst stays
+             centered on any viewport size. */
+          container-type: inline-size;
         }
 
         .typing-motion-grid {
@@ -130,18 +138,23 @@ export default function TypingMotionSection({ locale = "en" }: TypingMotionSecti
           -webkit-backdrop-filter: blur(10px);
         }
 
+        /* Mobbin-style: each tile starts stacked at the section's center,
+           then springs out to its final anchor with a slight overshoot.
+           Staggered delays (via --emerge-delay) create the wave-like
+           choreography. */
         .typing-motion-float {
           z-index: 2;
           pointer-events: none;
-          transform: translate3d(var(--entry-x), 0, 0);
-          transition: transform 920ms cubic-bezier(0.16, 1, 0.3, 1);
-          transition-delay: var(--entry-delay);
-          will-change: transform;
+          opacity: 0;
+          transform: translate(var(--emerge-x, 0cqw), var(--emerge-y, 0cqh)) scale(0.2);
+          filter: blur(6px);
+          will-change: transform, opacity, filter;
         }
 
-        /* First scroll into view: keys sweep in from alternating screen edges, then stay and float. */
+        /* When the section scrolls into view, run the emerge burst. */
         [data-motion-defer="active"] .typing-motion-float {
-          transform: translate3d(0, 0, 0);
+          animation:
+            emergeFromCenter 1.1s cubic-bezier(0.34, 1.56, 0.64, 1) var(--emerge-delay, 0s) both;
         }
 
         .typing-motion-tile {
@@ -173,6 +186,32 @@ export default function TypingMotionSection({ locale = "en" }: TypingMotionSecti
           text-shadow: 0 0 28px color-mix(in srgb, var(--color-accent) 8%, transparent);
         }
 
+        /* The Mobbin-style emerge: each tile starts stacked at the
+           section's center, then springs out to its anchor point
+           with a slight overshoot. Container query units keep the
+           burst centered on any screen size. */
+        @keyframes emergeFromCenter {
+          0% {
+            transform: translate(var(--emerge-x, 0cqw), var(--emerge-y, 0cqh)) scale(0.2);
+            opacity: 0;
+            filter: blur(6px);
+          }
+          55% {
+            opacity: 1;
+            filter: blur(0);
+          }
+          75% {
+            transform: translate(calc(var(--emerge-x, 0cqw) * 0.12), calc(var(--emerge-y, 0cqh) * 0.12)) scale(1.08);
+            opacity: 1;
+            filter: blur(0);
+          }
+          100% {
+            transform: translate(0, 0) scale(1);
+            opacity: 1;
+            filter: blur(0);
+          }
+        }
+
         @keyframes typingMotionFloat {
           0%, 100% { transform: rotate(var(--tile-rotation)) translate3d(0, 0, 0); }
           50% { transform: rotate(var(--tile-rotation)) translate3d(7px, -15px, 0); }
@@ -195,8 +234,10 @@ export default function TypingMotionSection({ locale = "en" }: TypingMotionSecti
 
         @media (prefers-reduced-motion: reduce) {
           .typing-motion-float {
-            transition: none;
-            transform: translate3d(0, 0, 0);
+            animation: none;
+            opacity: 1;
+            transform: translate(0, 0) scale(1);
+            filter: none;
           }
           .typing-motion-tile {
             animation: none;
