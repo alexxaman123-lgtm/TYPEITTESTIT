@@ -131,6 +131,40 @@ const hreflangLinks = Array.from(new Map(automaticAlternates.map((alternate) => 
         });
       })();
 
+      // Drive the large footer wordmark from the global Astro layout so it
+      // works on both static and React-rendered pages, including /es routes.
+      (() => {
+        const footers = Array.from(document.querySelectorAll('[data-footer-parallax]'));
+        if (!footers.length) return;
+
+        const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+        const update = () => {
+          const viewport = window.innerHeight || 1;
+          footers.forEach((footer) => {
+            const wordmark = footer.querySelector('[data-footer-wordmark]');
+            if (!wordmark) return;
+
+            const rect = footer.getBoundingClientRect();
+            const progress = Math.max(0, Math.min(1, (viewport - rect.top) / (viewport + rect.height)));
+            const offset = reducedMotion ? 0 : 150 - progress * 300;
+            wordmark.style.transform = `translate3d(-50%, ${offset.toFixed(1)}px, 0)`;
+          });
+        };
+
+        let frame = 0;
+        const onScroll = () => {
+          if (frame) return;
+          frame = window.requestAnimationFrame(() => {
+            frame = 0;
+            update();
+          });
+        };
+
+        update();
+        window.addEventListener('scroll', onScroll, { passive: true });
+        window.addEventListener('resize', onScroll, { passive: true });
+      })();
+
       // Defer the large hero video until the page has finished loading so the
       // first render is not competing with a multi-megabyte media request.
       (() => {
