@@ -34,7 +34,7 @@ export default function SpanishHero() {
         </div>
         <div className="animate-fade-up relative mx-auto w-full min-w-0 max-w-[560px]" style={{ animationDelay: "150ms" }} aria-label="Vídeo de una cabra escribiendo">
           <div className="hero-video-shell relative w-full max-w-full overflow-hidden rounded-[28px] border border-current/10 bg-canvas-soft shadow-2xl sm:rounded-[32px]">
-            <video className="block aspect-[4/5] h-auto w-full max-w-full object-cover lg:aspect-[5/6]" poster="/og-image.png" autoPlay muted loop playsInline preload="metadata">
+            <video className="block aspect-[4/5] h-auto w-full max-w-full object-cover lg:aspect-[5/6]" autoPlay muted loop playsInline preload="metadata" style={{ backgroundColor: "var(--color-canvas-soft)" }}>
               <source src="/goat-typing-on-laptop-1080p-202609030103-1_QfYbMZo0.mp4" type="video/mp4" />
               <source src="/Goat_typing_on_laptop_1080p_202609030103.mp4" type="video/mp4" />
             </video>
