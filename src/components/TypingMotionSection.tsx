@@ -50,13 +50,15 @@ export default function TypingMotionSection({ locale = "en" }: TypingMotionSecti
   const content = locale === "es"
     ? {
         eyebrow: "PRÁCTICA DE MECANOGRAFÍA",
-        title: "TYPE IT.\nTEST IT.",
+        title: "ESCRIBE.\nPONTE A PRUEBA.",
         subtitle: "La velocidad empieza practicando.",
+        accuracy: "100% PRECISIÓN",
       }
     : {
         eyebrow: "TYPING PRACTICE",
         title: "TYPE IT.\nTEST IT.",
         subtitle: "Speed starts with practice.",
+        accuracy: "100% ACCURACY",
       };
 
   return (
@@ -69,7 +71,7 @@ export default function TypingMotionSection({ locale = "en" }: TypingMotionSecti
           <p className="mt-7 font-body-lg text-text-muted">{content.subtitle}</p>
           <div className="mt-8 flex flex-wrap items-center justify-center gap-3">
             <span className="typing-motion-pill font-caption">WPM</span>
-            <span className="typing-motion-pill font-caption">100% ACCURACY</span>
+            <span className="typing-motion-pill font-caption">{content.accuracy}</span>
             <span className="typing-motion-pill font-caption">1–5 MIN</span>
           </div>
         </div>
