@@ -92,43 +92,76 @@ function ProgressGraph({ entries, locale }: { entries: TypingHistoryEntry[]; loc
   if (!entries.length) return null;
   const points = entries.slice(0, 30).reverse();
   const width = 1000, height = 430;
-  const pad = { top: 38, right: 80, bottom: 70, left: 66 };
-  const chartWidth = width - pad.left - pad.right, chartHeight = height - pad.top - pad.bottom;
+  const pad = { top: 40, right: 88, bottom: 76, left: 66 };
+  const chartWidth = width - pad.left - pad.right;
+  const chartHeight = height - pad.top - pad.bottom;
   const latest = points[points.length - 1];
   const previous = points.length > 1 ? points[points.length - 2] : null;
   const maxWpm = Math.max(40, Math.ceil(Math.max(...points.map((p) => p.wpm), 0) / 20) * 20 + 20);
   const wpmTicks = [0, 0.25, 0.5, 0.75, 1].map((r) => maxWpm * r);
   const accuracyTicks = [0, 25, 50, 75, 100];
+  const WPM_COLOR = "#2563eb";
+  const ACCURACY_COLOR = "#f97316";
   const xFor = (i: number) => points.length === 1 ? pad.left + chartWidth / 2 : pad.left + (i / (points.length - 1)) * chartWidth;
   const yWpm = (v: number) => pad.top + chartHeight - (v / maxWpm) * chartHeight;
   const yAcc = (v: number) => pad.top + chartHeight - (v / 100) * chartHeight;
-  const curve = (values: number[], y: (v: number) => number) => values.length === 1 ? `M ${xFor(0)} ${y(values[0])}` : values.map((v, i) => { const x=xFor(i), yy=y(v); if(i===0)return `M ${x} ${yy}`; const px=xFor(i-1), py=y(values[i-1]), c=(x-px)/2; return `C ${px+c} ${py}, ${x-c} ${yy}, ${x} ${yy}`; }).join(" ");
-  const wpmPath = curve(points.map((p) => p.wpm), yWpm), accPath = curve(points.map((p) => p.accuracy), yAcc);
+  const smoothPath = (values: number[], yFor: (v: number) => number) => {
+    if (values.length === 1) return `M ${xFor(0)} ${yFor(values[0])}`;
+    return values.map((v, i) => {
+      const x = xFor(i), y = yFor(v);
+      if (i === 0) return `M ${x} ${y}`;
+      const px = xFor(i - 1), py = yFor(values[i - 1]), c = (x - px) / 2;
+      return `C ${px + c} ${py}, ${x - c} ${y}, ${x} ${y}`;
+    }).join(" ");
+  };
+  const wpmPath = smoothPath(points.map((p) => p.wpm), yWpm);
+  const accuracyPath = smoothPath(points.map((p) => p.accuracy), yAcc);
   const fmt = (d: string) => new Intl.DateTimeFormat(locale === "es" ? "es-ES" : "en-US", { month: "short", day: "numeric" }).format(new Date(d));
   const labelIndexes = points.length <= 6 ? points.map((_, i) => i) : [0, Math.floor((points.length - 1) / 2), points.length - 1];
-  const wpmDelta = previous ? latest.wpm - previous.wpm : 0, accDelta = previous ? latest.accuracy - previous.accuracy : 0;
+  const wpmDelta = previous ? latest.wpm - previous.wpm : 0;
+  const accDelta = previous ? latest.accuracy - previous.accuracy : 0;
   const signed = (v: number, suffix: string) => `${v >= 0 ? "+" : ""}${v.toFixed(1)}${suffix}`;
-  const latestX = xFor(points.length - 1), latestY = Math.min(yWpm(latest.wpm), yAcc(latest.accuracy));
-  const bubbleW=138, bubbleH=38, bubbleX=Math.min(width-pad.right-bubbleW, Math.max(pad.left, latestX-bubbleW/2)), bubbleY=Math.max(pad.top+4, latestY-bubbleH-10);
+  const latestX = xFor(points.length - 1);
+  const latestWpmY = yWpm(latest.wpm);
+  const latestAccY = yAcc(latest.accuracy);
+  const showTrend = points.length > 1;
 
   return <section className="mt-8 rounded-2xl border border-hairline bg-canvas-soft p-4 sm:p-6" aria-labelledby="typing-progress-heading">
     <div className="flex flex-col gap-5">
       <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
-        <div><p className="font-label uppercase tracking-[0.16em] text-text-muted">{locale === "es" ? "Progreso" : "Progress"}</p><h2 id="typing-progress-heading" className="mt-1 font-heading-3 text-ink">{locale === "es" ? "Velocidad y precisión" : "Speed & accuracy"}</h2><p className="mt-1 font-body-sm text-text-muted">{locale === "es" ? "Evolución de tus últimas pruebas" : "Track how your performance changes over time"}</p></div>
+        <div><p className="font-label uppercase tracking-[0.16em] text-text-muted">{locale === "es" ? "Progreso" : "Progress"}</p><h2 id="typing-progress-heading" className="mt-1 font-heading-3 text-ink">{locale === "es" ? "Velocidad y precisión" : "Speed & accuracy"}</h2><p className="mt-1 font-body-sm text-text-muted">{showTrend ? (locale === "es" ? "Evolución de tus últimas pruebas" : "Track how your performance changes over time") : (locale === "es" ? "Tu resultado actual" : "Your current result")}</p></div>
         <div className="grid grid-cols-2 gap-2 sm:flex"><MetricMini label="WPM" value={latest.wpm.toFixed(1)} delta={previous ? signed(wpmDelta, "") : "—"} /><MetricMini label={locale === "es" ? "Precisión" : "Accuracy"} value={`${latest.accuracy.toFixed(1)}%`} delta={previous ? signed(accDelta, " pp") : "—"} /></div>
       </div>
-      <div className="flex flex-wrap items-center gap-x-6 gap-y-2 border-y border-hairline py-3 font-label text-text-muted"><span className="inline-flex items-center gap-2"><span className="h-2.5 w-8 rounded-full bg-primary" />WPM</span><span className="inline-flex items-center gap-2"><span className="h-2.5 w-8 rounded-full bg-ink" />{locale === "es" ? "Precisión" : "Accuracy"}</span><span className="text-text-faint">{locale === "es" ? `${points.length} pruebas` : `${points.length} tests`}</span></div>
+
+      <div className="flex flex-wrap items-center gap-x-6 gap-y-2 border-y border-hairline py-3 font-label text-text-muted">
+        <span className="inline-flex items-center gap-2"><span className="h-0.5 w-8 rounded-full" style={{ backgroundColor: WPM_COLOR }} />WPM</span>
+        <span className="inline-flex items-center gap-2"><span className="h-0.5 w-8 rounded-full" style={{ backgroundColor: ACCURACY_COLOR }} />{locale === "es" ? "Precisión" : "Accuracy"}</span>
+        <span className="text-text-faint">{locale === "es" ? `${points.length} ${points.length === 1 ? "prueba" : "pruebas"}` : `${points.length} ${points.length === 1 ? "test" : "tests"}`}</span>
+      </div>
+
       <div className="overflow-x-auto">
         <svg viewBox={`0 0 ${width} ${height}`} role="img" aria-label={locale === "es" ? "Gráfico de progreso de WPM y precisión" : "Typing progress graph showing WPM and accuracy"} className="min-w-[760px] w-full">
-          {wpmTicks.map((tick, i) => { const y=yWpm(tick); return <g key={i}><line x1={pad.left} x2={width-pad.right} y1={y} y2={y} stroke="currentColor" className="text-hairline" strokeWidth="1" /><text x={pad.left-12} y={y+4} textAnchor="end" fontSize="11" className="fill-text-muted">{Math.round(tick)}</text><text x={width-pad.right+12} y={y+4} fontSize="11" className="fill-text-muted">{accuracyTicks[i]}%</text></g>; })}
+          {wpmTicks.map((tick, i) => { const y=yWpm(tick); return <g key={`grid-${i}`}><line x1={pad.left} x2={width-pad.right} y1={y} y2={y} stroke="currentColor" className="text-hairline" strokeWidth="1" /><text x={pad.left-12} y={y+4} textAnchor="end" fontSize="11" className="fill-text-muted">{Math.round(tick)}</text><text x={width-pad.right+12} y={y+4} fontSize="11" className="fill-text-muted">{accuracyTicks[i]}%</text></g>; })}
           <line x1={pad.left} x2={pad.left} y1={pad.top} y2={pad.top+chartHeight} stroke="currentColor" className="text-hairline" /><line x1={width-pad.right} x2={width-pad.right} y1={pad.top} y2={pad.top+chartHeight} stroke="currentColor" className="text-hairline" /><line x1={pad.left} x2={width-pad.right} y1={pad.top+chartHeight} y2={pad.top+chartHeight} stroke="currentColor" className="text-hairline" />
-          <path d={wpmPath} fill="none" stroke="currentColor" className="text-primary" strokeWidth="4" strokeLinecap="round" strokeLinejoin="round" vectorEffect="non-scaling-stroke" /><path d={accPath} fill="none" stroke="currentColor" className="text-ink" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" vectorEffect="non-scaling-stroke" />
-          {points.map((entry,i)=>{const x=xFor(i),yw=yWpm(entry.wpm),ya=yAcc(entry.accuracy),latestPoint=i===points.length-1;return <g key={entry.id}><circle cx={x} cy={yw} r={latestPoint?6:4} fill="currentColor" className="text-primary"><title>{`${entry.wpm.toFixed(1)} WPM · ${fmt(entry.completedAt)}`}</title></circle><circle cx={x} cy={ya} r={latestPoint?5:3.5} fill="currentColor" className="text-ink"><title>{`${entry.accuracy.toFixed(1)}% · ${fmt(entry.completedAt)}`}</title></circle>{labelIndexes.includes(i)&&<text x={x} y={height-28} textAnchor="middle" fontSize="11" className="fill-text-muted">{fmt(entry.completedAt)}</text>}</g>;})}
-          {points.length>1&&<g><rect x={bubbleX} y={bubbleY} width={bubbleW} height={bubbleH} rx="11" fill="currentColor" className="fill-canvas" stroke="currentColor" strokeOpacity="0.14"/><text x={bubbleX+bubbleW/2} y={bubbleY+24} textAnchor="middle" fontSize="11" fontWeight="600" className="fill-ink">{locale === "es" ? "Última prueba" : "Latest test"}</text></g>}
           <text x={pad.left} y={pad.top-16} fontSize="11" className="fill-text-faint">WPM</text><text x={width-pad.right} y={pad.top-16} textAnchor="end" fontSize="11" className="fill-text-faint">% {locale === "es" ? "precisión" : "accuracy"}</text>
+
+          {showTrend ? <>
+            <path d={wpmPath} fill="none" stroke={WPM_COLOR} strokeWidth="4" strokeLinecap="round" strokeLinejoin="round" vectorEffect="non-scaling-stroke" />
+            <path d={accuracyPath} fill="none" stroke={ACCURACY_COLOR} strokeWidth="3.5" strokeLinecap="round" strokeLinejoin="round" vectorEffect="non-scaling-stroke" />
+          </> : <>
+            <line x1={pad.left} x2={latestX} y1={latestWpmY} y2={latestWpmY} stroke={WPM_COLOR} strokeWidth="4" strokeLinecap="round" vectorEffect="non-scaling-stroke" />
+            <line x1={pad.left} x2={latestX} y1={latestAccY} y2={latestAccY} stroke={ACCURACY_COLOR} strokeWidth="3.5" strokeLinecap="round" strokeDasharray="8 8" vectorEffect="non-scaling-stroke" />
+          </>}
+
+          {points.map((entry,i)=>{const x=xFor(i),yw=yWpm(entry.wpm),ya=yAcc(entry.accuracy),latestPoint=i===points.length-1;return <g key={entry.id}><circle cx={x} cy={yw} r={latestPoint?7:4} fill={WPM_COLOR} stroke="white" strokeWidth={latestPoint?2:0}><title>{`${entry.wpm.toFixed(1)} WPM · ${fmt(entry.completedAt)}`}</title></circle><circle cx={x} cy={ya} r={latestPoint?6:3.5} fill={ACCURACY_COLOR} stroke="white" strokeWidth={latestPoint?2:0}><title>{`${entry.accuracy.toFixed(1)}% · ${fmt(entry.completedAt)}`}</title></circle>{labelIndexes.includes(i)&&<text x={x} y={height-28} textAnchor="middle" fontSize="11" className="fill-text-muted">{fmt(entry.completedAt)}</text>}</g>;})}
+          <g><rect x={Math.min(width-pad.right-136, Math.max(pad.left, latestX-68))} y={Math.max(pad.top+5, Math.min(pad.top+chartHeight-40, Math.min(latestWpmY,latestAccY)-48))} width="136" height="34" rx="10" fill="white" fillOpacity="0.9" stroke="currentColor" className="text-hairline"/><text x={Math.min(width-pad.right-68, Math.max(pad.left+68, latestX))} y={Math.max(pad.top+27, Math.min(pad.top+chartHeight-18, Math.min(latestWpmY,latestAccY)-25))} textAnchor="middle" fontSize="11" fontWeight="600" className="fill-text-muted">{showTrend ? (locale === "es" ? "Última prueba" : "Latest test") : (locale === "es" ? "Resultado actual" : "Current result")}</text></g>
         </svg>
       </div>
-      {points.length>1&&<div className="grid gap-3 border-t border-hairline pt-4 text-text-muted sm:grid-cols-2"><div><p className="font-label uppercase tracking-[0.12em]">{locale === "es" ? "Último resultado" : "Latest result"}</p><p className="mt-1 font-body-sm">{latest.wpm.toFixed(1)} WPM · {latest.accuracy.toFixed(1)}%</p></div><div className="sm:text-right"><p className="font-label uppercase tracking-[0.12em]">{locale === "es" ? "Cambio desde la prueba anterior" : "Change from previous test"}</p><p className="mt-1 font-body-sm">{signed(wpmDelta," WPM")} · {signed(accDelta," pp")}</p></div></div>}
+
+      <div className="grid gap-3 border-t border-hairline pt-4 text-text-muted sm:grid-cols-2">
+        <div><p className="font-label uppercase tracking-[0.12em]">{locale === "es" ? "Último resultado" : "Latest result"}</p><p className="mt-1 font-body-sm">{latest.wpm.toFixed(1)} WPM · {latest.accuracy.toFixed(1)}% {locale === "es" ? "precisión" : "accuracy"}</p></div>
+        <div className="sm:text-right"><p className="font-label uppercase tracking-[0.12em]">{showTrend ? (locale === "es" ? "Cambio desde la prueba anterior" : "Change from previous test") : (locale === "es" ? "Tendencia" : "Trend")}</p><p className="mt-1 font-body-sm">{showTrend ? `${signed(wpmDelta," WPM")} · ${signed(accDelta," pp")}` : (locale === "es" ? "Completa otra prueba para ver la tendencia." : "Complete another test to see the trend.")}</p></div>
+      </div>
     </div>
   </section>;
 }
