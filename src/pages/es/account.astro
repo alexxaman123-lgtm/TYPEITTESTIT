@@ -1,0 +1,16 @@
+---
+import SiteLayout from "../../layouts/SiteLayout.astro";
+import SpanishHeader from "../../components/SpanishHeader";
+import Footer from "../../components/Footer";
+import AccountPage from "../../components/AccountPage";
+
+const title = "Historial de escritura | Test de mecanografía Cabra";
+const description = "Consulta tu historial privado de pruebas de mecanografía, WPM, precisión y mejores resultados en Test de mecanografía Cabra.";
+---
+<SiteLayout title={title} description={description} canonicalPath="/es/account/" locale="es">
+  <div class="relative min-h-screen">
+    <SpanishHeader client:idle />
+    <AccountPage client:load locale="es" />
+    <Footer locale="es" />
+  </div>
+</SiteLayout>
