@@ -1,4 +1,4 @@
-import { useEffect, useLayoutEffect, useRef, useState } from "react";
+import { useEffect, useLayoutEffect, useRef } from "react";
 
 interface TypingMotionSectionProps {
   locale?: "en" | "es";
@@ -19,43 +19,44 @@ const LETTERS = [
   { value: "0", position: "top-[65%] right-[17%]", size: "h-12 w-12 sm:h-14 sm:w-14", rotate: "6deg", duration: "1.66s" },
 ] as const;
 
-const ENTRY_DURATION = 1900;
-const ENTRY_STAGGER = 85;
-const FLOAT_START_BUFFER = 120;
+const ENTRY_DURATION = 1800;
+const ENTRY_STAGGER = 70;
+const ENTRY_STAGGER_TOTAL = ENTRY_STAGGER * (LETTERS.length - 1);
+const SETTLE_DELAY = 100;
 
 export default function TypingMotionSection({ locale = "en" }: TypingMotionSectionProps) {
   const sectionRef = useRef<HTMLElement | null>(null);
   const stageRef = useRef<HTMLDivElement | null>(null);
-  const [hasEntered, setHasEntered] = useState(false);
-  const [hasSettled, setHasSettled] = useState(false);
+  const hasTriggeredRef = useRef(false);
+  const settleTimerRef = useRef<number | null>(null);
 
-  // Calculate the exact transform required to place every key at the SAME
-  // point: the center of the browser viewport. This avoids using transformed
-  // getBoundingClientRect values as animation inputs.
   useLayoutEffect(() => {
     const stage = stageRef.current;
     if (!stage) return;
 
-    const keys = Array.from(stage.querySelectorAll<HTMLElement>(".typing-motion-float"));
-
     const updateOrigins = () => {
       const stageRect = stage.getBoundingClientRect();
-      const sourceX = window.innerWidth / 2 - stageRect.left;
-      const sourceY = window.innerHeight / 2 - stageRect.top;
+      const viewportCenterX = window.innerWidth / 2;
+      const viewportCenterY = window.innerHeight / 2;
+      const sourceXInStage = viewportCenterX - stageRect.left;
+      const sourceYInStage = viewportCenterY - stageRect.top;
 
-      keys.forEach((key, index) => {
+      stage.querySelectorAll<HTMLElement>(".typing-motion-float").forEach((key) => {
+        // Absolute positioning defines the destination. We calculate the
+        // translation required to move each key's CENTER to the viewport CENTER.
         const targetCenterX = key.offsetLeft + key.offsetWidth / 2;
         const targetCenterY = key.offsetTop + key.offsetHeight / 2;
-        key.style.setProperty("--entry-x", `${sourceX - targetCenterX}px`);
-        key.style.setProperty("--entry-y", `${sourceY - targetCenterY}px`);
-        key.style.setProperty("--entry-delay", `${index * ENTRY_STAGGER}ms`);
-        key.style.setProperty("--float-duration", LETTERS[index].duration);
-        key.style.setProperty("--float-delay", `${-index * 140}ms`);
+
+        key.style.setProperty("--entry-x", `${sourceXInStage - targetCenterX}px`);
+        key.style.setProperty("--entry-y", `${sourceYInStage - targetCenterY}px`);
       });
     };
 
-    updateOrigins();
+    // Run after all layout styles have resolved, then keep the origin correct
+    // across viewport changes.
+    requestAnimationFrame(updateOrigins);
     window.addEventListener("resize", updateOrigins, { passive: true });
+
     return () => window.removeEventListener("resize", updateOrigins);
   }, []);
 
@@ -63,40 +64,69 @@ export default function TypingMotionSection({ locale = "en" }: TypingMotionSecti
     const section = sectionRef.current;
     if (!section) return;
 
-    const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-    if (reduceMotion) {
-      setHasEntered(true);
-      setHasSettled(true);
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+      section.classList.add("is-entered", "is-settled");
       return;
     }
 
-    let triggered = false;
-    let settleTimer: number | undefined;
+    const triggerEntry = () => {
+      if (hasTriggeredRef.current) return;
+      hasTriggeredRef.current = true;
 
-    // Trigger when the section is genuinely in view, rather than as soon as
-    // its top edge appears. This matches the requested "full screen" feel.
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        if (triggered || entry.intersectionRatio < 0.68) return;
+      // Force the browser to commit the center-origin state first. This makes
+      // the following class change a real transition instead of a first-paint
+      // jump directly to the final positions.
+      section.getBoundingClientRect();
+      requestAnimationFrame(() => {
+        section.classList.add("is-entered");
 
-        triggered = true;
-        setHasEntered(true);
+        settleTimerRef.current = window.setTimeout(() => {
+          section.classList.add("is-settled");
+        }, ENTRY_DURATION + ENTRY_STAGGER_TOTAL + SETTLE_DELAY);
+      });
+    };
 
-        settleTimer = window.setTimeout(
-          () => setHasSettled(true),
-          ENTRY_DURATION + ENTRY_STAGGER * (LETTERS.length - 1) + FLOAT_START_BUFFER
-        );
+    const checkPosition = () => {
+      if (hasTriggeredRef.current) return;
 
-        observer.disconnect();
-      },
-      { threshold: [0.68] }
-    );
+      const rect = section.getBoundingClientRect();
+      const viewportHeight = window.innerHeight;
 
-    observer.observe(section);
+      // Trigger only when the section itself is the main thing on screen:
+      // enough of its height is visible and its center is close to the viewport
+      // center. This prevents the animation from firing while merely approaching
+      // the section.
+      const visibleTop = Math.max(rect.top, 0);
+      const visibleBottom = Math.min(rect.bottom, viewportHeight);
+      const visibleHeight = Math.max(0, visibleBottom - visibleTop);
+      const visibilityRatio = visibleHeight / Math.max(rect.height, 1);
+      const centerDistance = Math.abs((rect.top + rect.height / 2) - viewportHeight / 2);
+
+      if (visibilityRatio >= 0.78 && centerDistance <= viewportHeight * 0.18) {
+        triggerEntry();
+      }
+    };
+
+    let ticking = false;
+    const onScroll = () => {
+      if (ticking) return;
+      ticking = true;
+      requestAnimationFrame(() => {
+        ticking = false;
+        checkPosition();
+      });
+    };
+
+    checkPosition();
+    window.addEventListener("scroll", onScroll, { passive: true });
+    window.addEventListener("resize", checkPosition, { passive: true });
 
     return () => {
-      observer.disconnect();
-      if (settleTimer !== undefined) window.clearTimeout(settleTimer);
+      window.removeEventListener("scroll", onScroll);
+      window.removeEventListener("resize", checkPosition);
+      if (settleTimerRef.current !== null) {
+        window.clearTimeout(settleTimerRef.current);
+      }
     };
   }, []);
 
@@ -115,7 +145,7 @@ export default function TypingMotionSection({ locale = "en" }: TypingMotionSecti
   return (
     <section
       ref={sectionRef}
-      className={`typing-motion-section relative overflow-hidden border-y border-hairline ${hasEntered ? "is-entered" : "is-pre-enter"} ${hasSettled ? "is-settled" : ""}`}
+      className="typing-motion-section relative overflow-hidden border-y border-hairline"
       aria-label={locale === "es" ? "Práctica de mecanografía" : "Typing practice showcase"}
     >
       <div className="typing-motion-grid" aria-hidden="true" />
@@ -135,9 +165,10 @@ export default function TypingMotionSection({ locale = "en" }: TypingMotionSecti
           </div>
         </div>
 
-        {LETTERS.map((item) => (
+        {LETTERS.map((item, index) => (
           <div
             key={`${item.value}-${item.position}`}
+            data-letter-index={index}
             className={`typing-motion-float absolute ${item.position} ${item.size}`}
             aria-hidden="true"
           >
@@ -146,6 +177,7 @@ export default function TypingMotionSection({ locale = "en" }: TypingMotionSecti
               style={{
                 ["--tile-rotation" as string]: item.rotate,
                 ["--float-duration" as string]: item.duration,
+                ["--float-delay" as string]: `${-index * 140}ms`,
               }}
             >
               <span>{item.value}</span>
@@ -191,22 +223,25 @@ export default function TypingMotionSection({ locale = "en" }: TypingMotionSecti
           -webkit-backdrop-filter: blur(10px);
         }
 
-        /* Initial state: all keys are physically stacked around the browser's
-           viewport center, slightly scaled down so they are only partially seen. */
+        /* BEFORE FIRST SCROLL REVEAL:
+           every key is stacked around one common point - the exact browser
+           viewport center. opacity + scale make the cluster feel like it is
+           only partially emerging from that point. */
         .typing-motion-float {
           z-index: 2;
           pointer-events: none;
-          transform: translate3d(var(--entry-x, 0px), var(--entry-y, 0px), 0) scale(.34);
-          opacity: .35;
+          transform: translate3d(var(--entry-x, 0px), var(--entry-y, 0px), 0) scale(.52);
+          transform-origin: 50% 50%;
+          opacity: .28;
           transition:
-            transform ${ENTRY_DURATION}ms cubic-bezier(0.16, 1, 0.3, 1),
-            opacity 650ms ease;
-          transition-delay: var(--entry-delay, 0ms), var(--entry-delay, 0ms);
+            transform ${ENTRY_DURATION}ms cubic-bezier(0.22, 1, 0.36, 1),
+            opacity 720ms ease;
+          transition-delay: calc(var(--entry-order, 0) * ${ENTRY_STAGGER}ms), calc(var(--entry-order, 0) * ${ENTRY_STAGGER}ms);
           will-change: transform, opacity;
         }
 
-        /* Once the section reaches the main viewport, the stacked keys slowly
-           spread outward to their assigned positions. */
+        /* After the section becomes the main viewport focus, all keys slowly
+           distribute outward to their final positions. */
         .typing-motion-section.is-entered .typing-motion-float {
           transform: translate3d(0, 0, 0) scale(1);
           opacity: 1;
@@ -229,8 +264,8 @@ export default function TypingMotionSection({ locale = "en" }: TypingMotionSecti
           transform: rotate(var(--tile-rotation));
         }
 
-        /* Floating begins ONLY after the entrance movement has fully finished,
-           so the two transforms can never fight each other. */
+        /* Floating motion is deliberately isolated on the INNER tile. It only
+           starts after every outer entry transform has reached its destination. */
         .typing-motion-section.is-settled .typing-motion-tile {
           animation: typingMotionFloat var(--float-duration) ease-in-out infinite;
           animation-delay: var(--float-delay, 0ms);
@@ -255,13 +290,17 @@ export default function TypingMotionSection({ locale = "en" }: TypingMotionSecti
             min-height: 560px;
             padding-block: 88px;
           }
-          .typing-motion-float:nth-of-type(3),
-          .typing-motion-float:nth-of-type(7),
-          .typing-motion-float:nth-of-type(10),
-          .typing-motion-float:nth-of-type(11),
-          .typing-motion-float:nth-of-type(12) {
+
+          /* Keep the mobile composition light, but select the intended keys by
+             explicit index rather than fragile nth-of-type selectors. */
+          .typing-motion-float[data-letter-index="2"],
+          .typing-motion-float[data-letter-index="6"],
+          .typing-motion-float[data-letter-index="9"],
+          .typing-motion-float[data-letter-index="10"],
+          .typing-motion-float[data-letter-index="11"] {
             display: none;
           }
+
           .typing-motion-tile { border-radius: 18px; }
         }
 
