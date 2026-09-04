@@ -93,9 +93,10 @@ export default function SpanishHeader() {
     <>
       <header className="sticky top-3 z-50 w-full px-2 pointer-events-none sm:top-5 sm:px-4 lg:px-6">
         <div className={[
-          "pointer-events-auto mx-auto flex w-full max-w-none min-w-0 items-center rounded-full border border-hairline/70 shadow-sm",
-          "h-11 gap-1 bg-canvas-soft px-2 sm:h-14 sm:gap-2 sm:px-4 lg:gap-3 lg:px-5",
-          scrolled && "bg-canvas-soft/95 backdrop-blur-md",
+          "pointer-events-auto mx-auto flex w-full max-w-none min-w-0 items-center rounded-full border shadow-sm",
+          "h-11 gap-1 px-2 sm:h-14 sm:gap-2 sm:px-4 lg:gap-3 lg:px-5",
+          "border-white/10 bg-canvas-soft/70 backdrop-blur-xl backdrop-saturate-150 shadow-[0_8px_32px_rgba(0,0,0,0.18)]",
+          scrolled && "bg-canvas-soft/55",
         ].filter(Boolean).join(" ")}>
           <a href="/es/" className="flex min-w-0 flex-1 items-center select-none" aria-label="Inicio de Test de mecanografía Cabra">
             <span className="font-title min-w-0 truncate text-[12px] font-semibold leading-none tracking-tight sm:text-lg lg:text-xl">Test de mecanografía</span>
@@ -109,17 +110,18 @@ export default function SpanishHeader() {
           <div className="hidden shrink-0 items-center gap-2.5 lg:gap-3 md:flex">
             <SpanishThemePicker />
             <LanguagePicker locale="es" />
-            <div className="inline-flex max-w-[160px] items-center rounded-full border border-hairline bg-canvas px-4 py-2">
+            {isAuthenticated && <a href="/es/account/" className="whitespace-nowrap font-link text-ink hover:text-text-muted">Historial</a>}
+            <div className="inline-flex max-w-[160px] items-center rounded-full border border-hairline bg-canvas/55 px-4 py-2">
               {accountLabel}
             </div>
           </div>
           <div className="flex min-w-0 shrink-0 items-center gap-1 sm:gap-2 md:hidden">
             <SpanishThemePicker />
             <LanguagePicker locale="es" />
-            <div className="inline-flex max-w-[100px] items-center rounded-full border border-hairline bg-canvas px-3 py-1.5">
+            <div className="inline-flex max-w-[100px] items-center rounded-full border border-hairline bg-canvas/55 px-3 py-1.5">
               {mobileAccountLabel}
             </div>
-            <button type="button" onClick={() => setOpen((value) => !value)} className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-canvas text-ink shadow-sm sm:h-9 sm:w-9" aria-label={open ? "Cerrar menú" : "Abrir menú"} aria-expanded={open}>
+            <button type="button" onClick={() => setOpen((value) => !value)} className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-canvas/55 text-ink shadow-sm sm:h-9 sm:w-9" aria-label={open ? "Cerrar menú" : "Abrir menú"} aria-expanded={open}>
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                 {open ? <path d="M6 6l12 12M18 6l-12 12" strokeLinecap="round" /> : <path d="M3 6h18M3 12h18M3 18h18" strokeLinecap="round" />}
               </svg>
@@ -127,11 +129,11 @@ export default function SpanishHeader() {
           </div>
         </div>
         {open && (
-          <div className="pointer-events-auto mx-1 mt-2 rounded-2xl border border-hairline/70 bg-canvas-soft p-2 shadow-lg md:hidden">
+          <div className="pointer-events-auto mx-1 mt-2 rounded-2xl border border-white/10 bg-canvas-soft/65 p-2 shadow-lg backdrop-blur-xl">
             <nav className="flex flex-col gap-1" aria-label="Menú móvil">
-              {isAuthenticated && <a href="/es/account/" onClick={() => setOpen(false)} className="rounded-xl px-4 py-3 font-link text-ink hover:bg-canvas">Historial</a>}
+              {isAuthenticated && <a href="/es/account/" onClick={() => setOpen(false)} className="rounded-xl px-4 py-3 font-link text-ink hover:bg-canvas/60">Historial</a>}
               {NAV_LINKS.map((link) => (
-                <a key={link.href} href={link.href} onClick={() => setOpen(false)} className="rounded-xl px-4 py-3 font-link text-ink hover:bg-canvas">{link.label}</a>
+                <a key={link.href} href={link.href} onClick={() => setOpen(false)} className="rounded-xl px-4 py-3 font-link text-ink hover:bg-canvas/60">{link.label}</a>
               ))}
             </nav>
           </div>
