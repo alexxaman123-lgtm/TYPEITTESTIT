@@ -87,7 +87,6 @@ export default function Hero() {
           <div className="hero-video-shell relative overflow-hidden rounded-[32px] border border-current/10 bg-canvas-soft shadow-2xl">
             <video
               className="block aspect-[4/5] h-auto w-full object-cover lg:aspect-[5/6]"
-              src="/Goat_typing_on_laptop_1080p_202609030103.mp4"
               poster="/og-image.png"
               autoPlay
               muted
@@ -95,7 +94,10 @@ export default function Hero() {
               playsInline
               preload="metadata"
               aria-label="Animated goat typing on a laptop"
-            />
+            >
+              <source src="/goat-typing-on-laptop-1080p-202609030103-1_QfYbMZo0.mp4" type="video/mp4" />
+              <source src="/Goat_typing_on_laptop_1080p_202609030103.mp4" type="video/mp4" />
+            </video>
             <div className="pointer-events-none absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/45 via-black/5 to-transparent px-5 pb-5 pt-20">
               <p className="font-caption font-semibold text-white">The GOAT is typing.</p>
             </div>
