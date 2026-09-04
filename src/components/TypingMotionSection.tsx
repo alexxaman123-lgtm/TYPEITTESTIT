@@ -1,26 +1,51 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useLayoutEffect, useRef } from "react";
 
 interface TypingMotionSectionProps {
   locale?: "en" | "es";
 }
 
 const LETTERS = [
-  { value: "A", position: "top-[8%] left-[10%]", size: "h-20 w-20 sm:h-24 sm:w-24", rotate: "-8deg", delay: "-1.2s", duration: "3.41s", side: "left" },
-  { value: "S", position: "top-[18%] left-[29%]", size: "h-16 w-16 sm:h-20 sm:w-20", rotate: "6deg", delay: "-4s", duration: "3.81s", side: "left" },
-  { value: "D", position: "top-[6%] right-[28%]", size: "h-16 w-16 sm:h-20 sm:w-20", rotate: "-5deg", delay: "-7s", duration: "4.21s", side: "right" },
-  { value: "F", position: "top-[15%] right-[8%]", size: "h-20 w-20 sm:h-24 sm:w-24", rotate: "9deg", delay: "-2.4s", duration: "3.57s", side: "right" },
-  { value: "J", position: "top-[43%] left-[3%]", size: "h-16 w-16 sm:h-20 sm:w-20", rotate: "7deg", delay: "-6.2s", duration: "4.41s", side: "left" },
-  { value: "K", position: "top-[46%] right-[3%]", size: "h-20 w-20 sm:h-24 sm:w-24", rotate: "-7deg", delay: "-3.1s", duration: "3.93s", side: "right" },
-  { value: "L", position: "bottom-[12%] left-[11%]", size: "h-20 w-20 sm:h-24 sm:w-24", rotate: "-10deg", delay: "-5.7s", duration: "4.09s", side: "left" },
-  { value: ";", position: "bottom-[8%] right-[12%]", size: "h-16 w-16 sm:h-20 sm:w-20", rotate: "8deg", delay: "-8s", duration: "3.69s", side: "right" },
-  { value: "Q", position: "bottom-[20%] left-[29%]", size: "h-14 w-14 sm:h-16 sm:w-16", rotate: "5deg", delay: "-2.8s", duration: "3.53s", side: "left" },
-  { value: "P", position: "bottom-[21%] right-[29%]", size: "h-14 w-14 sm:h-16 sm:w-16", rotate: "-6deg", delay: "-6.5s", duration: "4.33s", side: "right" },
-  { value: "1", position: "top-[61%] left-[17%]", size: "h-12 w-12 sm:h-14 sm:w-14", rotate: "-4deg", delay: "-1.8s", duration: "3.28s", side: "left" },
-  { value: "0", position: "top-[65%] right-[17%]", size: "h-12 w-12 sm:h-14 sm:w-14", rotate: "6deg", delay: "-4.9s", duration: "3.89s", side: "right" },
+  { value: "A", position: "top-[8%] left-[10%]", size: "h-20 w-20 sm:h-24 sm:w-24", rotate: "-8deg", delay: "-1.2s", duration: "3.41s" },
+  { value: "S", position: "top-[18%] left-[29%]", size: "h-16 w-16 sm:h-20 sm:w-20", rotate: "6deg", delay: "-4s", duration: "3.81s" },
+  { value: "D", position: "top-[6%] right-[28%]", size: "h-16 w-16 sm:h-20 w-20", rotate: "-5deg", delay: "-7s", duration: "4.21s" },
+  { value: "F", position: "top-[15%] right-[8%]", size: "h-20 w-20 sm:h-24 sm:w-24", rotate: "9deg", delay: "-2.4s", duration: "3.57s" },
+  { value: "J", position: "top-[43%] left-[3%]", size: "h-16 w-16 sm:h-20 sm:w-20", rotate: "7deg", delay: "-6.2s", duration: "4.41s" },
+  { value: "K", position: "top-[46%] right-[3%]", size: "h-20 w-20 sm:h-24 sm:w-24", rotate: "-7deg", delay: "-3.1s", duration: "3.93s" },
+  { value: "L", position: "bottom-[12%] left-[11%]", size: "h-20 w-20 sm:h-24 sm:w-24", rotate: "-10deg", delay: "-5.7s", duration: "4.09s" },
+  { value: ";", position: "bottom-[8%] right-[12%]", size: "h-16 w-16 sm:h-20 sm:w-20", rotate: "8deg", delay: "-8s", duration: "3.69s" },
+  { value: "Q", position: "bottom-[20%] left-[29%]", size: "h-14 w-14 sm:h-16 sm:w-16", rotate: "5deg", delay: "-2.8s", duration: "3.53s" },
+  { value: "P", position: "bottom-[21%] right-[29%]", size: "h-14 w-14 sm:h-16 sm:w-16", rotate: "-6deg", delay: "-6.5s", duration: "4.33s" },
+  { value: "1", position: "top-[61%] left-[17%]", size: "h-12 w-12 sm:h-14 sm:w-14", rotate: "-4deg", delay: "-1.8s", duration: "3.28s" },
+  { value: "0", position: "top-[65%] right-[17%]", size: "h-12 w-12 sm:h-14 sm:w-14", rotate: "6deg", delay: "-4.9s", duration: "3.89s" },
 ] as const;
 
 export default function TypingMotionSection({ locale = "en" }: TypingMotionSectionProps) {
   const sectionRef = useRef<HTMLElement | null>(null);
+
+  useLayoutEffect(() => {
+    const section = sectionRef.current;
+    if (!section) return;
+
+    const keys = Array.from(section.querySelectorAll<HTMLElement>(".typing-motion-float"));
+    if (keys.length === 0) return;
+
+    const setEntryOrigins = () => {
+      const sectionCenterX = section.clientWidth / 2;
+      const sourceY = section.clientHeight + 150;
+
+      keys.forEach((key, index) => {
+        const targetCenterX = key.offsetLeft + key.offsetWidth / 2;
+        const targetCenterY = key.offsetTop + key.offsetHeight / 2;
+        key.style.setProperty("--entry-x", `${sectionCenterX - targetCenterX}px`);
+        key.style.setProperty("--entry-y", `${sourceY - targetCenterY}px`);
+        key.style.setProperty("--entry-delay", `${Math.min(index * 110, 1100)}ms`);
+      });
+    };
+
+    setEntryOrigins();
+    window.addEventListener("resize", setEntryOrigins, { passive: true });
+    return () => window.removeEventListener("resize", setEntryOrigins);
+  }, []);
 
   useEffect(() => {
     const section = sectionRef.current;
@@ -77,8 +102,7 @@ export default function TypingMotionSection({ locale = "en" }: TypingMotionSecti
             className={`typing-motion-float absolute ${item.position} ${item.size}`}
             style={{
               ["--tile-rotation" as string]: item.rotate,
-              ["--entry-x" as string]: item.side === "left" ? "calc(-100vw - 120px)" : "calc(100vw + 120px)",
-              ["--entry-delay" as string]: `${Math.min(index * 45, 480)}ms`,
+              ["--entry-delay" as string]: `${Math.min(index * 110, 1100)}ms`,
               ["--float-duration" as string]: item.duration,
               ["--float-delay" as string]: item.delay,
             }}
@@ -133,13 +157,13 @@ export default function TypingMotionSection({ locale = "en" }: TypingMotionSecti
         .typing-motion-float {
           z-index: 2;
           pointer-events: none;
-          transform: translate3d(var(--entry-x), 0, 0);
-          transition: transform 920ms cubic-bezier(0.16, 1, 0.3, 1);
+          transform: translate3d(var(--entry-x), var(--entry-y), 0);
+          transition: transform 1650ms cubic-bezier(0.16, 1, 0.3, 1);
           transition-delay: var(--entry-delay);
           will-change: transform;
         }
 
-        /* First scroll into view: keys sweep in from alternating screen edges, then stay and float. */
+        /* On the first scroll into view, every key rises from one shared point at the bottom-center of the section and settles into its own position. */
         [data-motion-defer="active"] .typing-motion-float {
           transform: translate3d(0, 0, 0);
         }
