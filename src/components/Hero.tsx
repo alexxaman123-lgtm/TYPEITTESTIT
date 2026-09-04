@@ -87,13 +87,13 @@ export default function Hero() {
           <div className="hero-video-shell relative overflow-hidden rounded-[32px] border border-current/10 bg-canvas-soft shadow-2xl">
             <video
               className="block aspect-[4/5] h-auto w-full object-cover lg:aspect-[5/6]"
-              poster="/og-image.png"
               autoPlay
               muted
               loop
               playsInline
               preload="metadata"
               aria-label="Animated goat typing on a laptop"
+              style={{ backgroundColor: "var(--color-canvas-soft)" }}
             >
               <source src="/goat-typing-on-laptop-1080p-202609030103-1_QfYbMZo0.mp4" type="video/mp4" />
               <source src="/Goat_typing_on_laptop_1080p_202609030103.mp4" type="video/mp4" />
