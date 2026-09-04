@@ -4,6 +4,7 @@ import { tr } from "../lib/i18n";
 export default function Footer({ locale = "en" as Locale }: { locale?: Locale }) {
   const prefix = locale === "es" ? "/es" : "";
   const brand = locale === "es" ? "Test de mecanografía Cabra" : "FreeTypingTestGoat";
+  const wordmark = locale === "es" ? "ESCRIBE. PONTE A PRUEBA." : "TYPE IT. TEST IT.";
 
   const links = [
     [tr(locale,"footer","typingTester"), `${prefix}/#tester`],
@@ -40,7 +41,7 @@ export default function Footer({ locale = "en" as Locale }: { locale?: Locale })
       </div>
 
       <div className="footer-wordmark-stage" aria-hidden="true">
-        <div data-footer-wordmark className="footer-wordmark">TYPE IT. TEST IT.</div>
+        <div data-footer-wordmark className="footer-wordmark">{wordmark}</div>
       </div>
     </footer>
   );
