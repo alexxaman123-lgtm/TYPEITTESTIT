@@ -120,6 +120,7 @@ export default function SpanishHeader() {
           <div className="hidden shrink-0 items-center gap-2.5 lg:gap-3 md:flex">
             <LanguagePicker locale="es" />
             <SpanishThemePicker />
+            {isAuthenticated && <a href="/es/account/" className="whitespace-nowrap font-link text-ink transition-colors hover:text-text-muted">Historial</a>}
             {accountLabel}
             <a href="/es/#tester" className="flex h-9 shrink-0 items-center justify-center whitespace-nowrap rounded-full bg-primary px-4 font-link text-sm text-on-primary transition-opacity hover:opacity-90">Empezar a escribir</a>
           </div>
@@ -140,6 +141,7 @@ export default function SpanishHeader() {
               {NAV_LINKS.map((link) => (
                 <a key={link.href} href={link.href} onClick={() => setOpen(false)} className="rounded-xl px-4 py-3 font-link text-ink hover:bg-canvas">{link.label}</a>
               ))}
+              {isAuthenticated && <a href="/es/account/" onClick={() => setOpen(false)} className="rounded-xl px-4 py-3 font-link text-ink hover:bg-canvas">Historial</a>}
               <a href="/es/#tester" onClick={() => setOpen(false)} className="mt-2 rounded-xl bg-primary px-4 py-3 text-center font-link text-on-primary">Empezar a escribir</a>
             </nav>
           </div>
