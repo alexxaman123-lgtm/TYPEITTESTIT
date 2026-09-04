@@ -1,23 +1,49 @@
+import { useEffect, useRef } from "react";
+
 interface TypingMotionSectionProps {
   locale?: "en" | "es";
 }
 
 const LETTERS = [
-  { value: "A", position: "top-[8%] left-[10%]", size: "h-20 w-20 sm:h-24 sm:w-24", rotate: "-8deg", delay: "-1.2s", duration: "5.45s" },
-  { value: "S", position: "top-[18%] left-[29%]", size: "h-16 w-16 sm:h-20 sm:w-20", rotate: "6deg", delay: "-4s", duration: "6.09s" },
-  { value: "D", position: "top-[6%] right-[28%]", size: "h-16 w-16 sm:h-20 sm:w-20", rotate: "-5deg", delay: "-7s", duration: "6.73s" },
-  { value: "F", position: "top-[15%] right-[8%]", size: "h-20 w-20 sm:h-24 sm:w-24", rotate: "9deg", delay: "-2.4s", duration: "5.71s" },
-  { value: "J", position: "top-[43%] left-[3%]", size: "h-16 w-16 sm:h-20 sm:w-20", rotate: "7deg", delay: "-6.2s", duration: "7.05s" },
-  { value: "K", position: "top-[46%] right-[3%]", size: "h-20 w-20 sm:h-24 sm:w-24", rotate: "-7deg", delay: "-3.1s", duration: "6.28s" },
-  { value: "L", position: "bottom-[12%] left-[11%]", size: "h-20 w-20 sm:h-24 sm:w-24", rotate: "-10deg", delay: "-5.7s", duration: "6.54s" },
-  { value: ";", position: "bottom-[8%] right-[12%]", size: "h-16 w-16 sm:h-20 sm:w-20", rotate: "8deg", delay: "-8s", duration: "5.90s" },
-  { value: "Q", position: "bottom-[20%] left-[29%]", size: "h-14 w-14 sm:h-16 sm:w-16", rotate: "5deg", delay: "-2.8s", duration: "5.64s" },
-  { value: "P", position: "bottom-[21%] right-[29%]", size: "h-14 w-14 sm:h-16 sm:w-16", rotate: "-6deg", delay: "-6.5s", duration: "6.92s" },
-  { value: "1", position: "top-[61%] left-[17%]", size: "h-12 w-12 sm:h-14 sm:w-14", rotate: "-4deg", delay: "-1.8s", duration: "5.25s" },
-  { value: "0", position: "top-[65%] right-[17%]", size: "h-12 w-12 sm:h-14 sm:w-14", rotate: "6deg", delay: "-4.9s", duration: "6.22s" },
+  { value: "A", position: "top-[8%] left-[10%]", size: "h-20 w-20 sm:h-24 sm:w-24", rotate: "-8deg", delay: "-1.2s", duration: "3.41s", side: "left" },
+  { value: "S", position: "top-[18%] left-[29%]", size: "h-16 w-16 sm:h-20 sm:w-20", rotate: "6deg", delay: "-4s", duration: "3.81s", side: "left" },
+  { value: "D", position: "top-[6%] right-[28%]", size: "h-16 w-16 sm:h-20 w-20", rotate: "-5deg", delay: "-7s", duration: "4.21s", side: "right" },
+  { value: "F", position: "top-[15%] right-[8%]", size: "h-20 w-20 sm:h-24 sm:w-24", rotate: "9deg", delay: "-2.4s", duration: "3.57s", side: "right" },
+  { value: "J", position: "top-[43%] left-[3%]", size: "h-16 w-16 sm:h-20 sm:w-20", rotate: "7deg", delay: "-6.2s", duration: "4.41s", side: "left" },
+  { value: "K", position: "top-[46%] right-[3%]", size: "h-20 w-20 sm:h-24 sm:w-24", rotate: "-7deg", delay: "-3.1s", duration: "3.93s", side: "right" },
+  { value: "L", position: "bottom-[12%] left-[11%]", size: "h-20 w-20 sm:h-24 sm:w-24", rotate: "-10deg", delay: "-5.7s", duration: "4.09s", side: "left" },
+  { value: ";", position: "bottom-[8%] right-[12%]", size: "h-16 w-16 sm:h-20 sm:w-20", rotate: "8deg", delay: "-8s", duration: "3.69s", side: "right" },
+  { value: "Q", position: "bottom-[20%] left-[29%]", size: "h-14 w-14 sm:h-16 sm:w-16", rotate: "5deg", delay: "-2.8s", duration: "3.53s", side: "left" },
+  { value: "P", position: "bottom-[21%] right-[29%]", size: "h-14 w-14 sm:h-16 sm:w-16", rotate: "-6deg", delay: "-6.5s", duration: "4.33s", side: "right" },
+  { value: "1", position: "top-[61%] left-[17%]", size: "h-12 w-12 sm:h-14 sm:w-14", rotate: "-4deg", delay: "-1.8s", duration: "3.28s", side: "left" },
+  { value: "0", position: "top-[65%] right-[17%]", size: "h-12 w-12 sm:h-14 sm:w-14", rotate: "6deg", delay: "-4.9s", duration: "3.89s", side: "right" },
 ] as const;
 
 export default function TypingMotionSection({ locale = "en" }: TypingMotionSectionProps) {
+  const sectionRef = useRef<HTMLElement | null>(null);
+
+  useEffect(() => {
+    const section = sectionRef.current;
+    if (!section) return;
+
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+      section.dataset.motionDefer = "active";
+      return;
+    }
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (!entry.isIntersecting) return;
+        section.dataset.motionDefer = "active";
+        observer.disconnect();
+      },
+      { threshold: 0.12 }
+    );
+
+    observer.observe(section);
+    return () => observer.disconnect();
+  }, []);
+
   const content = locale === "es"
     ? {
         eyebrow: "PRÁCTICA DE MECANOGRAFÍA",
@@ -31,7 +57,7 @@ export default function TypingMotionSection({ locale = "en" }: TypingMotionSecti
       };
 
   return (
-    <section data-motion-defer className="typing-motion-section relative overflow-hidden border-y border-hairline" aria-label={locale === "es" ? "Práctica de mecanografía" : "Typing practice showcase"}>
+    <section ref={sectionRef} data-motion-defer className="typing-motion-section relative overflow-hidden border-y border-hairline" aria-label={locale === "es" ? "Práctica de mecanografía" : "Typing practice showcase"}>
       <div className="typing-motion-grid" aria-hidden="true" />
       <div className="relative mx-auto flex min-h-[620px] max-w-[1500px] items-center justify-center px-5 py-24 sm:min-h-[700px] sm:px-8 lg:min-h-[760px] lg:px-12">
         <div className="typing-motion-copy relative z-10 text-center">
@@ -45,12 +71,14 @@ export default function TypingMotionSection({ locale = "en" }: TypingMotionSecti
           </div>
         </div>
 
-        {LETTERS.map((item) => (
+        {LETTERS.map((item, index) => (
           <div
             key={`${item.value}-${item.position}`}
             className={`typing-motion-float absolute ${item.position} ${item.size}`}
             style={{
               ["--tile-rotation" as string]: item.rotate,
+              ["--entry-x" as string]: item.side === "left" ? "calc(-100vw - 120px)" : "calc(100vw + 120px)",
+              ["--entry-delay" as string]: `${Math.min(index * 45, 480)}ms`,
               animationDelay: item.delay,
               animationDuration: item.duration,
             }}
@@ -105,18 +133,15 @@ export default function TypingMotionSection({ locale = "en" }: TypingMotionSecti
         .typing-motion-float {
           z-index: 2;
           pointer-events: none;
-          animation-name: typingMotionFloat;
-          animation-timing-function: ease-in-out;
-          animation-iteration-count: infinite;
+          transform: translate3d(var(--entry-x), 0, 0);
+          transition: transform 920ms cubic-bezier(0.16, 1, 0.3, 1);
+          transition-delay: var(--entry-delay);
           will-change: transform;
         }
 
-        /* Defer infinite animation work until the section is on screen. */
-        [data-motion-defer] .typing-motion-float {
-          animation-play-state: paused;
-        }
+        /* First time the section enters the viewport: keys sweep in from both screen edges. */
         [data-motion-defer="active"] .typing-motion-float {
-          animation-play-state: running;
+          transform: translate3d(0, 0, 0);
         }
 
         .typing-motion-tile {
@@ -134,7 +159,6 @@ export default function TypingMotionSection({ locale = "en" }: TypingMotionSecti
           backdrop-filter: blur(9px);
           -webkit-backdrop-filter: blur(9px);
           transform: rotate(var(--tile-rotation));
-          transition: transform 180ms ease, box-shadow 180ms ease;
         }
 
         .typing-motion-tile span {
@@ -144,11 +168,6 @@ export default function TypingMotionSection({ locale = "en" }: TypingMotionSecti
           color: var(--color-ink);
           line-height: 1;
           text-shadow: 0 0 28px color-mix(in srgb, var(--color-accent) 8%, transparent);
-        }
-
-        @keyframes typingMotionFloat {
-          0%, 100% { transform: translate3d(0, 0, 0); }
-          50% { transform: translate3d(7px, -15px, 0); }
         }
 
         @media (max-width: 700px) {
@@ -167,8 +186,13 @@ export default function TypingMotionSection({ locale = "en" }: TypingMotionSecti
         }
 
         @media (prefers-reduced-motion: reduce) {
-          .typing-motion-float { animation: none; }
-          .typing-motion-tile { transform: rotate(var(--tile-rotation)); }
+          .typing-motion-float {
+            transition: none;
+          }
+          .typing-motion-float,
+          [data-motion-defer="active"] .typing-motion-float {
+            transform: translate3d(0, 0, 0);
+          }
         }
       `}</style>
     </section>
