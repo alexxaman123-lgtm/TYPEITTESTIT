@@ -7,7 +7,7 @@ interface TypingMotionSectionProps {
 const LETTERS = [
   { value: "A", position: "top-[8%] left-[10%]", size: "h-20 w-20 sm:h-24 sm:w-24", rotate: "-8deg", delay: "-1.2s", duration: "3.41s", side: "left" },
   { value: "S", position: "top-[18%] left-[29%]", size: "h-16 w-16 sm:h-20 sm:w-20", rotate: "6deg", delay: "-4s", duration: "3.81s", side: "left" },
-  { value: "D", position: "top-[6%] right-[28%]", size: "h-16 w-16 sm:h-20 w-20", rotate: "-5deg", delay: "-7s", duration: "4.21s", side: "right" },
+  { value: "D", position: "top-[6%] right-[28%]", size: "h-16 w-16 sm:h-20 sm:w-20", rotate: "-5deg", delay: "-7s", duration: "4.21s", side: "right" },
   { value: "F", position: "top-[15%] right-[8%]", size: "h-20 w-20 sm:h-24 sm:w-24", rotate: "9deg", delay: "-2.4s", duration: "3.57s", side: "right" },
   { value: "J", position: "top-[43%] left-[3%]", size: "h-16 w-16 sm:h-20 sm:w-20", rotate: "7deg", delay: "-6.2s", duration: "4.41s", side: "left" },
   { value: "K", position: "top-[46%] right-[3%]", size: "h-20 w-20 sm:h-24 sm:w-24", rotate: "-7deg", delay: "-3.1s", duration: "3.93s", side: "right" },
@@ -79,8 +79,8 @@ export default function TypingMotionSection({ locale = "en" }: TypingMotionSecti
               ["--tile-rotation" as string]: item.rotate,
               ["--entry-x" as string]: item.side === "left" ? "calc(-100vw - 120px)" : "calc(100vw + 120px)",
               ["--entry-delay" as string]: `${Math.min(index * 45, 480)}ms`,
-              animationDelay: item.delay,
-              animationDuration: item.duration,
+              ["--float-duration" as string]: item.duration,
+              ["--float-delay" as string]: item.delay,
             }}
             aria-hidden="true"
           >
@@ -139,7 +139,7 @@ export default function TypingMotionSection({ locale = "en" }: TypingMotionSecti
           will-change: transform;
         }
 
-        /* First time the section enters the viewport: keys sweep in from both screen edges. */
+        /* First scroll into view: keys sweep in from alternating screen edges, then stay and float. */
         [data-motion-defer="active"] .typing-motion-float {
           transform: translate3d(0, 0, 0);
         }
@@ -159,6 +159,9 @@ export default function TypingMotionSection({ locale = "en" }: TypingMotionSecti
           backdrop-filter: blur(9px);
           -webkit-backdrop-filter: blur(9px);
           transform: rotate(var(--tile-rotation));
+          animation: typingMotionFloat var(--float-duration) ease-in-out infinite;
+          animation-delay: var(--float-delay);
+          will-change: transform;
         }
 
         .typing-motion-tile span {
@@ -168,6 +171,11 @@ export default function TypingMotionSection({ locale = "en" }: TypingMotionSecti
           color: var(--color-ink);
           line-height: 1;
           text-shadow: 0 0 28px color-mix(in srgb, var(--color-accent) 8%, transparent);
+        }
+
+        @keyframes typingMotionFloat {
+          0%, 100% { transform: rotate(var(--tile-rotation)) translate3d(0, 0, 0); }
+          50% { transform: rotate(var(--tile-rotation)) translate3d(7px, -15px, 0); }
         }
 
         @media (max-width: 700px) {
@@ -188,10 +196,11 @@ export default function TypingMotionSection({ locale = "en" }: TypingMotionSecti
         @media (prefers-reduced-motion: reduce) {
           .typing-motion-float {
             transition: none;
-          }
-          .typing-motion-float,
-          [data-motion-defer="active"] .typing-motion-float {
             transform: translate3d(0, 0, 0);
+          }
+          .typing-motion-tile {
+            animation: none;
+            transform: rotate(var(--tile-rotation));
           }
         }
       `}</style>
