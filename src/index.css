@@ -85,30 +85,35 @@ body {
   width: 100vw;
   margin-left: 50%;
   margin-right: -50vw;
-  min-height: clamp(7rem, 15vw, 16rem);
+  min-height: clamp(10rem, 17vw, 18rem);
   overflow: hidden;
   pointer-events: none;
 }
 .footer-wordmark {
   position: absolute;
   left: 50%;
-  bottom: -0.12em;
-  width: max-content;
+  bottom: 0;
+  width: 100vw;
+  max-width: 100vw;
+  padding: 0;
   white-space: nowrap;
   color: #000000;
   font-family: var(--font-sans);
-  font-size: clamp(5rem, 15vw, 16rem);
+  font-size: clamp(4.25rem, 10vw, 12rem);
   font-weight: 750;
-  line-height: 0.78;
-  letter-spacing: -0.075em;
+  line-height: 0.8;
+  letter-spacing: -0.09em;
   text-align: center;
-  transform: translate3d(-50%, 150px, 0);
+  transform: translate3d(-50%, 0, 0);
   transform-origin: 50% 100%;
   will-change: transform;
 }
 @media (max-width: 640px) {
-  .footer-wordmark-stage { min-height: 5.75rem; }
-  .footer-wordmark { font-size: clamp(3.4rem, 15vw, 6rem); }
+  .footer-wordmark-stage { min-height: 7rem; }
+  .footer-wordmark {
+    font-size: clamp(3.2rem, 14vw, 6rem);
+    letter-spacing: -0.085em;
+  }
 }
 @media (prefers-reduced-motion: reduce) {
   .footer-wordmark { transform: translate3d(-50%, 0, 0) !important; }
