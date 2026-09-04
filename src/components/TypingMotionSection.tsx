@@ -1,130 +1,47 @@
-import { useEffect, useLayoutEffect, useRef } from "react";
+import { useEffect, useRef } from "react";
 
 interface TypingMotionSectionProps {
   locale?: "en" | "es";
 }
 
 const LETTERS = [
-  { value: "A", position: "top-[8%] left-[10%]", size: "h-20 w-20 sm:h-24 sm:w-24", rotate: "-8deg", duration: "1.55s" },
-  { value: "S", position: "top-[18%] left-[29%]", size: "h-16 w-16 sm:h-20 sm:w-20", rotate: "6deg", duration: "1.72s" },
-  { value: "D", position: "top-[6%] right-[28%]", size: "h-16 w-16 sm:h-20 sm:w-20", rotate: "-5deg", duration: "1.62s" },
-  { value: "F", position: "top-[15%] right-[8%]", size: "h-20 w-20 sm:h-24 sm:w-24", rotate: "9deg", duration: "1.68s" },
-  { value: "J", position: "top-[43%] left-[3%]", size: "h-16 w-16 sm:h-20 sm:w-20", rotate: "7deg", duration: "1.78s" },
-  { value: "K", position: "top-[46%] right-[3%]", size: "h-20 w-20 sm:h-24 sm:w-24", rotate: "-7deg", duration: "1.64s" },
-  { value: "L", position: "bottom-[12%] left-[11%]", size: "h-20 w-20 sm:h-24 sm:w-24", rotate: "-10deg", duration: "1.82s" },
-  { value: ";", position: "bottom-[8%] right-[12%]", size: "h-16 w-16 sm:h-20 sm:w-20", rotate: "8deg", duration: "1.58s" },
-  { value: "Q", position: "bottom-[20%] left-[29%]", size: "h-14 w-14 sm:h-16 sm:w-16", rotate: "5deg", duration: "1.74s" },
-  { value: "P", position: "bottom-[21%] right-[29%]", size: "h-14 w-14 sm:h-16 sm:w-16", rotate: "-6deg", duration: "1.70s" },
-  { value: "1", position: "top-[61%] left-[17%]", size: "h-12 w-12 sm:h-14 sm:w-14", rotate: "-4deg", duration: "1.60s" },
-  { value: "0", position: "top-[65%] right-[17%]", size: "h-12 w-12 sm:h-14 sm:w-14", rotate: "6deg", duration: "1.66s" },
+  { value: "A", position: "top-[8%] left-[10%]", size: "h-20 w-20 sm:h-24 sm:w-24", rotate: "-8deg", delay: "-1.2s", duration: "3.41s", side: "left" },
+  { value: "S", position: "top-[18%] left-[29%]", size: "h-16 w-16 sm:h-20 sm:w-20", rotate: "6deg", delay: "-4s", duration: "3.81s", side: "left" },
+  { value: "D", position: "top-[6%] right-[28%]", size: "h-16 w-16 sm:h-20 sm:w-20", rotate: "-5deg", delay: "-7s", duration: "4.21s", side: "right" },
+  { value: "F", position: "top-[15%] right-[8%]", size: "h-20 w-20 sm:h-24 sm:w-24", rotate: "9deg", delay: "-2.4s", duration: "3.57s", side: "right" },
+  { value: "J", position: "top-[43%] left-[3%]", size: "h-16 w-16 sm:h-20 sm:w-20", rotate: "7deg", delay: "-6.2s", duration: "4.41s", side: "left" },
+  { value: "K", position: "top-[46%] right-[3%]", size: "h-20 w-20 sm:h-24 sm:w-24", rotate: "-7deg", delay: "-3.1s", duration: "3.93s", side: "right" },
+  { value: "L", position: "bottom-[12%] left-[11%]", size: "h-20 w-20 sm:h-24 sm:w-24", rotate: "-10deg", delay: "-5.7s", duration: "4.09s", side: "left" },
+  { value: ";", position: "bottom-[8%] right-[12%]", size: "h-16 w-16 sm:h-20 sm:w-20", rotate: "8deg", delay: "-8s", duration: "3.69s", side: "right" },
+  { value: "Q", position: "bottom-[20%] left-[29%]", size: "h-14 w-14 sm:h-16 sm:w-16", rotate: "5deg", delay: "-2.8s", duration: "3.53s", side: "left" },
+  { value: "P", position: "bottom-[21%] right-[29%]", size: "h-14 w-14 sm:h-16 sm:w-16", rotate: "-6deg", delay: "-6.5s", duration: "4.33s", side: "right" },
+  { value: "1", position: "top-[61%] left-[17%]", size: "h-12 w-12 sm:h-14 sm:w-14", rotate: "-4deg", delay: "-1.8s", duration: "3.28s", side: "left" },
+  { value: "0", position: "top-[65%] right-[17%]", size: "h-12 w-12 sm:h-14 sm:w-14", rotate: "6deg", delay: "-4.9s", duration: "3.89s", side: "right" },
 ] as const;
-
-const ENTRY_DURATION = 2400;
-const ENTRY_STAGGER = 100;
-const ENTRY_FINISH = ENTRY_DURATION + ENTRY_STAGGER * (LETTERS.length - 1);
 
 export default function TypingMotionSection({ locale = "en" }: TypingMotionSectionProps) {
   const sectionRef = useRef<HTMLElement | null>(null);
-  const stageRef = useRef<HTMLDivElement | null>(null);
-  const hasTriggeredRef = useRef(false);
-  const settleTimerRef = useRef<number | null>(null);
-
-  useLayoutEffect(() => {
-    const stage = stageRef.current;
-    const section = sectionRef.current;
-    if (!stage || !section) return;
-
-    const keys = Array.from(stage.querySelectorAll<HTMLElement>(".typing-motion-float"));
-    if (keys.length === 0) return;
-
-    const positionKeysAtViewportCenter = () => {
-      const stageRect = stage.getBoundingClientRect();
-      const viewportCenterX = window.innerWidth / 2;
-      const viewportCenterY = window.innerHeight / 2;
-      const sourceX = viewportCenterX - stageRect.left;
-      const sourceY = viewportCenterY - stageRect.top;
-
-      keys.forEach((key) => {
-        const targetX = key.offsetLeft + key.offsetWidth / 2;
-        const targetY = key.offsetTop + key.offsetHeight / 2;
-        key.style.setProperty("--entry-x", `${sourceX - targetX}px`);
-        key.style.setProperty("--entry-y", `${sourceY - targetY}px`);
-      });
-    };
-
-    // Critical: establish the center-origin state BEFORE enabling any CSS
-    // transition. Otherwise the browser can animate to the center during page
-    // load, making the effect appear to be missing when the user scrolls.
-    section.dataset.entryReady = "false";
-    positionKeysAtViewportCenter();
-
-    requestAnimationFrame(() => {
-      positionKeysAtViewportCenter();
-      section.dataset.entryReady = "true";
-    });
-
-    window.addEventListener("resize", positionKeysAtViewportCenter, { passive: true });
-    return () => window.removeEventListener("resize", positionKeysAtViewportCenter);
-  }, []);
 
   useEffect(() => {
     const section = sectionRef.current;
     if (!section) return;
 
     if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
-      section.dataset.motion = "settled";
+      section.dataset.motionDefer = "active";
       return;
     }
 
-    const trigger = () => {
-      if (hasTriggeredRef.current || section.dataset.entryReady !== "true") return;
-      hasTriggeredRef.current = true;
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (!entry.isIntersecting) return;
+        section.dataset.motionDefer = "active";
+        observer.disconnect();
+      },
+      { threshold: 0.12 }
+    );
 
-      // One forced layout guarantees the waiting/center state is painted before
-      // the class switch below starts the actual center -> final-position move.
-      section.getBoundingClientRect();
-      requestAnimationFrame(() => {
-        section.dataset.motion = "entering";
-        settleTimerRef.current = window.setTimeout(() => {
-          section.dataset.motion = "settled";
-        }, ENTRY_FINISH + 120);
-      });
-    };
-
-    const checkScroll = () => {
-      if (hasTriggeredRef.current) return;
-
-      const rect = section.getBoundingClientRect();
-      const vh = window.innerHeight;
-      const visibleTop = Math.max(0, rect.top);
-      const visibleBottom = Math.min(vh, rect.bottom);
-      const visibleHeight = Math.max(0, visibleBottom - visibleTop);
-      const visibleRatio = visibleHeight / Math.max(rect.height, 1);
-
-      // Trigger when the section is effectively filling the viewport. We do not
-      // call this check on mount, so simply loading the page cannot consume the
-      // one-time entrance animation.
-      const nearViewportCenter = Math.abs((rect.top + rect.height / 2) - vh / 2) <= vh * 0.22;
-      const dominantScene = visibleRatio >= 0.72;
-
-      if (nearViewportCenter && dominantScene) trigger();
-    };
-
-    let raf = 0;
-    const onScroll = () => {
-      cancelAnimationFrame(raf);
-      raf = requestAnimationFrame(checkScroll);
-    };
-
-    window.addEventListener("scroll", onScroll, { passive: true });
-    window.addEventListener("resize", onScroll, { passive: true });
-
-    return () => {
-      cancelAnimationFrame(raf);
-      window.removeEventListener("scroll", onScroll);
-      window.removeEventListener("resize", onScroll);
-      if (settleTimerRef.current !== null) window.clearTimeout(settleTimerRef.current);
-    };
+    observer.observe(section);
+    return () => observer.disconnect();
   }, []);
 
   const content = locale === "es"
@@ -140,19 +57,9 @@ export default function TypingMotionSection({ locale = "en" }: TypingMotionSecti
       };
 
   return (
-    <section
-      ref={sectionRef}
-      data-motion="waiting"
-      data-entry-ready="false"
-      className="typing-motion-section relative overflow-hidden border-y border-hairline"
-      aria-label={locale === "es" ? "Práctica de mecanografía" : "Typing practice showcase"}
-    >
+    <section ref={sectionRef} data-motion-defer className="typing-motion-section relative overflow-hidden border-y border-hairline" aria-label={locale === "es" ? "Práctica de mecanografía" : "Typing practice showcase"}>
       <div className="typing-motion-grid" aria-hidden="true" />
-
-      <div
-        ref={stageRef}
-        className="relative mx-auto flex min-h-[620px] max-w-[1500px] items-center justify-center px-5 py-24 sm:min-h-[700px] sm:px-8 lg:min-h-[760px] lg:px-12"
-      >
+      <div className="relative mx-auto flex min-h-[620px] max-w-[1500px] items-center justify-center px-5 py-24 sm:min-h-[700px] sm:px-8 lg:min-h-[760px] lg:px-12">
         <div className="typing-motion-copy relative z-10 text-center">
           <p className="font-label tracking-[0.16em] text-accent">{content.eyebrow}</p>
           <h2 className="mt-5 whitespace-pre-line font-heading-1 text-ink sm:text-[64px] sm:leading-[0.94] lg:text-[92px]">{content.title}</h2>
@@ -167,18 +74,17 @@ export default function TypingMotionSection({ locale = "en" }: TypingMotionSecti
         {LETTERS.map((item, index) => (
           <div
             key={`${item.value}-${item.position}`}
-            data-letter-index={index}
             className={`typing-motion-float absolute ${item.position} ${item.size}`}
+            style={{
+              ["--tile-rotation" as string]: item.rotate,
+              ["--entry-x" as string]: item.side === "left" ? "calc(-100vw - 120px)" : "calc(100vw + 120px)",
+              ["--entry-delay" as string]: `${Math.min(index * 45, 480)}ms`,
+              ["--float-duration" as string]: item.duration,
+              ["--float-delay" as string]: item.delay,
+            }}
             aria-hidden="true"
           >
-            <div
-              className="typing-motion-tile"
-              style={{
-                ["--tile-rotation" as string]: item.rotate,
-                ["--float-duration" as string]: item.duration,
-                ["--float-delay" as string]: `${-index * 150}ms`,
-              }}
-            >
+            <div className="typing-motion-tile">
               <span>{item.value}</span>
             </div>
           </div>
@@ -190,6 +96,8 @@ export default function TypingMotionSection({ locale = "en" }: TypingMotionSecti
           background: var(--color-canvas);
           color: var(--color-ink);
           isolation: isolate;
+          content-visibility: auto;
+          contain-intrinsic-size: 700px;
         }
 
         .typing-motion-grid {
@@ -222,32 +130,18 @@ export default function TypingMotionSection({ locale = "en" }: TypingMotionSecti
           -webkit-backdrop-filter: blur(10px);
         }
 
-        /* WAITING: all keys are stacked at the exact browser viewport center.
-           Entry is a SCALE + TRANSLATE transition, not a position jump. */
         .typing-motion-float {
           z-index: 2;
           pointer-events: none;
-          transform: translate3d(var(--entry-x, 0px), var(--entry-y, 0px), 0) scale(.5);
-          transform-origin: 50% 50%;
-          opacity: .9;
-          will-change: transform, opacity;
+          transform: translate3d(var(--entry-x), 0, 0);
+          transition: transform 920ms cubic-bezier(0.16, 1, 0.3, 1);
+          transition-delay: var(--entry-delay);
+          will-change: transform;
         }
 
-        /* Keep the center-origin state frozen until the user actually scrolls
-           the section into the main viewport. */
-        .typing-motion-section[data-entry-ready="true"] .typing-motion-float {
-          transition:
-            transform ${ENTRY_DURATION}ms cubic-bezier(0.22, 1, 0.36, 1),
-            opacity 850ms ease;
-          transition-delay: 0ms;
-        }
-
-        /* The FIRST scroll release: all keys leave the single center point and
-           travel slowly to their unique absolute-positioned destinations. */
-        .typing-motion-section[data-motion="entering"] .typing-motion-float,
-        .typing-motion-section[data-motion="settled"] .typing-motion-float {
-          transform: translate3d(0, 0, 0) scale(1);
-          opacity: 1;
+        /* First scroll into view: keys sweep in from alternating screen edges, then stay and float. */
+        [data-motion-defer="active"] .typing-motion-float {
+          transform: translate3d(0, 0, 0);
         }
 
         .typing-motion-tile {
@@ -265,18 +159,9 @@ export default function TypingMotionSection({ locale = "en" }: TypingMotionSecti
           backdrop-filter: blur(9px);
           -webkit-backdrop-filter: blur(9px);
           transform: rotate(var(--tile-rotation));
-        }
-
-        /* Continuous motion is isolated on the INNER tile, so it cannot fight
-           the outer center-to-destination entrance transform. */
-        .typing-motion-section[data-motion="settled"] .typing-motion-tile {
           animation: typingMotionFloat var(--float-duration) ease-in-out infinite;
-          animation-delay: var(--float-delay, 0ms);
-        }
-
-        @keyframes typingMotionFloat {
-          0%, 100% { transform: rotate(var(--tile-rotation)) translate3d(0, 0, 0); }
-          50% { transform: rotate(var(--tile-rotation)) translate3d(7px, -15px, 0); }
+          animation-delay: var(--float-delay);
+          will-change: transform;
         }
 
         .typing-motion-tile span {
@@ -288,33 +173,33 @@ export default function TypingMotionSection({ locale = "en" }: TypingMotionSecti
           text-shadow: 0 0 28px color-mix(in srgb, var(--color-accent) 8%, transparent);
         }
 
+        @keyframes typingMotionFloat {
+          0%, 100% { transform: rotate(var(--tile-rotation)) translate3d(0, 0, 0); }
+          50% { transform: rotate(var(--tile-rotation)) translate3d(7px, -15px, 0); }
+        }
+
         @media (max-width: 700px) {
           .typing-motion-section .relative.mx-auto {
             min-height: 560px;
             padding-block: 88px;
           }
-
-          .typing-motion-float[data-letter-index="2"],
-          .typing-motion-float[data-letter-index="6"],
-          .typing-motion-float[data-letter-index="9"],
-          .typing-motion-float[data-letter-index="10"],
-          .typing-motion-float[data-letter-index="11"] {
+          .typing-motion-float:nth-of-type(3),
+          .typing-motion-float:nth-of-type(7),
+          .typing-motion-float:nth-of-type(10),
+          .typing-motion-float:nth-of-type(11),
+          .typing-motion-float:nth-of-type(12) {
             display: none;
           }
-
           .typing-motion-tile { border-radius: 18px; }
         }
 
         @media (prefers-reduced-motion: reduce) {
-          .typing-motion-float,
-          .typing-motion-section[data-entry-ready="true"] .typing-motion-float {
+          .typing-motion-float {
             transition: none;
-            opacity: 1;
-            transform: translate3d(0, 0, 0) scale(1);
+            transform: translate3d(0, 0, 0);
           }
-
-          .typing-motion-section[data-motion="settled"] .typing-motion-tile {
-            animation: none !important;
+          .typing-motion-tile {
+            animation: none;
             transform: rotate(var(--tile-rotation));
           }
         }
