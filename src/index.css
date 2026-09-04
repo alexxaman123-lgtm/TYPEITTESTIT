@@ -79,12 +79,12 @@ body {
 .theme-accent-glow { box-shadow: 0 0 18px color-mix(in srgb, var(--color-accent) 35%, transparent); }
 .theme-accent-text-glow { text-shadow: 0 0 18px color-mix(in srgb, var(--color-accent) 18%, transparent); }
 
-/* Full-width footer wordmark: visual layer stays edge-to-edge while footer content remains contained above it. */
+/* Full-width footer wordmark: visual layer is truly viewport-centered while footer content remains contained above it. */
 .footer-wordmark-stage {
   position: relative;
+  left: 50%;
   width: 100vw;
-  margin-left: 50%;
-  margin-right: -50vw;
+  margin-left: -50vw;
   min-height: clamp(10rem, 17vw, 18rem);
   overflow: hidden;
   pointer-events: none;
@@ -298,3 +298,18 @@ body {
 .font-body-lg { font-size: 20px; font-weight: 300; line-height: 1.38; }
 .font-body { font-size: 16px; font-weight: 450; line-height: 1.38; }
 .font-body-sm { font-size: 14px; font-weight: 450; line-height: 1.43; }
+.font-caption { font-size: 13px; font-weight: 450; line-height: 1.4; color: var(--color-text-faint); }
+.font-link { font-size: 16px; font-weight: 500; line-height: 1.35; }
+.font-mono-sm { font-family: var(--font-mono); font-size: 13px; font-weight: 500; }
+.font-mono-md { font-family: var(--font-mono); font-size: 15px; font-weight: 500; }
+.font-mono-lg { font-family: var(--font-mono); font-size: 18px; font-weight: 500; }
+.font-mono-xl { font-family: var(--font-mono); font-size: 24px; font-weight: 600; }
+.text-text-muted { color: var(--color-text-muted); }
+.text-text-faint { color: var(--color-text-faint); }
+.text-ink { color: var(--color-ink); }
+.text-ink-soft { color: var(--color-ink-soft); }
+.bg-canvas { background-color: var(--color-canvas); }
+.bg-canvas-soft { background-color: var(--color-canvas-soft); }
+.bg-field { background-color: var(--color-field); }
+.border-hairline { border-color: var(--color-hairline); }
+.border-hairline-soft { border-color: var(--color-hairline-soft); }
