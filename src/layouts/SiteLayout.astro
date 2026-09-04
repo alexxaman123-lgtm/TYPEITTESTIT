@@ -1,6 +1,5 @@
 ---
 import "../index.css";
-import { ClientRouter } from "astro:transitions";
 import { THEMES, DEFAULT_THEME } from "../lib/themes";
 
 interface AlternateLink {
@@ -49,7 +48,6 @@ const hreflangLinks = Array.from(new Map(automaticAlternates.map((alternate) => 
 <!doctype html>
 <html lang={locale}>
   <head>
-    <ClientRouter />
     <!-- Preserve the site's existing analytics bootstrap and AdSense integration. -->
     <script is:inline src="/ga-init.js"></script>
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-SGDYN5GEJT"></script>
@@ -81,7 +79,7 @@ const hreflangLinks = Array.from(new Map(automaticAlternates.map((alternate) => 
       }
     </script>
 
-    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-9769426845506731" crossorigin="anonymous"></script>
+    <script async src="https://pagead2.googlesyndication.com/pagead/js?id=ca-pub-9769426845506731" crossorigin="anonymous"></script>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>{title}</title>
