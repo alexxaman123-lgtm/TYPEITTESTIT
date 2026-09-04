@@ -66,6 +66,8 @@ export async function saveLeaderboardScore(result: LeaderboardResultInput): Prom
 
   if (!user) return false;
 
+  const language = typeof document !== "undefined" && document.documentElement.lang === "es" ? "es" : "en";
+
   const { data, error } = await supabase.rpc("submit_leaderboard_score", {
     p_difficulty: result.difficulty,
     p_duration_sec: result.durationSec,
@@ -76,6 +78,25 @@ export async function saveLeaderboardScore(result: LeaderboardResultInput): Prom
     p_incorrect_chars: result.incorrectChars,
     p_total_typed: result.totalTyped,
   });
+
+  const { error: historyError } = await supabase.from("typing_history").insert({
+    user_id: user.id,
+    difficulty: result.difficulty,
+    duration_sec: result.durationSec,
+    target_duration_sec: result.durationSec,
+    wpm: result.wpm,
+    accuracy: result.accuracy,
+    words_written: result.wordsWritten,
+    correct_chars: result.correctChars,
+    incorrect_chars: result.incorrectChars,
+    total_typed: result.totalTyped,
+    language,
+    is_custom: false,
+  });
+
+  if (historyError) {
+    console.error("Could not save typing history:", historyError.message);
+  }
 
   if (error) {
     console.error("Could not save leaderboard score:", error.message);
