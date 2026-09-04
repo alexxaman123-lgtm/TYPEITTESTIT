@@ -107,16 +107,18 @@ export default function SpanishHeader() {
             ))}
           </nav>
           <div className="hidden shrink-0 items-center gap-2.5 lg:gap-3 md:flex">
-            <LanguagePicker locale="es" />
             <SpanishThemePicker />
-            {isAuthenticated && <a href="/es/account/" className="whitespace-nowrap font-link text-ink hover:text-text-muted">Historial</a>}
-            {accountLabel}
-            <a href="/es/#tester" className="flex h-9 shrink-0 items-center justify-center whitespace-nowrap rounded-full bg-primary px-4 font-link text-sm text-on-primary transition-opacity hover:opacity-90">Empezar a escribir</a>
+            <LanguagePicker locale="es" />
+            <div className="inline-flex max-w-[160px] items-center rounded-full border border-hairline bg-canvas px-4 py-2">
+              {accountLabel}
+            </div>
           </div>
           <div className="flex min-w-0 shrink-0 items-center gap-1 sm:gap-2 md:hidden">
-            <LanguagePicker locale="es" />
             <SpanishThemePicker />
-            {mobileAccountLabel}
+            <LanguagePicker locale="es" />
+            <div className="inline-flex max-w-[100px] items-center rounded-full border border-hairline bg-canvas px-3 py-1.5">
+              {mobileAccountLabel}
+            </div>
             <button type="button" onClick={() => setOpen((value) => !value)} className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-canvas text-ink shadow-sm sm:h-9 sm:w-9" aria-label={open ? "Cerrar menú" : "Abrir menú"} aria-expanded={open}>
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                 {open ? <path d="M6 6l12 12M18 6l-12 12" strokeLinecap="round" /> : <path d="M3 6h18M3 12h18M3 18h18" strokeLinecap="round" />}
@@ -127,11 +129,10 @@ export default function SpanishHeader() {
         {open && (
           <div className="pointer-events-auto mx-1 mt-2 rounded-2xl border border-hairline/70 bg-canvas-soft p-2 shadow-lg md:hidden">
             <nav className="flex flex-col gap-1" aria-label="Menú móvil">
-              {historyLinkPlaceholder(isAuthenticated)}
+              {isAuthenticated && <a href="/es/account/" onClick={() => setOpen(false)} className="rounded-xl px-4 py-3 font-link text-ink hover:bg-canvas">Historial</a>}
               {NAV_LINKS.map((link) => (
                 <a key={link.href} href={link.href} onClick={() => setOpen(false)} className="rounded-xl px-4 py-3 font-link text-ink hover:bg-canvas">{link.label}</a>
               ))}
-              <a href="/es/#tester" onClick={() => setOpen(false)} className="mt-2 rounded-xl bg-primary px-4 py-3 text-center font-link text-on-primary">Empezar a escribir</a>
             </nav>
           </div>
         )}
@@ -140,9 +141,4 @@ export default function SpanishHeader() {
       <UsernameModal isOpen={isUsernameModalOpen && isAuthenticated} initialUsername={username || ""} onSaved={(value) => { setUsername(value); setIsUsernameModalOpen(false); }} locale="es" />
     </>
   );
-}
-
-function historyLinkPlaceholder(isAuthenticated: boolean) {
-  if (!isAuthenticated) return null;
-  return <a href="/es/account/" className="rounded-xl px-4 py-3 font-link text-ink hover:bg-canvas">Historial</a>;
 }
