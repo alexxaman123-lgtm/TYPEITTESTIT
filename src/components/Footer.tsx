@@ -5,6 +5,9 @@ export default function Footer({ locale = "en" as Locale }: { locale?: Locale })
   const prefix = locale === "es" ? "/es" : "";
   const brand = locale === "es" ? "Test de mecanografía Cabra" : "FreeTypingTestGoat";
   const wordmark = locale === "es" ? "ESCRIBE. PONTE A PRUEBA." : "TYPE IT. TEST IT.";
+  const wordmarkStyle = locale === "es"
+    ? { fontSize: "clamp(3.2rem, 7.8vw, 10rem)" }
+    : undefined;
 
   const links = [
     [tr(locale,"footer","typingTester"), `${prefix}/#tester`],
@@ -41,7 +44,7 @@ export default function Footer({ locale = "en" as Locale }: { locale?: Locale })
       </div>
 
       <div className="footer-wordmark-stage" aria-hidden="true">
-        <div data-footer-wordmark className="footer-wordmark">{wordmark}</div>
+        <div data-footer-wordmark className="footer-wordmark" style={wordmarkStyle}>{wordmark}</div>
       </div>
     </footer>
   );
