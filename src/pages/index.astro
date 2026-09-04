@@ -3,6 +3,7 @@ import SiteLayout from "../layouts/SiteLayout.astro";
 import Header from "../components/Header";
 import Hero from "../components/Hero";
 import TypingTesterIsland from "../components/TypingTesterIsland";
+import TypingMotionSection from "../components/TypingMotionSection";
 import SeoContent from "../components/SeoContent";
 import HowItWorks from "../components/HowItWorks";
 import FaqSection from "../components/FaqSection";
@@ -61,6 +62,7 @@ const websiteSchema = {
       <div class="mx-auto max-w-6xl px-4 pb-16 sm:px-6 lg:px-8" data-reveal="up">
         <TypingTesterIsland client:load />
       </div>
+      <TypingMotionSection />
       <div class="border-t border-hairline below-fold-content" data-reveal="up">
         <SeoContent />
       </div>
