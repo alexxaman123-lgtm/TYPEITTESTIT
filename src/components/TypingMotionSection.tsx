@@ -5,18 +5,18 @@ interface TypingMotionSectionProps {
 }
 
 const LETTERS = [
-  { value: "A", position: "top-[8%] left-[10%]", size: "h-20 w-20 sm:h-24 sm:w-24", rotate: "-8deg", delay: "-1.2s", duration: "3.41s" },
-  { value: "S", position: "top-[18%] left-[29%]", size: "h-16 w-16 sm:h-20 sm:w-20", rotate: "6deg", delay: "-4s", duration: "3.81s" },
-  { value: "D", position: "top-[6%] right-[28%]", size: "h-16 w-16 sm:h-20 w-20", rotate: "-5deg", delay: "-7s", duration: "4.21s" },
-  { value: "F", position: "top-[15%] right-[8%]", size: "h-20 w-20 sm:h-24 sm:w-24", rotate: "9deg", delay: "-2.4s", duration: "3.57s" },
-  { value: "J", position: "top-[43%] left-[3%]", size: "h-16 w-16 sm:h-20 sm:w-20", rotate: "7deg", delay: "-6.2s", duration: "4.41s" },
-  { value: "K", position: "top-[46%] right-[3%]", size: "h-20 w-20 sm:h-24 sm:w-24", rotate: "-7deg", delay: "-3.1s", duration: "3.93s" },
-  { value: "L", position: "bottom-[12%] left-[11%]", size: "h-20 w-20 sm:h-24 sm:w-24", rotate: "-10deg", delay: "-5.7s", duration: "4.09s" },
-  { value: ";", position: "bottom-[8%] right-[12%]", size: "h-16 w-16 sm:h-20 sm:w-20", rotate: "8deg", delay: "-8s", duration: "3.69s" },
-  { value: "Q", position: "bottom-[20%] left-[29%]", size: "h-14 w-14 sm:h-16 sm:w-16", rotate: "5deg", delay: "-2.8s", duration: "3.53s" },
-  { value: "P", position: "bottom-[21%] right-[29%]", size: "h-14 w-14 sm:h-16 sm:w-16", rotate: "-6deg", delay: "-6.5s", duration: "4.33s" },
-  { value: "1", position: "top-[61%] left-[17%]", size: "h-12 w-12 sm:h-14 sm:w-14", rotate: "-4deg", delay: "-1.8s", duration: "3.28s" },
-  { value: "0", position: "top-[65%] right-[17%]", size: "h-12 w-12 sm:h-14 sm:w-14", rotate: "6deg", delay: "-4.9s", duration: "3.89s" },
+  { value: "A", position: "top-[8%] left-[10%]", size: "h-20 w-20 sm:h-24 sm:w-24", rotate: "-8deg", duration: "1.55s" },
+  { value: "S", position: "top-[18%] left-[29%]", size: "h-16 w-16 sm:h-20 sm:w-20", rotate: "6deg", duration: "1.72s" },
+  { value: "D", position: "top-[6%] right-[28%]", size: "h-16 w-16 sm:h-20 sm:w-20", rotate: "-5deg", duration: "1.62s" },
+  { value: "F", position: "top-[15%] right-[8%]", size: "h-20 w-20 sm:h-24 sm:w-24", rotate: "9deg", duration: "1.68s" },
+  { value: "J", position: "top-[43%] left-[3%]", size: "h-16 w-16 sm:h-20 sm:w-20", rotate: "7deg", duration: "1.78s" },
+  { value: "K", position: "top-[46%] right-[3%]", size: "h-20 w-20 sm:h-24 sm:w-24", rotate: "-7deg", duration: "1.64s" },
+  { value: "L", position: "bottom-[12%] left-[11%]", size: "h-20 w-20 sm:h-24 sm:w-24", rotate: "-10deg", duration: "1.82s" },
+  { value: ";", position: "bottom-[8%] right-[12%]", size: "h-16 w-16 sm:h-20 sm:w-20", rotate: "8deg", duration: "1.58s" },
+  { value: "Q", position: "bottom-[20%] left-[29%]", size: "h-14 w-14 sm:h-16 sm:w-16", rotate: "5deg", duration: "1.74s" },
+  { value: "P", position: "bottom-[21%] right-[29%]", size: "h-14 w-14 sm:h-16 sm:w-16", rotate: "-6deg", duration: "1.70s" },
+  { value: "1", position: "top-[61%] left-[17%]", size: "h-12 w-12 sm:h-14 sm:w-14", rotate: "-4deg", duration: "1.60s" },
+  { value: "0", position: "top-[65%] right-[17%]", size: "h-12 w-12 sm:h-14 sm:w-14", rotate: "6deg", duration: "1.66s" },
 ] as const;
 
 export default function TypingMotionSection({ locale = "en" }: TypingMotionSectionProps) {
@@ -26,20 +26,17 @@ export default function TypingMotionSection({ locale = "en" }: TypingMotionSecti
     const section = sectionRef.current;
     if (!section) return;
 
-    const keys = Array.from(section.querySelectorAll<HTMLElement>(".typing-motion-float"));
-    if (keys.length === 0) return;
-
     const setEntryOrigins = () => {
       const viewportCenterX = window.innerWidth / 2;
-      const sourceY = window.innerHeight + 120;
+      const viewportBottomY = window.innerHeight + 90;
 
-      keys.forEach((key, index) => {
+      section.querySelectorAll<HTMLElement>(".typing-motion-float").forEach((key) => {
         const rect = key.getBoundingClientRect();
-        const targetCenterX = rect.left + rect.width / 2;
-        const targetCenterY = rect.top + rect.height / 2;
-        key.style.setProperty("--entry-x", `${viewportCenterX - targetCenterX}px`);
-        key.style.setProperty("--entry-y", `${sourceY - targetCenterY}px`);
-        key.style.setProperty("--entry-delay", `${Math.min(index * 95, 950)}ms`);
+        const keyCenterX = rect.left + rect.width / 2;
+        const keyCenterY = rect.top + rect.height / 2;
+
+        key.style.setProperty("--entry-x", `${viewportCenterX - keyCenterX}px`);
+        key.style.setProperty("--entry-y", `${viewportBottomY - keyCenterY}px`);
       });
     };
 
@@ -52,20 +49,42 @@ export default function TypingMotionSection({ locale = "en" }: TypingMotionSecti
     const section = sectionRef.current;
     if (!section) return;
 
+    const keys = Array.from(section.querySelectorAll<HTMLElement>(".typing-motion-float"));
+    if (keys.length === 0) return;
+
     if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
-      section.dataset.motionDefer = "active";
+      section.dataset.motionState = "entered";
       return;
     }
 
-    let entered = false;
+    let hasEntered = false;
+
+    const reveal = () => {
+      if (hasEntered) return;
+      hasEntered = true;
+      section.dataset.motionState = "entering";
+
+      requestAnimationFrame(() => {
+        keys.forEach((key, index) => {
+          key.style.transitionDelay = `${index * 85}ms`;
+          key.style.transitionDuration = key.dataset.duration || "1.65s";
+          key.style.setProperty("--entry-x", "0px");
+          key.style.setProperty("--entry-y", "0px");
+        });
+
+        window.setTimeout(() => {
+          section.dataset.motionState = "entered";
+        }, 2100);
+      });
+    };
+
     const observer = new IntersectionObserver(
       ([entry]) => {
-        if (entered || !entry.isIntersecting) return;
-        entered = true;
-        section.dataset.motionDefer = "active";
+        if (!entry.isIntersecting) return;
+        reveal();
         observer.disconnect();
       },
-      { threshold: 0.02, rootMargin: "0px 0px -8% 0px" }
+      { threshold: 0.12, rootMargin: "0px 0px -4% 0px" }
     );
 
     observer.observe(section);
@@ -85,7 +104,12 @@ export default function TypingMotionSection({ locale = "en" }: TypingMotionSecti
       };
 
   return (
-    <section ref={sectionRef} data-motion-defer className="typing-motion-section relative overflow-hidden border-y border-hairline" aria-label={locale === "es" ? "Práctica de mecanografía" : "Typing practice showcase"}>
+    <section
+      ref={sectionRef}
+      data-motion-state="pre-enter"
+      className="typing-motion-section relative overflow-hidden border-y border-hairline"
+      aria-label={locale === "es" ? "Práctica de mecanografía" : "Typing practice showcase"}
+    >
       <div className="typing-motion-grid" aria-hidden="true" />
       <div className="relative mx-auto flex min-h-[620px] max-w-[1500px] items-center justify-center px-5 py-24 sm:min-h-[700px] sm:px-8 lg:min-h-[760px] lg:px-12">
         <div className="typing-motion-copy relative z-10 text-center">
@@ -102,12 +126,9 @@ export default function TypingMotionSection({ locale = "en" }: TypingMotionSecti
         {LETTERS.map((item) => (
           <div
             key={`${item.value}-${item.position}`}
+            data-duration={item.duration}
             className={`typing-motion-float absolute ${item.position} ${item.size}`}
-            style={{
-              ["--tile-rotation" as string]: item.rotate,
-              ["--float-duration" as string]: item.duration,
-              ["--float-delay" as string]: item.delay,
-            }}
+            style={{ ["--tile-rotation" as string]: item.rotate }}
             aria-hidden="true"
           >
             <div className="typing-motion-tile">
@@ -158,13 +179,18 @@ export default function TypingMotionSection({ locale = "en" }: TypingMotionSecti
           z-index: 2;
           pointer-events: none;
           transform: translate3d(var(--entry-x, 0px), var(--entry-y, 0px), 0);
-          transition: transform 1900ms cubic-bezier(0.16, 1, 0.3, 1);
-          transition-delay: var(--entry-delay, 0ms);
+          transition-property: transform;
+          transition-timing-function: cubic-bezier(0.16, 1, 0.3, 1);
           will-change: transform;
         }
 
-        /* First scroll into view: every key starts together at the bottom-center of the viewport, then rises slowly into its final position. */
-        [data-motion-defer="active"] .typing-motion-float {
+        /* The important part: before the first reveal, every key is physically positioned around the same bottom-center origin. */
+        [data-motion-state="pre-enter"] .typing-motion-float {
+          transform: translate3d(var(--entry-x, 0px), var(--entry-y, 0px), 0);
+        }
+
+        [data-motion-state="entering"] .typing-motion-float,
+        [data-motion-state="entered"] .typing-motion-float {
           transform: translate3d(0, 0, 0);
         }
 
@@ -183,10 +209,24 @@ export default function TypingMotionSection({ locale = "en" }: TypingMotionSecti
           backdrop-filter: blur(9px);
           -webkit-backdrop-filter: blur(9px);
           transform: rotate(var(--tile-rotation));
-          animation: typingMotionFloat var(--float-duration) ease-in-out infinite;
-          animation-delay: var(--float-delay);
-          will-change: transform;
         }
+
+        .typing-motion-section[data-motion-state="entered"] .typing-motion-tile {
+          animation: typingMotionFloat 3.2s ease-in-out infinite;
+          animation-delay: calc(var(--float-index, 0) * -180ms);
+        }
+
+        .typing-motion-float:nth-of-type(3) .typing-motion-tile { --float-index: 1; }
+        .typing-motion-float:nth-of-type(4) .typing-motion-tile { --float-index: 2; }
+        .typing-motion-float:nth-of-type(5) .typing-motion-tile { --float-index: 3; }
+        .typing-motion-float:nth-of-type(6) .typing-motion-tile { --float-index: 4; }
+        .typing-motion-float:nth-of-type(7) .typing-motion-tile { --float-index: 5; }
+        .typing-motion-float:nth-of-type(8) .typing-motion-tile { --float-index: 6; }
+        .typing-motion-float:nth-of-type(9) .typing-motion-tile { --float-index: 7; }
+        .typing-motion-float:nth-of-type(10) .typing-motion-tile { --float-index: 8; }
+        .typing-motion-float:nth-of-type(11) .typing-motion-tile { --float-index: 9; }
+        .typing-motion-float:nth-of-type(12) .typing-motion-tile { --float-index: 10; }
+        .typing-motion-float:nth-of-type(13) .typing-motion-tile { --float-index: 11; }
 
         .typing-motion-tile span {
           font-family: var(--font-mono);
@@ -223,7 +263,7 @@ export default function TypingMotionSection({ locale = "en" }: TypingMotionSecti
             transform: translate3d(0, 0, 0);
           }
           .typing-motion-tile {
-            animation: none;
+            animation: none !important;
             transform: rotate(var(--tile-rotation));
           }
         }
