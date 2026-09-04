@@ -44,19 +44,18 @@ export async function saveTypingHistory(result: TypingHistoryInput): Promise<boo
 
   if (!user) return false;
 
-  const { error } = await supabase.from("typing_history").insert({
-    user_id: user.id,
-    difficulty: result.difficulty,
-    duration_sec: result.durationSec,
-    target_duration_sec: result.targetDurationSec,
-    wpm: result.wpm,
-    accuracy: result.accuracy,
-    words_written: result.wordsWritten,
-    correct_chars: result.correctChars,
-    incorrect_chars: result.incorrectChars,
-    total_typed: result.totalTyped,
-    language: result.language,
-    is_custom: result.isCustom,
+  const { data, error } = await supabase.rpc("record_typing_history", {
+    p_difficulty: result.difficulty,
+    p_duration_sec: result.durationSec,
+    p_target_duration_sec: result.targetDurationSec,
+    p_wpm: result.wpm,
+    p_accuracy: result.accuracy,
+    p_words_written: result.wordsWritten,
+    p_correct_chars: result.correctChars,
+    p_incorrect_chars: result.incorrectChars,
+    p_total_typed: result.totalTyped,
+    p_language: result.language,
+    p_is_custom: result.isCustom,
   });
 
   if (error) {
@@ -64,7 +63,7 @@ export async function saveTypingHistory(result: TypingHistoryInput): Promise<boo
     return false;
   }
 
-  return true;
+  return data === true;
 }
 
 export async function fetchTypingHistory(limit = 50): Promise<TypingHistoryEntry[]> {
