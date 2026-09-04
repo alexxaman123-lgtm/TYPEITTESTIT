@@ -239,13 +239,13 @@ function ProgressGraph({ entries, locale }: { entries: TypingHistoryEntry[]; loc
   const xFor = (index: number) =>
     points.length === 1 ? pad.left + chartWidth / 2 : pad.left + (index / (points.length - 1)) * chartWidth;
   const yForWpm = (wpm: number) => pad.top + chartHeight - ((wpm - wpmMin) / wpmSpan) * chartHeight;
-  const yForAccuracy = (accuracy: number) => pad.top + chartHeight - ((accuracy - 80) / 20) * chartHeight;
+  const yForAccuracy = (accuracy: number) => pad.top + chartHeight - (accuracy / 100) * chartHeight;
 
   const wpmPath = points.map((entry, index) => `${xFor(index)},${yForWpm(entry.wpm)}`).join(" ");
   const accuracyPath = points.map((entry, index) => `${xFor(index)},${yForAccuracy(entry.accuracy)}`).join(" ");
 
   const wpmTicks = [0, 0.25, 0.5, 0.75, 1].map((ratio) => wpmMin + wpmSpan * ratio);
-  const accuracyTicks = [80, 85, 90, 95, 100];
+  const accuracyTicks = [0, 25, 50, 75, 100];
   const labelIndexes = points.length <= 6
     ? points.map((_, index) => index)
     : [0, Math.floor((points.length - 1) / 3), Math.floor(((points.length - 1) * 2) / 3), points.length - 1];
@@ -295,16 +295,10 @@ function ProgressGraph({ entries, locale }: { entries: TypingHistoryEntry[]; loc
                 <text x={pad.left - 10} y={y + 4} textAnchor="end" fontSize="11" className="fill-text-muted">
                   {Math.round(tick)}
                 </text>
+                <text x={width - pad.right + 10} y={y + 4} textAnchor="start" fontSize="11" className="fill-text-muted">
+                  {accuracyTicks[index]}%
+                </text>
               </g>
-            );
-          })}
-
-          {accuracyTicks.map((tick) => {
-            const y = yForAccuracy(tick);
-            return (
-              <text key={`acc-${tick}`} x={width - pad.right + 10} y={y + 4} fontSize="11" className="fill-text-muted">
-                {tick}%
-              </text>
             );
           })}
 
