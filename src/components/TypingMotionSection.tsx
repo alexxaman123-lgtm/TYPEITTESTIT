@@ -3,31 +3,31 @@ interface TypingMotionSectionProps {
 }
 
 const LETTERS = [
-  { value: "A", position: "top-[8%] left-[10%]", size: "h-20 w-20 sm:h-24 sm:w-24", rotate: "-8deg", delay: "-1.2s", duration: "8.5s" },
-  { value: "S", position: "top-[18%] left-[29%]", size: "h-16 w-16 sm:h-20 sm:w-20", rotate: "6deg", delay: "-4s", duration: "9.5s" },
-  { value: "D", position: "top-[6%] right-[28%]", size: "h-16 w-16 sm:h-20 sm:w-20", rotate: "-5deg", delay: "-7s", duration: "10.5s" },
-  { value: "F", position: "top-[15%] right-[8%]", size: "h-20 w-20 sm:h-24 sm:w-24", rotate: "9deg", delay: "-2.4s", duration: "8.9s" },
-  { value: "J", position: "top-[43%] left-[3%]", size: "h-16 w-16 sm:h-20 sm:w-20", rotate: "7deg", delay: "-6.2s", duration: "11s" },
-  { value: "K", position: "top-[46%] right-[3%]", size: "h-20 w-20 sm:h-24 sm:w-24", rotate: "-7deg", delay: "-3.1s", duration: "9.8s" },
-  { value: "L", position: "bottom-[12%] left-[11%]", size: "h-20 w-20 sm:h-24 sm:w-24", rotate: "-10deg", delay: "-5.7s", duration: "10.2s" },
-  { value: ";", position: "bottom-[8%] right-[12%]", size: "h-16 w-16 sm:h-20 sm:w-20", rotate: "8deg", delay: "-8s", duration: "9.2s" },
-  { value: "Q", position: "bottom-[20%] left-[29%]", size: "h-14 w-14 sm:h-16 sm:w-16", rotate: "5deg", delay: "-2.8s", duration: "8.8s" },
-  { value: "P", position: "bottom-[21%] right-[29%]", size: "h-14 w-14 sm:h-16 sm:w-16", rotate: "-6deg", delay: "-6.5s", duration: "10.8s" },
-  { value: "1", position: "top-[61%] left-[17%]", size: "h-12 w-12 sm:h-14 sm:w-14", rotate: "-4deg", delay: "-1.8s", duration: "8.2s" },
-  { value: "0", position: "top-[65%] right-[17%]", size: "h-12 w-12 sm:h-14 sm:w-14", rotate: "6deg", delay: "-4.9s", duration: "9.7s" },
+  { value: "A", position: "top-[8%] left-[10%]", size: "h-20 w-20 sm:h-24 sm:w-24", rotate: "-8deg", delay: "-1.2s", duration: "7.08s" },
+  { value: "S", position: "top-[18%] left-[29%]", size: "h-16 w-16 sm:h-20 sm:w-20", rotate: "6deg", delay: "-4s", duration: "7.92s" },
+  { value: "D", position: "top-[6%] right-[28%]", size: "h-16 w-16 sm:h-20 sm:w-20", rotate: "-5deg", delay: "-7s", duration: "8.75s" },
+  { value: "F", position: "top-[15%] right-[8%]", size: "h-20 w-20 sm:h-24 sm:w-24", rotate: "9deg", delay: "-2.4s", duration: "7.42s" },
+  { value: "J", position: "top-[43%] left-[3%]", size: "h-16 w-16 sm:h-20 sm:w-20", rotate: "7deg", delay: "-6.2s", duration: "9.17s" },
+  { value: "K", position: "top-[46%] right-[3%]", size: "h-20 w-20 sm:h-24 sm:w-24", rotate: "-7deg", delay: "-3.1s", duration: "8.17s" },
+  { value: "L", position: "bottom-[12%] left-[11%]", size: "h-20 w-20 sm:h-24 sm:w-24", rotate: "-10deg", delay: "-5.7s", duration: "8.50s" },
+  { value: ";", position: "bottom-[8%] right-[12%]", size: "h-16 w-16 sm:h-20 sm:w-20", rotate: "8deg", delay: "-8s", duration: "7.67s" },
+  { value: "Q", position: "bottom-[20%] left-[29%]", size: "h-14 w-14 sm:h-16 sm:w-16", rotate: "5deg", delay: "-2.8s", duration: "7.33s" },
+  { value: "P", position: "bottom-[21%] right-[29%]", size: "h-14 w-14 sm:h-16 sm:w-16", rotate: "-6deg", delay: "-6.5s", duration: "9s" },
+  { value: "1", position: "top-[61%] left-[17%]", size: "h-12 w-12 sm:h-14 sm:w-14", rotate: "-4deg", delay: "-1.8s", duration: "6.83s" },
+  { value: "0", position: "top-[65%] right-[17%]", size: "h-12 w-12 sm:h-14 sm:w-14", rotate: "6deg", delay: "-4.9s", duration: "8.08s" },
 ] as const;
 
 export default function TypingMotionSection({ locale = "en" }: TypingMotionSectionProps) {
   const content = locale === "es"
     ? {
         eyebrow: "PRÁCTICA DE MECANOGRAFÍA",
-        title: "Cada pulsación\ncuenta.",
-        subtitle: "Velocidad. Precisión. Control.",
+        title: "TYPE IT.\nTEST IT.",
+        subtitle: "La velocidad empieza practicando.",
       }
     : {
         eyebrow: "TYPING PRACTICE",
-        title: "Every keystroke\ncounts.",
-        subtitle: "Speed. Accuracy. Control.",
+        title: "TYPE IT.\nTEST IT.",
+        subtitle: "Speed starts with practice.",
       };
 
   return (
