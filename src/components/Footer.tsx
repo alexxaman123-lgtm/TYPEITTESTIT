@@ -41,6 +41,52 @@ export default function Footer({ locale = "en" as Locale }: { locale?: Locale })
       <div className="footer-wordmark-stage" aria-hidden="true">
         <div data-footer-wordmark className="footer-wordmark">TYPE IT. TEST IT.</div>
       </div>
+
+      <style>{`
+        .footer-wordmark-stage {
+          position: relative;
+          left: 50%;
+          width: 100vw;
+          margin-left: -50vw;
+          margin-top: -3.5rem;
+          min-height: clamp(9rem, 13vw, 14rem);
+          overflow: hidden;
+          pointer-events: none;
+        }
+        .footer-wordmark {
+          position: absolute;
+          left: 50%;
+          bottom: -0.02em;
+          width: 100vw;
+          max-width: 100vw;
+          white-space: nowrap;
+          padding: 0;
+          margin: 0;
+          color: #000000;
+          font-family: var(--font-sans);
+          font-size: clamp(5rem, 13vw, 14rem);
+          font-weight: 750;
+          line-height: 0.78;
+          letter-spacing: -0.095em;
+          text-align: center;
+          transform: translate3d(-50%, 0, 0);
+          transform-origin: 50% 100%;
+          will-change: transform;
+        }
+        @media (max-width: 640px) {
+          .footer-wordmark-stage {
+            margin-top: -2rem;
+            min-height: 7rem;
+          }
+          .footer-wordmark {
+            font-size: clamp(3.25rem, 14vw, 6rem);
+            letter-spacing: -0.09em;
+          }
+        }
+        @media (prefers-reduced-motion: reduce) {
+          .footer-wordmark { transform: translate3d(-50%, 0, 0) !important; }
+        }
+      `}</style>
     </footer>
   );
 }
