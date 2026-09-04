@@ -52,34 +52,7 @@ const hreflangLinks = Array.from(new Map(automaticAlternates.map((alternate) => 
     <script is:inline src="/ga-init.js"></script>
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-SGDYN5GEJT"></script>
 
-    <script is:inline>
-      if (typeof window !== 'undefined') {
-        window.wx = window.wx || {};
-        window.my = window.my || {};
-        window.tt = window.tt || {};
-        window.swan = window.swan || {};
-        window.qq = window.qq || {};
-        window.ks = window.ks || {};
-        window.jd = window.jd || {};
-        window.xhs = window.xhs || {};
-        window.qh = window.qh || {};
-        window.bb = window.bb || {};
-      }
-      if (typeof globalThis !== 'undefined') {
-        globalThis.wx = globalThis.wx || {};
-        globalThis.my = globalThis.my || {};
-        globalThis.tt = globalThis.tt || {};
-        globalThis.swan = globalThis.swan || {};
-        globalThis.qq = globalThis.qq || {};
-        globalThis.ks = globalThis.ks || {};
-        globalThis.jd = globalThis.jd || {};
-        globalThis.xhs = globalThis.xhs || {};
-        globalThis.qh = globalThis.qh || {};
-        globalThis.bb = globalThis.bb || {};
-      }
-    </script>
-
-    <script async src="https://pagead2.googlesyndication.com/pagead/js?id=ca-pub-9769426845506731" crossorigin="anonymous"></script>
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-9769426845506731" crossorigin="anonymous"></script>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>{title}</title>
@@ -156,6 +129,27 @@ const hreflangLinks = Array.from(new Map(automaticAlternates.map((alternate) => 
           element.style.setProperty('--reveal-index', String(index));
           observer.observe(element);
         });
+      })();
+
+      // Gate infinite CSS animations behind viewport visibility so off-screen
+      // sections (e.g. the typing motion showcase below the fold) don't burn
+      // GPU compositor time on every page load.
+      (() => {
+        const motionElements = Array.from(document.querySelectorAll('[data-motion-defer]'));
+        if (!motionElements.length) return;
+        const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+        if (reducedMotion || !('IntersectionObserver' in window)) {
+          motionElements.forEach((element) => element.setAttribute('data-motion-defer', 'active'));
+          return;
+        }
+        const motionObserver = new IntersectionObserver((entries) => {
+          entries.forEach((entry) => {
+            if (!entry.isIntersecting) return;
+            entry.target.setAttribute('data-motion-defer', 'active');
+            motionObserver.unobserve(entry.target);
+          });
+        }, { rootMargin: '0px 0px 10% 0px' });
+        motionElements.forEach((element) => motionObserver.observe(element));
       })();
     </script>
   </body>

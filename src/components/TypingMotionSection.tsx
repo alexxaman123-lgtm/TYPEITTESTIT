@@ -31,7 +31,7 @@ export default function TypingMotionSection({ locale = "en" }: TypingMotionSecti
       };
 
   return (
-    <section className="typing-motion-section relative overflow-hidden border-y border-hairline" aria-label={locale === "es" ? "Práctica de mecanografía" : "Typing practice showcase"}>
+    <section data-motion-defer className="typing-motion-section relative overflow-hidden border-y border-hairline" aria-label={locale === "es" ? "Práctica de mecanografía" : "Typing practice showcase"}>
       <div className="typing-motion-grid" aria-hidden="true" />
       <div className="relative mx-auto flex min-h-[620px] max-w-[1500px] items-center justify-center px-5 py-24 sm:min-h-[700px] sm:px-8 lg:min-h-[760px] lg:px-12">
         <div className="typing-motion-copy relative z-10 text-center">
@@ -68,6 +68,8 @@ export default function TypingMotionSection({ locale = "en" }: TypingMotionSecti
           background: var(--color-canvas);
           color: var(--color-ink);
           isolation: isolate;
+          content-visibility: auto;
+          contain-intrinsic-size: 700px;
         }
 
         .typing-motion-grid {
@@ -107,6 +109,14 @@ export default function TypingMotionSection({ locale = "en" }: TypingMotionSecti
           animation-timing-function: ease-in-out;
           animation-iteration-count: infinite;
           will-change: transform;
+        }
+
+        /* Defer infinite animation work until the section is on screen. */
+        [data-motion-defer] .typing-motion-float {
+          animation-play-state: paused;
+        }
+        [data-motion-defer="active"] .typing-motion-float {
+          animation-play-state: running;
         }
 
         .typing-motion-tile {

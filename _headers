@@ -12,3 +12,18 @@
 
 /assets/*
   Cache-Control: public, max-age=31536000, immutable
+
+/Goat_typing_*.mp4
+  Cache-Control: public, max-age=31536000, immutable
+
+/goat-typing.mp4
+  Cache-Control: public, max-age=31536000, immutable
+
+/*.mp3
+  Cache-Control: public, max-age=31536000, immutable
+
+/og-image.png
+  Cache-Control: public, max-age=31536000, immutable
+
+/favicon.svg
+  Cache-Control: public, max-age=31536000, immutable

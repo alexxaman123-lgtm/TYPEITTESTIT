@@ -88,10 +88,9 @@ export default function Hero() {
             <video
               className="block aspect-[4/5] h-auto w-full object-cover lg:aspect-[5/6]"
               src="/Goat_typing_on_laptop_1080p_202609030103.mp4"
+              poster="/og-image.png"
               autoPlay
               muted
-              defaultMuted
-              volume={0}
               loop
               playsInline
               preload="metadata"

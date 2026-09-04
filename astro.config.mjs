@@ -5,6 +5,10 @@ import tailwindcss from "@tailwindcss/vite";
 export default defineConfig({
   site: "https://typeittestit.com",
   integrations: [react()],
+  prefetch: {
+    prefetchAll: true,
+    defaultStrategy: "viewport",
+  },
   vite: {
     plugins: [tailwindcss()],
     resolve: {
