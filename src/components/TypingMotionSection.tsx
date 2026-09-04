@@ -30,15 +30,16 @@ export default function TypingMotionSection({ locale = "en" }: TypingMotionSecti
     if (keys.length === 0) return;
 
     const setEntryOrigins = () => {
-      const sectionCenterX = section.clientWidth / 2;
-      const sourceY = section.clientHeight + 150;
+      const viewportCenterX = window.innerWidth / 2;
+      const sourceY = window.innerHeight + 120;
 
       keys.forEach((key, index) => {
-        const targetCenterX = key.offsetLeft + key.offsetWidth / 2;
-        const targetCenterY = key.offsetTop + key.offsetHeight / 2;
-        key.style.setProperty("--entry-x", `${sectionCenterX - targetCenterX}px`);
+        const rect = key.getBoundingClientRect();
+        const targetCenterX = rect.left + rect.width / 2;
+        const targetCenterY = rect.top + rect.height / 2;
+        key.style.setProperty("--entry-x", `${viewportCenterX - targetCenterX}px`);
         key.style.setProperty("--entry-y", `${sourceY - targetCenterY}px`);
-        key.style.setProperty("--entry-delay", `${Math.min(index * 110, 1100)}ms`);
+        key.style.setProperty("--entry-delay", `${Math.min(index * 95, 950)}ms`);
       });
     };
 
@@ -56,13 +57,15 @@ export default function TypingMotionSection({ locale = "en" }: TypingMotionSecti
       return;
     }
 
+    let entered = false;
     const observer = new IntersectionObserver(
       ([entry]) => {
-        if (!entry.isIntersecting) return;
+        if (entered || !entry.isIntersecting) return;
+        entered = true;
         section.dataset.motionDefer = "active";
         observer.disconnect();
       },
-      { threshold: 0.12 }
+      { threshold: 0.02, rootMargin: "0px 0px -8% 0px" }
     );
 
     observer.observe(section);
@@ -96,13 +99,12 @@ export default function TypingMotionSection({ locale = "en" }: TypingMotionSecti
           </div>
         </div>
 
-        {LETTERS.map((item, index) => (
+        {LETTERS.map((item) => (
           <div
             key={`${item.value}-${item.position}`}
             className={`typing-motion-float absolute ${item.position} ${item.size}`}
             style={{
               ["--tile-rotation" as string]: item.rotate,
-              ["--entry-delay" as string]: `${Math.min(index * 110, 1100)}ms`,
               ["--float-duration" as string]: item.duration,
               ["--float-delay" as string]: item.delay,
             }}
@@ -120,8 +122,6 @@ export default function TypingMotionSection({ locale = "en" }: TypingMotionSecti
           background: var(--color-canvas);
           color: var(--color-ink);
           isolation: isolate;
-          content-visibility: auto;
-          contain-intrinsic-size: 700px;
         }
 
         .typing-motion-grid {
@@ -157,13 +157,13 @@ export default function TypingMotionSection({ locale = "en" }: TypingMotionSecti
         .typing-motion-float {
           z-index: 2;
           pointer-events: none;
-          transform: translate3d(var(--entry-x), var(--entry-y), 0);
-          transition: transform 1650ms cubic-bezier(0.16, 1, 0.3, 1);
-          transition-delay: var(--entry-delay);
+          transform: translate3d(var(--entry-x, 0px), var(--entry-y, 0px), 0);
+          transition: transform 1900ms cubic-bezier(0.16, 1, 0.3, 1);
+          transition-delay: var(--entry-delay, 0ms);
           will-change: transform;
         }
 
-        /* On the first scroll into view, every key rises from one shared point at the bottom-center of the section and settles into its own position. */
+        /* First scroll into view: every key starts together at the bottom-center of the viewport, then rises slowly into its final position. */
         [data-motion-defer="active"] .typing-motion-float {
           transform: translate3d(0, 0, 0);
         }
