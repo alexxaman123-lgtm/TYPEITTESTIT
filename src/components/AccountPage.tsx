@@ -23,33 +23,46 @@ export default function AccountPage({ locale = "en" }: AccountPageProps) {
     const load = async () => {
       setLoading(true);
       setError(null);
-      const {
-        data: { user },
-        error: authError,
-      } = await supabase.auth.getUser();
 
-      if (!mounted) return;
+      try {
+        const {
+          data: { user },
+          error: authError,
+        } = await supabase.auth.getUser();
 
-      if (authError || !user) {
-        setSignedIn(false);
-        setUsername(null);
+        if (!mounted) return;
+
+        if (authError || !user) {
+          setSignedIn(false);
+          setUsername(null);
+          setEntries([]);
+          setLoading(false);
+          return;
+        }
+
+        setSignedIn(true);
+
+        const [{ data: profile }, historyResult] = await Promise.all([
+          supabase.from("profiles").select("username").eq("user_id", user.id).maybeSingle(),
+          fetchTypingHistory(50),
+        ]);
+
+        if (!mounted) return;
+
+        setUsername(profile?.username?.trim() || user.user_metadata?.username?.trim() || null);
+        setEntries(historyResult);
+      } catch (loadError) {
+        if (!mounted) return;
+        console.error("Could not load typing history:", loadError);
         setEntries([]);
-        setLoading(false);
-        return;
+        setError(
+          isSpanish
+            ? "No se pudo cargar tu historial. Comprueba la configuración de tu cuenta y vuelve a intentarlo."
+            : "We couldn't load your typing history. Check your account setup and try again."
+        );
+      } finally {
+        if (mounted) setLoading(false);
       }
-
-      setSignedIn(true);
-
-      const [{ data: profile }, historyResult] = await Promise.all([
-        supabase.from("profiles").select("username").eq("user_id", user.id).maybeSingle(),
-        fetchTypingHistory(50),
-      ]);
-
-      if (!mounted) return;
-
-      setUsername(profile?.username?.trim() || user.user_metadata?.username?.trim() || null);
-      if (historyResult) setEntries(historyResult);
-      setLoading(false);
     };
 
     void load();
@@ -60,6 +73,8 @@ export default function AccountPage({ locale = "en" }: AccountPageProps) {
         setSignedIn(false);
         setUsername(null);
         setEntries([]);
+        setError(null);
+        setLoading(false);
         return;
       }
       if (event === "SIGNED_IN" || event === "INITIAL_SESSION" || event === "USER_UPDATED") {
@@ -72,7 +87,7 @@ export default function AccountPage({ locale = "en" }: AccountPageProps) {
       mounted = false;
       subscription.unsubscribe();
     };
-  }, []);
+  }, [isSpanish]);
 
   const bestWpm = entries.reduce<TypingHistoryEntry | null>((best, entry) => (!best || entry.wpm > best.wpm ? entry : best), null);
   const bestAccuracy = entries.reduce<TypingHistoryEntry | null>((best, entry) => (!best || entry.accuracy > best.accuracy ? entry : best), null);
@@ -107,7 +122,7 @@ export default function AccountPage({ locale = "en" }: AccountPageProps) {
               </div>
               <button
                 type="button"
-                onClick={() => void window.location.reload()}
+                onClick={() => window.location.reload()}
                 className="rounded-full border border-hairline px-4 py-2 font-link text-ink hover:bg-canvas-soft"
               >
                 {isSpanish ? "Actualizar" : "Refresh"}
@@ -115,7 +130,16 @@ export default function AccountPage({ locale = "en" }: AccountPageProps) {
             </div>
 
             {error ? (
-              <div className="py-10 text-center font-body text-text-muted">{error}</div>
+              <div className="rounded-2xl border border-hairline bg-canvas-soft px-5 py-10 text-center">
+                <p className="font-body text-text-muted">{error}</p>
+                <button
+                  type="button"
+                  onClick={() => window.location.reload()}
+                  className="mt-5 rounded-full border border-hairline px-4 py-2 font-link text-ink hover:bg-canvas"
+                >
+                  {isSpanish ? "Volver a intentar" : "Try again"}
+                </button>
+              </div>
             ) : (
               <>
                 <div className="mt-7 grid gap-4 sm:grid-cols-2">
