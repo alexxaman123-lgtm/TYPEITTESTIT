@@ -1,0 +1,8 @@
+---
+import SiteLayout from "../../layouts/SiteLayout.astro";
+import Header from "../../components/Header";
+import ContactPage from "../../components/ContactPage";
+import Footer from "../../components/Footer";
+const title="Контакти | Тест друку Коза"; const description="з'єднайтеся з Тест друку Коза з питаннями, пропозиціями або відгуками про наш безкоштовний онлайн-тест друку.";
+---
+<SiteLayout title={title} description={description} pageKey="contact" locale="uk"><div class="relative min-h-screen"><Header client:load locale="uk"/><main><ContactPage locale="uk"/></main><Footer locale="uk"/></div></SiteLayout>

@@ -1,0 +1,11 @@
+---
+import SiteLayout from "../../layouts/SiteLayout.astro";
+import Header from "../../components/Header";
+import AboutPage from "../../components/AboutPage";
+import Footer from "../../components/Footer";
+const title = "타이핑 테스트 염소 소개 | 무료 타이핑 테스트";
+const description = "WPM, 정확도, 타이핑 진행도를 측정하는 무료 온라인 도구인 타이핑 테스트 염소를 소개합니다.";
+---
+<SiteLayout title={title} description={description} pageKey="about" locale="ko">
+  <div class="relative min-h-screen"><Header client:load locale="ko" /><main><AboutPage locale="ko" /></main><Footer locale="ko" /></div>
+</SiteLayout>

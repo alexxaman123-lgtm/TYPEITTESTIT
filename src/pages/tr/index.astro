@@ -1,0 +1,17 @@
+---
+import SiteLayout from "../../layouts/SiteLayout.astro";
+import Header from "../../components/Header";
+import TypingTesterIsland from "../../components/TypingTesterIsland";
+import Hero from "../../components/Hero";
+import TypingMotionSection from "../../components/TypingMotionSection";
+import SeoContent from "../../components/SeoContent";
+import HowItWorks from "../../components/HowItWorks";
+import FaqSection from "../../components/FaqSection";
+import FaqSchema from "../../components/FaqSchema";
+import Footer from "../../components/Footer";
+const title="Ücretsiz Çevrimiçi Yazma Testi – WPM ve Pratik | Yazma Testi Keçi";
+const description="Yazma Testi Keçi ile ücretsiz çevrimiçi yazma testi yap, WPM, doğruluk ve hataları ölç. 1, 2, 3 veya 5 dakikalık testlerle pratik yap.";
+const webApplicationSchema={"@context":"https://schema.org","@type":"WebApplication",name:"Yazma Testi Keçi",alternateName:["Yazma testi","Ücretsiz yazma testi","Yazma hızı testi"],url:"https://typeittestit.com/tr/",inLanguage:"tr",applicationCategory:"UtilityApplication",applicationSubCategory:"Yazma testi",operatingSystem:"Any",browserRequirements:"JavaScript etkin modern bir web tarayıcısı gerektirir",featureList:["Ücretsiz yazma hızı testi","WPM yazma testi","Yazma doğruluk testi","Yazma pratikçi","1 dakikalık yazma testi","2 dakikalık yazma testi","3 dakikalık yazma testi","5 dakikalık yazma testi","Özel yazma testi"],description:"Yazma Testi Keçi, WPM, doğruluk ve hataları ölçen ücretsiz bir çevrimiçi yazma testi aracıdır.",offers:{"@type":"Offer",price:"0",priceCurrency:"USD"}};
+const websiteSchema={"@context":"https://schema.org","@type":"WebSite",name:"Yazma Testi Keçi",alternateName:"Yazma testi",url:"https://typeittestit.com/tr/",inLanguage:"tr"};
+---
+<SiteLayout title={title} description={description} pageKey="home" locale="tr" structuredData={[webApplicationSchema,websiteSchema]}><div class="relative min-h-screen"><Header client:idle locale="tr"/><main><Hero locale="tr"/><div class="mx-auto max-w-6xl px-4 pb-16 sm:px-6 lg:px-8" data-reveal="up"><TypingTesterIsland client:load locale="tr"/></div><TypingMotionSection locale="tr"/><div class="border-t border-hairline below-fold-content" data-reveal="up"><SeoContent locale="tr"/></div><div class="border-t border-hairline below-fold-content" data-reveal="up"><HowItWorks locale="tr"/></div><div class="border-t border-hairline below-fold-content" data-reveal="up"><FaqSection locale="tr"/></div></main><Footer locale="tr"/><FaqSchema locale="tr"/></div></SiteLayout>

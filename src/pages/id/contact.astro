@@ -1,0 +1,8 @@
+---
+import SiteLayout from "../../layouts/SiteLayout.astro";
+import Header from "../../components/Header";
+import ContactPage from "../../components/ContactPage";
+import Footer from "../../components/Footer";
+const title="Kontak | Tes Mengetik Kambing"; const description="Hubungi Tes Mengetik Kambing untuk pertanyaan, saran, atau masukan tentang tes mengetik online gratis kami.";
+---
+<SiteLayout title={title} description={description} pageKey="contact" locale="id"><div class="relative min-h-screen"><Header client:load locale="id"/><main><ContactPage locale="id"/></main><Footer locale="id"/></div></SiteLayout>

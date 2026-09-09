@@ -1,0 +1,11 @@
+---
+import SiteLayout from "../../layouts/SiteLayout.astro";
+import Header from "../../components/Header";
+import Footer from "../../components/Footer";
+import AccountPage from "../../components/AccountPage";
+const title = "Yazma Geçmişi | Yazma Testi Keçi";
+const description = "Yazma Testi Keçi'de özel yazma testi geçmişini, WPM, doğruluk ve kişisel en iyi sonuçlarını görüntüle.";
+---
+<SiteLayout title={title} description={description} pageKey="account" locale="tr">
+  <div class="relative min-h-screen"><Header client:idle locale="tr" /><AccountPage client:load locale="tr" /><Footer locale="tr" /></div>
+</SiteLayout>

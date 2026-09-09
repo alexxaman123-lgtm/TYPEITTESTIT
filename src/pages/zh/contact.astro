@@ -1,0 +1,8 @@
+---
+import SiteLayout from "../../layouts/SiteLayout.astro";
+import Header from "../../components/Header";
+import ContactPage from "../../components/ContactPage";
+import Footer from "../../components/Footer";
+const title="联系我们 | 打字测试山羊"; const description="如果您对我们的免费在线打字测试有任何问题、建议或反馈，请联系打字测试山羊。";
+---
+<SiteLayout title={title} description={description} pageKey="contact" locale="zh"><div class="relative min-h-screen"><Header client:load locale="zh"/><main><ContactPage locale="zh"/></main><Footer locale="zh"/></div></SiteLayout>

@@ -1,0 +1,8 @@
+---
+import SiteLayout from "../../layouts/SiteLayout.astro";
+import Header from "../../components/Header";
+import PrivacyPolicyPage from "../../components/PrivacyPolicyPage";
+import Footer from "../../components/Footer";
+const title="Gizlilik Politikası | Yazma Testi Keçi"; const description="Yazma Testi Keçi'nin hesap verileri, yazma testleri, yerel depolama ve reklamcılıkla ilgili Gizlilik Politikasını okuyun.";
+---
+<SiteLayout title={title} description={description} pageKey="privacy-policy" locale="tr"><div class="relative min-h-screen"><Header client:load locale="tr"/><main><PrivacyPolicyPage locale="tr"/></main><Footer locale="tr"/></div></SiteLayout>

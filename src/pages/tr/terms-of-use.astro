@@ -1,0 +1,8 @@
+---
+import SiteLayout from "../../layouts/SiteLayout.astro";
+import Header from "../../components/Header";
+import TermsOfUsePage from "../../components/TermsOfUsePage";
+import Footer from "../../components/Footer";
+const title="Kullanım Şartları | Yazma Testi Keçi"; const description="Ücretsiz yazma testi, hesaplar ve lider tablosu için Yazma Testi Keçi Kullanım Şartlarını okuyun.";
+---
+<SiteLayout title={title} description={description} pageKey="terms-of-use" locale="tr"><div class="relative min-h-screen"><Header client:load locale="tr"/><main><TermsOfUsePage locale="tr"/></main><Footer locale="tr"/></div></SiteLayout>

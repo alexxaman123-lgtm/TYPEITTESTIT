@@ -1,0 +1,8 @@
+---
+import SiteLayout from "../../layouts/SiteLayout.astro";
+import Header from "../../components/Header";
+import TermsOfUsePage from "../../components/TermsOfUsePage";
+import Footer from "../../components/Footer";
+const title="Termos de Uso | Teste de Digitação Cabra"; const description="Leia os Termos de Uso do Teste de Digitação Cabra para o teste de digitação gratuito, contas e classificação.";
+---
+<SiteLayout title={title} description={description} pageKey="terms-of-use" locale="pt"><div class="relative min-h-screen"><Header client:load locale="pt"/><main><TermsOfUsePage locale="pt"/></main><Footer locale="pt"/></div></SiteLayout>

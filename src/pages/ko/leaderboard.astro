@@ -1,0 +1,8 @@
+---
+import SiteLayout from "../../layouts/SiteLayout.astro";
+import Header from "../../components/Header";
+import LeaderboardPage from "../../components/LeaderboardPage";
+import Footer from "../../components/Footer";
+const title="타이핑 테스트 리더보드 | WPM 및 정확도 | 타이핑 테스트 염소"; const description="타이핑 테스트 염소 리더보드를 확인하고 WPM과 정확도를 비교하며 타이핑 실력을 탐색해 보세요.";
+---
+<SiteLayout title={title} description={description} pageKey="leaderboard" locale="ko"><div class="relative min-h-screen"><Header client:load locale="ko"/><LeaderboardPage client:load locale="ko"/><Footer locale="ko"/></div></SiteLayout>

@@ -1,0 +1,11 @@
+---
+import SiteLayout from "../../layouts/SiteLayout.astro";
+import Header from "../../components/Header";
+import AboutPage from "../../components/AboutPage";
+import Footer from "../../components/Footer";
+const title = "Tentang Tes Mengetik Kambing | Tes Mengetik Gratis";
+const description = "Kenali Tes Mengetik Kambing, alat online gratis untuk mengukur WPM, akurasi, dan kemajuan mengetik.";
+---
+<SiteLayout title={title} description={description} pageKey="about" locale="id">
+  <div class="relative min-h-screen"><Header client:load locale="id" /><main><AboutPage locale="id" /></main><Footer locale="id" /></div>
+</SiteLayout>

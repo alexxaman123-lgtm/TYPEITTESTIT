@@ -1,0 +1,11 @@
+---
+import SiteLayout from "../../layouts/SiteLayout.astro";
+import Header from "../../components/Header";
+import AboutPage from "../../components/AboutPage";
+import Footer from "../../components/Footer";
+const title = "O Test Pisania Koza | Darmowy test pisania";
+const description = "Poznaj Test Pisania Koza, darmowe narzędzie online do mierzenia WPM, dokładności i postępów w pisaniu.";
+---
+<SiteLayout title={title} description={description} pageKey="about" locale="pl">
+  <div class="relative min-h-screen"><Header client:load locale="pl" /><main><AboutPage locale="pl" /></main><Footer locale="pl" /></div>
+</SiteLayout>

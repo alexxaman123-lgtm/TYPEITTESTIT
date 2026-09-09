@@ -1,6 +1,26 @@
 ---
 import "../index.css";
 import { THEMES, DEFAULT_THEME } from "../lib/themes";
+import { LOCALES, LOCALE_META, withLocalePrefix, type Locale } from "../lib/i18n";
+
+export type PageKey =
+  | "home"
+  | "about"
+  | "contact"
+  | "leaderboard"
+  | "privacy-policy"
+  | "terms-of-use"
+  | "account";
+
+const PAGE_ROOT_PATH: Record<PageKey, string> = {
+  home: "/",
+  about: "/about/",
+  contact: "/contact/",
+  leaderboard: "/leaderboard/",
+  "privacy-policy": "/privacy-policy/",
+  "terms-of-use": "/terms-of-use/",
+  account: "/account/",
+};
 
 interface AlternateLink {
   hreflang: string;
@@ -10,43 +30,56 @@ interface AlternateLink {
 interface Props {
   title: string;
   description: string;
+  /** Preferred: drives canonical + reciprocal hreflang generation for all 13 locales automatically. */
+  pageKey?: PageKey;
+  /** Legacy/manual override. Not needed when pageKey is supplied. */
   canonicalPath?: string;
   structuredData?: Record<string, unknown>[];
-  locale?: string;
+  locale?: Locale;
+  /** Legacy/manual override. Not needed when pageKey is supplied. */
   alternates?: AlternateLink[];
 }
 
 const {
   title,
   description,
-  canonicalPath = "/",
+  pageKey,
+  canonicalPath,
   structuredData = [],
   locale = "en",
   alternates = [],
 } = Astro.props;
 
 const siteUrl = "https://typeittestit.com";
-const canonicalUrl = `${siteUrl}${canonicalPath}`;
-const localizedBrand = locale === "es" ? "Test de mecanografía Cabra" : "FreeTypingTestGoat";
-const localizedImageAlt = locale === "es" ? "Test de mecanografía Cabra, test de mecanografía gratis y práctica de WPM" : "FreeTypingTestGoat free online typing test and WPM practice";
+const meta = LOCALE_META[locale as Locale] ?? LOCALE_META.en;
+const rootPath = pageKey ? PAGE_ROOT_PATH[pageKey] : undefined;
+const resolvedCanonicalPath = canonicalPath ?? (rootPath ? withLocalePrefix(locale as Locale, rootPath) : "/");
+const canonicalUrl = `${siteUrl}${resolvedCanonicalPath}`;
+const localizedBrand = meta.brand;
+const localizedImageAlt = `${meta.brand}, ${meta.imageAltSuffix}`;
 const themeMap = Object.fromEntries(
   THEMES.map((theme) => [theme.id, { type: theme.type, variables: theme.variables }])
 );
 
-const knownSpanishEquivalents = ["/", "/about", "/contact", "/privacy-policy", "/terms-of-use", "/leaderboard"];
-const normalizedPath = canonicalPath.replace(/\/+$/g, "") || "/";
-const automaticAlternates: AlternateLink[] = locale === "en" && knownSpanishEquivalents.includes(normalizedPath)
+// When a pageKey is provided, generate a complete, reciprocal 13-locale +
+// x-default hreflang cluster automatically. This is the single place that
+// knows about every locale, so adding a 14th language later means adding
+// one entry to LOCALES/LOCALE_META in src/lib/i18n.ts -- nothing here needs
+// to change.
+const generatedAlternates: AlternateLink[] = rootPath
   ? [
-      ...alternates,
-      { hreflang: "en", href: canonicalUrl },
-      { hreflang: "es", href: `${siteUrl}${normalizedPath === "/" ? "/es/" : `/es${normalizedPath}/`}` },
-      { hreflang: "x-default", href: canonicalUrl },
+      ...LOCALES.map((l) => ({ hreflang: LOCALE_META[l].htmlLang, href: `${siteUrl}${withLocalePrefix(l, rootPath)}` })),
+      { hreflang: "x-default", href: `${siteUrl}${rootPath}` },
     ]
   : alternates;
-const hreflangLinks = Array.from(new Map(automaticAlternates.map((alternate) => [alternate.hreflang, alternate])).values());
+const hreflangLinks = Array.from(new Map(generatedAlternates.map((alternate) => [alternate.hreflang, alternate])).values());
+
+const ogLocaleAlternates = rootPath
+  ? LOCALES.filter((l) => l !== locale).map((l) => LOCALE_META[l].bcp47.replace("-", "_"))
+  : [];
 ---
 <!doctype html>
-<html lang={locale}>
+<html lang={meta.htmlLang}>
   <head>
     <!-- Preserve the site's existing analytics bootstrap and AdSense integration. -->
     <script is:inline src="/ga-init.js"></script>
@@ -69,6 +102,8 @@ const hreflangLinks = Array.from(new Map(automaticAlternates.map((alternate) => 
     <meta property="og:title" content={title} />
     <meta property="og:description" content={description} />
     <meta property="og:url" content={canonicalUrl} />
+    <meta property="og:locale" content={meta.bcp47.replace("-", "_")} />
+    {ogLocaleAlternates.map((code) => <meta property="og:locale:alternate" content={code} />)}
     <meta property="og:image" content={`${siteUrl}/og-image.png`} />
     <meta property="og:image:alt" content={localizedImageAlt} />
 
@@ -132,7 +167,8 @@ const hreflangLinks = Array.from(new Map(automaticAlternates.map((alternate) => 
       })();
 
       // Drive the large footer wordmark from the global Astro layout so it
-      // works on both static and React-rendered pages, including /es routes.
+      // works on both static and React-rendered pages, including every
+      // localized route.
       (() => {
         const footers = Array.from(document.querySelectorAll('[data-footer-parallax]'));
         if (!footers.length) return;

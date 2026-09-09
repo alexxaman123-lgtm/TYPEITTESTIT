@@ -1,0 +1,8 @@
+---
+import SiteLayout from "../../layouts/SiteLayout.astro";
+import Header from "../../components/Header";
+import PrivacyPolicyPage from "../../components/PrivacyPolicyPage";
+import Footer from "../../components/Footer";
+const title="隐私政策 | 打字测试山羊"; const description="阅读打字测试山羊关于账户数据、打字测试、本地存储和广告的隐私政策。";
+---
+<SiteLayout title={title} description={description} pageKey="privacy-policy" locale="zh"><div class="relative min-h-screen"><Header client:load locale="zh"/><main><PrivacyPolicyPage locale="zh"/></main><Footer locale="zh"/></div></SiteLayout>

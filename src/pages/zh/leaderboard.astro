@@ -1,0 +1,8 @@
+---
+import SiteLayout from "../../layouts/SiteLayout.astro";
+import Header from "../../components/Header";
+import LeaderboardPage from "../../components/LeaderboardPage";
+import Footer from "../../components/Footer";
+const title="打字测试排行榜 | WPM与准确率 | 打字测试山羊"; const description="查看打字测试山羊的排行榜，比较WPM和准确率，探索打字表现。";
+---
+<SiteLayout title={title} description={description} pageKey="leaderboard" locale="zh"><div class="relative min-h-screen"><Header client:load locale="zh"/><LeaderboardPage client:load locale="zh"/><Footer locale="zh"/></div></SiteLayout>

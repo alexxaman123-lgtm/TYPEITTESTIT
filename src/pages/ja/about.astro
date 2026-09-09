@@ -1,0 +1,11 @@
+---
+import SiteLayout from "../../layouts/SiteLayout.astro";
+import Header from "../../components/Header";
+import AboutPage from "../../components/AboutPage";
+import Footer from "../../components/Footer";
+const title = "タイピングテスト ヤギについて | 無料タイピングテスト";
+const description = "WPM、正確性、タイピング上達度を測定する無料オンラインツール、タイピングテスト ヤギについてご紹介します。";
+---
+<SiteLayout title={title} description={description} pageKey="about" locale="ja">
+  <div class="relative min-h-screen"><Header client:load locale="ja" /><main><AboutPage locale="ja" /></main><Footer locale="ja" /></div>
+</SiteLayout>

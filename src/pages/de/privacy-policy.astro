@@ -1,0 +1,8 @@
+---
+import SiteLayout from "../../layouts/SiteLayout.astro";
+import Header from "../../components/Header";
+import PrivacyPolicyPage from "../../components/PrivacyPolicyPage";
+import Footer from "../../components/Footer";
+const title="Datenschutzerklärung | Schreibtest Ziege"; const description="Lies die Datenschutzerklärung von Schreibtest Ziege zu Kontodaten, Schreibtests, lokalem Speicher und Werbung.";
+---
+<SiteLayout title={title} description={description} pageKey="privacy-policy" locale="de"><div class="relative min-h-screen"><Header client:load locale="de"/><main><PrivacyPolicyPage locale="de"/></main><Footer locale="de"/></div></SiteLayout>

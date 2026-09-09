@@ -1,0 +1,8 @@
+---
+import SiteLayout from "../../layouts/SiteLayout.astro";
+import Header from "../../components/Header";
+import ContactPage from "../../components/ContactPage";
+import Footer from "../../components/Footer";
+const title="Contact | Test de frappe Chèvre"; const description="Contactez Test de frappe Chèvre pour toute question, suggestion ou retour sur notre test de frappe gratuit en ligne.";
+---
+<SiteLayout title={title} description={description} pageKey="contact" locale="fr"><div class="relative min-h-screen"><Header client:load locale="fr"/><main><ContactPage locale="fr"/></main><Footer locale="fr"/></div></SiteLayout>

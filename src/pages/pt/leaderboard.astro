@@ -1,0 +1,8 @@
+---
+import SiteLayout from "../../layouts/SiteLayout.astro";
+import Header from "../../components/Header";
+import LeaderboardPage from "../../components/LeaderboardPage";
+import Footer from "../../components/Footer";
+const title="Classificação do teste de digitação | WPM e precisão | Teste de Digitação Cabra"; const description="Veja a classificação do Teste de Digitação Cabra, compare WPM e precisão e explore o desempenho de digitação.";
+---
+<SiteLayout title={title} description={description} pageKey="leaderboard" locale="pt"><div class="relative min-h-screen"><Header client:load locale="pt"/><LeaderboardPage client:load locale="pt"/><Footer locale="pt"/></div></SiteLayout>

@@ -1,0 +1,8 @@
+---
+import SiteLayout from "../../layouts/SiteLayout.astro";
+import Header from "../../components/Header";
+import LeaderboardPage from "../../components/LeaderboardPage";
+import Footer from "../../components/Footer";
+const title="Classifica del test di digitazione | WPM e precisione | Test di Digitazione Capra"; const description="Guarda la classifica di Test di Digitazione Capra, confronta WPM e precisione ed esplora le prestazioni di digitazione.";
+---
+<SiteLayout title={title} description={description} pageKey="leaderboard" locale="it"><div class="relative min-h-screen"><Header client:load locale="it"/><LeaderboardPage client:load locale="it"/><Footer locale="it"/></div></SiteLayout>

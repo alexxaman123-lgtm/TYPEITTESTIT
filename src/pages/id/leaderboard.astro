@@ -1,0 +1,8 @@
+---
+import SiteLayout from "../../layouts/SiteLayout.astro";
+import Header from "../../components/Header";
+import LeaderboardPage from "../../components/LeaderboardPage";
+import Footer from "../../components/Footer";
+const title="Papan Peringkat Tes Mengetik | WPM dan Akurasi | Tes Mengetik Kambing"; const description="Lihat papan peringkat Tes Mengetik Kambing, bandingkan WPM dan akurasi, serta jelajahi performa mengetik.";
+---
+<SiteLayout title={title} description={description} pageKey="leaderboard" locale="id"><div class="relative min-h-screen"><Header client:load locale="id"/><LeaderboardPage client:load locale="id"/><Footer locale="id"/></div></SiteLayout>

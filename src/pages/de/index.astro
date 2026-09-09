@@ -1,0 +1,17 @@
+---
+import SiteLayout from "../../layouts/SiteLayout.astro";
+import Header from "../../components/Header";
+import TypingTesterIsland from "../../components/TypingTesterIsland";
+import Hero from "../../components/Hero";
+import TypingMotionSection from "../../components/TypingMotionSection";
+import SeoContent from "../../components/SeoContent";
+import HowItWorks from "../../components/HowItWorks";
+import FaqSection from "../../components/FaqSection";
+import FaqSchema from "../../components/FaqSchema";
+import Footer from "../../components/Footer";
+const title="Kostenloser Schreibtest Online – WPM & Tipp-Übung | Schreibtest Ziege";
+const description="Mach einen kostenlosen Online-Schreibtest mit Schreibtest Ziege, um WPM, Genauigkeit und Fehler zu messen. Übe mit 1-, 2-, 3- oder 5-Minuten-Tests.";
+const webApplicationSchema={"@context":"https://schema.org","@type":"WebApplication",name:"Schreibtest Ziege",alternateName:["Schreibtest","Kostenloser Schreibtest","Tippgeschwindigkeitstest"],url:"https://typeittestit.com/de/",inLanguage:"de",applicationCategory:"UtilityApplication",applicationSubCategory:"Schreibtest",operatingSystem:"Any",browserRequirements:"Erfordert einen modernen Webbrowser mit aktiviertem JavaScript",featureList:["Kostenloser Schreibgeschwindigkeitstest","WPM-Schreibtest","Tippgenauigkeitstest","Tippübung","1-Minuten-Schreibtest","2-Minuten-Schreibtest","3-Minuten-Schreibtest","5-Minuten-Schreibtest","Individueller Schreibtest"],description:"Schreibtest Ziege ist ein kostenloses Online-Tool zum Messen der Schreibgeschwindigkeit in WPM, Genauigkeit und Fehlern.",offers:{"@type":"Offer",price:"0",priceCurrency:"USD"}};
+const websiteSchema={"@context":"https://schema.org","@type":"WebSite",name:"Schreibtest Ziege",alternateName:"Schreibtest",url:"https://typeittestit.com/de/",inLanguage:"de"};
+---
+<SiteLayout title={title} description={description} pageKey="home" locale="de" structuredData={[webApplicationSchema,websiteSchema]}><div class="relative min-h-screen"><Header client:idle locale="de"/><main><Hero locale="de"/><div class="mx-auto max-w-6xl px-4 pb-16 sm:px-6 lg:px-8" data-reveal="up"><TypingTesterIsland client:load locale="de"/></div><TypingMotionSection locale="de"/><div class="border-t border-hairline below-fold-content" data-reveal="up"><SeoContent locale="de"/></div><div class="border-t border-hairline below-fold-content" data-reveal="up"><HowItWorks locale="de"/></div><div class="border-t border-hairline below-fold-content" data-reveal="up"><FaqSection locale="de"/></div></main><Footer locale="de"/><FaqSchema locale="de"/></div></SiteLayout>

@@ -1,0 +1,17 @@
+---
+import SiteLayout from "../../layouts/SiteLayout.astro";
+import Header from "../../components/Header";
+import TypingTesterIsland from "../../components/TypingTesterIsland";
+import Hero from "../../components/Hero";
+import TypingMotionSection from "../../components/TypingMotionSection";
+import SeoContent from "../../components/SeoContent";
+import HowItWorks from "../../components/HowItWorks";
+import FaqSection from "../../components/FaqSection";
+import FaqSchema from "../../components/FaqSchema";
+import Footer from "../../components/Footer";
+const title="Test di digitazione gratuito online – WPM ed esercizi | Test di Digitazione Capra";
+const description="Fai un test di digitazione gratuito online con Test di Digitazione Capra per misurare WPM, precisione ed errori. Esercitati con test da 1, 2, 3 o 5 minuti.";
+const webApplicationSchema={"@context":"https://schema.org","@type":"WebApplication",name:"Test di Digitazione Capra",alternateName:["Test di digitazione","Test di digitazione gratuito","Test di velocità di digitazione"],url:"https://typeittestit.com/it/",inLanguage:"it",applicationCategory:"UtilityApplication",applicationSubCategory:"Test di digitazione",operatingSystem:"Any",browserRequirements:"Richiede un browser web moderno con JavaScript abilitato",featureList:["Test di velocità di digitazione gratuito","Test di digitazione WPM","Test di precisione di digitazione","Esercizi di digitazione","Test di digitazione da 1 minuto","Test di digitazione da 2 minuti","Test di digitazione da 3 minuti","Test di digitazione da 5 minuti","Test di digitazione personalizzato"],description:"Test di Digitazione Capra è uno strumento online gratuito per misurare la velocità di digitazione in WPM, precisione ed errori.",offers:{"@type":"Offer",price:"0",priceCurrency:"USD"}};
+const websiteSchema={"@context":"https://schema.org","@type":"WebSite",name:"Test di Digitazione Capra",alternateName:"Test di digitazione",url:"https://typeittestit.com/it/",inLanguage:"it"};
+---
+<SiteLayout title={title} description={description} pageKey="home" locale="it" structuredData={[webApplicationSchema,websiteSchema]}><div class="relative min-h-screen"><Header client:idle locale="it"/><main><Hero locale="it"/><div class="mx-auto max-w-6xl px-4 pb-16 sm:px-6 lg:px-8" data-reveal="up"><TypingTesterIsland client:load locale="it"/></div><TypingMotionSection locale="it"/><div class="border-t border-hairline below-fold-content" data-reveal="up"><SeoContent locale="it"/></div><div class="border-t border-hairline below-fold-content" data-reveal="up"><HowItWorks locale="it"/></div><div class="border-t border-hairline below-fold-content" data-reveal="up"><FaqSection locale="it"/></div></main><Footer locale="it"/><FaqSchema locale="it"/></div></SiteLayout>

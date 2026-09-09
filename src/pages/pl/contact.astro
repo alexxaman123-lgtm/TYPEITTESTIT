@@ -1,0 +1,8 @@
+---
+import SiteLayout from "../../layouts/SiteLayout.astro";
+import Header from "../../components/Header";
+import ContactPage from "../../components/ContactPage";
+import Footer from "../../components/Footer";
+const title="Kontakt | Test Pisania Koza"; const description="Skontaktuj się z Test Pisania Koza w sprawie pytań, sugestii lub opinii o naszym darmowym teście pisania online.";
+---
+<SiteLayout title={title} description={description} pageKey="contact" locale="pl"><div class="relative min-h-screen"><Header client:load locale="pl"/><main><ContactPage locale="pl"/></main><Footer locale="pl"/></div></SiteLayout>

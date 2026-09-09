@@ -1,4 +1,226 @@
-export type Locale = "en" | "es";
+export type Locale =
+  | "en"
+  | "es"
+  | "de"
+  | "fr"
+  | "it"
+  | "pt"
+  | "pl"
+  | "tr"
+  | "uk"
+  | "id"
+  | "zh"
+  | "ja"
+  | "ko";
+
+/**
+ * Central locale registry. This is the single source of truth for every
+ * locale-aware surface in the app: LanguagePicker, Header, Footer,
+ * SiteLayout's hreflang/canonical generation, and the sitemap generator
+ * script. Adding a new language means adding one entry here (plus content
+ * where each shared component keeps its own Record<Locale, ...> dictionary)
+ * -- never a new duplicate component file.
+ */
+export const LOCALES: Locale[] = [
+  "en",
+  "es",
+  "de",
+  "fr",
+  "it",
+  "pt",
+  "pl",
+  "tr",
+  "uk",
+  "id",
+  "zh",
+  "ja",
+  "ko",
+];
+
+export const DEFAULT_LOCALE: Locale = "en";
+
+export interface LocaleMeta {
+  /** BCP47 language tag used for the html lang attribute and hreflang. */
+  htmlLang: string;
+  /** BCP47 locale used for Intl.* formatting (dates, numbers). */
+  bcp47: string;
+  /** Native-script display name, as shown in the language picker. */
+  nativeName: string;
+  /** URL path prefix, e.g. "" for English, "/es" for Spanish. */
+  prefix: string;
+  /** Full localized brand name used in titles, schema, and meta tags. */
+  brand: string;
+  /** Brand split into [main, accent] for two-tone header/footer rendering. */
+  brandParts: [string, string];
+  /** Short localized phrase describing the site, used for image alt text. */
+  imageAltSuffix: string;
+}
+
+export const LOCALE_META: Record<Locale, LocaleMeta> = {
+  en: {
+    htmlLang: "en",
+    bcp47: "en-US",
+    nativeName: "English",
+    prefix: "",
+    brand: "FreeTypingTestGoat",
+    brandParts: ["FreeTypingTest", "Goat"],
+    imageAltSuffix: "free online typing test and WPM practice",
+  },
+  es: {
+    htmlLang: "es",
+    bcp47: "es-ES",
+    nativeName: "Español",
+    prefix: "/es",
+    brand: "Test de mecanografía Cabra",
+    brandParts: ["Test de mecanografía", " Cabra"],
+    imageAltSuffix: "test de mecanografía gratis y práctica de WPM",
+  },
+  de: {
+    htmlLang: "de",
+    bcp47: "de-DE",
+    nativeName: "Deutsch",
+    prefix: "/de",
+    brand: "Schreibtest Ziege",
+    brandParts: ["Schreibtest", " Ziege"],
+    imageAltSuffix: "kostenloser Online-Schreibtest und WPM-Übung",
+  },
+  fr: {
+    htmlLang: "fr",
+    bcp47: "fr-FR",
+    nativeName: "Français",
+    prefix: "/fr",
+    brand: "Test de frappe Chèvre",
+    brandParts: ["Test de frappe", " Chèvre"],
+    imageAltSuffix: "test de frappe en ligne gratuit et entraînement WPM",
+  },
+  it: {
+    htmlLang: "it",
+    bcp47: "it-IT",
+    nativeName: "Italiano",
+    prefix: "/it",
+    brand: "Test di Digitazione Capra",
+    brandParts: ["Test di digitazione", " Capra"],
+    imageAltSuffix: "test di digitazione online gratuito ed esercizio WPM",
+  },
+  pt: {
+    htmlLang: "pt",
+    bcp47: "pt-PT",
+    nativeName: "Português",
+    prefix: "/pt",
+    brand: "Teste de Digitação Cabra",
+    brandParts: ["Teste de digitação", " Cabra"],
+    imageAltSuffix: "teste de digitação online gratuito e prática de WPM",
+  },
+  pl: {
+    htmlLang: "pl",
+    bcp47: "pl-PL",
+    nativeName: "Polski",
+    prefix: "/pl",
+    brand: "Test Pisania Koza",
+    brandParts: ["Test pisania", " Koza"],
+    imageAltSuffix: "darmowy test pisania online i trening WPM",
+  },
+  tr: {
+    htmlLang: "tr",
+    bcp47: "tr-TR",
+    nativeName: "Türkçe",
+    prefix: "/tr",
+    brand: "Yazma Testi Keçi",
+    brandParts: ["Yazma testi", " Keçi"],
+    imageAltSuffix: "ücretsiz çevrimiçi yazma testi ve WPM pratiği",
+  },
+  uk: {
+    htmlLang: "uk",
+    bcp47: "uk-UA",
+    nativeName: "Українська",
+    prefix: "/uk",
+    brand: "Тест друку Коза",
+    brandParts: ["Тест друку", " Коза"],
+    imageAltSuffix: "безкоштовний онлайн-тест набору тексту та практика WPM",
+  },
+  id: {
+    htmlLang: "id",
+    bcp47: "id-ID",
+    nativeName: "Indonesia",
+    prefix: "/id",
+    brand: "Tes Mengetik Kambing",
+    brandParts: ["Tes mengetik", " Kambing"],
+    imageAltSuffix: "tes mengetik online gratis dan latihan WPM",
+  },
+  zh: {
+    htmlLang: "zh",
+    bcp47: "zh-CN",
+    nativeName: "中文",
+    prefix: "/zh",
+    brand: "打字测试山羊",
+    brandParts: ["打字测试", "山羊"],
+    imageAltSuffix: "免费在线打字测试和WPM练习",
+  },
+  ja: {
+    htmlLang: "ja",
+    bcp47: "ja-JP",
+    nativeName: "日本語",
+    prefix: "/ja",
+    brand: "タイピングテスト ヤギ",
+    brandParts: ["タイピングテスト", "ヤギ"],
+    imageAltSuffix: "無料オンラインタイピングテストとWPM練習",
+  },
+  ko: {
+    htmlLang: "ko",
+    bcp47: "ko-KR",
+    nativeName: "한국어",
+    prefix: "/ko",
+    brand: "타이핑 테스트 염소",
+    brandParts: ["타이핑 테스트", "염소"],
+    imageAltSuffix: "무료 온라인 타이핑 테스트 및 WPM 연습",
+  },
+};
+
+/** Returns the URL path prefix for a locale ("" for English). */
+export function localePrefix(locale: Locale): string {
+  return LOCALE_META[locale].prefix;
+}
+
+/**
+ * Builds a locale-aware path. `path` must be an app-root path such as "/",
+ * "/about/", "/leaderboard/". English (empty prefix) is returned unchanged;
+ * every other locale gets its prefix inserted before the path.
+ */
+export function withLocalePrefix(locale: Locale, path: string): string {
+  const prefix = localePrefix(locale);
+  if (!prefix) return path;
+  if (path === "/") return `${prefix}/`;
+  return `${prefix}${path}`;
+}
+
+/** Strips any known locale prefix from a pathname, returning the bare app-root path. */
+export function stripLocalePrefix(pathname: string): string {
+  for (const locale of LOCALES) {
+    const prefix = LOCALE_META[locale].prefix;
+    if (!prefix) continue;
+    if (pathname === prefix) return "/";
+    if (pathname.startsWith(`${prefix}/`)) {
+      const rest = pathname.slice(prefix.length);
+      return rest === "" ? "/" : rest;
+    }
+  }
+  return pathname || "/";
+}
+
+/** Detects the active locale from a pathname, defaulting to English. */
+export function detectLocaleFromPathname(pathname: string): Locale {
+  for (const locale of LOCALES) {
+    const prefix = LOCALE_META[locale].prefix;
+    if (!prefix) continue;
+    if (pathname === prefix || pathname.startsWith(`${prefix}/`)) return locale;
+  }
+  return DEFAULT_LOCALE;
+}
+
+/** Generic fallback picker: returns dict[locale] if present, else dict.en. */
+export function pick<T>(dict: Partial<Record<Locale, T>>, locale: Locale): T {
+  return (dict[locale] ?? dict.en) as T;
+}
 
 const translations = {
   en: {
@@ -14,6 +236,10 @@ const translations = {
       signedIn: "Signed in",
       openMenu: "Open menu",
       closeMenu: "Close menu",
+      typingHistory: "Typing History",
+      primaryNav: "Primary",
+      mobileNav: "Mobile",
+      homeAria: "FreeTypingTestGoat home",
     },
     theme: { pick: "Pick theme", palettes: "Three-tone palettes: background, text, typed", colors: "colors" },
     footer: {
@@ -29,6 +255,8 @@ const translations = {
       description: "FreeTypingTestGoat is a free online typing test and typing practice tool for measuring WPM, accuracy, and typing consistency.",
       rights: "All rights reserved.",
       tagline: "TYPE LIKE A GOAT.",
+      typingHistory: "Typing History",
+      footerNav: "Footer",
     },
     tester: {
       difficulty: "Difficulty",
@@ -135,6 +363,10 @@ const translations = {
       signedIn: "Sesión iniciada",
       openMenu: "Abrir menú",
       closeMenu: "Cerrar menú",
+      typingHistory: "Historial",
+      primaryNav: "Navegación principal",
+      mobileNav: "Menú móvil",
+      homeAria: "Inicio de Test de mecanografía Cabra",
     },
     theme: { pick: "Elegir tema", palettes: "Paletas de tres tonos: fondo, texto y escritura", colors: "colores" },
     footer: {
@@ -150,6 +382,8 @@ const translations = {
       description: "Test de mecanografía Cabra es un test de mecanografía online gratis para medir WPM, precisión y constancia al escribir.",
       rights: "Todos los derechos reservados.",
       tagline: "ESCRIBE COMO UNA CABRA.",
+      typingHistory: "Historial de escritura",
+      footerNav: "Pie de página",
     },
     tester: {
       difficulty: "Dificultad",
@@ -243,12 +477,409 @@ const translations = {
       speedTierMythicalName: "CABRA MÍTICA",
     },
   },
+  de: {
+    nav: {
+      typingSpeedTest: "Schreibgeschwindigkeitstest",
+      leaderboard: "Bestenliste",
+      howItWorks: "So funktioniert's",
+      about: "Über uns",
+      contact: "Kontakt",
+      startTyping: "Jetzt tippen",
+      theme: "Design",
+      login: "Anmelden",
+      signedIn: "Angemeldet",
+      openMenu: "Menü öffnen",
+      closeMenu: "Menü schließen",
+      typingHistory: "Verlauf",
+      primaryNav: "Hauptmenü",
+      mobileNav: "Mobiles Menü",
+      homeAria: "Schreibtest Ziege Startseite",
+    },
+    theme: { pick: "Design wählen", palettes: "Dreifarbige Paletten: Hintergrund, Text, Eingabe", colors: "Farben" },
+    footer: {
+      typingTester: "Schreibtest",
+      typingPractice: "Schreibübung",
+      guides: "Anleitungen",
+      howItWorks: "So funktioniert's",
+      faq: "FAQ",
+      about: "Über uns",
+      contact: "Kontakt",
+      privacy: "Datenschutz",
+      terms: "Nutzungsbedingungen",
+      description: "Schreibtest Ziege ist ein kostenloser Online-Schreibtest zum Messen von WPM, Genauigkeit und Tippkonstanz.",
+      rights: "Alle Rechte vorbehalten.",
+      tagline: "TIPPEN WIE EINE ZIEGE.",
+      typingHistory: "Verlauf",
+      footerNav: "Fußzeile",
+    },
+  },
+  fr: {
+    nav: {
+      typingSpeedTest: "Test de vitesse de frappe",
+      leaderboard: "Classement",
+      howItWorks: "Comment ça marche",
+      about: "À propos",
+      contact: "Contact",
+      startTyping: "Commencer à taper",
+      theme: "Thème",
+      login: "Se connecter",
+      signedIn: "Connecté",
+      openMenu: "Ouvrir le menu",
+      closeMenu: "Fermer le menu",
+      typingHistory: "Historique",
+      primaryNav: "Navigation principale",
+      mobileNav: "Menu mobile",
+      homeAria: "Accueil Test de frappe Chèvre",
+    },
+    theme: { pick: "Choisir un thème", palettes: "Palettes à trois tons : fond, texte, saisie", colors: "couleurs" },
+    footer: {
+      typingTester: "Testeur de frappe",
+      typingPractice: "Entraînement à la frappe",
+      guides: "Guides",
+      howItWorks: "Comment ça marche",
+      faq: "FAQ",
+      about: "À propos",
+      contact: "Contact",
+      privacy: "Politique de confidentialité",
+      terms: "Conditions d'utilisation",
+      description: "Test de frappe Chèvre est un test de frappe en ligne gratuit pour mesurer la vitesse, la précision et la régularité.",
+      rights: "Tous droits réservés.",
+      tagline: "TAPEZ COMME UNE CHÈVRE.",
+      typingHistory: "Historique",
+      footerNav: "Pied de page",
+    },
+  },
+  it: {
+    nav: {
+      typingSpeedTest: "Test di velocità di digitazione",
+      leaderboard: "Classifica",
+      howItWorks: "Come funziona",
+      about: "Chi siamo",
+      contact: "Contatti",
+      startTyping: "Inizia a digitare",
+      theme: "Tema",
+      login: "Accedi",
+      signedIn: "Accesso effettuato",
+      openMenu: "Apri menu",
+      closeMenu: "Chiudi menu",
+      typingHistory: "Cronologia",
+      primaryNav: "Navigazione principale",
+      mobileNav: "Menu mobile",
+      homeAria: "Home di Test di Digitazione Capra",
+    },
+    theme: { pick: "Scegli tema", palettes: "Palette a tre tonalità: sfondo, testo, digitato", colors: "colori" },
+    footer: {
+      typingTester: "Test di digitazione",
+      typingPractice: "Esercizi di digitazione",
+      guides: "Guide",
+      howItWorks: "Come funziona",
+      faq: "FAQ",
+      about: "Chi siamo",
+      contact: "Contatti",
+      privacy: "Informativa sulla privacy",
+      terms: "Termini di utilizzo",
+      description: "Test di Digitazione Capra è un test di digitazione online gratuito per misurare WPM, precisione e costanza.",
+      rights: "Tutti i diritti riservati.",
+      tagline: "DIGITA COME UNA CAPRA.",
+      typingHistory: "Cronologia",
+      footerNav: "Piè di pagina",
+    },
+  },
+  pt: {
+    nav: {
+      typingSpeedTest: "Teste de velocidade de digitação",
+      leaderboard: "Classificação",
+      howItWorks: "Como funciona",
+      about: "Sobre nós",
+      contact: "Contato",
+      startTyping: "Começar a digitar",
+      theme: "Tema",
+      login: "Entrar",
+      signedIn: "Sessão iniciada",
+      openMenu: "Abrir menu",
+      closeMenu: "Fechar menu",
+      typingHistory: "Histórico",
+      primaryNav: "Navegação principal",
+      mobileNav: "Menu móvel",
+      homeAria: "Início do Teste de Digitação Cabra",
+    },
+    theme: { pick: "Escolher tema", palettes: "Paletas de três tons: fundo, texto, digitado", colors: "cores" },
+    footer: {
+      typingTester: "Teste de digitação",
+      typingPractice: "Prática de digitação",
+      guides: "Guias",
+      howItWorks: "Como funciona",
+      faq: "Perguntas frequentes",
+      about: "Sobre nós",
+      contact: "Contato",
+      privacy: "Política de privacidade",
+      terms: "Termos de uso",
+      description: "Teste de Digitação Cabra é um teste de digitação online gratuito para medir WPM, precisão e consistência.",
+      rights: "Todos os direitos reservados.",
+      tagline: "DIGITE COMO UMA CABRA.",
+      typingHistory: "Histórico",
+      footerNav: "Rodapé",
+    },
+  },
+  pl: {
+    nav: {
+      typingSpeedTest: "Test szybkości pisania",
+      leaderboard: "Ranking",
+      howItWorks: "Jak to działa",
+      about: "O nas",
+      contact: "Kontakt",
+      startTyping: "Zacznij pisać",
+      theme: "Motyw",
+      login: "Zaloguj się",
+      signedIn: "Zalogowano",
+      openMenu: "Otwórz menu",
+      closeMenu: "Zamknij menu",
+      typingHistory: "Historia",
+      primaryNav: "Menu główne",
+      mobileNav: "Menu mobilne",
+      homeAria: "Strona główna Test Pisania Koza",
+    },
+    theme: { pick: "Wybierz motyw", palettes: "Trójkolorowe palety: tło, tekst, wpisywany znak", colors: "kolory" },
+    footer: {
+      typingTester: "Test pisania",
+      typingPractice: "Ćwiczenie pisania",
+      guides: "Przewodniki",
+      howItWorks: "Jak to działa",
+      faq: "FAQ",
+      about: "O nas",
+      contact: "Kontakt",
+      privacy: "Polityka prywatności",
+      terms: "Warunki korzystania",
+      description: "Test Pisania Koza to darmowy test pisania online do mierzenia WPM, dokładności i regularności.",
+      rights: "Wszelkie prawa zastrzeżone.",
+      tagline: "PISZ JAK KOZA.",
+      typingHistory: "Historia",
+      footerNav: "Stopka",
+    },
+  },
+  tr: {
+    nav: {
+      typingSpeedTest: "Yazma hızı testi",
+      leaderboard: "Lider tablosu",
+      howItWorks: "Nasıl çalışır",
+      about: "Hakkımızda",
+      contact: "İletişim",
+      startTyping: "Yazmaya başla",
+      theme: "Tema",
+      login: "Giriş yap",
+      signedIn: "Giriş yapıldı",
+      openMenu: "Menüyü aç",
+      closeMenu: "Menüyü kapat",
+      typingHistory: "Geçmiş",
+      primaryNav: "Ana gezinme",
+      mobileNav: "Mobil menü",
+      homeAria: "Yazma Testi Keçi ana sayfası",
+    },
+    theme: { pick: "Tema seç", palettes: "Üç tonlu paletler: arka plan, metin, yazılan", colors: "renkler" },
+    footer: {
+      typingTester: "Yazma testi",
+      typingPractice: "Yazma alıştırması",
+      guides: "Kılavuzlar",
+      howItWorks: "Nasıl çalışır",
+      faq: "SSS",
+      about: "Hakkımızda",
+      contact: "İletişim",
+      privacy: "Gizlilik politikası",
+      terms: "Kullanım şartları",
+      description: "Yazma Testi Keçi, WPM, doğruluk ve tutarlılığı ölçmek için ücretsiz bir çevrimiçi yazma testidir.",
+      rights: "Tüm hakları saklıdır.",
+      tagline: "KEÇİ GİBİ YAZ.",
+      typingHistory: "Geçmiş",
+      footerNav: "Alt bilgi",
+    },
+  },
+  uk: {
+    nav: {
+      typingSpeedTest: "Тест швидкості набору",
+      leaderboard: "Таблиця лідерів",
+      howItWorks: "Як це працює",
+      about: "Про нас",
+      contact: "Контакти",
+      startTyping: "Почати набір",
+      theme: "Тема",
+      login: "Увійти",
+      signedIn: "Ви увійшли",
+      openMenu: "Відкрити меню",
+      closeMenu: "Закрити меню",
+      typingHistory: "Історія",
+      primaryNav: "Основна навігація",
+      mobileNav: "Мобільне меню",
+      homeAria: "Головна сторінка Тест друку Коза",
+    },
+    theme: { pick: "Обрати тему", palettes: "Трибарвні палітри: фон, текст, набраний символ", colors: "кольори" },
+    footer: {
+      typingTester: "Тест набору тексту",
+      typingPractice: "Практика набору тексту",
+      guides: "Посібники",
+      howItWorks: "Як це працює",
+      faq: "Поширені запитання",
+      about: "Про нас",
+      contact: "Контакти",
+      privacy: "Політика конфіденційності",
+      terms: "Умови використання",
+      description: "Тест друку Коза — безкоштовний онлайн-тест набору тексту для вимірювання швидкості, точності та стабільності.",
+      rights: "Усі права захищено.",
+      tagline: "ПИШИ ЯК КОЗА.",
+      typingHistory: "Історія",
+      footerNav: "Підвал сайту",
+    },
+  },
+  id: {
+    nav: {
+      typingSpeedTest: "Tes kecepatan mengetik",
+      leaderboard: "Papan peringkat",
+      howItWorks: "Cara kerja",
+      about: "Tentang kami",
+      contact: "Kontak",
+      startTyping: "Mulai mengetik",
+      theme: "Tema",
+      login: "Masuk",
+      signedIn: "Sudah masuk",
+      openMenu: "Buka menu",
+      closeMenu: "Tutup menu",
+      typingHistory: "Riwayat",
+      primaryNav: "Navigasi utama",
+      mobileNav: "Menu seluler",
+      homeAria: "Beranda Tes Mengetik Kambing",
+    },
+    theme: { pick: "Pilih tema", palettes: "Palet tiga warna: latar, teks, ketikan", colors: "warna" },
+    footer: {
+      typingTester: "Tes mengetik",
+      typingPractice: "Latihan mengetik",
+      guides: "Panduan",
+      howItWorks: "Cara kerja",
+      faq: "FAQ",
+      about: "Tentang kami",
+      contact: "Kontak",
+      privacy: "Kebijakan privasi",
+      terms: "Ketentuan penggunaan",
+      description: "Tes Mengetik Kambing adalah tes mengetik online gratis untuk mengukur WPM, akurasi, dan konsistensi.",
+      rights: "Semua hak dilindungi.",
+      tagline: "MENGETIK SEPERTI KAMBING.",
+      typingHistory: "Riwayat",
+      footerNav: "Footer",
+    },
+  },
+  zh: {
+    nav: {
+      typingSpeedTest: "打字速度测试",
+      leaderboard: "排行榜",
+      howItWorks: "使用方法",
+      about: "关于我们",
+      contact: "联系我们",
+      startTyping: "开始打字",
+      theme: "主题",
+      login: "登录",
+      signedIn: "已登录",
+      openMenu: "打开菜单",
+      closeMenu: "关闭菜单",
+      typingHistory: "历史记录",
+      primaryNav: "主导航",
+      mobileNav: "移动菜单",
+      homeAria: "打字测试山羊 首页",
+    },
+    theme: { pick: "选择主题", palettes: "三色配色：背景、文字、已输入内容", colors: "颜色" },
+    footer: {
+      typingTester: "打字测试",
+      typingPractice: "打字练习",
+      guides: "指南",
+      howItWorks: "使用方法",
+      faq: "常见问题",
+      about: "关于我们",
+      contact: "联系我们",
+      privacy: "隐私政策",
+      terms: "使用条款",
+      description: "打字测试山羊是一个免费的在线打字测试工具，用于测量打字速度（WPM）、准确率和稳定性。",
+      rights: "版权所有。",
+      tagline: "像山羊一样打字。",
+      typingHistory: "历史记录",
+      footerNav: "页脚",
+    },
+  },
+  ja: {
+    nav: {
+      typingSpeedTest: "タイピング速度テスト",
+      leaderboard: "ランキング",
+      howItWorks: "使い方",
+      about: "会社概要",
+      contact: "お問い合わせ",
+      startTyping: "タイピングを始める",
+      theme: "テーマ",
+      login: "ログイン",
+      signedIn: "ログイン済み",
+      openMenu: "メニューを開く",
+      closeMenu: "メニューを閉じる",
+      typingHistory: "履歴",
+      primaryNav: "メインナビゲーション",
+      mobileNav: "モバイルメニュー",
+      homeAria: "タイピングテスト ヤギ ホーム",
+    },
+    theme: { pick: "テーマを選択", palettes: "3色パレット：背景・文字・入力済み文字", colors: "カラー" },
+    footer: {
+      typingTester: "タイピングテスト",
+      typingPractice: "タイピング練習",
+      guides: "ガイド",
+      howItWorks: "使い方",
+      faq: "よくある質問",
+      about: "会社概要",
+      contact: "お問い合わせ",
+      privacy: "プライバシーポリシー",
+      terms: "利用規約",
+      description: "タイピングテスト ヤギは、WPM・正確率・安定性を測定できる無料のオンラインタイピングテストです。",
+      rights: "全著作権所有。",
+      tagline: "ヤギのようにタイプしよう。",
+      typingHistory: "履歴",
+      footerNav: "フッター",
+    },
+  },
+  ko: {
+    nav: {
+      typingSpeedTest: "타이핑 속도 테스트",
+      leaderboard: "리더보드",
+      howItWorks: "이용 방법",
+      about: "소개",
+      contact: "문의하기",
+      startTyping: "타이핑 시작",
+      theme: "테마",
+      login: "로그인",
+      signedIn: "로그인됨",
+      openMenu: "메뉴 열기",
+      closeMenu: "메뉴 닫기",
+      typingHistory: "기록",
+      primaryNav: "기본 탐색",
+      mobileNav: "모바일 메뉴",
+      homeAria: "타이핑 테스트 염소 홈",
+    },
+    theme: { pick: "테마 선택", palettes: "3색 팔레트: 배경, 텍스트, 입력한 글자", colors: "색상" },
+    footer: {
+      typingTester: "타이핑 테스트",
+      typingPractice: "타이핑 연습",
+      guides: "가이드",
+      howItWorks: "이용 방법",
+      faq: "자주 묻는 질문",
+      about: "소개",
+      contact: "문의하기",
+      privacy: "개인정보 보호정책",
+      terms: "이용약관",
+      description: "타이핑 테스트 염소는 WPM, 정확도, 일관성을 측정할 수 있는 무료 온라인 타이핑 테스트입니다.",
+      rights: "모든 권리 보유.",
+      tagline: "염소처럼 타이핑하세요.",
+      typingHistory: "기록",
+      footerNav: "푸터",
+    },
+  },
 } as const;
 
 type TranslationSection = keyof typeof translations.en;
 
 export function tr(locale: Locale, section: TranslationSection, key: string): string {
-  const value = (translations[locale][section] as Record<string, string> | undefined)?.[key];
+  const localeTable = translations[locale] as Partial<typeof translations.en> | undefined;
+  const value = (localeTable?.[section] as Record<string, string> | undefined)?.[key];
   const fallback = (translations.en[section] as Record<string, string> | undefined)?.[key];
   return value ?? fallback ?? key;
 }

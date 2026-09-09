@@ -1,0 +1,11 @@
+---
+import SiteLayout from "../../layouts/SiteLayout.astro";
+import Header from "../../components/Header";
+import AboutPage from "../../components/AboutPage";
+import Footer from "../../components/Footer";
+const title = "关于打字测试山羊 | 免费打字测试";
+const description = "了解打字测试山羊，一款用于测量WPM、准确率和打字进度的免费在线工具。";
+---
+<SiteLayout title={title} description={description} pageKey="about" locale="zh">
+  <div class="relative min-h-screen"><Header client:load locale="zh" /><main><AboutPage locale="zh" /></main><Footer locale="zh" /></div>
+</SiteLayout>

@@ -1,0 +1,8 @@
+---
+import SiteLayout from "../../layouts/SiteLayout.astro";
+import Header from "../../components/Header";
+import ContactPage from "../../components/ContactPage";
+import Footer from "../../components/Footer";
+const title="お問い合わせ | タイピングテスト ヤギ"; const description="無料オンラインタイピングテストに関するご質問、ご提案、ご意見はタイピングテスト ヤギまでお寄せください。";
+---
+<SiteLayout title={title} description={description} pageKey="contact" locale="ja"><div class="relative min-h-screen"><Header client:load locale="ja"/><main><ContactPage locale="ja"/></main><Footer locale="ja"/></div></SiteLayout>

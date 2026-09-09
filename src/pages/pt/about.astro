@@ -1,0 +1,11 @@
+---
+import SiteLayout from "../../layouts/SiteLayout.astro";
+import Header from "../../components/Header";
+import AboutPage from "../../components/AboutPage";
+import Footer from "../../components/Footer";
+const title = "Sobre o Teste de Digitação Cabra | Teste de digitação gratuito";
+const description = "Conheça o Teste de Digitação Cabra, uma ferramenta gratuita online para medir WPM, precisão e progresso na digitação.";
+---
+<SiteLayout title={title} description={description} pageKey="about" locale="pt">
+  <div class="relative min-h-screen"><Header client:load locale="pt" /><main><AboutPage locale="pt" /></main><Footer locale="pt" /></div>
+</SiteLayout>

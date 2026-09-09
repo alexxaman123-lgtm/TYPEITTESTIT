@@ -1,0 +1,11 @@
+---
+import SiteLayout from "../../layouts/SiteLayout.astro";
+import Header from "../../components/Header";
+import AboutPage from "../../components/AboutPage";
+import Footer from "../../components/Footer";
+const title = "Über Schreibtest Ziege | Kostenloser Schreibtest";
+const description = "Erfahre mehr über Schreibtest Ziege, ein kostenloses Online-Tool zum Messen von WPM, Genauigkeit und Tippfortschritt.";
+---
+<SiteLayout title={title} description={description} pageKey="about" locale="de">
+  <div class="relative min-h-screen"><Header client:load locale="de" /><main><AboutPage locale="de" /></main><Footer locale="de" /></div>
+</SiteLayout>

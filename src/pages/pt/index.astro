@@ -1,0 +1,17 @@
+---
+import SiteLayout from "../../layouts/SiteLayout.astro";
+import Header from "../../components/Header";
+import TypingTesterIsland from "../../components/TypingTesterIsland";
+import Hero from "../../components/Hero";
+import TypingMotionSection from "../../components/TypingMotionSection";
+import SeoContent from "../../components/SeoContent";
+import HowItWorks from "../../components/HowItWorks";
+import FaqSection from "../../components/FaqSection";
+import FaqSchema from "../../components/FaqSchema";
+import Footer from "../../components/Footer";
+const title="Teste de digitação gratuito online – WPM e prática | Teste de Digitação Cabra";
+const description="Faça um teste de digitação gratuito online com o Teste de Digitação Cabra para medir WPM, precisão e erros. Pratique com testes de 1, 2, 3 ou 5 minutos.";
+const webApplicationSchema={"@context":"https://schema.org","@type":"WebApplication",name:"Teste de Digitação Cabra",alternateName:["Teste de digitação","Teste de digitação gratuito","Teste de velocidade de digitação"],url:"https://typeittestit.com/pt/",inLanguage:"pt",applicationCategory:"UtilityApplication",applicationSubCategory:"Teste de digitação",operatingSystem:"Any",browserRequirements:"Requer um navegador moderno com JavaScript ativado",featureList:["Teste de velocidade de digitação gratuito","Teste de digitação WPM","Teste de precisão de digitação","Prática de digitação","Teste de digitação de 1 minuto","Teste de digitação de 2 minutos","Teste de digitação de 3 minutos","Teste de digitação de 5 minutos","Teste de digitação personalizado"],description:"Teste de Digitação Cabra é uma ferramenta online gratuita para medir a velocidade de digitação em WPM, precisão e erros.",offers:{"@type":"Offer",price:"0",priceCurrency:"USD"}};
+const websiteSchema={"@context":"https://schema.org","@type":"WebSite",name:"Teste de Digitação Cabra",alternateName:"Teste de digitação",url:"https://typeittestit.com/pt/",inLanguage:"pt"};
+---
+<SiteLayout title={title} description={description} pageKey="home" locale="pt" structuredData={[webApplicationSchema,websiteSchema]}><div class="relative min-h-screen"><Header client:idle locale="pt"/><main><Hero locale="pt"/><div class="mx-auto max-w-6xl px-4 pb-16 sm:px-6 lg:px-8" data-reveal="up"><TypingTesterIsland client:load locale="pt"/></div><TypingMotionSection locale="pt"/><div class="border-t border-hairline below-fold-content" data-reveal="up"><SeoContent locale="pt"/></div><div class="border-t border-hairline below-fold-content" data-reveal="up"><HowItWorks locale="pt"/></div><div class="border-t border-hairline below-fold-content" data-reveal="up"><FaqSection locale="pt"/></div></main><Footer locale="pt"/><FaqSchema locale="pt"/></div></SiteLayout>

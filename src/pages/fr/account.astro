@@ -1,0 +1,11 @@
+---
+import SiteLayout from "../../layouts/SiteLayout.astro";
+import Header from "../../components/Header";
+import Footer from "../../components/Footer";
+import AccountPage from "../../components/AccountPage";
+const title = "Historique de frappe | Test de frappe Chèvre";
+const description = "Consultez votre historique de test de frappe privé, WPM, précision et meilleurs résultats sur Test de frappe Chèvre.";
+---
+<SiteLayout title={title} description={description} pageKey="account" locale="fr">
+  <div class="relative min-h-screen"><Header client:idle locale="fr" /><AccountPage client:load locale="fr" /><Footer locale="fr" /></div>
+</SiteLayout>

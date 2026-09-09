@@ -1,0 +1,8 @@
+---
+import SiteLayout from "../../layouts/SiteLayout.astro";
+import Header from "../../components/Header";
+import PrivacyPolicyPage from "../../components/PrivacyPolicyPage";
+import Footer from "../../components/Footer";
+const title="Політика конфіденційності | Тест друку Коза"; const description="Ознайомтеся з Політикою конфіденційності Тест друку Коза щодо даних облікового запису, тестів друку, локального збереження та реклами.";
+---
+<SiteLayout title={title} description={description} pageKey="privacy-policy" locale="uk"><div class="relative min-h-screen"><Header client:load locale="uk"/><main><PrivacyPolicyPage locale="uk"/></main><Footer locale="uk"/></div></SiteLayout>
