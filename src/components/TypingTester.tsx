@@ -35,7 +35,11 @@ const MINIMUM_RESULT_DURATION_MS = 60000;
 export default function TypingTester({ locale = "en" }: { locale?: Locale }) {
   const prefs = useMemo(() => getPreferences(), []);
   const reducedMotion = useReducedMotion();
-  const test = useTypingTest(prefs.difficulty, prefs.duration, locale === "es" ? "es" : "en");
+  // The typing text now defaults to the page's own locale instead of always
+  // falling back to English (unless the page happened to be Spanish) — that
+  // mismatch was why Spanish text kept showing up on every other localized
+  // page once it had been picked once anywhere on the site.
+  const test = useTypingTest(prefs.difficulty, prefs.duration, locale);
   const [viewMode, setViewMode] = useState<ViewMode>("test");
   const [personalBest, setPersonalBest] = useState<PersonalBest>(null);
   const [focusMode, setFocusMode] = useState(false);
@@ -125,7 +129,10 @@ export default function TypingTester({ locale = "en" }: { locale?: Locale }) {
   };
 
   const controlsDisabled = test.status === "running" || viewMode === "custom";
-  const showTypingLanguageSelector = locale !== "en" && viewMode === "test" && test.status !== "finished";
+  // Shown on every locale (including English) now that it is a meaningful
+  // 13-language choice for the practice text, not just a Spanish/English
+  // toggle that only made sense on the Spanish page.
+  const showTypingLanguageSelector = viewMode === "test" && test.status !== "finished";
 
   const testerShell = (
     <div

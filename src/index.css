@@ -341,7 +341,14 @@ body {
 }
 .blur-type-unit {
   display: inline-block;
-  white-space: pre;
+  /* pre-wrap (not pre): keeps the intentional spacing between reveal units
+     but still lets the browser wrap at normal line-break points. This matters
+     most for scripts without spaces (Chinese, Japanese, Korean) -- the
+     word-mode splitter has no whitespace to split on there, so a whole
+     sentence becomes a single unit, and plain "pre" refused to wrap that
+     unit at all, overflowing the line past its column and behind the hero
+     video. */
+  white-space: pre-wrap;
   opacity: 0;
   filter: blur(12px);
   transform: translate3d(0, 0.16em, 0);
@@ -450,7 +457,13 @@ body {
 .typing-correct { color: var(--app-typed); }
 .typing-pending { color: var(--color-text-faint); }
 .typing-current-char { color: var(--color-ink); }
-.below-fold-content { content-visibility: auto; contain-intrinsic-size: 800px; }
+/* content-visibility: auto previously left nested [data-reveal-group]
+   descendants (e.g. the How It Works cards) with unresolved layout while
+   this ancestor was in its "skipped" state, so their IntersectionObserver
+   entry never resolved and they stayed at opacity: 0 forever, even after
+   scrolling past them. Removed for correctness -- invisible content is
+   worse than the small paint-deferral this bought. */
+.below-fold-content { }
 
 .font-display { font-size: clamp(48px, 6vw, 80px); font-weight: 650; line-height: 1; letter-spacing: 0; }
 .font-heading-1 { font-size: 56px; font-weight: 650; line-height: 1; }

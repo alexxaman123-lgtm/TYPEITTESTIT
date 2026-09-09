@@ -1,6 +1,8 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Difficulty, getRandomPassage } from "../data/texts";
 import { getRandomSpanishPassage } from "../data/spanishTexts";
+import { getRandomLocalizedPassage } from "../data/localizedTexts";
+import type { Locale } from "./i18n";
 import { calculateWpm, computeWordsWritten, getLettersOnlyCount } from "./stats";
 import { gradeTyping, wpmFromWordProgress } from "./grade";
 import { maybeSavePersonalBest } from "./storage";
@@ -8,7 +10,10 @@ import { saveLeaderboardScore } from "./leaderboard";
 
 type TestStatus = "idle" | "running" | "finished";
 type CustomMode = "standard" | "free";
-export type TypingLocale = "en" | "es";
+// The typing text language now covers every site locale, not just en/es, so
+// each localized page can offer typing practice in its own language instead
+// of silently reusing whichever locale was last selected on any page.
+export type TypingLocale = Locale;
 
 export interface TestResult {
   wpm: number;
@@ -45,7 +50,9 @@ function buildText(
 ): { text: string; id: string } {
   const passage = locale === "es"
     ? getRandomSpanishPassage(difficulty, excludeId)
-    : getRandomPassage(difficulty, excludeId);
+    : locale === "en"
+    ? getRandomPassage(difficulty, excludeId)
+    : getRandomLocalizedPassage(locale, difficulty, excludeId);
   return { text: normalize(passage.text), id: passage.id };
 }
 
