@@ -236,6 +236,10 @@ const translations = {
       signedIn: "Signed in",
       openMenu: "Open menu",
       closeMenu: "Close menu",
+      typingHistory: "Typing History",
+      primaryNav: "Primary",
+      mobileNav: "Mobile",
+      homeAria: "FreeTypingTestGoat home",
     },
     theme: { pick: "Pick theme", palettes: "Three-tone palettes: background, text, typed", colors: "colors" },
     footer: {
@@ -251,6 +255,8 @@ const translations = {
       description: "FreeTypingTestGoat is a free online typing test and typing practice tool for measuring WPM, accuracy, and typing consistency.",
       rights: "All rights reserved.",
       tagline: "TYPE LIKE A GOAT.",
+      typingHistory: "Typing History",
+      footerNav: "Footer",
     },
     tester: {
       difficulty: "Difficulty",
@@ -357,6 +363,10 @@ const translations = {
       signedIn: "Sesión iniciada",
       openMenu: "Abrir menú",
       closeMenu: "Cerrar menú",
+      typingHistory: "Historial",
+      primaryNav: "Navegación principal",
+      mobileNav: "Menú móvil",
+      homeAria: "Inicio de Test de mecanografía Cabra",
     },
     theme: { pick: "Elegir tema", palettes: "Paletas de tres tonos: fondo, texto y escritura", colors: "colores" },
     footer: {
@@ -372,6 +382,8 @@ const translations = {
       description: "Test de mecanografía Cabra es un test de mecanografía online gratis para medir WPM, precisión y constancia al escribir.",
       rights: "Todos los derechos reservados.",
       tagline: "ESCRIBE COMO UNA CABRA.",
+      typingHistory: "Historial de escritura",
+      footerNav: "Pie de página",
     },
     tester: {
       difficulty: "Dificultad",
@@ -478,6 +490,10 @@ const translations = {
       signedIn: "Angemeldet",
       openMenu: "Menü öffnen",
       closeMenu: "Menü schließen",
+      typingHistory: "Verlauf",
+      primaryNav: "Hauptmenü",
+      mobileNav: "Mobiles Menü",
+      homeAria: "Schreibtest Ziege Startseite",
     },
     theme: { pick: "Design wählen", palettes: "Dreifarbige Paletten: Hintergrund, Text, Eingabe", colors: "Farben" },
     footer: {
@@ -493,6 +509,8 @@ const translations = {
       description: "Schreibtest Ziege ist ein kostenloser Online-Schreibtest zum Messen von WPM, Genauigkeit und Tippkonstanz.",
       rights: "Alle Rechte vorbehalten.",
       tagline: "TIPPEN WIE EINE ZIEGE.",
+      typingHistory: "Verlauf",
+      footerNav: "Fußzeile",
     },
   },
   fr: {
@@ -508,6 +526,10 @@ const translations = {
       signedIn: "Connecté",
       openMenu: "Ouvrir le menu",
       closeMenu: "Fermer le menu",
+      typingHistory: "Historique",
+      primaryNav: "Navigation principale",
+      mobileNav: "Menu mobile",
+      homeAria: "Accueil Test de frappe Chèvre",
     },
     theme: { pick: "Choisir un thème", palettes: "Palettes à trois tons : fond, texte, saisie", colors: "couleurs" },
     footer: {
@@ -523,6 +545,8 @@ const translations = {
       description: "Test de frappe Chèvre est un test de frappe en ligne gratuit pour mesurer la vitesse, la précision et la régularité.",
       rights: "Tous droits réservés.",
       tagline: "TAPEZ COMME UNE CHÈVRE.",
+      typingHistory: "Historique",
+      footerNav: "Pied de page",
     },
   },
   it: {
@@ -538,6 +562,10 @@ const translations = {
       signedIn: "Accesso effettuato",
       openMenu: "Apri menu",
       closeMenu: "Chiudi menu",
+      typingHistory: "Cronologia",
+      primaryNav: "Navigazione principale",
+      mobileNav: "Menu mobile",
+      homeAria: "Home di Test di Digitazione Capra",
     },
     theme: { pick: "Scegli tema", palettes: "Palette a tre tonalità: sfondo, testo, digitato", colors: "colori" },
     footer: {
@@ -553,6 +581,8 @@ const translations = {
       description: "Test di Digitazione Capra è un test di digitazione online gratuito per misurare WPM, precisione e costanza.",
       rights: "Tutti i diritti riservati.",
       tagline: "DIGITA COME UNA CAPRA.",
+      typingHistory: "Cronologia",
+      footerNav: "Piè di pagina",
     },
   },
   pt: {
@@ -568,6 +598,10 @@ const translations = {
       signedIn: "Sessão iniciada",
       openMenu: "Abrir menu",
       closeMenu: "Fechar menu",
+      typingHistory: "Histórico",
+      primaryNav: "Navegação principal",
+      mobileNav: "Menu móvel",
+      homeAria: "Início do Teste de Digitação Cabra",
     },
     theme: { pick: "Escolher tema", palettes: "Paletas de três tons: fundo, texto, digitado", colors: "cores" },
     footer: {
@@ -583,6 +617,8 @@ const translations = {
       description: "Teste de Digitação Cabra é um teste de digitação online gratuito para medir WPM, precisão e consistência.",
       rights: "Todos os direitos reservados.",
       tagline: "DIGITE COMO UMA CABRA.",
+      typingHistory: "Histórico",
+      footerNav: "Rodapé",
     },
   },
   pl: {
@@ -598,6 +634,10 @@ const translations = {
       signedIn: "Zalogowano",
       openMenu: "Otwórz menu",
       closeMenu: "Zamknij menu",
+      typingHistory: "Historia",
+      primaryNav: "Menu główne",
+      mobileNav: "Menu mobilne",
+      homeAria: "Strona główna Test Pisania Koza",
     },
     theme: { pick: "Wybierz motyw", palettes: "Trójkolorowe palety: tło, tekst, wpisywany znak", colors: "kolory" },
     footer: {
@@ -613,6 +653,8 @@ const translations = {
       description: "Test Pisania Koza to darmowy test pisania online do mierzenia WPM, dokładności i regularności.",
       rights: "Wszelkie prawa zastrzeżone.",
       tagline: "PISZ JAK KOZA.",
+      typingHistory: "Historia",
+      footerNav: "Stopka",
     },
   },
   tr: {
@@ -628,6 +670,10 @@ const translations = {
       signedIn: "Giriş yapıldı",
       openMenu: "Menüyü aç",
       closeMenu: "Menüyü kapat",
+      typingHistory: "Geçmiş",
+      primaryNav: "Ana gezinme",
+      mobileNav: "Mobil menü",
+      homeAria: "Yazma Testi Keçi ana sayfası",
     },
     theme: { pick: "Tema seç", palettes: "Üç tonlu paletler: arka plan, metin, yazılan", colors: "renkler" },
     footer: {
@@ -643,6 +689,8 @@ const translations = {
       description: "Yazma Testi Keçi, WPM, doğruluk ve tutarlılığı ölçmek için ücretsiz bir çevrimiçi yazma testidir.",
       rights: "Tüm hakları saklıdır.",
       tagline: "KEÇİ GİBİ YAZ.",
+      typingHistory: "Geçmiş",
+      footerNav: "Alt bilgi",
     },
   },
   uk: {
@@ -658,6 +706,10 @@ const translations = {
       signedIn: "Ви увійшли",
       openMenu: "Відкрити меню",
       closeMenu: "Закрити меню",
+      typingHistory: "Історія",
+      primaryNav: "Основна навігація",
+      mobileNav: "Мобільне меню",
+      homeAria: "Головна сторінка Тест друку Коза",
     },
     theme: { pick: "Обрати тему", palettes: "Трибарвні палітри: фон, текст, набраний символ", colors: "кольори" },
     footer: {
@@ -673,6 +725,8 @@ const translations = {
       description: "Тест друку Коза — безкоштовний онлайн-тест набору тексту для вимірювання швидкості, точності та стабільності.",
       rights: "Усі права захищено.",
       tagline: "ПИШИ ЯК КОЗА.",
+      typingHistory: "Історія",
+      footerNav: "Підвал сайту",
     },
   },
   id: {
@@ -688,6 +742,10 @@ const translations = {
       signedIn: "Sudah masuk",
       openMenu: "Buka menu",
       closeMenu: "Tutup menu",
+      typingHistory: "Riwayat",
+      primaryNav: "Navigasi utama",
+      mobileNav: "Menu seluler",
+      homeAria: "Beranda Tes Mengetik Kambing",
     },
     theme: { pick: "Pilih tema", palettes: "Palet tiga warna: latar, teks, ketikan", colors: "warna" },
     footer: {
@@ -703,6 +761,8 @@ const translations = {
       description: "Tes Mengetik Kambing adalah tes mengetik online gratis untuk mengukur WPM, akurasi, dan konsistensi.",
       rights: "Semua hak dilindungi.",
       tagline: "MENGETIK SEPERTI KAMBING.",
+      typingHistory: "Riwayat",
+      footerNav: "Footer",
     },
   },
   zh: {
@@ -718,6 +778,10 @@ const translations = {
       signedIn: "已登录",
       openMenu: "打开菜单",
       closeMenu: "关闭菜单",
+      typingHistory: "历史记录",
+      primaryNav: "主导航",
+      mobileNav: "移动菜单",
+      homeAria: "打字测试山羊 首页",
     },
     theme: { pick: "选择主题", palettes: "三色配色：背景、文字、已输入内容", colors: "颜色" },
     footer: {
@@ -733,6 +797,8 @@ const translations = {
       description: "打字测试山羊是一个免费的在线打字测试工具，用于测量打字速度（WPM）、准确率和稳定性。",
       rights: "版权所有。",
       tagline: "像山羊一样打字。",
+      typingHistory: "历史记录",
+      footerNav: "页脚",
     },
   },
   ja: {
@@ -748,6 +814,10 @@ const translations = {
       signedIn: "ログイン済み",
       openMenu: "メニューを開く",
       closeMenu: "メニューを閉じる",
+      typingHistory: "履歴",
+      primaryNav: "メインナビゲーション",
+      mobileNav: "モバイルメニュー",
+      homeAria: "タイピングテスト ヤギ ホーム",
     },
     theme: { pick: "テーマを選択", palettes: "3色パレット：背景・文字・入力済み文字", colors: "カラー" },
     footer: {
@@ -763,6 +833,8 @@ const translations = {
       description: "タイピングテスト ヤギは、WPM・正確率・安定性を測定できる無料のオンラインタイピングテストです。",
       rights: "全著作権所有。",
       tagline: "ヤギのようにタイプしよう。",
+      typingHistory: "履歴",
+      footerNav: "フッター",
     },
   },
   ko: {
@@ -778,6 +850,10 @@ const translations = {
       signedIn: "로그인됨",
       openMenu: "메뉴 열기",
       closeMenu: "메뉴 닫기",
+      typingHistory: "기록",
+      primaryNav: "기본 탐색",
+      mobileNav: "모바일 메뉴",
+      homeAria: "타이핑 테스트 염소 홈",
     },
     theme: { pick: "테마 선택", palettes: "3색 팔레트: 배경, 텍스트, 입력한 글자", colors: "색상" },
     footer: {
@@ -793,6 +869,8 @@ const translations = {
       description: "타이핑 테스트 염소는 WPM, 정확도, 일관성을 측정할 수 있는 무료 온라인 타이핑 테스트입니다.",
       rights: "모든 권리 보유.",
       tagline: "염소처럼 타이핑하세요.",
+      typingHistory: "기록",
+      footerNav: "푸터",
     },
   },
 } as const;
