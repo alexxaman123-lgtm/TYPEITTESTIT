@@ -18,6 +18,9 @@ const SITE_URL = "https://typeittestit.com";
 const DEFAULT_TITLE = "Free Typing Test Online | WPM & Typing Practice | FreeTypingTestGoat";
 const DEFAULT_DESCRIPTION = "Take a free typing test online to measure WPM, accuracy, and errors. Practice with 1, 2, 3, or 5 minute tests and improve your typing speed.";
 
+/** Elements that opt into scroll-reveal motion. */
+const REVEAL_SELECTOR = "[data-reveal], [data-reveal-group]";
+
 const PAGE_CONFIG = {
   "/about": {
     title: "About FreeTypingTestGoat | Free Typing Test",
@@ -92,15 +95,27 @@ export default function App() {
     }
   }, [path]);
 
+  // Scroll-reveal engine. Anything with data-reveal or data-reveal-group fades
+  // (or slides) in the first time it enters the viewport. It rescans on DOM
+  // mutations so content mounted after this effect runs -- the result panel,
+  // leaderboard rows, modals -- animates too.
   useEffect(() => {
-    const elements = Array.from(document.querySelectorAll<HTMLElement>("[data-reveal]"));
-    if (elements.length === 0) return;
+    const prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
-    const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-    if (reducedMotion || !("IntersectionObserver" in window)) {
-      elements.forEach((element) => element.classList.add("reveal-visible"));
+    const revealAll = () => {
+      document
+        .querySelectorAll<HTMLElement>(REVEAL_SELECTOR)
+        .forEach((element) => element.classList.add("reveal-visible"));
+    };
+
+    if (prefersReducedMotion || !("IntersectionObserver" in window)) {
+      revealAll();
       return;
     }
+
+    // Tracked so a rescan never observes the same node twice.
+    const observed = new WeakSet<HTMLElement>();
+    let revealIndex = 0;
 
     const observer = new IntersectionObserver(
       (entries) => {
@@ -117,25 +132,81 @@ export default function App() {
       }
     );
 
-    elements.forEach((element, index) => {
-      element.style.setProperty("--reveal-index", String(index));
-      observer.observe(element);
-    });
+    const scan = () => {
+      document.querySelectorAll<HTMLElement>(REVEAL_SELECTOR).forEach((element) => {
+        if (observed.has(element)) return;
+        observed.add(element);
+        // Only used by [data-reveal] elements, for a light cascade when several
+        // land in view at once. Groups stagger their children in CSS instead.
+        if (!element.style.getPropertyValue("--reveal-index")) {
+          element.style.setProperty("--reveal-index", String(revealIndex % 6));
+          revealIndex += 1;
+        }
+        observer.observe(element);
+      });
+    };
 
-    return () => observer.disconnect();
+    scan();
+
+    // Batch mutation bursts into a single rescan on the next frame.
+    let frameId = 0;
+    const mutationObserver = new MutationObserver(() => {
+      if (frameId) return;
+      frameId = window.requestAnimationFrame(() => {
+        frameId = 0;
+        scan();
+      });
+    });
+    mutationObserver.observe(document.body, { childList: true, subtree: true });
+
+    return () => {
+      if (frameId) window.cancelAnimationFrame(frameId);
+      mutationObserver.disconnect();
+      observer.disconnect();
+    };
   }, [path]);
 
   const renderPage = () => {
-    if (path === "/about") return <AboutPage />;
-    if (path === "/contact") return <ContactPage />;
-    if (path === "/leaderboard") return <LeaderboardPage />;
-    if (path === "/privacy-policy") return <PrivacyPolicyPage />;
-    if (path === "/terms-of-use") return <TermsOfUsePage />;
+    if (path === "/about") {
+      return (
+        <div data-reveal="soft">
+          <AboutPage />
+        </div>
+      );
+    }
+    if (path === "/contact") {
+      return (
+        <div data-reveal="soft">
+          <ContactPage />
+        </div>
+      );
+    }
+    if (path === "/leaderboard") {
+      return (
+        <div data-reveal="soft">
+          <LeaderboardPage />
+        </div>
+      );
+    }
+    if (path === "/privacy-policy") {
+      return (
+        <div data-reveal="soft">
+          <PrivacyPolicyPage />
+        </div>
+      );
+    }
+    if (path === "/terms-of-use") {
+      return (
+        <div data-reveal="soft">
+          <TermsOfUsePage />
+        </div>
+      );
+    }
 
     return (
       <>
         <Hero />
-        <div className="mx-auto max-w-6xl px-4 pb-16 sm:px-6 lg:px-8" data-reveal="up">
+        <div className="mx-auto max-w-6xl px-4 pb-16 sm:px-6 lg:px-8" data-reveal="scale">
           <TypingTester />
         </div>
         <div className="border-t border-hairline below-fold-content" data-reveal="up">
