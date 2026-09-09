@@ -7,7 +7,7 @@ import AccountPage from "../components/AccountPage";
 const title = "Typing History | FreeTypingTestGoat";
 const description = "View your private typing test history, WPM, accuracy, and personal bests on FreeTypingTestGoat.";
 ---
-<SiteLayout title={title} description={description} canonicalPath="/account/">
+<SiteLayout title={title} description={description} pageKey="account">
   <div class="relative min-h-screen">
     <Header client:idle />
     <AccountPage client:load />
