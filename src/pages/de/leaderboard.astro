@@ -1,0 +1,8 @@
+---
+import SiteLayout from "../../layouts/SiteLayout.astro";
+import Header from "../../components/Header";
+import LeaderboardPage from "../../components/LeaderboardPage";
+import Footer from "../../components/Footer";
+const title="Bestenliste des Schreibtests | WPM & Genauigkeit | Schreibtest Ziege"; const description="Sieh dir die Bestenliste von Schreibtest Ziege an, vergleiche WPM und Genauigkeit und entdecke Tippleistungen.";
+---
+<SiteLayout title={title} description={description} pageKey="leaderboard" locale="de"><div class="relative min-h-screen"><Header client:load locale="de"/><LeaderboardPage client:load locale="de"/><Footer locale="de"/></div></SiteLayout>

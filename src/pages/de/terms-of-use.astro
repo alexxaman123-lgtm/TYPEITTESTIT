@@ -1,0 +1,8 @@
+---
+import SiteLayout from "../../layouts/SiteLayout.astro";
+import Header from "../../components/Header";
+import TermsOfUsePage from "../../components/TermsOfUsePage";
+import Footer from "../../components/Footer";
+const title="Nutzungsbedingungen | Schreibtest Ziege"; const description="Lies die Nutzungsbedingungen von Schreibtest Ziege für den kostenlosen Online-Schreibtest, Konten und die Bestenliste.";
+---
+<SiteLayout title={title} description={description} pageKey="terms-of-use" locale="de"><div class="relative min-h-screen"><Header client:load locale="de"/><main><TermsOfUsePage locale="de"/></main><Footer locale="de"/></div></SiteLayout>
