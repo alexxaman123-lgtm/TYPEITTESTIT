@@ -1,0 +1,8 @@
+---
+import SiteLayout from "../../layouts/SiteLayout.astro";
+import Header from "../../components/Header";
+import ContactPage from "../../components/ContactPage";
+import Footer from "../../components/Footer";
+const title="İletişim | Yazma Testi Keçi"; const description="Ücretsiz çevrimiçi yazma testimiz hakkında sorular, öneriler veya geri bildirimler için Yazma Testi Keçi ile iletişime geçin.";
+---
+<SiteLayout title={title} description={description} pageKey="contact" locale="tr"><div class="relative min-h-screen"><Header client:load locale="tr"/><main><ContactPage locale="tr"/></main><Footer locale="tr"/></div></SiteLayout>
