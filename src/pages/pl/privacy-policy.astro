@@ -1,0 +1,8 @@
+---
+import SiteLayout from "../../layouts/SiteLayout.astro";
+import Header from "../../components/Header";
+import PrivacyPolicyPage from "../../components/PrivacyPolicyPage";
+import Footer from "../../components/Footer";
+const title="Polityka prywatności | Test Pisania Koza"; const description="Przeczytaj Politykę prywatności Test Pisania Koza dotyczącą danych konta, testów pisania, pamięci lokalnej i reklam.";
+---
+<SiteLayout title={title} description={description} pageKey="privacy-policy" locale="pl"><div class="relative min-h-screen"><Header client:load locale="pl"/><main><PrivacyPolicyPage locale="pl"/></main><Footer locale="pl"/></div></SiteLayout>

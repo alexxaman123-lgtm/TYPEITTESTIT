@@ -1,0 +1,8 @@
+---
+import SiteLayout from "../../layouts/SiteLayout.astro";
+import Header from "../../components/Header";
+import LeaderboardPage from "../../components/LeaderboardPage";
+import Footer from "../../components/Footer";
+const title="Ranking testu pisania | WPM i dokładność | Test Pisania Koza"; const description="Zobacz ranking Test Pisania Koza, porównaj WPM i dokładność oraz odkryj wyniki pisania.";
+---
+<SiteLayout title={title} description={description} pageKey="leaderboard" locale="pl"><div class="relative min-h-screen"><Header client:load locale="pl"/><LeaderboardPage client:load locale="pl"/><Footer locale="pl"/></div></SiteLayout>
