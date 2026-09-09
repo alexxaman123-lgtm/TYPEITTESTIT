@@ -1,19 +1,13 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Difficulty, getRandomPassage } from "../data/texts";
 import { getRandomSpanishPassage } from "../data/spanishTexts";
-import { calculateWpm, countWordErrors, computeWordsWritten, getLettersOnlyCount } from "./stats";
+import { calculateWpm, computeAccuracyFromChars, countAllChars, countWordErrors, computeWordsWritten, getLettersOnlyCount } from "./stats";
 import { maybeSavePersonalBest } from "./storage";
 import { saveLeaderboardScore } from "./leaderboard";
 
 type TestStatus = "idle" | "running" | "finished";
 type CustomMode = "standard" | "free";
 export type TypingLocale = "en" | "es";
-
-export interface MistakeInfo {
-  index: number;
-  expected: string;
-  typed: string;
-}
 
 export interface TestResult {
   wpm: number;
@@ -76,11 +70,8 @@ export function useTypingTest(
   const [status, setStatus] = useState<TestStatus>("idle");
   const [result, setResult] = useState<TestResult | null>(null);
   const [sessionId, setSessionId] = useState(0);
-  const [mistakeCount, setMistakeCount] = useState(0);
-  const [currentMistake, setCurrentMistake] = useState<MistakeInfo | null>(null);
 
   const startTimeRef = useRef<number | null>(null);
-  const mistakeCountRef = useRef(0);
   const finishedRef = useRef(false);
   const liveCharCountRef = useRef(0);
   const typedRef = useRef(typed);
@@ -104,7 +95,6 @@ export function useTypingTest(
   useEffect(() => { lastPassageIdRef.current = lastPassageId; }, [lastPassageId]);
   useEffect(() => { statusRef.current = status; }, [status]);
   useEffect(() => { localeRef.current = locale; }, [locale]);
-  useEffect(() => { mistakeCountRef.current = mistakeCount; }, [mistakeCount]);
   useEffect(() => { setLastPassageId(initial.id); }, [initial.id]);
 
   const finish = useCallback(() => {
@@ -129,6 +119,7 @@ export function useTypingTest(
     let accuracy = 100;
     let actualWpm = 0;
     let predictedWpm: number | null = null;
+    let mistakesCount = 0;
 
     if (isCustomValue && customModeValue === "free") {
       const letters = getLettersOnlyCount(typedValue);
@@ -137,18 +128,19 @@ export function useTypingTest(
       wordsWritten = computeWordsWritten(typedValue);
       actualWpm = elapsedSec > 0 ? wordsWritten / (elapsedSec / 60) : 0;
     } else {
-      // Strict mode: `typedValue` only ever contains characters that matched the
-      // target text (the caret never advances past a mistake), so correctness is
-      // just its length. Every blocked/incorrect keystroke is tracked separately
-      // in mistakeCountRef, giving an honest, always-consistent accuracy figure.
-      correctChars = typedValue.length;
-      incorrect = mistakeCountRef.current;
-      totalTyped = correctChars + incorrect;
+      // Free-flow mode: the caret is never blocked, so `typedValue` can differ
+      // from the target text anywhere (substituted, extra, or missing chars).
+      // countAllChars replicates Monkeytype's own word-by-word char diffing, so
+      // a mistake in one word never misaligns the comparison for the rest of
+      // the passage.
+      const counts = countAllChars(targetValue, typedValue, true);
+      correctChars = counts.allCorrect;
+      incorrect = counts.incorrect + counts.extra;
+      mistakesCount = counts.incorrect + counts.extra + counts.missed;
+      totalTyped = typedValue.length;
       wordsWritten = computeWordsWritten(typedValue);
       wordErrorsCount = countWordErrors(targetValue, typedValue, true);
-      accuracy = totalTyped > 0
-        ? Math.round((correctChars / totalTyped) * 10000) / 100
-        : 100;
+      accuracy = Math.round(computeAccuracyFromChars(counts.correctWord, counts.incorrect, counts.extra) * 100) / 100;
       actualWpm = elapsedSec > 0 ? wordsWritten / (elapsedSec / 60) : 0;
       predictedWpm = elapsedSec > 0
         ? Math.round(calculateWpm(correctChars, elapsedSec) * 10) / 10
@@ -177,7 +169,7 @@ export function useTypingTest(
       incorrectChars: incorrect,
       characterErrors: incorrect,
       wordErrors: wordErrorsCount,
-      mistakes: mistakeCountRef.current,
+      mistakes: mistakesCount,
       totalTyped,
       typedText: typedValue,
       durationSec: durationSec || durationValue,
@@ -235,9 +227,6 @@ export function useTypingTest(
       startTimeRef.current = null;
       finishedRef.current = false;
       liveCharCountRef.current = 0;
-      mistakeCountRef.current = 0;
-      setMistakeCount(0);
-      setCurrentMistake(null);
       setTyped("");
       setResult(null);
       setStatus("idle");
@@ -312,9 +301,6 @@ export function useTypingTest(
     startTimeRef.current = null;
     finishedRef.current = false;
     liveCharCountRef.current = 0;
-    mistakeCountRef.current = 0;
-    setMistakeCount(0);
-    setCurrentMistake(null);
     setTyped("");
     setResult(null);
     setStatus("idle");
@@ -371,7 +357,6 @@ export function useTypingTest(
       const difficultyValue = difficultyRef.current;
       const lastPassageIdValue = lastPassageIdRef.current;
       let currentTarget = targetTextRef.current;
-      const typedValue = typedRef.current;
 
       if (isCustomValue && customModeValue === "free") {
         const clipped = value.slice(0, MAX_CUSTOM_TEXT_LENGTH);
@@ -400,44 +385,15 @@ export function useTypingTest(
         ? value.slice(0, currentTarget.length)
         : value;
 
-      if (clipped.length <= typedValue.length) {
-        // Backspace / deletion. Always allowed, never counted as a mistake.
-        setTyped(clipped);
-        typedRef.current = clipped;
-        liveCharCountRef.current = clipped.length;
-        setCurrentMistake(null);
-        startTimerIfNeeded();
-        return;
-      }
-
-      // Characters were added. Only accept a strictly-correct prefix so the caret
-      // never advances past a mistake — normal typing is already blocked one
-      // keystroke at a time by the input field, this is the safety net that also
-      // covers paste / autofill / IME input.
-      let accepted = typedValue;
-      let mistakeInfo: { expected: string; typed: string } | null = null;
-      for (let i = typedValue.length; i < clipped.length; i += 1) {
-        const attemptedChar = clipped[i];
-        const expectedChar = currentTarget[accepted.length];
-        if (attemptedChar === expectedChar) {
-          accepted += attemptedChar;
-        } else {
-          mistakeInfo = { expected: expectedChar ?? "", typed: attemptedChar };
-          break;
-        }
-      }
-
-      setTyped(accepted);
-      typedRef.current = accepted;
-      liveCharCountRef.current = accepted.length;
-
-      if (mistakeInfo) {
-        setMistakeCount((count) => count + 1);
-        setCurrentMistake({ index: accepted.length, expected: mistakeInfo.expected, typed: mistakeInfo.typed });
-      } else {
-        setCurrentMistake(null);
-      }
-
+      // Free typing: every keystroke (correct or not) advances the caret, just
+      // like typing normally. Mistakes are never hidden or blocked — they show
+      // up in red exactly where they were typed, and backspacing + retyping a
+      // position clears its red mark. Accuracy/WPM are derived fresh from
+      // comparing `typed` against the target text word-by-word (see liveStats
+      // below and `finish()` above), so nothing needs to be tracked here.
+      setTyped(clipped);
+      typedRef.current = clipped;
+      liveCharCountRef.current = clipped.length;
       startTimerIfNeeded();
     },
     [startTimerIfNeeded],
@@ -472,14 +428,12 @@ export function useTypingTest(
       };
     }
 
-    // Strict mode: `typed` only ever holds correctly-matched characters, so
-    // accuracy is simply correct keystrokes vs. total keystrokes (correct +
-    // blocked mistakes). This recomputes on every keystroke, including ones
-    // that get rejected, so the live number is always in sync with what you
-    // actually typed.
-    const correctChars = typed.length;
-    const incorrect = mistakeCount;
-    const totalTyped = correctChars + incorrect;
+    // Free-flow mode: recompute the word-level diff on every keystroke so the
+    // live number always matches what's actually on screen, including extra
+    // and missed characters.
+    const counts = countAllChars(targetText, typed, true);
+    const correctChars = counts.allCorrect;
+    const incorrect = counts.incorrect + counts.extra;
     const wordsWritten = computeWordsWritten(typed);
     const actualWpm = statsAvailable && elapsedSec > 0
       ? wordsWritten / (elapsedSec / 60)
@@ -487,9 +441,7 @@ export function useTypingTest(
     const predictedWpm = statsAvailable && elapsedSec > 0
       ? Math.round(calculateWpm(correctChars, elapsedSec) * 10) / 10
       : null;
-    const accuracy = totalTyped > 0
-      ? Math.round((correctChars / totalTyped) * 10000) / 100
-      : 100;
+    const accuracy = Math.round(computeAccuracyFromChars(counts.correctWord, counts.incorrect, counts.extra) * 100) / 100;
 
     return {
       correct: correctChars,
@@ -502,7 +454,7 @@ export function useTypingTest(
       wordErrors: countWordErrors(targetText, typed, true),
       accuracy,
     };
-  }, [typed, targetText, elapsedMs, isCustom, customMode, mistakeCount]);
+  }, [typed, targetText, elapsedMs, isCustom, customMode]);
 
   return {
     difficulty,
@@ -518,7 +470,6 @@ export function useTypingTest(
     remainingMs,
     elapsedMs,
     liveStats,
-    currentMistake,
     startTimeRef,
     liveCharCountRef,
     setDifficulty,
