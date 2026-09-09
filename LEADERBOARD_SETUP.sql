@@ -1,5 +1,11 @@
 -- GOATTYPE public leaderboard
--- Run this once in the Supabase SQL editor.
+-- Run this once in the Supabase SQL editor, then run SUPABASE_LEADERBOARD_SECURITY.sql
+-- and the supabase/migrations/*.sql files. This script intentionally does NOT
+-- grant any direct INSERT/UPDATE policy on leaderboard_scores: all writes must
+-- go through the submit_leaderboard_score() SECURITY DEFINER function defined
+-- in SUPABASE_LEADERBOARD_SECURITY.sql, which validates and rate-limits scores
+-- server-side. Leaving this table INSERT/UPDATE-less by default means there is
+-- no window where a client could write unvalidated scores directly.
 
 create table if not exists public.leaderboard_scores (
   user_id uuid not null references public.profiles(user_id) on delete cascade,
@@ -30,21 +36,13 @@ create policy "Leaderboard scores are publicly readable"
   for select
   using (true);
 
--- Signed-in users may write only their own scores.
+-- Writes are intentionally NOT permitted directly by clients. All inserts and
+-- updates must go through submit_leaderboard_score() (see
+-- SUPABASE_LEADERBOARD_SECURITY.sql), which validates and rate-limits scores
+-- server-side. Do not add direct INSERT/UPDATE policies on this table.
 drop policy if exists "Users can insert their own leaderboard score" on public.leaderboard_scores;
-create policy "Users can insert their own leaderboard score"
-  on public.leaderboard_scores
-  for insert
-  to authenticated
-  with check (auth.uid() = user_id);
-
 drop policy if exists "Users can update their own leaderboard score" on public.leaderboard_scores;
-create policy "Users can update their own leaderboard score"
-  on public.leaderboard_scores
-  for update
-  to authenticated
-  using (auth.uid() = user_id)
-  with check (auth.uid() = user_id);
+revoke insert, update on public.leaderboard_scores from anon, authenticated;
 
 -- Usernames must be publicly readable by the leaderboard.
 drop policy if exists "Public profiles are readable for leaderboard" on public.profiles;

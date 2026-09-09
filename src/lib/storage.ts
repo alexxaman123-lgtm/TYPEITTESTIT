@@ -3,7 +3,7 @@ import type { Difficulty } from "../data/texts";
 const PREFIX = "typeittestit";
 const VALID_DIFFICULTIES = new Set<Difficulty>(["easy", "medium", "hard"]);
 const VALID_DURATIONS = new Set([60, 120, 180, 300]);
-const MAX_WPM = 1000;
+const MAX_WPM = 350;
 const MAX_ACCURACY = 100;
 
 export interface PersonalBest {
