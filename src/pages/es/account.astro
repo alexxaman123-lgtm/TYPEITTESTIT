@@ -1,6 +1,6 @@
 ---
 import SiteLayout from "../../layouts/SiteLayout.astro";
-import SpanishHeader from "../../components/SpanishHeader";
+import Header from "../../components/Header";
 import Footer from "../../components/Footer";
 import AccountPage from "../../components/AccountPage";
 
@@ -9,7 +9,7 @@ const description = "Consulta tu historial privado de pruebas de mecanografía, 
 ---
 <SiteLayout title={title} description={description} canonicalPath="/es/account/" locale="es">
   <div class="relative min-h-screen">
-    <SpanishHeader client:idle />
+    <Header client:idle locale="es" />
     <AccountPage client:load locale="es" />
     <Footer locale="es" />
   </div>
