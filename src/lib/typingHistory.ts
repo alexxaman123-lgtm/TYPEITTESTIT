@@ -20,6 +20,26 @@ export interface TypingHistoryEntry extends TypingHistoryInput {
   completedAt: string;
 }
 
+export interface AccountStatsBucket {
+  durationSec: number;
+  difficulty: Difficulty;
+  tests: number;
+  bestWpm: number;
+  avgWpm: number;
+  bestAccuracy: number;
+  avgAccuracy: number;
+}
+
+export interface AccountStats {
+  testsCompleted: number;
+  totalDurationSec: number;
+  bestWpm: number;
+  avgWpm: number;
+  bestAccuracy: number;
+  avgAccuracy: number;
+  byBucket: AccountStatsBucket[];
+}
+
 const VALID_DIFFICULTIES = new Set<Difficulty>(["easy", "medium", "hard"]);
 
 export async function saveTypingHistory(result: TypingHistoryInput): Promise<boolean> {
@@ -98,4 +118,50 @@ export async function fetchTypingHistory(limit = 50): Promise<TypingHistoryEntry
     isCustom: Boolean(row.is_custom),
     completedAt: row.completed_at,
   }));
+}
+
+/**
+ * Server-side aggregate stats for the Monkeytype-style account dashboard:
+ * lifetime tests completed, total time spent typing, best/average WPM and
+ * accuracy, plus a duration x difficulty breakdown ("byBucket"). Computed
+ * via the get_account_stats() RPC so it covers the user's full history
+ * (not just the most recent rows fetched by fetchTypingHistory) while
+ * staying inside the same per-user RLS boundary.
+ */
+export async function fetchAccountStats(): Promise<AccountStats | null> {
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (!user) return null;
+
+  const { data, error } = await supabase.rpc("get_account_stats");
+
+  if (error) throw new Error(error.message);
+  if (!data) return null;
+
+  const raw = data as Record<string, unknown>;
+  const rawBuckets = Array.isArray(raw.byBucket) ? raw.byBucket : [];
+
+  return {
+    testsCompleted: Number(raw.testsCompleted ?? 0),
+    totalDurationSec: Number(raw.totalDurationSec ?? 0),
+    bestWpm: Number(raw.bestWpm ?? 0),
+    avgWpm: Number(raw.avgWpm ?? 0),
+    bestAccuracy: Number(raw.bestAccuracy ?? 0),
+    avgAccuracy: Number(raw.avgAccuracy ?? 0),
+    byBucket: rawBuckets.map((row): AccountStatsBucket => {
+      const r = row as Record<string, unknown>;
+      const difficulty = r.difficulty as Difficulty;
+      return {
+        durationSec: Number(r.duration_sec ?? 0),
+        difficulty: VALID_DIFFICULTIES.has(difficulty) ? difficulty : "easy",
+        tests: Number(r.tests ?? 0),
+        bestWpm: Number(r.best_wpm ?? 0),
+        avgWpm: Number(r.avg_wpm ?? 0),
+        bestAccuracy: Number(r.best_accuracy ?? 0),
+        avgAccuracy: Number(r.avg_accuracy ?? 0),
+      };
+    }),
+  };
 }
