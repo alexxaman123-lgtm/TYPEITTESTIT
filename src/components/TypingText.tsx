@@ -24,6 +24,16 @@ const WORD_SHIFT_THRESHOLD = 50;
 const WORD_LOOKBACK = 15;
 /** How long after the last keystroke the caret starts blinking again. */
 const CARET_BLINK_RESUME_MS = 650;
+/** Caret height as a multiple of the font size, and an absolute floor in px. */
+const CARET_HEIGHT_EM = 1.25;
+const CARET_MIN_HEIGHT_PX = 12;
+/**
+ * Zero-width space. The measurement anchor needs *some* content: an empty
+ * inline-block generates no line box, so it measures 0px tall - which is
+ * exactly why the caret was invisible. A ZWSP has no advance width, so the
+ * text layout is unaffected.
+ */
+const ANCHOR_CHAR = "\u200b";
 
 type WordKind = "completed" | "current" | "future";
 
@@ -44,7 +54,7 @@ export default function TypingText({
   const [focused, setFocused] = useState(false);
   const [soundEnabled, setSoundEnabledState] = useState(getSoundEnabled());
   // The caret holds still (solid) while you are typing and only breathes once
-  // you pause — a caret that blinks mid-keystroke looks like it is stuttering.
+  // you pause - a caret that blinks mid-keystroke looks like it is stuttering.
   const [caretBlinking, setCaretBlinking] = useState(true);
   const surfaceRef = useRef<HTMLDivElement | null>(null);
   const caretRef = useRef<HTMLSpanElement | null>(null);
@@ -75,27 +85,73 @@ export default function TypingText({
 
   const disabled = status === "finished";
 
-  // Smooth sliding caret: a single persistent element whose position is measured
-  // against a zero-width anchor placed exactly where the next keystroke will land,
-  // then animated with a CSS transition (.typing-caret) so it glides between
-  // letters and across line wraps instead of teleporting — modeled after
+  // Smooth sliding caret: one persistent element whose position is measured
+  // against a zero-width anchor rendered exactly where the next keystroke will
+  // land, then animated with a CSS transition (.typing-caret) so it glides
+  // between letters and across line wraps instead of teleporting - modeled on
   // Monkeytype's "smooth caret" (frontend/src/ts/elements/caret.ts and
   // frontend/src/styles/caret.scss in monkeytypegame/monkeytype).
   useLayoutEffect(() => {
+    if (freeTyping) return;
+
+    const positionCaret = () => {
+      const surface = surfaceRef.current;
+      const caret = caretRef.current;
+      if (!surface || !caret) return;
+
+      const anchor = disabled ? null : currentCharRef.current;
+      if (!anchor) {
+        caret.style.opacity = "0";
+        return;
+      }
+
+      const surfaceRect = surface.getBoundingClientRect();
+      const anchorRect = anchor.getBoundingClientRect();
+      const anchorStyles = window.getComputedStyle(anchor);
+      const surfaceStyles = window.getComputedStyle(surface);
+
+      const fontSize = parseFloat(anchorStyles.fontSize) || 16;
+      const parsedLineHeight = parseFloat(anchorStyles.lineHeight);
+      // Height of the text line the caret sits on. Every term has a fallback so
+      // this can never end up as 0 and hide the caret again.
+      const lineBoxHeight =
+        anchorRect.height ||
+        (Number.isFinite(parsedLineHeight) ? parsedLineHeight : 0) ||
+        fontSize * 1.6;
+      const caretHeight = Math.max(CARET_MIN_HEIGHT_PX, fontSize * CARET_HEIGHT_EM);
+
+      // getBoundingClientRect() includes the surface border, but an absolutely
+      // positioned child is offset from the padding box, so drop the border.
+      const borderLeft = parseFloat(surfaceStyles.borderLeftWidth) || 0;
+      const borderTop = parseFloat(surfaceStyles.borderTopWidth) || 0;
+
+      const x = anchorRect.left - surfaceRect.left - borderLeft;
+      // Centre the caret in the line box rather than letting it hang off the
+      // text baseline.
+      const y =
+        anchorRect.top - surfaceRect.top - borderTop + (lineBoxHeight - caretHeight) / 2;
+
+      caret.style.height = `${caretHeight}px`;
+      caret.style.transform = `translate(${x}px, ${y}px)`;
+      caret.style.opacity = "1";
+    };
+
+    positionCaret();
+
+    // Fonts loading, entering focus mode, or a window resize all reflow the
+    // passage; without this the caret would stay at its old coordinates.
     const surface = surfaceRef.current;
-    const caret = caretRef.current;
-    if (!surface || !caret || freeTyping) return;
-    const anchor = disabled ? null : currentCharRef.current;
-    if (!anchor) {
-      caret.style.opacity = "0";
-      return;
+    let observer: ResizeObserver | undefined;
+    if (surface && typeof ResizeObserver !== "undefined") {
+      observer = new ResizeObserver(() => positionCaret());
+      observer.observe(surface);
     }
-    const surfaceRect = surface.getBoundingClientRect();
-    const anchorRect = anchor.getBoundingClientRect();
-    caret.style.opacity = "1";
-    caret.style.height = `${anchorRect.height}px`;
-    caret.style.transform = `translate(${anchorRect.left - surfaceRect.left}px, ${anchorRect.top - surfaceRect.top}px)`;
-  }, [typed, target, wordWindowStart, freeTyping, disabled]);
+    window.addEventListener("resize", positionCaret);
+    return () => {
+      observer?.disconnect();
+      window.removeEventListener("resize", positionCaret);
+    };
+  }, [typed, target, wordWindowStart, freeTyping, disabled, focusMode, focused, status]);
 
   const focusInput = () => {
     if (!disabled) {
@@ -105,7 +161,7 @@ export default function TypingText({
   };
 
   // Key sounds fire here and nowhere else, so the error sound can only ever be
-  // heard on the keystroke that was actually wrong — never again afterwards.
+  // heard on the keystroke that was actually wrong - never again afterwards.
   const handleKeyDown = (event: React.KeyboardEvent<HTMLInputElement>) => {
     if (disabled || !getSoundEnabled()) return;
     if (event.key.length !== 1 || event.ctrlKey || event.metaKey || event.altKey) return;
@@ -114,7 +170,7 @@ export default function TypingText({
     // Read what is in the input RIGHT NOW rather than the `typed` prop. React
     // state can still be a keystroke behind while typing fast, and a stale
     // position made letters in later words get compared against the wrong
-    // target letter — which is why correct words kept sounding wrong.
+    // target letter - which is why correct words kept sounding wrong.
     const valueNow = event.currentTarget.value;
 
     // Space just separates words. It is never a mistake, so finishing a word
@@ -144,7 +200,7 @@ export default function TypingText({
       return;
     }
 
-    // Wrong letter: ring once, here, at this position — and only once.
+    // Wrong letter: ring once, here, at this position - and only once.
     if (lastWrongPosRef.current === valueNow.length) return;
     lastWrongPosRef.current = valueNow.length;
     playTypingKeySound("wrong");
@@ -161,14 +217,14 @@ export default function TypingText({
   const copyClass = focusMode ? "typing-copy" : "text-left";
 
   // Letter states follow Monkeytype's renderer (frontend/src/styles/test.scss):
-  //   .correct          → normal text colour
-  //   .incorrect        → error colour, but the TARGET letter is still the glyph
-  //                       that is displayed, so you can always read what you were
-  //                       supposed to type
-  //   .incorrect.extra  → dimmer "error-extra" colour, showing the character you
-  //                       actually typed, because there is no target letter here
-  //   .missing          → target letter at 50% opacity (skipped letters)
-  //   .word.error       → 2px red underline under a finished word that had errors
+  //   .correct          -> normal text colour
+  //   .incorrect        -> error colour, but the TARGET letter is still the glyph
+  //                        that is displayed, so you can always read what you were
+  //                        supposed to type
+  //   .incorrect.extra  -> dimmer "error-extra" colour, showing the character you
+  //                        actually typed, because there is no target letter here
+  //   .missing          -> target letter at 50% opacity (skipped letters)
+  //   .word.error       -> 2px red underline under a finished word that had errors
   const renderWord = (wordIndex: number, kind: WordKind) => {
     const targetWord = targetWords[wordIndex] ?? "";
     const typedWord = kind === "future" ? "" : (typedWords[wordIndex] ?? "");
@@ -181,8 +237,10 @@ export default function TypingText({
         key={key}
         ref={(el) => { currentCharRef.current = el; }}
         aria-hidden="true"
-        className="inline-block w-0"
-      />
+        className="inline-block w-0 align-baseline"
+      >
+        {ANCHOR_CHAR}
+      </span>
     );
 
     for (let idx = 0; idx < length; idx += 1) {
@@ -285,9 +343,9 @@ export default function TypingText({
             <span
               ref={caretRef}
               aria-hidden="true"
-              style={{ opacity: 0 }}
+              style={{ opacity: 0, height: `${CARET_MIN_HEIGHT_PX}px` }}
               className={cn(
-                "pointer-events-none absolute left-0 top-0 w-[2px] rounded-full bg-accent",
+                "pointer-events-none absolute left-0 top-0 z-[1] w-[2px] rounded-full bg-accent",
                 !reducedMotion && "typing-caret",
                 !reducedMotion && caretBlinking && "caret-blink",
               )}
@@ -296,7 +354,7 @@ export default function TypingText({
           </>
         )}
         {!focused && status !== "finished" && (
-          <div className="pointer-events-none absolute inset-0 flex items-center justify-center rounded-[24px] bg-canvas/70 backdrop-blur-[2px]">
+          <div className="pointer-events-none absolute inset-0 z-[2] flex items-center justify-center rounded-[24px] bg-canvas/70 backdrop-blur-[2px]">
             <span className={cn("rounded-full border border-accent bg-accent/10 px-6 py-3 font-link text-accent", focusMode && "px-8 py-4 text-[18px]")}>
               {tr(locale, "tester", "clickStart")}
             </span>
