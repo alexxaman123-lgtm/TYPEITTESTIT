@@ -1,0 +1,11 @@
+---
+import SiteLayout from "../../layouts/SiteLayout.astro";
+import Header from "../../components/Header";
+import Footer from "../../components/Footer";
+import AccountPage from "../../components/AccountPage";
+const title = "Cronologia di digitazione | Test di Digitazione Capra";
+const description = "Visualizza la tua cronologia privata dei test di digitazione, WPM, precisione e record personali su Test di Digitazione Capra.";
+---
+<SiteLayout title={title} description={description} pageKey="account" locale="it">
+  <div class="relative min-h-screen"><Header client:idle locale="it" /><AccountPage client:load locale="it" /><Footer locale="it" /></div>
+</SiteLayout>

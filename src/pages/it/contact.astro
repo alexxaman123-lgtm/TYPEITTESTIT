@@ -1,0 +1,8 @@
+---
+import SiteLayout from "../../layouts/SiteLayout.astro";
+import Header from "../../components/Header";
+import ContactPage from "../../components/ContactPage";
+import Footer from "../../components/Footer";
+const title="Contatti | Test di Digitazione Capra"; const description="Contatta Test di Digitazione Capra per domande, suggerimenti o feedback sul nostro test di digitazione online gratuito.";
+---
+<SiteLayout title={title} description={description} pageKey="contact" locale="it"><div class="relative min-h-screen"><Header client:load locale="it"/><main><ContactPage locale="it"/></main><Footer locale="it"/></div></SiteLayout>

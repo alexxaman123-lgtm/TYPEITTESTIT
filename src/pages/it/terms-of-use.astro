@@ -1,0 +1,8 @@
+---
+import SiteLayout from "../../layouts/SiteLayout.astro";
+import Header from "../../components/Header";
+import TermsOfUsePage from "../../components/TermsOfUsePage";
+import Footer from "../../components/Footer";
+const title="Termini di utilizzo | Test di Digitazione Capra"; const description="Leggi i termini di utilizzo di Test di Digitazione Capra per il test di digitazione gratuito, gli account e la classifica.";
+---
+<SiteLayout title={title} description={description} pageKey="terms-of-use" locale="it"><div class="relative min-h-screen"><Header client:load locale="it"/><main><TermsOfUsePage locale="it"/></main><Footer locale="it"/></div></SiteLayout>

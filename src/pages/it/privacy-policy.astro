@@ -1,0 +1,8 @@
+---
+import SiteLayout from "../../layouts/SiteLayout.astro";
+import Header from "../../components/Header";
+import PrivacyPolicyPage from "../../components/PrivacyPolicyPage";
+import Footer from "../../components/Footer";
+const title="Informativa sulla privacy | Test di Digitazione Capra"; const description="Leggi l'informativa sulla privacy di Test di Digitazione Capra su dati account, test di digitazione, archiviazione locale e pubblicità.";
+---
+<SiteLayout title={title} description={description} pageKey="privacy-policy" locale="it"><div class="relative min-h-screen"><Header client:load locale="it"/><main><PrivacyPolicyPage locale="it"/></main><Footer locale="it"/></div></SiteLayout>
