@@ -1,0 +1,11 @@
+---
+import SiteLayout from "../../layouts/SiteLayout.astro";
+import Header from "../../components/Header";
+import Footer from "../../components/Footer";
+import AccountPage from "../../components/AccountPage";
+const title = "打字历史记录 | 打字测试山羊";
+const description = "查看您在打字测试山羊的个人打字测试历史、WPM、准确率和最佳成绩。";
+---
+<SiteLayout title={title} description={description} pageKey="account" locale="zh">
+  <div class="relative min-h-screen"><Header client:idle locale="zh" /><AccountPage client:load locale="zh" /><Footer locale="zh" /></div>
+</SiteLayout>

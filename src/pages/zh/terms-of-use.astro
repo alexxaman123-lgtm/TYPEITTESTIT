@@ -1,0 +1,8 @@
+---
+import SiteLayout from "../../layouts/SiteLayout.astro";
+import Header from "../../components/Header";
+import TermsOfUsePage from "../../components/TermsOfUsePage";
+import Footer from "../../components/Footer";
+const title="使用条款 | 打字测试山羊"; const description="阅读打字测试山羊关于免费打字测试、账户和排行榜的使用条款。";
+---
+<SiteLayout title={title} description={description} pageKey="terms-of-use" locale="zh"><div class="relative min-h-screen"><Header client:load locale="zh"/><main><TermsOfUsePage locale="zh"/></main><Footer locale="zh"/></div></SiteLayout>
