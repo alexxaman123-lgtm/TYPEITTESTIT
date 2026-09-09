@@ -1,0 +1,8 @@
+---
+import SiteLayout from "../../layouts/SiteLayout.astro";
+import Header from "../../components/Header";
+import PrivacyPolicyPage from "../../components/PrivacyPolicyPage";
+import Footer from "../../components/Footer";
+const title="Política de Privacidade | Teste de Digitação Cabra"; const description="Leia a Política de Privacidade do Teste de Digitação Cabra sobre dados de conta, testes de digitação, armazenamento local e publicidade.";
+---
+<SiteLayout title={title} description={description} pageKey="privacy-policy" locale="pt"><div class="relative min-h-screen"><Header client:load locale="pt"/><main><PrivacyPolicyPage locale="pt"/></main><Footer locale="pt"/></div></SiteLayout>
