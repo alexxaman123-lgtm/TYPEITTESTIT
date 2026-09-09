@@ -1,20 +1,15 @@
 import { useEffect, useRef, useState } from "react";
+import { LOCALES, LOCALE_META, stripLocalePrefix, withLocalePrefix, type Locale } from "../lib/i18n";
 
-const LANGUAGES = [
-  { code: "en", label: "English", short: "EN" },
-  { code: "es", label: "Español", short: "ES" },
-] as const;
-
-function getLocalizedPath(targetCode: string, pathname: string): string {
-  const clean = pathname || "/";
-  const withoutSpanish = clean.replace(/^\/es(?=\/|$)/, "") || "/";
-  return targetCode === "es" ? (withoutSpanish === "/" ? "/es/" : `/es${withoutSpanish}`) : withoutSpanish;
+function getLocalizedPath(targetLocale: Locale, pathname: string): string {
+  const rootPath = stripLocalePrefix(pathname || "/");
+  return withLocalePrefix(targetLocale, rootPath);
 }
 
-export default function LanguagePicker({ locale = "en" }: { locale?: "en" | "es" }) {
+export default function LanguagePicker({ locale = "en" as Locale }: { locale?: Locale }) {
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDivElement | null>(null);
-  const current = LANGUAGES.find((language) => language.code === locale) ?? LANGUAGES[0];
+  const current = LOCALE_META[locale] ?? LOCALE_META.en;
   const pathname = typeof window !== "undefined" ? window.location.pathname : "/";
 
   useEffect(() => {
@@ -33,25 +28,27 @@ export default function LanguagePicker({ locale = "en" }: { locale?: "en" | "es"
         className="flex h-8 min-w-[38px] items-center justify-center px-1 font-label text-[11px] font-semibold uppercase tracking-[0.08em] text-ink transition-colors hover:text-text-muted sm:h-9 sm:min-w-[42px] sm:px-1.5 sm:text-xs"
         aria-haspopup="menu"
         aria-expanded={open}
-        aria-label={locale === "es" ? "Cambiar idioma. Español" : "Change language. English"}
+        aria-label={`${current.nativeName}`}
       >
-        {current.short}
+        {current.htmlLang.toUpperCase()}
       </button>
 
       {open && (
-        <div className="absolute right-0 top-full z-[80] mt-2 min-w-[170px] overflow-hidden rounded-[18px] border border-hairline bg-canvas-soft p-1 shadow-2xl">
-          {LANGUAGES.map((language) => {
-            const href = getLocalizedPath(language.code, pathname);
-            const active = language.code === locale;
+        <div className="absolute right-0 top-full z-[80] mt-2 max-h-[70vh] min-w-[190px] overflow-y-auto rounded-[18px] border border-hairline bg-canvas-soft p-1 shadow-2xl">
+          {LOCALES.map((code) => {
+            const language = LOCALE_META[code];
+            const href = getLocalizedPath(code, pathname);
+            const active = code === locale;
             return (
               <a
-                key={language.code}
+                key={code}
                 href={href}
                 onClick={() => setOpen(false)}
                 className={`block rounded-[12px] px-3 py-2.5 font-link transition-colors ${active ? "bg-canvas text-ink" : "text-text-muted hover:bg-canvas hover:text-ink"}`}
                 aria-current={active ? "page" : undefined}
+                hrefLang={language.htmlLang}
               >
-                {language.label}
+                {language.nativeName}
               </a>
             );
           })}
