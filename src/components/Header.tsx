@@ -8,6 +8,7 @@ import AuthModal from "./AuthModal";
 import UsernameModal from "./UsernameModal";
 import ThemePicker from "./ThemePicker";
 import LanguagePicker from "./LanguagePicker";
+import { getCachedUsername, setCachedUsername } from "../lib/accountCache";
 
 function GoatMark() {
   return (
@@ -57,8 +58,14 @@ export default function Header({ locale = "en" as Locale }: { locale?: Locale })
   const [scrolled, setScrolled] = useState(false);
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
   const [isUsernameModalOpen, setIsUsernameModalOpen] = useState(false);
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [username, setUsername] = useState<string | null>(null);
+  // Seed from the locally cached username (written the last time we confirmed
+  // a session) so a returning signed-in visitor sees their name in the same
+  // paint as the static Leaderboard/About/Contact links, instead of it
+  // popping in only after the Supabase auth + profile round trip resolves.
+  // The effect below still runs and corrects/clears this if the cache is
+  // stale (e.g. signed out on another tab).
+  const [isAuthenticated, setIsAuthenticated] = useState(() => Boolean(getCachedUsername()));
+  const [username, setUsername] = useState<string | null>(() => getCachedUsername());
 
   useEffect(() => {
     let frame = 0;
@@ -89,6 +96,7 @@ export default function Header({ locale = "en" as Locale }: { locale?: Locale })
       if (error || !user) {
         setIsAuthenticated(false);
         setUsername(null);
+        setCachedUsername(null);
         setIsUsernameModalOpen(false);
         return;
       }
@@ -99,11 +107,13 @@ export default function Header({ locale = "en" as Locale }: { locale?: Locale })
       if (profileError) {
         console.error("Could not load profile:", profileError.message);
         setUsername(metadata);
+        setCachedUsername(metadata);
         setIsUsernameModalOpen(!metadata);
         return;
       }
       const current = profile?.username?.trim() || metadata || null;
       setUsername(current);
+      setCachedUsername(current);
       setIsUsernameModalOpen(!current);
     };
     void sync();
@@ -111,6 +121,7 @@ export default function Header({ locale = "en" as Locale }: { locale?: Locale })
       if (event === "SIGNED_OUT") {
         setIsAuthenticated(false);
         setUsername(null);
+        setCachedUsername(null);
         setIsUsernameModalOpen(false);
         setIsAuthModalOpen(false);
       } else if (event === "SIGNED_IN" || event === "INITIAL_SESSION" || event === "USER_UPDATED") {
@@ -126,19 +137,23 @@ export default function Header({ locale = "en" as Locale }: { locale?: Locale })
 
   const loginLabel = tr(locale, "nav", "login");
   const signedInLabel = tr(locale, "nav", "signedIn");
+  const accountHref = `${prefix}/account/`;
 
+  // Signed-in states are now links to the account page (typing history,
+  // account info, linked email) -- the whole pill is clickable, not just
+  // the separate "Typing History" nav item next to it.
   const accountLabel = username ? (
-    <span className="max-w-[120px] truncate font-link text-ink" title={username}>{username}</span>
+    <a href={accountHref} onClick={(event) => handleInternalNavigation(event, accountHref)} className="max-w-[120px] truncate font-link text-ink hover:text-text-muted" title={username}>{username}</a>
   ) : isAuthenticated ? (
-    <span className="font-link text-ink">{signedInLabel}</span>
+    <a href={accountHref} onClick={(event) => handleInternalNavigation(event, accountHref)} className="font-link text-ink hover:text-text-muted">{signedInLabel}</a>
   ) : (
     <button type="button" onClick={() => setIsAuthModalOpen(true)} className="font-link text-ink hover:text-text-muted">{loginLabel}</button>
   );
 
   const mobileAccountLabel = username ? (
-    <span className="max-w-[66px] truncate text-[12px] font-semibold leading-none text-ink sm:max-w-[120px] sm:text-base" title={username}>{username}</span>
+    <a href={accountHref} onClick={(event) => handleInternalNavigation(event, accountHref)} className="max-w-[66px] truncate text-[12px] font-semibold leading-none text-ink sm:max-w-[120px] sm:text-base" title={username}>{username}</a>
   ) : isAuthenticated ? (
-    <span className="max-w-[72px] truncate whitespace-nowrap text-[12px] font-semibold leading-none text-ink sm:max-w-none sm:text-base">{signedInLabel}</span>
+    <a href={accountHref} onClick={(event) => handleInternalNavigation(event, accountHref)} className="max-w-[72px] truncate whitespace-nowrap text-[12px] font-semibold leading-none text-ink sm:max-w-none sm:text-base">{signedInLabel}</a>
   ) : (
     <button type="button" onClick={() => setIsAuthModalOpen(true)} className="max-w-[72px] truncate whitespace-nowrap text-[12px] font-semibold leading-none text-ink hover:text-text-muted">{loginLabel}</button>
   );
@@ -160,7 +175,7 @@ export default function Header({ locale = "en" as Locale }: { locale?: Locale })
           <div className="hidden items-center gap-3 lg:gap-4 md:flex">
             <ThemePicker locale={locale} />
             <LanguagePicker locale={locale} />
-            {isAuthenticated && <a href={`${prefix}/account/`} className="whitespace-nowrap font-link text-ink hover:text-text-muted">{typingHistoryLabel}</a>}
+            {isAuthenticated && <a href={accountHref} onClick={(event) => handleInternalNavigation(event, accountHref)} className="whitespace-nowrap font-link text-ink hover:text-text-muted">{typingHistoryLabel}</a>}
             <div className="inline-flex max-w-[160px] items-center rounded-full border border-hairline bg-canvas/55 px-4 py-2">{accountLabel}</div>
           </div>
           <div className="flex shrink-0 items-center gap-1.5 sm:gap-2 md:hidden">
@@ -175,7 +190,7 @@ export default function Header({ locale = "en" as Locale }: { locale?: Locale })
         {open && (
           <div className="pointer-events-auto mx-auto mt-2 max-w-7xl rounded-2xl border border-white/10 bg-canvas-soft/65 p-2 shadow-lg backdrop-blur-xl">
             <nav className="flex flex-col gap-1" aria-label={mobileNavLabel}>
-              {isAuthenticated && <a href={`${prefix}/account/`} onClick={() => setOpen(false)} className="rounded-xl px-4 py-3 font-link text-ink hover:bg-canvas/60">{typingHistoryLabel}</a>}
+              {isAuthenticated && <a href={accountHref} onClick={(event) => { handleInternalNavigation(event, accountHref); setOpen(false); }} className="rounded-xl px-4 py-3 font-link text-ink hover:bg-canvas/60">{typingHistoryLabel}</a>}
               {NAV_LINKS.map((link) => (
                 <a key={link.href} href={link.href} onClick={() => setOpen(false)} className="rounded-xl px-4 py-3 font-link text-ink hover:bg-canvas/60">{link.label}</a>
               ))}
