@@ -1,44 +1,257 @@
-import { useEffect, useLayoutEffect, useRef, useState } from "react";
+import { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import { cn } from "../utils/cn";
 import { getSoundEnabled, setSoundEnabled } from "../lib/useSound";
 import { playTypingKeySound, preloadTypingSounds, unlockTypingSounds } from "../lib/useTypingSounds";
 import type { Locale } from "../lib/i18n";
 import { tr } from "../lib/i18n";
-import type { MistakeInfo } from "../lib/useTypingTest";
 
-interface Props { target:string; typed:string; status:"idle"|"running"|"finished"; resetKey:string|number; onChange:(value:string)=>void; reducedMotion:boolean; freeTyping?:boolean; focusMode?:boolean; onFocusModeRequest?:()=>void; locale?:Locale; currentMistake?:MistakeInfo|null; }
-const WINDOW_SIZE=360; const SHIFT_THRESHOLD=260;
-export default function TypingText({target,typed,status,resetKey,onChange,reducedMotion,freeTyping=false,focusMode=false,onFocusModeRequest,locale="en",currentMistake=null}:Props){
- const inputRef=useRef<HTMLInputElement|null>(null); const[windowStart,setWindowStart]=useState(0); const[focused,setFocused]=useState(false); const[soundEnabled,setSoundEnabledState]=useState(getSoundEnabled());
- const surfaceRef=useRef<HTMLDivElement|null>(null); const caretRef=useRef<HTMLSpanElement|null>(null); const currentCharRef=useRef<HTMLSpanElement|null>(null);
- useEffect(()=>{setWindowStart(0);},[resetKey]);
- useEffect(()=>{setSoundEnabledState(getSoundEnabled());},[status,resetKey]);
- useEffect(()=>{preloadTypingSounds();},[]);
- useEffect(()=>{if(!freeTyping&&typed.length-windowStart>SHIFT_THRESHOLD)setWindowStart(Math.max(0,typed.length-80));},[typed.length,windowStart,freeTyping]);
- const disabled=status==="finished";
- // Smooth sliding caret: a single persistent element whose position is measured
- // against the current-character span and animated with a CSS transition, so it
- // glides between letters/words instead of teleporting (matches Monkeytype's
- // "smooth caret" behavior). Skipped in free-typing mode, which uses its own
- // trailing caret.
- useLayoutEffect(()=>{
-  const surface=surfaceRef.current, caret=caretRef.current;
-  if(!surface||!caret||freeTyping) return;
-  const currentEl=disabled?null:currentCharRef.current;
-  if(!currentEl){caret.style.opacity="0";return;}
-  const surfaceRect=surface.getBoundingClientRect(), charRect=currentEl.getBoundingClientRect();
-  caret.style.opacity="1";
-  caret.style.height=`${charRect.height}px`;
-  caret.style.transform=`translate(${charRect.left-surfaceRect.left}px, ${charRect.top-surfaceRect.top}px)`;
- },[typed,currentMistake,windowStart,target,freeTyping,disabled]);
- const focusInput=()=>{if(!disabled){unlockTypingSounds();inputRef.current?.focus();}};
- const handleKeyDown=(event:React.KeyboardEvent<HTMLInputElement>)=>{if(disabled||!getSoundEnabled())return;if(event.key.length!==1||event.ctrlKey||event.metaKey||event.altKey)return;if(freeTyping)return;const expected=target[typed.length];playTypingKeySound(event.key===expected?"correct":"wrong");};
- const toggleSound=()=>{const next=!getSoundEnabled();setSoundEnabled(next);setSoundEnabledState(next);if(next){unlockTypingSounds();preloadTypingSounds();}inputRef.current?.focus();};
- const windowEnd=Math.min(target.length,windowStart+WINDOW_SIZE),slice=target.slice(windowStart,windowEnd),copyClass=focusMode?"typing-copy":"text-left";
- const hasMistake=!!currentMistake;
- return <div className="relative"><div ref={surfaceRef} aria-hidden="true" tabIndex={-1} onClick={focusInput} onPointerDown={unlockTypingSounds} className={cn("typing-surface relative cursor-text select-none rounded-[24px] border bg-canvas-soft/70 font-sans tracking-normal transition-[border-color,box-shadow] duration-300",focusMode?"min-h-[220px] p-6 text-[22px] leading-[1.68] sm:min-h-[260px] sm:p-8 sm:text-[24px] sm:leading-[1.72] lg:min-h-[300px] lg:p-9 lg:text-[26px] lg:leading-[1.72]":"min-h-[132px] p-4 text-[16px] leading-7 sm:min-h-[150px] sm:p-5 sm:text-[17px] sm:leading-8",focused?"border-accent shadow-sm":"border-hairline",disabled&&"opacity-60")}>
- {freeTyping?<p className={cn("whitespace-pre-wrap break-words text-ink-soft",copyClass)}>{typed.length>0?typed:<span className="text-faint">{locale==="es"?"Empieza a escribir lo que quieras...":"Start typing anything you want..."}</span>}{status!=="finished"&&typed.length>0&&<span className={cn("ml-[1px] inline-block h-[1.15em] w-[2px] translate-y-[0.12em] rounded-full bg-accent",!reducedMotion&&"caret-blink")} aria-hidden="true"/>}</p>:<><span ref={caretRef} aria-hidden="true" style={{opacity:0}} className={cn("pointer-events-none absolute left-0 top-0 w-[2px] rounded-full will-change-transform",hasMistake?"bg-red-600":"bg-accent",!reducedMotion&&"transition-transform duration-100 ease-out",!reducedMotion&&"caret-blink")}/><p className={cn("whitespace-pre-wrap break-words",copyClass)}>{slice.split("").map((ch,i)=>{const absIndex=windowStart+i;let state:"correct"|"incorrect"|"current"|"pending"="pending";if(absIndex<typed.length)state=typed[absIndex]===ch?"correct":"incorrect";else if(absIndex===typed.length)state="current";if(state==="current"){const activeMistake=currentMistake&&currentMistake.index===absIndex?currentMistake:null;return <span key={absIndex} ref={el=>{currentCharRef.current=el;}} className={cn("rounded-[3px]",activeMistake?"bg-red-500/20 text-red-600":"bg-accent/15 text-ink")}>{activeMistake&&ch===" "?"·":ch}</span>;}if(state==="correct")return <span key={absIndex} className="typing-correct">{ch}</span>;if(state==="incorrect")return <span key={absIndex} className={cn("rounded-[3px] text-red-600",ch===" "?"bg-red-500/25":"bg-red-500/10")}>{ch===" "?"·":ch}</span>;return <span key={absIndex} className="typing-pending">{ch}</span>;})}</p></>}
- {!focused&&status!=="finished"&&<div className="pointer-events-none absolute inset-0 flex items-center justify-center rounded-[24px] bg-canvas/70 backdrop-blur-[2px]"><span className={cn("rounded-full border border-accent bg-accent/10 px-6 py-3 font-link text-accent",focusMode&&"px-8 py-4 text-[18px]")}>{tr(locale,"tester","clickStart")}</span></div>}
- <input ref={inputRef} type="text" value={typed} disabled={disabled} onKeyDown={handleKeyDown} onChange={e=>onChange(e.currentTarget.value)} onFocus={()=>{setFocused(true);unlockTypingSounds();preloadTypingSounds();onFocusModeRequest?.();}} onBlur={()=>setFocused(false)} autoComplete="off" autoCorrect="off" autoCapitalize="off" spellCheck={false} aria-label={freeTyping?(locale==="es"?"Entrada para escribir libremente.":"Free typing input. Type anything you want."):(locale==="es"?"Entrada de test de mecanografía. Escribe el texto mostrado.":"Typing test input. Type the passage displayed above this field.")} tabIndex={disabled?-1:0} className="absolute inset-0 z-10 h-full w-full cursor-text opacity-0"/>
- </div><div className="mt-3 flex justify-end"><button type="button" onMouseDown={e=>e.preventDefault()} onClick={toggleSound} aria-pressed={soundEnabled} aria-label={soundEnabled?tr(locale,"tester","soundOff"):tr(locale,"tester","soundOn")} className={cn("inline-flex items-center gap-2 rounded-full border px-4 py-2 font-label transition-colors duration-200",soundEnabled?"border-accent/30 bg-accent/10 text-accent hover:bg-accent/15":"border-hairline bg-canvas-soft text-text-muted hover:bg-canvas") }><span aria-hidden="true" className="text-base leading-none">{soundEnabled?"🔊":"🔇"}</span><span>{soundEnabled?tr(locale,"tester","soundOn"):tr(locale,"tester","soundOff")}</span></button></div></div>;
+interface Props {
+  target: string;
+  typed: string;
+  status: "idle" | "running" | "finished";
+  resetKey: string | number;
+  onChange: (value: string) => void;
+  reducedMotion: boolean;
+  freeTyping?: boolean;
+  focusMode?: boolean;
+  onFocusModeRequest?: () => void;
+  locale?: Locale;
+}
+
+const WORD_WINDOW_SIZE = 70;
+const WORD_SHIFT_THRESHOLD = 50;
+const WORD_LOOKBACK = 15;
+
+export default function TypingText({
+  target,
+  typed,
+  status,
+  resetKey,
+  onChange,
+  reducedMotion,
+  freeTyping = false,
+  focusMode = false,
+  onFocusModeRequest,
+  locale = "en",
+}: Props) {
+  const inputRef = useRef<HTMLInputElement | null>(null);
+  const [wordWindowStart, setWordWindowStart] = useState(0);
+  const [focused, setFocused] = useState(false);
+  const [soundEnabled, setSoundEnabledState] = useState(getSoundEnabled());
+  const surfaceRef = useRef<HTMLDivElement | null>(null);
+  const caretRef = useRef<HTMLSpanElement | null>(null);
+  const currentCharRef = useRef<HTMLSpanElement | null>(null);
+
+  const targetWords = useMemo(() => target.split(" "), [target]);
+  const typedWords = useMemo(() => typed.split(" "), [typed]);
+  const completedCount = Math.max(0, typedWords.length - 1);
+
+  useEffect(() => { setWordWindowStart(0); }, [resetKey]);
+  useEffect(() => { setSoundEnabledState(getSoundEnabled()); }, [status, resetKey]);
+  useEffect(() => { preloadTypingSounds(); }, []);
+  useEffect(() => {
+    if (freeTyping) return;
+    if (completedCount - wordWindowStart > WORD_SHIFT_THRESHOLD) {
+      setWordWindowStart(Math.max(0, completedCount - WORD_LOOKBACK));
+    }
+  }, [completedCount, wordWindowStart, freeTyping]);
+
+  const disabled = status === "finished";
+
+  // Smooth sliding caret: a single persistent element whose position is measured
+  // against a zero-width anchor placed exactly where the next keystroke will land,
+  // then animated with a CSS transition so it glides between letters/words instead
+  // of teleporting (modeled after Monkeytype's "smooth caret" setting —
+  // frontend/src/ts/elements/caret.ts / caret.scss in monkeytypegame/monkeytype).
+  useLayoutEffect(() => {
+    const surface = surfaceRef.current;
+    const caret = caretRef.current;
+    if (!surface || !caret || freeTyping) return;
+    const anchor = disabled ? null : currentCharRef.current;
+    if (!anchor) {
+      caret.style.opacity = "0";
+      return;
+    }
+    const surfaceRect = surface.getBoundingClientRect();
+    const anchorRect = anchor.getBoundingClientRect();
+    caret.style.opacity = "1";
+    caret.style.height = `${anchorRect.height}px`;
+    caret.style.transform = `translate(${anchorRect.left - surfaceRect.left}px, ${anchorRect.top - surfaceRect.top}px)`;
+  }, [typed, target, wordWindowStart, freeTyping, disabled]);
+
+  const focusInput = () => {
+    if (!disabled) {
+      unlockTypingSounds();
+      inputRef.current?.focus();
+    }
+  };
+
+  const handleKeyDown = (event: React.KeyboardEvent<HTMLInputElement>) => {
+    if (disabled || !getSoundEnabled()) return;
+    if (event.key.length !== 1 || event.ctrlKey || event.metaKey || event.altKey) return;
+    if (freeTyping) return;
+    const curWordTyped = typedWords[typedWords.length - 1] ?? "";
+    const curWordTarget = targetWords[typedWords.length - 1] ?? "";
+    const expected = curWordTarget[curWordTyped.length];
+    playTypingKeySound(event.key === expected ? "correct" : "wrong");
+  };
+
+  const toggleSound = () => {
+    const next = !getSoundEnabled();
+    setSoundEnabled(next);
+    setSoundEnabledState(next);
+    if (next) { unlockTypingSounds(); preloadTypingSounds(); }
+    inputRef.current?.focus();
+  };
+
+  const copyClass = focusMode ? "typing-copy" : "text-left";
+
+  const renderWord = (wordIndex: number, kind: "completed" | "current" | "future"): React.ReactNode[] => {
+    const targetWord = targetWords[wordIndex] ?? "";
+    if (kind === "future") {
+      return targetWord.split("").map((ch, idx) => (
+        <span key={`w${wordIndex}-${idx}`} className="typing-pending">{ch}</span>
+      ));
+    }
+    const typedWord = typedWords[wordIndex] ?? "";
+    const maxLen = Math.max(typedWord.length, targetWord.length);
+    const nodes: React.ReactNode[] = [];
+    for (let idx = 0; idx < maxLen; idx += 1) {
+      if (kind === "current" && idx === typedWord.length) {
+        nodes.push(
+          <span key={`w${wordIndex}-caret`} ref={(el) => { currentCharRef.current = el; }} aria-hidden="true" className="inline-block w-0" />,
+        );
+      }
+      const tChar = targetWord[idx];
+      const pChar = typedWord[idx];
+      if (pChar !== undefined && tChar !== undefined) {
+        nodes.push(
+          pChar === tChar
+            ? <span key={`w${wordIndex}-${idx}`} className="typing-correct">{tChar}</span>
+            : <span key={`w${wordIndex}-${idx}`} className="rounded-[3px] bg-red-500/20 text-red-600">{pChar === " " ? "\u00b7" : pChar}</span>,
+        );
+      } else if (pChar !== undefined) {
+        nodes.push(
+          <span key={`w${wordIndex}-${idx}`} className="rounded-[3px] bg-red-500/20 text-red-600">{pChar === " " ? "\u00b7" : pChar}</span>,
+        );
+      } else {
+        nodes.push(
+          kind === "completed"
+            ? <span key={`w${wordIndex}-${idx}`} className="rounded-[3px] text-red-400/80">{tChar}</span>
+            : <span key={`w${wordIndex}-${idx}`} className="typing-pending">{tChar}</span>,
+        );
+      }
+    }
+    if (kind === "current" && typedWord.length === maxLen) {
+      nodes.push(
+        <span key={`w${wordIndex}-caret-end`} ref={(el) => { currentCharRef.current = el; }} aria-hidden="true" className="inline-block w-0" />,
+      );
+    }
+    return nodes;
+  };
+
+  const windowEndIndex = Math.min(targetWords.length, wordWindowStart + WORD_WINDOW_SIZE);
+  const visibleNodes: React.ReactNode[] = [];
+  for (let i = wordWindowStart; i < windowEndIndex; i += 1) {
+    const kind = i < completedCount ? "completed" : i === completedCount ? "current" : "future";
+    visibleNodes.push(...renderWord(i, kind));
+    if (i < targetWords.length - 1) {
+      const spaceCorrect = i < completedCount;
+      visibleNodes.push(
+        <span key={`sp-${i}`} className={spaceCorrect ? "typing-correct" : "typing-pending"}> </span>,
+      );
+    }
+  }
+
+  return (
+    <div className="relative">
+      <div
+        ref={surfaceRef}
+        aria-hidden="true"
+        tabIndex={-1}
+        onClick={focusInput}
+        onPointerDown={unlockTypingSounds}
+        className={cn(
+          "typing-surface relative cursor-text select-none rounded-[24px] border bg-canvas-soft/70 font-sans tracking-normal transition-[border-color,box-shadow] duration-300",
+          focusMode
+            ? "min-h-[220px] p-6 text-[22px] leading-[1.68] sm:min-h-[260px] sm:p-8 sm:text-[24px] sm:leading-[1.72] lg:min-h-[300px] lg:p-9 lg:text-[26px] lg:leading-[1.72]"
+            : "min-h-[132px] p-4 text-[16px] leading-7 sm:min-h-[150px] sm:p-5 sm:text-[17px] sm:leading-8",
+          focused ? "border-accent shadow-sm" : "border-hairline",
+          disabled && "opacity-60",
+        )}
+      >
+        {freeTyping ? (
+          <p className={cn("whitespace-pre-wrap break-words text-ink-soft", copyClass)}>
+            {typed.length > 0 ? typed : (
+              <span className="text-faint">
+                {locale === "es" ? "Empieza a escribir lo que quieras..." : "Start typing anything you want..."}
+              </span>
+            )}
+            {status !== "finished" && typed.length > 0 && (
+              <span
+                className={cn("ml-[1px] inline-block h-[1.15em] w-[2px] translate-y-[0.12em] rounded-full bg-accent", !reducedMotion && "caret-blink")}
+                aria-hidden="true"
+              />
+            )}
+          </p>
+        ) : (
+          <>
+            <span
+              ref={caretRef}
+              aria-hidden="true"
+              style={{ opacity: 0 }}
+              className={cn(
+                "pointer-events-none absolute left-0 top-0 w-[2px] rounded-full bg-accent will-change-transform",
+                !reducedMotion && "transition-transform duration-100 ease-out",
+                !reducedMotion && "caret-blink",
+              )}
+            />
+            <p className={cn("whitespace-pre-wrap break-words", copyClass)}>{visibleNodes}</p>
+          </>
+        )}
+        {!focused && status !== "finished" && (
+          <div className="pointer-events-none absolute inset-0 flex items-center justify-center rounded-[24px] bg-canvas/70 backdrop-blur-[2px]">
+            <span className={cn("rounded-full border border-accent bg-accent/10 px-6 py-3 font-link text-accent", focusMode && "px-8 py-4 text-[18px]")}>
+              {tr(locale, "tester", "clickStart")}
+            </span>
+          </div>
+        )}
+        <input
+          ref={inputRef}
+          type="text"
+          value={typed}
+          disabled={disabled}
+          onKeyDown={handleKeyDown}
+          onChange={(e) => onChange(e.currentTarget.value)}
+          onFocus={() => { setFocused(true); unlockTypingSounds(); preloadTypingSounds(); onFocusModeRequest?.(); }}
+          onBlur={() => setFocused(false)}
+          autoComplete="off"
+          autoCorrect="off"
+          autoCapitalize="off"
+          spellCheck={false}
+          aria-label={freeTyping
+            ? (locale === "es" ? "Entrada para escribir libremente." : "Free typing input. Type anything you want.")
+            : (locale === "es" ? "Entrada de test de mecanograf\u00eda. Escribe el texto mostrado." : "Typing test input. Type the passage displayed above this field.")}
+          tabIndex={disabled ? -1 : 0}
+          className="absolute inset-0 z-10 h-full w-full cursor-text opacity-0"
+        />
+      </div>
+      <div className="mt-3 flex justify-end">
+        <button
+          type="button"
+          onMouseDown={(e) => e.preventDefault()}
+          onClick={toggleSound}
+          aria-pressed={soundEnabled}
+          aria-label={soundEnabled ? tr(locale, "tester", "soundOff") : tr(locale, "tester", "soundOn")}
+          className={cn(
+            "inline-flex items-center gap-2 rounded-full border px-4 py-2 font-label transition-colors duration-200",
+            soundEnabled ? "border-accent/30 bg-accent/10 text-accent hover:bg-accent/15" : "border-hairline bg-canvas-soft text-text-muted hover:bg-canvas",
+          )}
+        >
+          <span aria-hidden="true" className="text-base leading-none">{soundEnabled ? "\ud83d\udd0a" : "\ud83d\udd07"}</span>
+          <span>{soundEnabled ? tr(locale, "tester", "soundOn") : tr(locale, "tester", "soundOff")}</span>
+        </button>
+      </div>
+    </div>
+  );
 }
