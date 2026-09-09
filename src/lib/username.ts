@@ -19,6 +19,21 @@ const BLOCKED_USERNAME_PARTS = [
   "nazi",
 ];
 
+const LEET_SUBSTITUTIONS: Record<string, string> = {
+  "0": "o",
+  "1": "i",
+  "3": "e",
+  "4": "a",
+  "5": "s",
+  "7": "t",
+  "$": "s",
+  "@": "a",
+};
+
+function deleetify(value: string): string {
+  return value.replace(/[013457$@]/g, (char) => LEET_SUBSTITUTIONS[char] ?? char);
+}
+
 export type UsernameValidation = {
   username: string;
   error: string | null;
@@ -43,7 +58,8 @@ export function validateUsername(value: string): UsernameValidation {
   }
 
   const normalized = username.toLowerCase();
-  if (BLOCKED_USERNAME_PARTS.some((part) => normalized.includes(part))) {
+  const deleeted = deleetify(normalized);
+  if (BLOCKED_USERNAME_PARTS.some((part) => normalized.includes(part) || deleeted.includes(part))) {
     return {
       username,
       error: "Please choose a respectful username without profanity, sexual language, or impersonation.",
