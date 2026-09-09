@@ -244,6 +244,7 @@ export default function TypingTester({ locale = "en" }: { locale?: Locale }) {
               focusMode={focusMode}
               onFocusModeRequest={enterFocusMode}
               locale={locale}
+              currentMistake={test.currentMistake}
             />
             <TestControls
               onRestart={() => {
