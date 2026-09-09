@@ -44,12 +44,16 @@ export default function TypingText({
   const surfaceRef = useRef<HTMLDivElement | null>(null);
   const caretRef = useRef<HTMLSpanElement | null>(null);
   const currentCharRef = useRef<HTMLSpanElement | null>(null);
+  // Caret position at which the error sound last rang, so one wrong letter can
+  // never ring twice (key repeat, a re-render, or retyping the same position).
+  const lastWrongPosRef = useRef<number | null>(null);
 
   const targetWords = useMemo(() => target.split(" "), [target]);
   const typedWords = useMemo(() => typed.split(" "), [typed]);
   const completedCount = Math.max(0, typedWords.length - 1);
 
   useEffect(() => { setWordWindowStart(0); }, [resetKey]);
+  useEffect(() => { lastWrongPosRef.current = null; }, [resetKey]);
   useEffect(() => { setSoundEnabledState(getSoundEnabled()); }, [status, resetKey]);
   useEffect(() => { preloadTypingSounds(); }, []);
   useEffect(() => {
@@ -96,17 +100,43 @@ export default function TypingText({
     if (event.key.length !== 1 || event.ctrlKey || event.metaKey || event.altKey) return;
     if (freeTyping) return;
 
+    // Read what is in the input RIGHT NOW rather than the `typed` prop. React
+    // state can still be a keystroke behind while typing fast, and a stale
+    // position made letters in later words get compared against the wrong
+    // target letter — which is why correct words kept sounding wrong.
+    const valueNow = event.currentTarget.value;
+
     // Space just separates words. It is never a mistake, so finishing a word
-    // that contained a typo can no longer re-trigger the error sound.
+    // that contained a typo can never re-trigger the error sound.
     if (event.key === " ") {
       playTypingKeySound("correct");
+      lastWrongPosRef.current = null;
       return;
     }
 
     // Word-aligned expected character: a mistake in one word never makes the
     // keystrokes that follow it sound wrong.
-    const expected = expectedNextChar(target, typed);
-    playTypingKeySound(expected !== undefined && event.key === expected ? "correct" : "wrong");
+    const expected = expectedNextChar(target, valueNow);
+
+    // No expected letter left means the word is already full and this key is an
+    // extra character. The mistake that caused the overflow already rang once;
+    // re-alerting on every following keystroke is exactly the nagging we do not
+    // want, so this gets the normal key click.
+    if (expected === undefined) {
+      playTypingKeySound("correct");
+      return;
+    }
+
+    if (event.key === expected) {
+      playTypingKeySound("correct");
+      lastWrongPosRef.current = null;
+      return;
+    }
+
+    // Wrong letter: ring once, here, at this position — and only once.
+    if (lastWrongPosRef.current === valueNow.length) return;
+    lastWrongPosRef.current = valueNow.length;
+    playTypingKeySound("wrong");
   };
 
   const toggleSound = () => {
