@@ -22,6 +22,18 @@
  * you drop or double a single character, an index-based diff marks the entire
  * rest of the passage wrong, which is exactly how a run with a handful of
  * typos ends up looking (and scoring) like a disaster.
+ *
+ * Letters mean letters. The space bar is a keystroke, but it is not a letter,
+ * so spaces are counted separately (`correctSpaces` / `extraSpaces`) and left
+ * out of `correct`, `incorrect`, `extra` and `graded`. That keeps the numbers
+ * on screen checkable by hand:
+ *
+ *   letters correct + letters incorrect = letters typed
+ *   accuracy = letters correct / letters typed
+ *
+ * None of this depends on the length of the test: the same pass grades a 1,
+ * 2, 3 or 5 minute test, and custom tests, identically. Only the elapsed time
+ * used for WPM differs.
  */
 
 export type LetterState = "correct" | "incorrect" | "extra" | "missing" | "pending";
@@ -44,18 +56,22 @@ export type GradedWord = {
 };
 
 export type TypingGrade = {
-  /** Characters typed in the right place, including correctly pressed spaces. */
+  /** Letters typed in the right place. Spaces are not letters and are excluded. */
   correct: number;
-  /** Characters typed in the wrong place. */
+  /** Letters typed in the wrong place. */
   incorrect: number;
-  /** Characters typed beyond the end of a word (and stray extra spaces). */
+  /** Letters typed beyond the end of a word. */
   extra: number;
   /** Letters skipped in words you already moved past. */
   missing: number;
-  /** Every keystroke that counts towards accuracy: correct + incorrect + extra. */
+  /** Letter keystrokes that count towards accuracy: correct + incorrect + extra. */
   graded: number;
   /** correct / graded, as a percentage with 2 decimals. 100 when nothing typed. */
   accuracy: number;
+  /** Spaces pressed where the passage really did continue with another word. */
+  correctSpaces: number;
+  /** Surplus spaces (double spaces, or a space past the end of the passage). */
+  extraSpaces: number;
   /** Words you finished (i.e. followed with a space). */
   completedWords: number;
   /** completedWords plus the fraction of the word you are currently inside. */
@@ -72,6 +88,8 @@ const EMPTY_GRADE: TypingGrade = {
   missing: 0,
   graded: 0,
   accuracy: 100,
+  correctSpaces: 0,
+  extraSpaces: 0,
   completedWords: 0,
   wordProgress: 0,
   wordErrors: 0,
@@ -83,8 +101,8 @@ const EMPTY_GRADE: TypingGrade = {
  *
  * A run of repeated spaces would otherwise produce empty words and knock the
  * whole comparison out of alignment, so each surplus space is dropped from the
- * word list and counted as one extra keystroke instead. A single trailing
- * empty entry is kept: that is the next word, with nothing typed in it yet.
+ * word list and counted as a surplus space instead. A single trailing empty
+ * entry is kept: that is the next word, with nothing typed in it yet.
  */
 function splitTypedWords(typedText: string): { words: string[]; extraSpaces: number } {
   const raw = typedText.split(" ");
@@ -107,13 +125,15 @@ export function gradeTyping(targetText: string, typedText: string): TypingGrade 
   if (typedText.length === 0) return EMPTY_GRADE;
 
   const targetWords = targetText.length > 0 ? targetText.split(" ") : [];
-  const { words: typedWords, extraSpaces } = splitTypedWords(typedText);
+  const { words: typedWords, extraSpaces: surplusSpaces } = splitTypedWords(typedText);
   const lastIndex = typedWords.length - 1;
 
   let correct = 0;
   let incorrect = 0;
-  let extra = extraSpaces;
+  let extra = 0;
   let missing = 0;
+  let correctSpaces = 0;
+  let extraSpaces = surplusSpaces;
   let wordErrors = 0;
   const words: GradedWord[] = [];
 
@@ -152,11 +172,11 @@ export function gradeTyping(targetText: string, typedText: string): TypingGrade 
       }
     }
 
-    // The space that ended this word is a keystroke too. It is correct when the
-    // passage really does continue with another word.
+    // The space that ended this word is a keystroke, but it is not a letter, so
+    // it is tallied on its own and kept out of the letter counters.
     if (i < lastIndex) {
-      if (i < targetWords.length - 1) correct += 1;
-      else extra += 1;
+      if (i < targetWords.length - 1) correctSpaces += 1;
+      else extraSpaces += 1;
     }
 
     if (hasError) wordErrors += 1;
@@ -183,6 +203,8 @@ export function gradeTyping(targetText: string, typedText: string): TypingGrade 
     missing,
     graded,
     accuracy,
+    correctSpaces,
+    extraSpaces,
     completedWords,
     wordProgress,
     wordErrors,
@@ -193,6 +215,11 @@ export function gradeTyping(targetText: string, typedText: string): TypingGrade 
 /**
  * Words per minute straight from word progress, so typing one letter of a new
  * word adds a fraction of a word — not a whole one.
+ *
+ * `elapsedSeconds` is always the real measured time, which is what makes this
+ * identical across 1, 2, 3 and 5 minute tests: in a 1 minute test the result
+ * equals word progress exactly, and in longer tests it is word progress
+ * divided by the number of minutes actually spent.
  */
 export function wpmFromWordProgress(wordProgress: number, elapsedSeconds: number): number {
   if (elapsedSeconds <= 0 || wordProgress <= 0) return 0;
