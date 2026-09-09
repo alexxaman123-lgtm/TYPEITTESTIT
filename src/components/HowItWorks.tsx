@@ -1,3 +1,5 @@
+import BlurTypeReveal from "./BlurTypeReveal";
+
 const STEPS = [
   {
     title: "Choose your setup",
@@ -21,16 +23,25 @@ export default function HowItWorks() {
   return (
     <section id="how-it-works" className="mx-auto max-w-5xl scroll-mt-20 px-4 py-16 sm:px-6 lg:px-8">
       <div className="text-center">
-        <h2 className="font-heading-4 text-ink">How It Works</h2>
-        <p className="mx-auto mt-3 max-w-2xl font-body text-text-muted">
-          FreeTypingTestGoat is built to be understood in seconds. No tutorials, no setup screens — just
-          a fast, focused online typing speed test for practice, WPM feedback, and real improvement.
-        </p>
+        <BlurTypeReveal as="h2" className="font-heading-4 text-ink" text="How It Works" by="char" stagger={34} />
+        <BlurTypeReveal
+          as="p"
+          className="mx-auto mt-3 max-w-2xl font-body text-text-muted"
+          text="FreeTypingTestGoat is built to be understood in seconds. No tutorials, no setup screens — just a fast, focused online typing speed test for practice, WPM feedback, and real improvement."
+          by="word"
+          stagger={22}
+          delay={220}
+          caret={false}
+        />
       </div>
 
-      <div className="mt-10 grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
+      {/* Odd cards enter from the left, even cards from the right, staggered. */}
+      <div className="mt-10 grid gap-5 sm:grid-cols-2 lg:grid-cols-4" data-reveal-group="alternate">
         {STEPS.map((step, i) => (
-          <div key={step.title} className="animate-fade-up rounded-[24px] border border-hairline bg-canvas p-6 shadow-sm" style={{ animationDelay: String(i * 80) + "ms" }}>
+          <div
+            key={step.title}
+            className="premium-card rounded-[24px] border border-hairline bg-canvas p-6 shadow-sm"
+          >
             <span className="font-label text-accent">0{i + 1}</span>
             <h3 className="mt-3 font-heading-5 text-ink">{step.title}</h3>
             <p className="mt-2 font-body-sm text-text-muted">{step.body}</p>
