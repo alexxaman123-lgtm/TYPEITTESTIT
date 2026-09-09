@@ -1,0 +1,11 @@
+---
+import SiteLayout from "../../layouts/SiteLayout.astro";
+import Header from "../../components/Header";
+import Footer from "../../components/Footer";
+import AccountPage from "../../components/AccountPage";
+const title = "історія набору тексту | Тест друку Коза";
+const description = "Перегляньте свою приватну історію тестів набору тексту, WPM, точність і особисті найкращі результати в Тест друку Коза.";
+---
+<SiteLayout title={title} description={description} pageKey="account" locale="uk">
+  <div class="relative min-h-screen"><Header client:idle locale="uk" /><AccountPage client:load locale="uk" /><Footer locale="uk" /></div>
+</SiteLayout>

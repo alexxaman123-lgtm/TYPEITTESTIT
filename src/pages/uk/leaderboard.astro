@@ -1,0 +1,8 @@
+---
+import SiteLayout from "../../layouts/SiteLayout.astro";
+import Header from "../../components/Header";
+import LeaderboardPage from "../../components/LeaderboardPage";
+import Footer from "../../components/Footer";
+const title="таблиця лідерів тесту друку | WPM і точність | Тест друку Коза"; const description="Перегляньте таблицю лідерів Тест друку Коза, порівняйте WPM і точність та досліджуйте результати набору тексту.";
+---
+<SiteLayout title={title} description={description} pageKey="leaderboard" locale="uk"><div class="relative min-h-screen"><Header client:load locale="uk"/><LeaderboardPage client:load locale="uk"/><Footer locale="uk"/></div></SiteLayout>

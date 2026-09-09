@@ -1,0 +1,8 @@
+---
+import SiteLayout from "../../layouts/SiteLayout.astro";
+import Header from "../../components/Header";
+import TermsOfUsePage from "../../components/TermsOfUsePage";
+import Footer from "../../components/Footer";
+const title="Умови використання | Тест друку Коза"; const description="Ознайомтеся з Умовами використання Тест друку Коза щодо безкоштовного тесту друку, облікових записів і таблиці лідерів.";
+---
+<SiteLayout title={title} description={description} pageKey="terms-of-use" locale="uk"><div class="relative min-h-screen"><Header client:load locale="uk"/><main><TermsOfUsePage locale="uk"/></main><Footer locale="uk"/></div></SiteLayout>

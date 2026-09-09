@@ -1,0 +1,11 @@
+---
+import SiteLayout from "../../layouts/SiteLayout.astro";
+import Header from "../../components/Header";
+import AboutPage from "../../components/AboutPage";
+import Footer from "../../components/Footer";
+const title = "Про Тест друку Коза | Безкоштовний тест друку";
+const description = "Дізнайтеся про Тест друку Коза — безкоштовний онлайн-інструмент для вимірювання WPM, точності та прогресу друку.";
+---
+<SiteLayout title={title} description={description} pageKey="about" locale="uk">
+  <div class="relative min-h-screen"><Header client:load locale="uk" /><main><AboutPage locale="uk" /></main><Footer locale="uk" /></div>
+</SiteLayout>
