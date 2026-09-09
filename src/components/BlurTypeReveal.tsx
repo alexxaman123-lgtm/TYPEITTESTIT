@@ -1,4 +1,4 @@
-import { createElement, useEffect, useMemo, useRef, useState } from "react";
+import { createElement, useMemo, type CSSProperties } from "react";
 import { cn } from "../utils/cn";
 
 type SplitMode = "char" | "word";
@@ -9,6 +9,8 @@ interface Props {
   /** Element to render. Defaults to a span so it can be dropped anywhere. */
   as?: "h1" | "h2" | "h3" | "h4" | "p" | "span" | "div";
   className?: string;
+  /** Optional inline style passthrough (e.g. a locale-specific font-size clamp). */
+  style?: CSSProperties;
   /** Reveal letter by letter (typing feel) or word by word (calmer). */
   by?: SplitMode;
   /** Milliseconds between units. Defaults per mode. */
@@ -47,74 +49,39 @@ function splitText(text: string, by: SplitMode): string[] {
  *
  * Each character (or word) animates from blurred + transparent to sharp, in
  * sequence, so the sentence resolves left to right like it is being typed.
- * The animation is pure CSS (see .blur-type in index.css); this component only
- * splits the text and flips a class when the element scrolls into view.
+ * This component carries no observer or state of its own -- it marks itself
+ * data-reveal="blur-type" and lets the single shared scroll-reveal engine in
+ * App.tsx flip on .reveal-visible, exactly like every other animated element
+ * on the site. CSS (index.css) does the rest. Because it is just a text-in,
+ * config-out component with no page-specific wiring, dropping it into any
+ * locale's copy (English, Spanish, or a future language) behaves identically
+ * with zero extra setup.
  */
 export default function BlurTypeReveal({
   text,
   as = "span",
   className,
+  style,
   by = "char",
   stagger,
   delay = 0,
   caret = true,
   id,
 }: Props) {
-  const ref = useRef<HTMLElement | null>(null);
-  const [playing, setPlaying] = useState(false);
-  const [done, setDone] = useState(false);
-
   const step = stagger ?? DEFAULT_STAGGER[by];
   const units = useMemo(() => splitText(text, by), [text, by]);
   const totalMs = delay + units.length * step + UNIT_DURATION_MS;
 
-  useEffect(() => {
-    const element = ref.current;
-    if (!element) return;
-
-    const prefersReducedMotion =
-      typeof window.matchMedia === "function" &&
-      window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-
-    // No motion, or no observer support: show the finished state immediately.
-    // done=true from the start so the caret (gated on playing && !done below)
-    // never renders at all in this path.
-    if (prefersReducedMotion || !("IntersectionObserver" in window)) {
-      setPlaying(true);
-      setDone(true);
-      return;
-    }
-
-    const observer = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((entry) => {
-          if (!entry.isIntersecting) return;
-          setPlaying(true);
-          observer.disconnect();
-        });
-      },
-      { threshold: 0.15, rootMargin: "0px 0px -10% 0px" },
-    );
-
-    observer.observe(element);
-    return () => observer.disconnect();
-  }, []);
-
-  // Drop the trailing caret once the last unit has resolved.
-  useEffect(() => {
-    if (!playing || done) return;
-    const timeoutId = window.setTimeout(() => setDone(true), totalMs);
-    return () => window.clearTimeout(timeoutId);
-  }, [playing, done, totalMs]);
-
   return createElement(
     as,
     {
-      ref,
       id,
       // Screen readers get the whole sentence; the split spans are decorative.
       "aria-label": text,
-      className: cn("blur-type", playing && "blur-type-playing", className),
+      // Hooks into the shared reveal engine -- see REVEAL_SELECTOR in App.tsx.
+      "data-reveal": "blur-type",
+      className: cn("blur-type", className),
+      style,
     },
     <span aria-hidden="true">
       {units.map((unit, index) =>
@@ -130,9 +97,14 @@ export default function BlurTypeReveal({
           </span>
         ),
       )}
-      {/* Only while actively resolving — never before the section has scrolled
-          into view and never after the sentence has finished typing in. */}
-      {caret && playing && !done && <span className="blur-type-caret caret-blink" />}
+      {/* Visible only for the sentence's typing-in window -- see the
+          blurTypeCaretLife keyframes in index.css, driven by this duration. */}
+      {caret && (
+        <span
+          className="blur-type-caret"
+          style={{ "--caret-life-ms": `${totalMs}ms` } as CSSProperties}
+        />
+      )}
     </span>,
   );
 }
