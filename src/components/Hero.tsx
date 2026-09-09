@@ -1,3 +1,5 @@
+import BlurTypeReveal from "./BlurTypeReveal";
+
 export default function Hero() {
   return (
     <section
@@ -13,22 +15,27 @@ export default function Hero() {
             <span className="hero-kicker-muted font-caption">WPM · ACCURACY · SPEED</span>
           </div>
 
-          <h1
+          {/* Letter-by-letter blur-to-focus reveal: the headline types itself in. */}
+          <BlurTypeReveal
+            as="h1"
             id="hero-title"
-            className="hero-title mt-7 animate-fade-up font-display"
-            style={{ animationDelay: "90ms" }}
-          >
-            Free Typing Test Online.
-            <br />
-            Measure Your WPM.
-          </h1>
+            className="hero-title mt-7 font-display"
+            text={"Free Typing Test Online.\nMeasure Your WPM."}
+            by="char"
+            stagger={22}
+            delay={120}
+          />
 
-          <p
-            className="hero-lede mt-7 max-w-3xl animate-fade-up font-body-lg"
-            style={{ animationDelay: "140ms" }}
-          >
-            Take a free typing test online to measure your typing speed, words per minute, accuracy, and errors. Practice with 1, 2, 3, or 5 minute tests and build faster, more confident keyboard skills.
-          </p>
+          {/* Word-by-word so a long paragraph resolves quickly but still softly. */}
+          <BlurTypeReveal
+            as="p"
+            className="hero-lede mt-7 max-w-3xl font-body-lg"
+            text="Take a free typing test online to measure your typing speed, words per minute, accuracy, and errors. Practice with 1, 2, 3, or 5 minute tests and build faster, more confident keyboard skills."
+            by="word"
+            stagger={26}
+            delay={420}
+            caret={false}
+          />
 
           <div
             className="mt-9 flex flex-col items-start gap-3 animate-fade-up sm:flex-row"
@@ -49,8 +56,8 @@ export default function Hero() {
           </div>
 
           <div
-            className="mt-10 flex flex-wrap gap-2 animate-fade-up"
-            style={{ animationDelay: "240ms" }}
+            className="mt-10 flex flex-wrap gap-2"
+            data-reveal-group="left"
             aria-label="Typing test features"
           >
             <span className="hero-feature font-caption">Free typing test WPM</span>
@@ -60,19 +67,19 @@ export default function Hero() {
           </div>
 
           <div
-            className="mt-12 grid max-w-3xl grid-cols-1 gap-px overflow-hidden rounded-[28px] border border-current/10 animate-fade-up sm:grid-cols-3"
-            style={{ animationDelay: "290ms" }}
+            className="mt-12 grid max-w-3xl grid-cols-1 gap-px overflow-hidden rounded-[28px] border border-current/10 sm:grid-cols-3"
+            data-reveal-group="up"
             aria-label="Typing test highlights"
           >
-            <div className="hero-stat">
+            <div className="hero-stat premium-card">
               <span className="hero-stat-value font-heading-3">WPM</span>
               <span className="hero-stat-label font-caption">Measure your typing speed</span>
             </div>
-            <div className="hero-stat">
+            <div className="hero-stat premium-card">
               <span className="hero-stat-value font-heading-3">Accuracy</span>
               <span className="hero-stat-label font-caption">See speed and accuracy together</span>
             </div>
-            <div className="hero-stat">
+            <div className="hero-stat premium-card">
               <span className="hero-stat-value font-heading-3">1–5 min</span>
               <span className="hero-stat-label font-caption">Quick or sustained practice</span>
             </div>
@@ -80,8 +87,8 @@ export default function Hero() {
         </div>
 
         <div
-          className="animate-fade-up relative mx-auto w-full max-w-[560px] lg:max-w-none"
-          style={{ animationDelay: "150ms" }}
+          className="relative mx-auto w-full max-w-[560px] lg:max-w-none"
+          data-reveal="right"
           aria-label="Goat typing video"
         >
           <div className="hero-video-shell relative overflow-hidden rounded-[32px] border border-current/10 bg-canvas-soft shadow-2xl">
