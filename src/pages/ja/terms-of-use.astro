@@ -1,0 +1,8 @@
+---
+import SiteLayout from "../../layouts/SiteLayout.astro";
+import Header from "../../components/Header";
+import TermsOfUsePage from "../../components/TermsOfUsePage";
+import Footer from "../../components/Footer";
+const title="利用規約 | タイピングテスト ヤギ"; const description="無料タイピングテスト、アカウント、ランキングに関するタイピングテスト ヤギの利用規約をご確認ください。";
+---
+<SiteLayout title={title} description={description} pageKey="terms-of-use" locale="ja"><div class="relative min-h-screen"><Header client:load locale="ja"/><main><TermsOfUsePage locale="ja"/></main><Footer locale="ja"/></div></SiteLayout>

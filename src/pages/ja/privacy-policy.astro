@@ -1,0 +1,8 @@
+---
+import SiteLayout from "../../layouts/SiteLayout.astro";
+import Header from "../../components/Header";
+import PrivacyPolicyPage from "../../components/PrivacyPolicyPage";
+import Footer from "../../components/Footer";
+const title="プライバシーポリシー | タイピングテスト ヤギ"; const description="アカウントデータ、タイピングテスト、ローカルストレージ、広告に関するタイピングテスト ヤギのプライバシーポリシーをご確認ください。";
+---
+<SiteLayout title={title} description={description} pageKey="privacy-policy" locale="ja"><div class="relative min-h-screen"><Header client:load locale="ja"/><main><PrivacyPolicyPage locale="ja"/></main><Footer locale="ja"/></div></SiteLayout>

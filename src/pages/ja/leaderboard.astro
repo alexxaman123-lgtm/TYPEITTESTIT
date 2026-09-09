@@ -1,0 +1,8 @@
+---
+import SiteLayout from "../../layouts/SiteLayout.astro";
+import Header from "../../components/Header";
+import LeaderboardPage from "../../components/LeaderboardPage";
+import Footer from "../../components/Footer";
+const title="タイピングテストランキング | WPMと正確性 | タイピングテスト ヤギ"; const description="タイピングテスト ヤギのランキングを見て、WPMと正確性を比較し、タイピングのパフォーマンスを確認しましょう。";
+---
+<SiteLayout title={title} description={description} pageKey="leaderboard" locale="ja"><div class="relative min-h-screen"><Header client:load locale="ja"/><LeaderboardPage client:load locale="ja"/><Footer locale="ja"/></div></SiteLayout>

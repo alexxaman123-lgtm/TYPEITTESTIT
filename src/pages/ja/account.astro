@@ -1,0 +1,11 @@
+---
+import SiteLayout from "../../layouts/SiteLayout.astro";
+import Header from "../../components/Header";
+import Footer from "../../components/Footer";
+import AccountPage from "../../components/AccountPage";
+const title = "タイピング履歴 | タイピングテスト ヤギ";
+const description = "タイピングテスト ヤギであなたの個人のタイピングテスト履歴、WPM、正確性、自己ベスト記録を確認できます。";
+---
+<SiteLayout title={title} description={description} pageKey="account" locale="ja">
+  <div class="relative min-h-screen"><Header client:idle locale="ja" /><AccountPage client:load locale="ja" /><Footer locale="ja" /></div>
+</SiteLayout>
