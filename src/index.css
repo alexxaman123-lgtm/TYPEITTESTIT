@@ -64,7 +64,29 @@ body {
 :focus-visible { outline: 2px solid var(--color-ink); outline-offset: 2px; }
 
 @keyframes softPulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.55; } }
-.caret-blink { animation: softPulse 1s ease-in-out infinite; }
+
+/* Caret blink — modeled on Monkeytype's smooth caret
+   (frontend/src/styles/caret.scss in monkeytypegame/monkeytype). The old
+   version only dipped to 55% opacity, which reads as a shimmer rather than a
+   blink; this fades the line all the way out and back on an eased curve, so it
+   breathes instead of flicking on and off. */
+@keyframes caretFlashSmooth { 0%, 100% { opacity: 1; } 50% { opacity: 0; } }
+.caret-blink { animation: caretFlashSmooth 1s cubic-bezier(0.45, 0, 0.55, 1) infinite; }
+
+/* The sliding insertion line. Its position and height are set from inline
+   styles measured against the exact letter the next keystroke will land on;
+   this transition is what makes it glide from letter to letter (and across a
+   line wrap) instead of teleporting. Linear timing keeps the travel speed even,
+   which is what makes Monkeytype's caret feel attached to the text. */
+.typing-caret {
+  transition: transform 110ms linear, height 110ms linear, opacity 160ms linear;
+  will-change: transform, height;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .caret-blink { animation: none; }
+  .typing-caret { transition: none; }
+}
 
 @keyframes fadeUp { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
 .animate-fade-up { animation: fadeUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) both; }
