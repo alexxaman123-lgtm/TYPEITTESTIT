@@ -1,0 +1,8 @@
+---
+import SiteLayout from "../../layouts/SiteLayout.astro";
+import Header from "../../components/Header";
+import LeaderboardPage from "../../components/LeaderboardPage";
+import Footer from "../../components/Footer";
+const title="Classement du test de frappe | WPM et précision | Test de frappe Chèvre"; const description="Consultez le classement de Test de frappe Chèvre, comparez le WPM et la précision, et explorez les performances de frappe.";
+---
+<SiteLayout title={title} description={description} pageKey="leaderboard" locale="fr"><div class="relative min-h-screen"><Header client:load locale="fr"/><LeaderboardPage client:load locale="fr"/><Footer locale="fr"/></div></SiteLayout>

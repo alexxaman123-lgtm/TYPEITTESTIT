@@ -1,0 +1,11 @@
+---
+import SiteLayout from "../../layouts/SiteLayout.astro";
+import Header from "../../components/Header";
+import AboutPage from "../../components/AboutPage";
+import Footer from "../../components/Footer";
+const title = "À propos de Test de frappe Chèvre | Test de frappe gratuit";
+const description = "Découvrez Test de frappe Chèvre, un outil gratuit en ligne pour mesurer le WPM, la précision et la progression.";
+---
+<SiteLayout title={title} description={description} pageKey="about" locale="fr">
+  <div class="relative min-h-screen"><Header client:load locale="fr" /><main><AboutPage locale="fr" /></main><Footer locale="fr" /></div>
+</SiteLayout>

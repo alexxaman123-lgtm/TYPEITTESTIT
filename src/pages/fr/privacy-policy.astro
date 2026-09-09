@@ -1,0 +1,8 @@
+---
+import SiteLayout from "../../layouts/SiteLayout.astro";
+import Header from "../../components/Header";
+import PrivacyPolicyPage from "../../components/PrivacyPolicyPage";
+import Footer from "../../components/Footer";
+const title="Politique de confidentialité | Test de frappe Chèvre"; const description="Consultez la politique de confidentialité de Test de frappe Chèvre concernant les données de compte, les tests de frappe, le stockage local et la publicité.";
+---
+<SiteLayout title={title} description={description} pageKey="privacy-policy" locale="fr"><div class="relative min-h-screen"><Header client:load locale="fr"/><main><PrivacyPolicyPage locale="fr"/></main><Footer locale="fr"/></div></SiteLayout>
