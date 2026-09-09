@@ -2,6 +2,7 @@ import { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import { cn } from "../utils/cn";
 import { getSoundEnabled, setSoundEnabled } from "../lib/useSound";
 import { playTypingKeySound, preloadTypingSounds, unlockTypingSounds } from "../lib/useTypingSounds";
+import { expectedNextChar } from "../lib/grade";
 import type { Locale } from "../lib/i18n";
 import { tr } from "../lib/i18n";
 
@@ -88,14 +89,24 @@ export default function TypingText({
     }
   };
 
+  // Key sounds fire here and nowhere else, so the error sound can only ever be
+  // heard on the keystroke that was actually wrong — never again afterwards.
   const handleKeyDown = (event: React.KeyboardEvent<HTMLInputElement>) => {
     if (disabled || !getSoundEnabled()) return;
     if (event.key.length !== 1 || event.ctrlKey || event.metaKey || event.altKey) return;
     if (freeTyping) return;
-    const curWordTyped = typedWords[typedWords.length - 1] ?? "";
-    const curWordTarget = targetWords[typedWords.length - 1] ?? "";
-    const expected = curWordTarget[curWordTyped.length];
-    playTypingKeySound(event.key === expected ? "correct" : "wrong");
+
+    // Space just separates words. It is never a mistake, so finishing a word
+    // that contained a typo can no longer re-trigger the error sound.
+    if (event.key === " ") {
+      playTypingKeySound("correct");
+      return;
+    }
+
+    // Word-aligned expected character: a mistake in one word never makes the
+    // keystrokes that follow it sound wrong.
+    const expected = expectedNextChar(target, typed);
+    playTypingKeySound(expected !== undefined && event.key === expected ? "correct" : "wrong");
   };
 
   const toggleSound = () => {

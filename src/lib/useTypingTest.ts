@@ -1,7 +1,8 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Difficulty, getRandomPassage } from "../data/texts";
 import { getRandomSpanishPassage } from "../data/spanishTexts";
-import { calculateWpm, countAllChars, countWordErrors, computeWordsWritten, getLettersOnlyCount } from "./stats";
+import { calculateWpm, computeWordsWritten, getLettersOnlyCount } from "./stats";
+import { gradeTyping, wpmFromWordProgress } from "./grade";
 import { maybeSavePersonalBest } from "./storage";
 import { saveLeaderboardScore } from "./leaderboard";
 
@@ -32,15 +33,6 @@ export interface TestResult {
 const APPEND_THRESHOLD = 120;
 const MAX_CUSTOM_TEXT_LENGTH = 100000;
 const MIN_STATS_DURATION_SEC = 60;
-
-// Monkeytype-style accuracy: every character you typed in the right place counts
-// as correct, even if the word around it ended up wrong. Denominator is every
-// graded keystroke (correct + mistyped + extra).
-function accuracyFromCounts(correct: number, incorrect: number, extra: number): number {
-  const graded = correct + incorrect + extra;
-  if (graded <= 0) return 100;
-  return Math.round((correct / graded) * 10000) / 100;
-}
 
 function normalize(text: string): string {
   return text.replace(/\s+/g, " ").trim().slice(0, MAX_CUSTOM_TEXT_LENGTH);
@@ -125,6 +117,7 @@ export function useTypingTest(
     let totalTyped = 0;
     let wordErrorsCount = 0;
     let wordsWritten = 0;
+    let wordProgress = 0;
     let accuracy = 100;
     let actualWpm = 0;
     let predictedWpm: number | null = null;
@@ -135,28 +128,28 @@ export function useTypingTest(
       correctChars = letters;
       totalTyped = letters;
       wordsWritten = computeWordsWritten(typedValue);
-      actualWpm = elapsedSec > 0 ? wordsWritten / (elapsedSec / 60) : 0;
+      wordProgress = wordsWritten;
+      actualWpm = wpmFromWordProgress(wordProgress, elapsedSec);
     } else {
-      // Free-flow mode: the caret is never blocked, so `typedValue` can differ
-      // from the target text anywhere (substituted, extra, or missing chars).
-      // countAllChars replicates Monkeytype's own word-by-word char diffing, so
-      // a mistake in one word never misaligns the comparison for the rest of
-      // the passage.
-      const counts = countAllChars(targetValue, typedValue, true);
-      correctChars = counts.allCorrect;
-      incorrect = counts.incorrect + counts.extra;
-      mistakesCount = counts.incorrect + counts.extra + counts.missed;
-      totalTyped = typedValue.length;
-      wordsWritten = computeWordsWritten(typedValue);
-      wordErrorsCount = countWordErrors(targetValue, typedValue, true);
-      accuracy = accuracyFromCounts(counts.allCorrect, counts.incorrect, counts.extra);
-      actualWpm = elapsedSec > 0 ? wordsWritten / (elapsedSec / 60) : 0;
+      // One grading pass produces every number below, so the counters, the
+      // accuracy and the red letters on screen can never disagree. Grading is
+      // word-by-word (see lib/grade.ts), so a single dropped or doubled
+      // character never misaligns the rest of the passage.
+      const grade = gradeTyping(targetValue, typedValue);
+      correctChars = grade.correct;
+      incorrect = grade.incorrect + grade.extra;
+      mistakesCount = grade.incorrect + grade.extra + grade.missing;
+      totalTyped = grade.graded;
+      wordsWritten = grade.completedWords;
+      wordProgress = grade.wordProgress;
+      wordErrorsCount = grade.wordErrors;
+      accuracy = grade.accuracy;
+      actualWpm = wpmFromWordProgress(grade.wordProgress, elapsedSec);
       predictedWpm = elapsedSec > 0
         ? Math.round(calculateWpm(correctChars, elapsedSec) * 10) / 10
         : null;
     }
 
-    const wordProgress = wordsWritten;
     const durationSec = Math.round(elapsedMs / 1000);
 
     if (!statsAvailable) {
@@ -397,12 +390,12 @@ export function useTypingTest(
       // Free typing: every keystroke (correct or not) advances the caret, just
       // like typing normally. Mistakes are never hidden or blocked — they show
       // up in red exactly where they were typed, and backspacing + retyping a
-      // position clears its red mark. Accuracy/WPM are derived fresh from
-      // comparing `typed` against the target text word-by-word (see liveStats
-      // below and `finish()` above), so nothing needs to be tracked here.
+      // position clears its red mark.
       setTyped(clipped);
       typedRef.current = clipped;
-      liveCharCountRef.current = clipped.length;
+      // The live WPM readout divides this by 5, so feeding it word progress × 5
+      // makes the live number identical to the one on the result screen.
+      liveCharCountRef.current = gradeTyping(currentTarget, clipped).wordProgress * 5;
       startTimerIfNeeded();
     },
     [startTimerIfNeeded],
@@ -420,9 +413,7 @@ export function useTypingTest(
     if (isCustom && customMode === "free") {
       const lettersTyped = getLettersOnlyCount(typed);
       const wordsWritten = computeWordsWritten(typed);
-      const wpm = statsAvailable && elapsedSec > 0
-        ? wordsWritten / (elapsedSec / 60)
-        : 0;
+      const wpm = statsAvailable ? wpmFromWordProgress(wordsWritten, elapsedSec) : 0;
 
       return {
         correct: lettersTyped,
@@ -437,31 +428,25 @@ export function useTypingTest(
       };
     }
 
-    // Free-flow mode: recompute the word-level diff on every keystroke so the
-    // live number always matches what's actually on screen, including extra
-    // and missed characters.
-    const counts = countAllChars(targetText, typed, true);
-    const correctChars = counts.allCorrect;
-    const incorrect = counts.incorrect + counts.extra;
-    const wordsWritten = computeWordsWritten(typed);
-    const actualWpm = statsAvailable && elapsedSec > 0
-      ? wordsWritten / (elapsedSec / 60)
-      : 0;
+    // Same grading pass as finish(), recomputed on every keystroke so the live
+    // numbers always match what is actually on screen.
+    const grade = gradeTyping(targetText, typed);
+    const incorrect = grade.incorrect + grade.extra;
+    const actualWpm = statsAvailable ? wpmFromWordProgress(grade.wordProgress, elapsedSec) : 0;
     const predictedWpm = statsAvailable && elapsedSec > 0
-      ? Math.round(calculateWpm(correctChars, elapsedSec) * 10) / 10
+      ? Math.round(calculateWpm(grade.correct, elapsedSec) * 10) / 10
       : null;
-    const accuracy = accuracyFromCounts(counts.allCorrect, counts.incorrect, counts.extra);
 
     return {
-      correct: correctChars,
+      correct: grade.correct,
       incorrect,
       wpm: actualWpm,
-      wordProgress: wordsWritten,
-      wordsWritten,
+      wordProgress: grade.wordProgress,
+      wordsWritten: grade.completedWords,
       predictedWpm,
       characterErrors: incorrect,
-      wordErrors: countWordErrors(targetText, typed, true),
-      accuracy,
+      wordErrors: grade.wordErrors,
+      accuracy: grade.accuracy,
     };
   }, [typed, targetText, elapsedMs, isCustom, customMode]);
 
