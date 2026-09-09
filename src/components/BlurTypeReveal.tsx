@@ -77,6 +77,8 @@ export default function BlurTypeReveal({
       window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
     // No motion, or no observer support: show the finished state immediately.
+    // done=true from the start so the caret (gated on playing && !done below)
+    // never renders at all in this path.
     if (prefersReducedMotion || !("IntersectionObserver" in window)) {
       setPlaying(true);
       setDone(true);
@@ -128,7 +130,9 @@ export default function BlurTypeReveal({
           </span>
         ),
       )}
-      {caret && !done && <span className="blur-type-caret caret-blink" />}
+      {/* Only while actively resolving — never before the section has scrolled
+          into view and never after the sentence has finished typing in. */}
+      {caret && playing && !done && <span className="blur-type-caret caret-blink" />}
     </span>,
   );
 }
