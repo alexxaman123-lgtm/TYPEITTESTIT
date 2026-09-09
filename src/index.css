@@ -254,6 +254,126 @@ body {
 [data-reveal="right"] { transform: translate3d(18px, 0, 0); }
 [data-reveal].reveal-visible { opacity: 1; transform: translate3d(0, 0, 0); }
 
+/* Section-level variants used for the premium pass. "blur" resolves out of a
+   soft focus, "scale" settles in from slightly small — both read as expensive
+   because the motion is small and the easing is long-tailed. */
+[data-reveal="blur"] {
+  transform: translate3d(0, 22px, 0);
+  filter: blur(10px);
+  transition:
+    opacity 820ms cubic-bezier(0.16, 1, 0.3, 1),
+    transform 820ms cubic-bezier(0.16, 1, 0.3, 1),
+    filter 820ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+[data-reveal="scale"] {
+  transform: scale(0.965) translate3d(0, 14px, 0);
+  transition:
+    opacity 720ms cubic-bezier(0.16, 1, 0.3, 1),
+    transform 720ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+[data-reveal="blur"].reveal-visible { filter: blur(0); }
+[data-reveal="scale"].reveal-visible { transform: scale(1) translate3d(0, 0, 0); }
+
+/* Staggered groups: put [data-reveal-group] on a grid/row and its direct
+   children (cards, stats, rows) fade in one after another. Direction decides
+   where they travel from, so cards can slide in from the sides of the screen. */
+[data-reveal-group] > * {
+  opacity: 0;
+  transform: translate3d(0, 26px, 0);
+  transition:
+    opacity 720ms cubic-bezier(0.16, 1, 0.3, 1),
+    transform 720ms cubic-bezier(0.16, 1, 0.3, 1),
+    filter 720ms cubic-bezier(0.16, 1, 0.3, 1);
+  will-change: opacity, transform;
+}
+[data-reveal-group="left"] > * { transform: translate3d(-52px, 0, 0); }
+[data-reveal-group="right"] > * { transform: translate3d(52px, 0, 0); }
+[data-reveal-group="alternate"] > *:nth-child(odd) { transform: translate3d(-52px, 12px, 0); }
+[data-reveal-group="alternate"] > *:nth-child(even) { transform: translate3d(52px, 12px, 0); }
+[data-reveal-group="fade"] > * { transform: none; filter: blur(8px); }
+[data-reveal-group].reveal-visible > * {
+  opacity: 1;
+  transform: translate3d(0, 0, 0);
+  filter: blur(0);
+}
+[data-reveal-group].reveal-visible > *:nth-child(1) { transition-delay: 0ms; }
+[data-reveal-group].reveal-visible > *:nth-child(2) { transition-delay: 90ms; }
+[data-reveal-group].reveal-visible > *:nth-child(3) { transition-delay: 180ms; }
+[data-reveal-group].reveal-visible > *:nth-child(4) { transition-delay: 270ms; }
+[data-reveal-group].reveal-visible > *:nth-child(5) { transition-delay: 360ms; }
+[data-reveal-group].reveal-visible > *:nth-child(6) { transition-delay: 450ms; }
+[data-reveal-group].reveal-visible > *:nth-child(7) { transition-delay: 520ms; }
+[data-reveal-group].reveal-visible > *:nth-child(8) { transition-delay: 590ms; }
+[data-reveal-group].reveal-visible > *:nth-child(n + 9) { transition-delay: 650ms; }
+
+/* Card surfaces: a small lift plus an accent glow on hover. Kept subtle so it
+   reads as quality rather than as a bouncy web toy. */
+.premium-card {
+  transition:
+    transform 320ms cubic-bezier(0.16, 1, 0.3, 1),
+    border-color 320ms ease,
+    box-shadow 320ms ease,
+    background-color 320ms ease;
+  will-change: transform;
+}
+.premium-card:hover {
+  transform: translateY(-4px);
+  border-color: color-mix(in srgb, var(--color-accent) 38%, transparent);
+  box-shadow:
+    0 26px 50px -34px rgba(0, 0, 0, 0.9),
+    0 0 0 1px color-mix(in srgb, var(--color-accent) 14%, transparent),
+    0 0 34px -18px color-mix(in srgb, var(--color-accent) 55%, transparent);
+}
+
+/* Cosmos-style text reveal: every character starts blurred, transparent and a
+   little low, then resolves in sequence (the delay is set inline per unit by
+   BlurTypeReveal.tsx) so the sentence looks like it is typing itself into
+   focus. Units stay laid out inline-block so word wrapping still works. */
+.blur-type-unit {
+  display: inline-block;
+  white-space: pre;
+  opacity: 0;
+  filter: blur(12px);
+  transform: translate3d(0, 0.16em, 0);
+}
+.blur-type-playing .blur-type-unit {
+  animation: blurTypeIn 620ms cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+@keyframes blurTypeIn {
+  0% { opacity: 0; filter: blur(12px); transform: translate3d(0, 0.16em, 0); }
+  55% { opacity: 1; filter: blur(2.5px); }
+  100% { opacity: 1; filter: blur(0); transform: translate3d(0, 0, 0); }
+}
+/* Trailing bar that rides the end of the sentence while it resolves. */
+.blur-type-caret {
+  display: inline-block;
+  width: 2px;
+  height: 0.92em;
+  margin-left: 0.06em;
+  vertical-align: -0.1em;
+  border-radius: 999px;
+  background: var(--color-accent);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  [data-reveal],
+  [data-reveal-group] > * {
+    opacity: 1 !important;
+    transform: none !important;
+    filter: none !important;
+    transition: none !important;
+  }
+  .premium-card { transition: none; }
+  .premium-card:hover { transform: none; }
+  .blur-type-unit {
+    opacity: 1;
+    filter: none;
+    transform: none;
+    animation: none !important;
+  }
+  .blur-type-caret { display: none; }
+}
+
 .test-shell { position: relative; overflow: hidden; isolation: isolate; }
 .test-shell::before {
   content: "";
