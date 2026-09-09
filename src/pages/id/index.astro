@@ -1,0 +1,17 @@
+---
+import SiteLayout from "../../layouts/SiteLayout.astro";
+import Header from "../../components/Header";
+import TypingTesterIsland from "../../components/TypingTesterIsland";
+import Hero from "../../components/Hero";
+import TypingMotionSection from "../../components/TypingMotionSection";
+import SeoContent from "../../components/SeoContent";
+import HowItWorks from "../../components/HowItWorks";
+import FaqSection from "../../components/FaqSection";
+import FaqSchema from "../../components/FaqSchema";
+import Footer from "../../components/Footer";
+const title="Tes Mengetik Online Gratis – WPM & Latihan | Tes Mengetik Kambing";
+const description="Ikuti tes mengetik online gratis dengan Tes Mengetik Kambing untuk mengukur WPM, akurasi, dan kesalahan. Berlatih dengan tes 1, 2, 3, atau 5 menit.";
+const webApplicationSchema={"@context":"https://schema.org","@type":"WebApplication",name:"Tes Mengetik Kambing",alternateName:["Tes mengetik","Tes mengetik gratis","Tes kecepatan mengetik"],url:"https://typeittestit.com/id/",inLanguage:"id",applicationCategory:"UtilityApplication",applicationSubCategory:"Tes mengetik",operatingSystem:"Any",browserRequirements:"Membutuhkan browser modern dengan JavaScript diaktifkan",featureList:["Tes kecepatan mengetik gratis","Tes mengetik WPM","Tes akurasi mengetik","Latihan mengetik","Tes mengetik 1 menit","Tes mengetik 2 menit","Tes mengetik 3 menit","Tes mengetik 5 menit","Tes mengetik kustom"],description:"Tes Mengetik Kambing adalah alat online gratis untuk mengukur kecepatan mengetik dalam WPM, akurasi, dan kesalahan.",offers:{"@type":"Offer",price:"0",priceCurrency:"USD"}};
+const websiteSchema={"@context":"https://schema.org","@type":"WebSite",name:"Tes Mengetik Kambing",alternateName:"Tes mengetik",url:"https://typeittestit.com/id/",inLanguage:"id"};
+---
+<SiteLayout title={title} description={description} pageKey="home" locale="id" structuredData={[webApplicationSchema,websiteSchema]}><div class="relative min-h-screen"><Header client:idle locale="id"/><main><Hero locale="id"/><div class="mx-auto max-w-6xl px-4 pb-16 sm:px-6 lg:px-8" data-reveal="up"><TypingTesterIsland client:load locale="id"/></div><TypingMotionSection locale="id"/><div class="border-t border-hairline below-fold-content" data-reveal="up"><SeoContent locale="id"/></div><div class="border-t border-hairline below-fold-content" data-reveal="up"><HowItWorks locale="id"/></div><div class="border-t border-hairline below-fold-content" data-reveal="up"><FaqSection locale="id"/></div></main><Footer locale="id"/><FaqSchema locale="id"/></div></SiteLayout>
