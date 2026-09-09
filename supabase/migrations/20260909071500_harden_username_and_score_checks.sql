@@ -191,6 +191,15 @@ alter table public.leaderboard_scores
 alter table public.leaderboard_scores
   add constraint leaderboard_scores_wpm_check check (wpm >= 0 and wpm <= 350);
 
+-- record_typing_history previously existed in some deployments with a
+-- "returns bigint" signature (returning the new row id). Postgres refuses to
+-- change an existing function's return type via CREATE OR REPLACE, so drop
+-- any prior version first to make this migration safe to apply regardless
+-- of which version is currently live.
+drop function if exists public.record_typing_history(
+  text, integer, integer, numeric, numeric, numeric, integer, integer, integer, text, boolean
+);
+
 create or replace function public.record_typing_history(
   p_difficulty text,
   p_duration_sec integer,
