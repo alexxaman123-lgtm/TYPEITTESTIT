@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Difficulty, getRandomPassage } from "../data/texts";
 import { getRandomSpanishPassage } from "../data/spanishTexts";
-import { calculateWpm, computeAccuracyFromChars, countAllChars, countWordErrors, computeWordsWritten, getLettersOnlyCount } from "./stats";
+import { calculateWpm, countAllChars, countWordErrors, computeWordsWritten, getLettersOnlyCount } from "./stats";
 import { maybeSavePersonalBest } from "./storage";
 import { saveLeaderboardScore } from "./leaderboard";
 
@@ -32,6 +32,15 @@ export interface TestResult {
 const APPEND_THRESHOLD = 120;
 const MAX_CUSTOM_TEXT_LENGTH = 100000;
 const MIN_STATS_DURATION_SEC = 60;
+
+// Monkeytype-style accuracy: every character you typed in the right place counts
+// as correct, even if the word around it ended up wrong. Denominator is every
+// graded keystroke (correct + mistyped + extra).
+function accuracyFromCounts(correct: number, incorrect: number, extra: number): number {
+  const graded = correct + incorrect + extra;
+  if (graded <= 0) return 100;
+  return Math.round((correct / graded) * 10000) / 100;
+}
 
 function normalize(text: string): string {
   return text.replace(/\s+/g, " ").trim().slice(0, MAX_CUSTOM_TEXT_LENGTH);
@@ -140,7 +149,7 @@ export function useTypingTest(
       totalTyped = typedValue.length;
       wordsWritten = computeWordsWritten(typedValue);
       wordErrorsCount = countWordErrors(targetValue, typedValue, true);
-      accuracy = Math.round(computeAccuracyFromChars(counts.correctWord, counts.incorrect, counts.extra) * 100) / 100;
+      accuracy = accuracyFromCounts(counts.allCorrect, counts.incorrect, counts.extra);
       actualWpm = elapsedSec > 0 ? wordsWritten / (elapsedSec / 60) : 0;
       predictedWpm = elapsedSec > 0
         ? Math.round(calculateWpm(correctChars, elapsedSec) * 10) / 10
@@ -441,7 +450,7 @@ export function useTypingTest(
     const predictedWpm = statsAvailable && elapsedSec > 0
       ? Math.round(calculateWpm(correctChars, elapsedSec) * 10) / 10
       : null;
-    const accuracy = Math.round(computeAccuracyFromChars(counts.correctWord, counts.incorrect, counts.extra) * 100) / 100;
+    const accuracy = accuracyFromCounts(counts.allCorrect, counts.incorrect, counts.extra);
 
     return {
       correct: correctChars,
