@@ -22,6 +22,8 @@ const WORD_WINDOW_SIZE = 70;
 const WORD_SHIFT_THRESHOLD = 50;
 const WORD_LOOKBACK = 15;
 
+type WordKind = "completed" | "current" | "future";
+
 export default function TypingText({
   target,
   typed,
@@ -106,59 +108,88 @@ export default function TypingText({
 
   const copyClass = focusMode ? "typing-copy" : "text-left";
 
-  const renderWord = (wordIndex: number, kind: "completed" | "current" | "future"): React.ReactNode[] => {
+  // Letter states follow Monkeytype's renderer (frontend/src/styles/test.scss):
+  //   .correct          → normal text colour
+  //   .incorrect        → error colour, but the TARGET letter is still the glyph
+  //                       that is displayed, so you can always read what you were
+  //                       supposed to type
+  //   .incorrect.extra  → dimmer "error-extra" colour, showing the character you
+  //                       actually typed, because there is no target letter here
+  //   .missing          → target letter at 50% opacity (skipped letters)
+  //   .word.error       → 2px red underline under a finished word that had errors
+  const renderWord = (wordIndex: number, kind: WordKind) => {
     const targetWord = targetWords[wordIndex] ?? "";
-    if (kind === "future") {
-      return targetWord.split("").map((ch, idx) => (
-        <span key={`w${wordIndex}-${idx}`} className="typing-pending">{ch}</span>
-      ));
-    }
-    const typedWord = typedWords[wordIndex] ?? "";
-    const maxLen = Math.max(typedWord.length, targetWord.length);
-    const nodes: React.ReactNode[] = [];
-    for (let idx = 0; idx < maxLen; idx += 1) {
+    const typedWord = kind === "future" ? "" : (typedWords[wordIndex] ?? "");
+    const length = Math.max(targetWord.length, typedWord.length);
+    const letters: React.ReactNode[] = [];
+    let hasError = false;
+
+    const caretAnchor = (key: string) => (
+      <span
+        key={key}
+        ref={(el) => { currentCharRef.current = el; }}
+        aria-hidden="true"
+        className="inline-block w-0"
+      />
+    );
+
+    for (let idx = 0; idx < length; idx += 1) {
       if (kind === "current" && idx === typedWord.length) {
-        nodes.push(
-          <span key={`w${wordIndex}-caret`} ref={(el) => { currentCharRef.current = el; }} aria-hidden="true" className="inline-block w-0" />,
-        );
+        letters.push(caretAnchor(`caret-${idx}`));
       }
+
       const tChar = targetWord[idx];
       const pChar = typedWord[idx];
-      if (pChar !== undefined && tChar !== undefined) {
-        nodes.push(
-          pChar === tChar
-            ? <span key={`w${wordIndex}-${idx}`} className="typing-correct">{tChar}</span>
-            : <span key={`w${wordIndex}-${idx}`} className="rounded-[3px] bg-red-500/20 text-red-600">{pChar === " " ? "\u00b7" : pChar}</span>,
-        );
+
+      if (tChar !== undefined && pChar !== undefined) {
+        if (tChar === pChar) {
+          letters.push(<span key={idx} className="typing-correct">{tChar}</span>);
+        } else {
+          // Mistyped: keep showing the letter you needed to type, in red.
+          hasError = true;
+          letters.push(<span key={idx} className="text-red-500">{tChar}</span>);
+        }
       } else if (pChar !== undefined) {
-        nodes.push(
-          <span key={`w${wordIndex}-${idx}`} className="rounded-[3px] bg-red-500/20 text-red-600">{pChar === " " ? "\u00b7" : pChar}</span>,
+        // Extra character typed past the end of the word: show what you typed,
+        // in the dimmer "extra" red, which grows the word just like Monkeytype.
+        hasError = true;
+        letters.push(
+          <span key={idx} className="text-red-400">{pChar === " " ? "\u00b7" : pChar}</span>,
         );
+      } else if (kind === "completed") {
+        // Word was left before finishing it: remaining letters are "missing".
+        hasError = true;
+        letters.push(<span key={idx} className="text-red-500/50">{tChar}</span>);
       } else {
-        nodes.push(
-          kind === "completed"
-            ? <span key={`w${wordIndex}-${idx}`} className="rounded-[3px] text-red-400/80">{tChar}</span>
-            : <span key={`w${wordIndex}-${idx}`} className="typing-pending">{tChar}</span>,
-        );
+        letters.push(<span key={idx} className="typing-pending">{tChar}</span>);
       }
     }
-    if (kind === "current" && typedWord.length === maxLen) {
-      nodes.push(
-        <span key={`w${wordIndex}-caret-end`} ref={(el) => { currentCharRef.current = el; }} aria-hidden="true" className="inline-block w-0" />,
-      );
+
+    if (kind === "current" && typedWord.length >= length) {
+      letters.push(caretAnchor("caret-end"));
     }
-    return nodes;
+
+    return (
+      <span
+        key={`w${wordIndex}`}
+        className={cn(
+          "inline-block",
+          kind === "completed" && hasError && "border-b-2 border-red-500/70",
+        )}
+      >
+        {letters}
+      </span>
+    );
   };
 
   const windowEndIndex = Math.min(targetWords.length, wordWindowStart + WORD_WINDOW_SIZE);
   const visibleNodes: React.ReactNode[] = [];
   for (let i = wordWindowStart; i < windowEndIndex; i += 1) {
-    const kind = i < completedCount ? "completed" : i === completedCount ? "current" : "future";
-    visibleNodes.push(...renderWord(i, kind));
+    const kind: WordKind = i < completedCount ? "completed" : i === completedCount ? "current" : "future";
+    visibleNodes.push(renderWord(i, kind));
     if (i < targetWords.length - 1) {
-      const spaceCorrect = i < completedCount;
       visibleNodes.push(
-        <span key={`sp-${i}`} className={spaceCorrect ? "typing-correct" : "typing-pending"}> </span>,
+        <span key={`sp-${i}`} className={i < completedCount ? "typing-correct" : "typing-pending"}> </span>,
       );
     }
   }
