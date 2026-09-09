@@ -146,7 +146,15 @@ const ogLocaleAlternates = rootPath
     <slot />
     <script is:inline>
       (() => {
-        const elements = Array.from(document.querySelectorAll('[data-reveal]'));
+        // Watch both plain [data-reveal] elements AND [data-reveal-group]
+        // containers (e.g. the How It Works cards grid). These used to be
+        // queried separately in different places; this single script is the
+        // one that actually runs on every static/SSR'd page (including the
+        // homepage and every localized route), so it must own both selectors
+        // or a data-reveal-group element (which has no data-reveal attribute
+        // of its own) never gets observed and its children stay at
+        // opacity: 0 forever, per the [data-reveal-group] > * CSS rule.
+        const elements = Array.from(document.querySelectorAll('[data-reveal], [data-reveal-group]'));
         if (!elements.length) return;
         const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
         if (reducedMotion || !('IntersectionObserver' in window)) {
