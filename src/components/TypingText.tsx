@@ -22,6 +22,8 @@ interface Props {
 const WORD_WINDOW_SIZE = 70;
 const WORD_SHIFT_THRESHOLD = 50;
 const WORD_LOOKBACK = 15;
+/** How long after the last keystroke the caret starts blinking again. */
+const CARET_BLINK_RESUME_MS = 650;
 
 type WordKind = "completed" | "current" | "future";
 
@@ -41,6 +43,9 @@ export default function TypingText({
   const [wordWindowStart, setWordWindowStart] = useState(0);
   const [focused, setFocused] = useState(false);
   const [soundEnabled, setSoundEnabledState] = useState(getSoundEnabled());
+  // The caret holds still (solid) while you are typing and only breathes once
+  // you pause — a caret that blinks mid-keystroke looks like it is stuttering.
+  const [caretBlinking, setCaretBlinking] = useState(true);
   const surfaceRef = useRef<HTMLDivElement | null>(null);
   const caretRef = useRef<HTMLSpanElement | null>(null);
   const currentCharRef = useRef<HTMLSpanElement | null>(null);
@@ -57,6 +62,11 @@ export default function TypingText({
   useEffect(() => { setSoundEnabledState(getSoundEnabled()); }, [status, resetKey]);
   useEffect(() => { preloadTypingSounds(); }, []);
   useEffect(() => {
+    setCaretBlinking(false);
+    const timeoutId = window.setTimeout(() => setCaretBlinking(true), CARET_BLINK_RESUME_MS);
+    return () => window.clearTimeout(timeoutId);
+  }, [typed, resetKey]);
+  useEffect(() => {
     if (freeTyping) return;
     if (completedCount - wordWindowStart > WORD_SHIFT_THRESHOLD) {
       setWordWindowStart(Math.max(0, completedCount - WORD_LOOKBACK));
@@ -67,9 +77,10 @@ export default function TypingText({
 
   // Smooth sliding caret: a single persistent element whose position is measured
   // against a zero-width anchor placed exactly where the next keystroke will land,
-  // then animated with a CSS transition so it glides between letters/words instead
-  // of teleporting (modeled after Monkeytype's "smooth caret" setting —
-  // frontend/src/ts/elements/caret.ts / caret.scss in monkeytypegame/monkeytype).
+  // then animated with a CSS transition (.typing-caret) so it glides between
+  // letters and across line wraps instead of teleporting — modeled after
+  // Monkeytype's "smooth caret" (frontend/src/ts/elements/caret.ts and
+  // frontend/src/styles/caret.scss in monkeytypegame/monkeytype).
   useLayoutEffect(() => {
     const surface = surfaceRef.current;
     const caret = caretRef.current;
@@ -261,7 +272,10 @@ export default function TypingText({
             )}
             {status !== "finished" && typed.length > 0 && (
               <span
-                className={cn("ml-[1px] inline-block h-[1.15em] w-[2px] translate-y-[0.12em] rounded-full bg-accent", !reducedMotion && "caret-blink")}
+                className={cn(
+                  "ml-[1px] inline-block h-[1.15em] w-[2px] translate-y-[0.12em] rounded-full bg-accent",
+                  !reducedMotion && caretBlinking && "caret-blink",
+                )}
                 aria-hidden="true"
               />
             )}
@@ -273,9 +287,9 @@ export default function TypingText({
               aria-hidden="true"
               style={{ opacity: 0 }}
               className={cn(
-                "pointer-events-none absolute left-0 top-0 w-[2px] rounded-full bg-accent will-change-transform",
-                !reducedMotion && "transition-transform duration-100 ease-out",
-                !reducedMotion && "caret-blink",
+                "pointer-events-none absolute left-0 top-0 w-[2px] rounded-full bg-accent",
+                !reducedMotion && "typing-caret",
+                !reducedMotion && caretBlinking && "caret-blink",
               )}
             />
             <p className={cn("whitespace-pre-wrap break-words", copyClass)}>{visibleNodes}</p>
