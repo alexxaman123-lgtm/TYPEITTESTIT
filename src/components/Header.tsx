@@ -3,7 +3,7 @@ import { cn } from "../utils/cn";
 import { navigateTo } from "../utils/navigation";
 import { supabase } from "../supabaseClient";
 import type { Locale } from "../lib/i18n";
-import { tr } from "../lib/i18n";
+import { LOCALE_META, localePrefix, tr, withLocalePrefix } from "../lib/i18n";
 import AuthModal from "./AuthModal";
 import UsernameModal from "./UsernameModal";
 import ThemePicker from "./ThemePicker";
@@ -33,25 +33,25 @@ function handleInternalNavigation(event: MouseEvent<HTMLAnchorElement>, href: st
 }
 
 /**
- * Site header. Locale drives nav labels, hrefs, and copy -- see Footer.tsx,
- * LanguagePicker.tsx, AuthModal.tsx, and UsernameModal.tsx for the same
- * pattern already used elsewhere in this codebase. Adding a new locale here
- * (e.g. French) means adding one more branch/label set, not a new component
- * file, so structural changes (layout, animation, auth flow) only ever need
- * to be made once.
+ * Site header. Locale drives nav labels, hrefs, and copy through LOCALE_META
+ * and tr() -- see Footer.tsx, LanguagePicker.tsx, AuthModal.tsx, and
+ * UsernameModal.tsx for the same pattern. Adding a new locale means adding
+ * one entry to src/lib/i18n.ts, not a new component file, so structural
+ * changes (layout, animation, auth flow) only ever need to be made once.
  */
 export default function Header({ locale = "en" as Locale }: { locale?: Locale }) {
-  const isEs = locale === "es";
-  const prefix = isEs ? "/es" : "";
+  const meta = LOCALE_META[locale] ?? LOCALE_META.en;
+  const prefix = localePrefix(locale);
 
   const NAV_LINKS = [
-    { label: tr(locale, "nav", "leaderboard"), href: isEs ? "/es/leaderboard/" : "/leaderboard" },
-    { label: tr(locale, "nav", "about"), href: isEs ? "/es/about/" : "/about" },
-    { label: tr(locale, "nav", "contact"), href: isEs ? "/es/contact/" : "/contact" },
+    { label: tr(locale, "nav", "leaderboard"), href: withLocalePrefix(locale, "/leaderboard/") },
+    { label: tr(locale, "nav", "about"), href: withLocalePrefix(locale, "/about/") },
+    { label: tr(locale, "nav", "contact"), href: withLocalePrefix(locale, "/contact/") },
   ];
-  const typingHistoryLabel = isEs ? "Historial" : "Typing History";
-  const primaryNavLabel = isEs ? "Navegación principal" : "Primary";
-  const mobileNavLabel = isEs ? "Menú móvil" : "Mobile";
+  const typingHistoryLabel = tr(locale, "nav", "typingHistory");
+  const primaryNavLabel = tr(locale, "nav", "primaryNav");
+  const mobileNavLabel = tr(locale, "nav", "mobileNav");
+  const homeHref = withLocalePrefix(locale, "/");
 
   const [open, setOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
@@ -147,9 +147,9 @@ export default function Header({ locale = "en" as Locale }: { locale?: Locale })
     <>
       <header className="sticky top-3 z-50 w-full px-2 sm:top-6 sm:px-6 pointer-events-none">
         <div className={cn("pointer-events-auto mx-auto flex h-12 min-w-0 max-w-7xl items-center gap-1.5 rounded-full border px-3 sm:h-14 sm:gap-2 sm:px-6", "border-white/10 bg-canvas-soft/70 backdrop-blur-xl backdrop-saturate-150 shadow-[0_8px_32px_rgba(0,0,0,0.18)]", scrolled && "bg-canvas-soft/55")}>
-          <a href={isEs ? "/es/" : "/"} onClick={(event) => handleInternalNavigation(event, isEs ? "/es/" : "/")} className="flex min-w-0 flex-1 items-center select-none" aria-label={isEs ? "Inicio de Test de mecanografía Cabra" : "FreeTypingTestGoat home"}>
-            <span className="font-title min-w-0 shrink truncate text-[14px] font-semibold leading-tight tracking-tight sm:text-xl">{isEs ? "Test de mecanografía" : "FreeTypingTest"}</span>
-            <span className="font-title hidden shrink-0 text-[14px] font-semibold leading-tight tracking-tight text-primary sm:inline sm:text-xl">{isEs ? " Cabra" : "Goat"}</span>
+          <a href={homeHref} onClick={(event) => handleInternalNavigation(event, homeHref)} className="flex min-w-0 flex-1 items-center select-none" aria-label={meta.brandParts.join("").trim() ? tr(locale, "nav", "homeAria") : meta.brand}>
+            <span className="font-title min-w-0 shrink truncate text-[14px] font-semibold leading-tight tracking-tight sm:text-xl">{meta.brandParts[0]}</span>
+            <span className="font-title hidden shrink-0 text-[14px] font-semibold leading-tight tracking-tight text-primary sm:inline sm:text-xl">{meta.brandParts[1]}</span>
             <div className="hidden shrink-0 text-primary sm:block"><GoatMark /></div>
           </a>
           <nav className="hidden items-center gap-4 lg:gap-6 md:flex" aria-label={primaryNavLabel}>
