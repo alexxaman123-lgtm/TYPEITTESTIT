@@ -1,0 +1,8 @@
+---
+import SiteLayout from "../../layouts/SiteLayout.astro";
+import Header from "../../components/Header";
+import ContactPage from "../../components/ContactPage";
+import Footer from "../../components/Footer";
+const title="문의하기 | 타이핑 테스트 염소"; const description="무료 온라인 타이핑 테스트에 대한 질문, 제안, 피드백은 타이핑 테스트 염소로 문의해 주세요.";
+---
+<SiteLayout title={title} description={description} pageKey="contact" locale="ko"><div class="relative min-h-screen"><Header client:load locale="ko"/><main><ContactPage locale="ko"/></main><Footer locale="ko"/></div></SiteLayout>

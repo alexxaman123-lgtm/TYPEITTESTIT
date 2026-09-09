@@ -1,0 +1,8 @@
+---
+import SiteLayout from "../../layouts/SiteLayout.astro";
+import Header from "../../components/Header";
+import PrivacyPolicyPage from "../../components/PrivacyPolicyPage";
+import Footer from "../../components/Footer";
+const title="개인정보 처리방침 | 타이핑 테스트 염소"; const description="계정 데이터, 타이핑 테스트, 로컬 저장소 및 광고에 관한 타이핑 테스트 염소의 개인정보 처리방침을 확인하세요.";
+---
+<SiteLayout title={title} description={description} pageKey="privacy-policy" locale="ko"><div class="relative min-h-screen"><Header client:load locale="ko"/><main><PrivacyPolicyPage locale="ko"/></main><Footer locale="ko"/></div></SiteLayout>

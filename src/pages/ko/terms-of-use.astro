@@ -1,0 +1,8 @@
+---
+import SiteLayout from "../../layouts/SiteLayout.astro";
+import Header from "../../components/Header";
+import TermsOfUsePage from "../../components/TermsOfUsePage";
+import Footer from "../../components/Footer";
+const title="이용약관 | 타이핑 테스트 염소"; const description="무료 타이핑 테스트, 계정, 리더보드에 대한 타이핑 테스트 염소의 이용약관을 확인하세요.";
+---
+<SiteLayout title={title} description={description} pageKey="terms-of-use" locale="ko"><div class="relative min-h-screen"><Header client:load locale="ko"/><main><TermsOfUsePage locale="ko"/></main><Footer locale="ko"/></div></SiteLayout>
