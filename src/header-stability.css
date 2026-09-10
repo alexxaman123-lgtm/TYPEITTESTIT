@@ -1,0 +1,28 @@
+/* Keep header typography and geometry stable from the first paint. The rest of
+   the site can use the variable display font, but navigation must not reflow
+   when that font or the authenticated account state becomes available. */
+header {
+  font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  font-synthesis: none;
+}
+
+header > div:first-child > a:first-child,
+header > div:first-child > a:first-child > span,
+header > div:first-child > a:first-child > div {
+  animation: none !important;
+  transition: none !important;
+}
+
+@media (max-width: 767px) {
+  header > div:first-child > div:last-child > div:nth-child(3) {
+    min-width: 3.8rem;
+    justify-content: center;
+  }
+}
+
+@media (min-width: 768px) {
+  header > div:first-child > div:last-child > div:last-child {
+    min-width: 6.5rem;
+    justify-content: center;
+  }
+}
