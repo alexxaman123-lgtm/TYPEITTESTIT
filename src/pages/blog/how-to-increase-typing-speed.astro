@@ -4,9 +4,10 @@ import Header from "../../components/Header";
 import Footer from "../../components/Footer";
 
 const title = "How to Increase Your Typing Speed: A Complete WPM Improvement Guide";
-const description = "A step-by-step guide to building real typing speed without sacrificing accuracy, using deliberate practice, correct form, and the right test settings.";
+const description = "A detailed, step-by-step guide to building real typing speed without sacrificing accuracy, including a 4-week practice plan, common myths, and answers to frequently asked questions.";
 const canonicalPath = "/blog/how-to-increase-typing-speed/";
 const siteUrl = "https://typeittestit.com";
+const readingTime = 10;
 
 const structuredData = [
   {
@@ -21,36 +22,81 @@ const structuredData = [
     mainEntityOfPage: siteUrl + canonicalPath,
   },
 ];
+
+const weekPlan = [
+  { week: "Week 1", focus: "Accuracy and posture", detail: "Use Easy difficulty and 1-minute tests. Aim for 97%+ accuracy before worrying about WPM at all. Fix your seating, wrist position, and screen height." },
+  { week: "Week 2", focus: "Home row and rhythm", detail: "Stay on Easy or move to Medium. Focus on returning to the home row after every reach and typing in a steady, even rhythm rather than fast bursts." },
+  { week: "Week 3", focus: "Harder text and endurance", detail: "Move to Medium and Hard difficulty. Add a 3-minute test at least twice this week to build endurance without your speed collapsing near the end." },
+  { week: "Week 4", focus: "Weak-spot drills and speed", detail: "Review your error breakdown from the week, drill the specific letters or symbols that trip you up, then take a 5-minute test to check your overall trend." },
+];
+
+const faqs = [
+  { q: "How long does it take to type faster?", a: "Most people see a noticeable improvement within 2\u20134 weeks of consistent, accuracy-first practice. Reaching a significantly higher tier (for example, going from Everyday to Fast) typically takes a few months of regular sessions." },
+  { q: "Does a mechanical keyboard make you type faster?", a: "A comfortable, responsive keyboard can help you type more consistently, but it will not fix accuracy or technique problems. Most speed gains come from practice and finger placement, not hardware." },
+  { q: "Should I look at the keyboard while learning?", a: "No. Looking down slows you far more than the mistakes you're trying to avoid, and it prevents your fingers from building the muscle memory that touch typing depends on." },
+  { q: "What's a good daily practice amount?", a: "Short, focused sessions of 10\u201315 minutes done consistently beat occasional long sessions. Two or three sessions a day, each ending in one timed test, is enough to see steady progress." },
+];
 ---
 <SiteLayout title={title} description={description} canonicalPath={canonicalPath} structuredData={structuredData}>
   <div class="relative min-h-screen">
     <Header client:load />
     <main>
       <article class="mx-auto max-w-3xl px-4 py-16 sm:px-6 lg:px-8">
-        <p class="font-label text-accent">Guide</p>
+        <div class="flex flex-wrap items-center gap-2">
+          <p class="font-label text-accent">Guide</p>
+          <span class="font-caption text-text-faint" aria-hidden="true">·</span>
+          <p class="font-caption text-text-faint">{readingTime} min read</p>
+        </div>
         <h1 class="mt-3 font-heading-3 text-ink">How to Increase Your Typing Speed: A Complete WPM Improvement Guide</h1>
-        <p class="mt-6 font-body text-text-muted">Typing faster isn't about frantically mashing keys \u2014 it's a skill you build the same way you'd build any other motor skill: with deliberate, accuracy-first practice. Here's a practical path from wherever you are now to a noticeably higher words-per-minute (WPM) score.</p>
+        <p class="mt-6 font-body text-text-muted">Typing faster isn't about frantically mashing keys — it's a skill you build the same way you'd build any other motor skill: with deliberate, accuracy-first practice. This guide walks through exactly what to change, in what order, plus a 4-week plan and answers to the questions we hear most often.</p>
 
         <h2 class="mt-10 font-heading-4 text-ink">1. Fix your accuracy before chasing speed</h2>
-        <p class="mt-3 font-body text-text-muted">Every corrected mistake costs you far more time than typing that letter carefully the first time. If your accuracy is below roughly 95%, slow down. Speed that comes from guessing at keys and fixing errors afterward is slower, in real terms, than typing at a controlled pace with fewer mistakes. Use FreeTypingTestGoat's Easy difficulty and a 1 or 2 minute test to rebuild accuracy before pushing your WPM.</p>
+        <p class="mt-3 font-body text-text-muted">Every corrected mistake costs you far more time than typing that letter carefully the first time. If your accuracy is below roughly 95%, slow down deliberately. Speed that comes from guessing at keys and fixing errors afterward is slower, in real terms, than typing at a controlled pace with fewer mistakes. Use FreeTypingTestGoat's Easy difficulty and a 1 or 2 minute test to rebuild accuracy before pushing your WPM, and don't move up a difficulty level until you can consistently clear 97% or higher.</p>
 
         <h2 class="mt-10 font-heading-4 text-ink">2. Learn (or relearn) proper finger placement</h2>
-        <p class="mt-3 font-body text-text-muted">Touch typing relies on a consistent home row position (ASDF for your left hand, JKL; for your right) so each finger is responsible for a fixed set of keys. If you're still looking at the keyboard, this is the highest-leverage fix available: it removes the constant visual search that caps most beginners well below 40 WPM.</p>
+        <p class="mt-3 font-body text-text-muted">Touch typing relies on a consistent home row position so each finger is responsible for a fixed set of keys. Your left hand rests on A, S, D, and F, and your right hand rests on J, K, L, and the semicolon key, with both thumbs on the spacebar. Small bumps on the F and J keys let you find this position without looking. If you're still looking at the keyboard, this is the highest-leverage fix available: it removes the constant visual search that caps most beginners well below 40 WPM, and it's worth slowing down significantly for a few days to rebuild the habit correctly.</p>
 
         <h2 class="mt-10 font-heading-4 text-ink">3. Practice with purpose, not just volume</h2>
-        <p class="mt-3 font-body text-text-muted">Typing the same easy sentence a hundred times trains very little. Instead, vary your practice: use FreeTypingTestGoat's Medium and Hard difficulty levels to expose yourself to less predictable letter combinations, and use longer 3 or 5 minute sessions periodically to build endurance and consistency rather than short bursts of peak speed.</p>
+        <p class="mt-3 font-body text-text-muted">Typing the same easy sentence a hundred times trains very little, because your fingers only ever see the same predictable pattern. Instead, vary your practice: use FreeTypingTestGoat's Medium and Hard difficulty levels to expose yourself to less predictable letter combinations, and use longer 3 or 5 minute sessions periodically to build endurance and consistency rather than short bursts of peak speed. Purposeful practice targets exactly the skills you're missing, rather than reinforcing skills you already have.</p>
 
-        <h2 class="mt-10 font-heading-4 text-ink">4. Set up your hands and keyboard correctly</h2>
-        <p class="mt-3 font-body text-text-muted">Small ergonomic issues quietly slow everyone down. Keep your wrists roughly level with the keyboard (not bent up or down), keep your screen at eye level so you're not craning your neck, and take short breaks every 20\u201330 minutes. Speed built on a tense, uncomfortable setup rarely lasts.</p>
+        <h2 class="mt-10 font-heading-4 text-ink">4. Set up your hands, chair, and keyboard correctly</h2>
+        <p class="mt-3 font-body text-text-muted">Small ergonomic issues quietly slow everyone down. Sit with your feet flat on the floor, your elbows bent around 90\u2013110 degrees, and your wrists roughly level with the keyboard rather than bent up or down. Position your screen at eye level so you're not craning your neck forward, and keep the keyboard directly in front of you rather than off to one side. Take a short break every 20\u201330 minutes — tension and fatigue show up as sloppier, slower typing long before you notice you're tired. Speed built on a tense, uncomfortable setup rarely lasts.</p>
 
         <h2 class="mt-10 font-heading-4 text-ink">5. Target your specific weak spots</h2>
-        <p class="mt-3 font-body text-text-muted">Most typists have a small set of letter pairs or symbols that repeatedly slow them down \u2014 often ones that require a stretch to the number row, or awkward finger transitions like "ed" or "tion". Pay attention to where you hesitate or make repeated mistakes across a few tests, and spend extra practice time specifically on those patterns instead of only repeating full passages.</p>
+        <p class="mt-3 font-body text-text-muted">Most typists have a small set of letter pairs or symbols that repeatedly slow them down — often ones that require a stretch to the number row, or awkward finger transitions like "ed" or "tion". Pay attention to where you hesitate or make repeated mistakes across a few tests, and spend extra practice time specifically on those patterns instead of only repeating full passages. A few minutes of focused drilling on your actual weak points is worth far more than an extra full test on text you already handle well.</p>
 
-        <h2 class="mt-10 font-heading-4 text-ink">6. Track your progress instead of guessing</h2>
-        <p class="mt-3 font-body text-text-muted">Improvement is easy to miss without numbers. Take a FreeTypingTestGoat test on the same difficulty and duration every few days and watch your WPM, accuracy, and error breakdown over time. Small, steady gains of a few WPM per week compound quickly into a real, lasting improvement.</p>
+        <h2 class="mt-10 font-heading-4 text-ink">6. Track your progress with real data</h2>
+        <p class="mt-3 font-body text-text-muted">Improvement is easy to miss without numbers. Take a FreeTypingTestGoat test on the same difficulty and duration every few days and watch your WPM, accuracy, and error breakdown over time. Small, steady gains of a few WPM per week compound quickly into a real, lasting improvement, and having an account lets you compare results across sessions instead of relying on memory.</p>
 
-        <h2 class="mt-10 font-heading-4 text-ink">7. Set a realistic timeline</h2>
-        <p class="mt-3 font-body text-text-muted">Most people typing by sight (hunt-and-peck) sit around 20\u201330 WPM. With a few weeks of consistent, accuracy-first touch-typing practice, 40\u201360 WPM is a realistic milestone. Reaching 70+ WPM generally takes sustained practice over months, and the 100+ WPM tier is an elite level reached only with significant deliberate effort. Progress isn't linear \u2014 expect plateaus, and push through them with varied practice rather than just repetition.</p>
+        <h2 class="mt-10 font-heading-4 text-ink">7. Understand why WPM isn't the whole picture</h2>
+        <p class="mt-3 font-body text-text-muted">Two typists with the same WPM can have very different underlying skill. Net WPM (which accounts for errors) is a better measure of real-world speed than raw WPM (which just counts keystrokes). Consistency also matters: a typist who holds a steady pace for the full test is more reliably fast than one who sprints for ten seconds and then trails off. When you review your results, look at accuracy and consistency alongside the headline WPM number — all three together give you a much more honest picture of your actual typing skill.</p>
+
+        <h2 class="mt-10 font-heading-4 text-ink">8. A simple 4-week practice plan</h2>
+        <p class="mt-3 font-body text-text-muted">If you're not sure where to start, this structure gives your practice a clear focus each week instead of just "typing more":</p>
+        <ul class="mt-6 flex flex-col gap-4">
+          {weekPlan.map((item) => (
+            <li class="rounded-[24px] border border-hairline bg-canvas p-5 shadow-sm">
+              <p class="font-heading-6 text-ink">{item.week}: {item.focus}</p>
+              <p class="mt-2 font-body-sm text-text-muted">{item.detail}</p>
+            </li>
+          ))}
+        </ul>
+
+        <h2 class="mt-10 font-heading-4 text-ink">9. Common myths about typing speed</h2>
+        <p class="mt-3 font-body text-text-muted">A few ideas about typing speed tend to hold people back more than they help. "You need an expensive mechanical keyboard to type fast" isn't true — comfort matters, but technique and practice matter far more. "Some people are just naturally fast typists" undersells how much of typing speed is built through repetition rather than talent. And "speed matters more than accuracy" is backwards: chasing a high WPM while ignoring mistakes almost always produces a slower, less reliable result once you account for the time spent correcting errors.</p>
+
+        <h2 class="mt-10 font-heading-4 text-ink">10. Set a realistic timeline</h2>
+        <p class="mt-3 font-body text-text-muted">Most people typing by sight (hunt-and-peck) sit around 20\u201330 WPM. With a few weeks of consistent, accuracy-first touch-typing practice, 40\u201360 WPM is a realistic milestone. Reaching 70+ WPM generally takes sustained practice over months, and the 100+ WPM tier is an elite level reached only with significant deliberate effort. Progress isn't linear — expect plateaus, and push through them with varied practice rather than just repetition.</p>
+
+        <h2 class="mt-10 font-heading-4 text-ink">Frequently asked questions</h2>
+        <div class="mt-6 flex flex-col gap-5">
+          {faqs.map((item) => (
+            <div class="rounded-[24px] border border-hairline bg-canvas p-5 shadow-sm">
+              <p class="font-heading-6 text-ink">{item.q}</p>
+              <p class="mt-2 font-body-sm text-text-muted">{item.a}</p>
+            </div>
+          ))}
+        </div>
 
         <div class="mt-12 rounded-[24px] border border-hairline bg-canvas p-6 text-center shadow-sm sm:p-8">
           <p class="font-heading-4 text-ink">Ready to put this into practice?</p>
