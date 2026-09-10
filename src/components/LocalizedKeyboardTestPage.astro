@@ -1,0 +1,41 @@
+---
+import SiteLayout from "../layouts/SiteLayout.astro";
+import Header from "./Header";
+import Footer from "./Footer";
+import KeyboardTestLauncher from "./KeyboardTestLauncher";
+import { KEYBOARD_PAGE_COPY, type KeyboardPageLocale } from "../lib/keyboardTestLocales";
+import { LOCALES, LOCALE_META, withLocalePrefix } from "../lib/i18n";
+
+interface Props { locale: KeyboardPageLocale }
+const { locale } = Astro.props;
+const copy = KEYBOARD_PAGE_COPY[locale];
+const canonicalPath = withLocalePrefix(locale, "/keyboard-test/");
+const canonicalUrl = `https://typeittestit.com${canonicalPath}`;
+const alternates = [
+  ...LOCALES.map((code) => ({ hreflang: LOCALE_META[code].htmlLang, href: `https://typeittestit.com${withLocalePrefix(code, "/keyboard-test/")}` })),
+  { hreflang: "x-default", href: "https://typeittestit.com/keyboard-test/" },
+];
+const structuredData = [
+  { "@context": "https://schema.org", "@type": "WebApplication", name: copy.hero, alternateName: copy.keywords, url: canonicalUrl, inLanguage: LOCALE_META[locale].htmlLang, applicationCategory: "UtilityApplication", operatingSystem: "Any", description: copy.description, featureList: copy.keywords, offers: { "@type": "Offer", price: "0", priceCurrency: "USD" } },
+  { "@context": "https://schema.org", "@type": "FAQPage", inLanguage: LOCALE_META[locale].htmlLang, mainEntity: copy.faqs.map(({ q, a }) => ({ "@type": "Question", name: q, acceptedAnswer: { "@type": "Answer", text: a } })) },
+];
+---
+<SiteLayout title={copy.title} description={copy.description} canonicalPath={canonicalPath} locale={locale} alternates={alternates} structuredData={structuredData}>
+  <div class="relative min-h-screen">
+    <Header client:idle locale={locale} />
+    <main>
+      <section class="mx-auto max-w-7xl px-4 pb-14 pt-20 sm:px-6 sm:pb-20 sm:pt-28 lg:px-8">
+        <div class="grid items-center gap-12 lg:grid-cols-[1.15fr_0.85fr]">
+          <div><p class="font-label uppercase tracking-[0.16em] text-accent">{copy.eyebrow}</p><h1 class="mt-4 max-w-4xl font-heading-1 text-ink">{copy.hero}</h1><p class="mt-6 max-w-3xl font-body-lg text-text-muted">{copy.intro}</p><div class="mt-8 flex flex-wrap items-center gap-4"><KeyboardTestLauncher client:load label={copy.launch} /><a href="#guide" class="inline-flex items-center justify-center rounded-full border border-hairline bg-canvas px-7 py-3.5 font-link text-ink transition-colors hover:border-text-muted">{copy.guideLink}</a></div><p class="mt-4 font-caption text-text-faint">{copy.launchNote}</p></div>
+          <div class="rounded-[28px] border border-hairline bg-canvas-soft p-7 shadow-sm sm:p-9"><p class="font-label uppercase tracking-[0.12em] text-accent">{copy.panelTitle}</p><ol class="mt-6 space-y-4 font-body text-text-muted">{copy.steps.map((step, index) => <li><strong class="text-ink">{index + 1}.</strong> {step}</li>)}</ol></div>
+        </div>
+      </section>
+      <article id="guide" class="mx-auto max-w-7xl border-t border-hairline px-4 py-16 sm:px-6 sm:py-20 lg:px-8">
+        <h2 class="font-heading-3 text-ink">{copy.guideTitle}</h2>
+        <div class="mt-10 grid gap-x-10 gap-y-12 md:grid-cols-2">{copy.sections.map((section) => <section class="border-t border-hairline pt-6"><h3 class="font-heading-4 text-ink">{section.title}</h3><p class="mt-4 font-body text-text-muted">{section.body}</p></section>)}</div>
+      </article>
+      <section class="mx-auto max-w-7xl border-t border-hairline px-4 py-16 sm:px-6 sm:py-20 lg:px-8"><h2 class="font-heading-3 text-ink">{copy.faqTitle}</h2><div class="mt-8 divide-y divide-hairline border-y border-hairline">{copy.faqs.map(({ q, a }) => <details class="group py-1"><summary class="flex cursor-pointer list-none items-center justify-between gap-6 py-5 font-heading-5 text-ink marker:content-none"><span>{q}</span><span class="flex h-8 w-8 shrink-0 items-center justify-center rounded-full border border-hairline text-text-muted transition-transform group-open:rotate-45" aria-hidden="true">+</span></summary><p class="max-w-4xl pb-6 pr-12 font-body text-text-muted">{a}</p></details>)}</div><div class="mt-10"><KeyboardTestLauncher client:visible label={copy.launch} /></div></section>
+    </main>
+    <Footer locale={locale} />
+  </div>
+</SiteLayout>

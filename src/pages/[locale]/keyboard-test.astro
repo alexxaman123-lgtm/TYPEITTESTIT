@@ -1,0 +1,12 @@
+---
+import LocalizedKeyboardTestPage from "../../components/LocalizedKeyboardTestPage.astro";
+import { LOCALES, type Locale } from "../../lib/i18n";
+import type { KeyboardPageLocale } from "../../lib/keyboardTestLocales";
+
+export function getStaticPaths() {
+  return LOCALES.filter((locale): locale is KeyboardPageLocale => locale !== "en").map((locale) => ({ params: { locale }, props: { locale } }));
+}
+interface Props { locale: KeyboardPageLocale }
+const { locale } = Astro.props;
+---
+<LocalizedKeyboardTestPage locale={locale} />
