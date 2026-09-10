@@ -1,0 +1,95 @@
+/* GOATTYPE visual direction: quiet, tactile and tool-first.
+   Glass remains reserved for navigation and overlays where translucency has
+   a purpose. Permanent content surfaces are solid and highly legible. */
+
+:where(
+  .premium-card,
+  .test-shell:not(.test-shell-focus),
+  .metric-surface,
+  .typing-surface,
+  .rounded-\[24px\].border:not(.test-shell-focus)
+) {
+  background-color: color-mix(in srgb, var(--color-canvas-soft) 94%, var(--color-canvas)) !important;
+  background-image: none !important;
+  border-color: color-mix(in srgb, var(--color-ink) 12%, transparent) !important;
+  -webkit-backdrop-filter: none !important;
+  backdrop-filter: none !important;
+  box-shadow:
+    inset 0 1px 0 color-mix(in srgb, var(--color-ink) 4%, transparent),
+    0 16px 34px -30px rgba(0, 0, 0, 0.5) !important;
+}
+
+:where(.metric-surface, .typing-surface) {
+  background-color: var(--color-canvas-soft) !important;
+  border-color: color-mix(in srgb, var(--color-ink) 10%, transparent) !important;
+  box-shadow: inset 0 1px 0 color-mix(in srgb, var(--color-ink) 3%, transparent) !important;
+}
+
+/* Motion communicates interaction instead of decorating every surface. */
+.premium-card:hover {
+  transform: translateY(-1px) !important;
+  border-color: color-mix(in srgb, var(--color-ink) 20%, transparent) !important;
+  box-shadow:
+    inset 0 1px 0 color-mix(in srgb, var(--color-ink) 5%, transparent),
+    0 18px 38px -30px rgba(0, 0, 0, 0.55) !important;
+}
+
+.theme-accent-glow,
+.theme-accent-shadow { box-shadow: none !important; }
+.theme-accent-text-glow { text-shadow: none !important; }
+
+/* One controlled accent field replaces layered marketing gradients. */
+.hero-banner::before {
+  background: radial-gradient(circle at 78% 22%, color-mix(in srgb, var(--color-accent) 8%, transparent), transparent 30%) !important;
+  opacity: 0.55 !important;
+}
+.hero-banner-grid { opacity: 0.11 !important; }
+.hero-stat {
+  background: var(--color-canvas-soft) !important;
+  -webkit-backdrop-filter: none !important;
+  backdrop-filter: none !important;
+}
+.hero-kicker,
+.hero-feature { background: var(--color-canvas-soft) !important; }
+
+/* The GOATTYPE wordmark plus goat symbol is now the memorable brand detail;
+   remove the unrelated field of spinning keyboard tiles. */
+.typing-motion-section { display: none !important; }
+
+/* Keep entrance behavior short and quiet. The hero title typing reveal is the
+   only expressive entrance animation left. */
+[data-reveal]:not([data-reveal="blur-type"]),
+[data-reveal-group] > * {
+  filter: none !important;
+  transition-duration: 320ms !important;
+  transition-delay: 0ms !important;
+}
+.animate-drift { animation-duration: 42s !important; opacity: 0.42; }
+
+/* Editorial pages should read as documents, not dashboards made of cards. */
+article {
+  font-variant-numeric: oldstyle-nums proportional-nums;
+}
+article :where(h2, h3) {
+  text-wrap: balance;
+  letter-spacing: -0.025em;
+}
+article :where(p, li) {
+  text-wrap: pretty;
+}
+
+@media (max-width: 639px) {
+  :where(
+    .premium-card,
+    .test-shell:not(.test-shell-focus),
+    .metric-surface,
+    .typing-surface,
+    .rounded-\[24px\].border:not(.test-shell-focus)
+  ) {
+    box-shadow: inset 0 1px 0 color-mix(in srgb, var(--color-ink) 3%, transparent) !important;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .premium-card:hover { transform: none !important; }
+}
