@@ -180,10 +180,13 @@ export default function AccountPage({ locale = "en" }: AccountPageProps) {
 
 // Avatar shown at the top of the account page: the user's real Google
 // profile photo (from Supabase auth user_metadata.avatar_url / .picture)
-// when signed in with Google, else an initial-letter placeholder.
+// when signed in with Google, else an initial-letter placeholder. Falls
+// back to the initial if the image URL fails to load (blocked, expired,
+// or otherwise broken) so the circle is never left blank.
 function ProfileAvatar({ avatarUrl, username, email }: { avatarUrl: string | null; username: string | null; email: string | null }) {
-  if (avatarUrl) {
-    return <img src={avatarUrl} alt="" referrerPolicy="no-referrer" className="h-16 w-16 shrink-0 rounded-full object-cover ring-2 ring-accent/40 sm:h-20 sm:w-20" />;
+  const [imgFailed, setImgFailed] = useState(false);
+  if (avatarUrl && !imgFailed) {
+    return <img src={avatarUrl} alt="" referrerPolicy="no-referrer" onError={() => setImgFailed(true)} className="h-16 w-16 shrink-0 rounded-full object-cover ring-2 ring-accent/40 sm:h-20 sm:w-20" />;
   }
   const initial = (username || email || "?").trim().charAt(0).toUpperCase() || "?";
   return <span className="flex h-16 w-16 shrink-0 items-center justify-center rounded-full bg-accent/15 font-heading-3 text-accent ring-2 ring-accent/30 sm:h-20 sm:w-20" aria-hidden="true">{initial}</span>;

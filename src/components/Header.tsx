@@ -36,11 +36,13 @@ function handleInternalNavigation(event: MouseEvent<HTMLAnchorElement>, href: st
 // Small circular avatar used in the header account pill: the user's Google
 // profile photo when available (from Supabase auth user_metadata), else an
 // initial-letter placeholder in the site's accent color so the pill never
-// looks empty while signed in.
+// looks empty while signed in. Falls back to the initial if the image URL
+// fails to load (blocked, expired, or otherwise broken).
 function HeaderAvatar({ avatarUrl, username, size }: { avatarUrl: string | null; username: string | null; size: number }) {
+  const [imgFailed, setImgFailed] = useState(false);
   const style = { width: size, height: size };
-  if (avatarUrl) {
-    return <img src={avatarUrl} alt="" referrerPolicy="no-referrer" style={style} className="shrink-0 rounded-full object-cover ring-1 ring-hairline" />;
+  if (avatarUrl && !imgFailed) {
+    return <img src={avatarUrl} alt="" referrerPolicy="no-referrer" onError={() => setImgFailed(true)} style={style} className="shrink-0 rounded-full object-cover ring-1 ring-hairline" />;
   }
   const initial = (username || "?").trim().charAt(0).toUpperCase() || "?";
   return <span style={style} className="flex shrink-0 items-center justify-center rounded-full bg-accent/15 font-semibold text-accent" aria-hidden="true">{initial}</span>;
