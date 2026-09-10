@@ -5,41 +5,23 @@ import Footer from "../components/Footer";
 import KeyboardTester from "../components/KeyboardTester";
 
 const title = "Keyboard Tester Online – Test All Keys & Numpad | GOATTYPE";
-const description = "Use GOATTYPE's free online keyboard tester to test every key, function keys, arrows, navigation controls, number pad, ghosting, and simultaneous key input.";
+const description = "Free full-size keyboard tester for letters, F1–F12, arrows, navigation keys, number pad, ghosting, rollover, missing keys, and simultaneous input.";
 const canonicalPath = "/keyboard-test/";
 const faqItems = [
-  ["How can I test whether my keyboard is working properly?", "Click inside the tester and press every physical key. Working keys light up and stay marked after release. Test letters, numbers, modifiers, function keys, navigation keys, arrows, and the numeric keypad."],
-  ["Can this keyboard tester check the number pad?", "Yes. It includes Num Lock, operators, Enter, decimal, and number-pad digits 0 through 9. Toggle Num Lock if the keypad reports navigation behavior."],
-  ["How do I test F1–F12 and the F6 key?", "Focus the tester and press the function key. Compact laptops may require Fn or Fn Lock. A browser or operating system may still reserve some function-key shortcuts."],
-  ["Can a keyboard tester detect ghosting?", "It can help identify practical ghosting or rollover limits. Hold several keys together and compare the highlighted keys with the Held now counter."],
-  ["How do I diagnose a key that works only sometimes?", "Reset the tester and press the suspect key repeatedly. Intermittent input can result from debris, a worn switch, a loose cable, low wireless battery, interference, or software remapping."],
-  ["What should I do if my keyboard is not typing?", "Reconnect it, try another port, check batteries and input language, restart the device, and test another application. Also inspect Fn Lock and accessibility settings such as Filter Keys."],
-  ["Can I test an HP, Dell, Lenovo, Mac, or external keyboard?", "Yes. It works with most laptop, desktop, mechanical, membrane, Bluetooth, and USB keyboards that provide standard browser keyboard events."],
+  ["How can I test whether my keyboard is working properly?", "Start the tester and press every physical key. Working keys light up and remain marked. Check letters, numbers, modifiers, function keys, navigation keys, arrows, and the numeric keypad."],
+  ["Can the tester stop brightness, volume, screenshot, and other system actions?", "Dedicated Test Mode can suppress many browser actions through fullscreen and Keyboard Lock where supported, but a website cannot override controls handled directly by device firmware or the operating system."],
+  ["Can this keyboard tester check the number pad?", "Yes. It includes Num Lock, divide, multiply, subtract, add, Enter, decimal, and number-pad digits 0 through 9."],
+  ["How do I test F1–F12 and the F6 key?", "Use Dedicated Test Mode. Compact laptops may also require Fn or Fn Lock. A firmware-handled brightness or media action may not produce a browser event."],
+  ["Can a keyboard tester detect ghosting?", "It can reveal practical ghosting or rollover limits. Hold several keys together and compare the highlighted keys with the Held now counter."],
+  ["How do I diagnose a key that works only sometimes?", "Reset the test and press the suspect key repeatedly. Intermittent input can result from debris, a worn switch, a loose cable, low battery, interference, or remapping software."],
+  ["What should I do if my keyboard is not typing?", "Reconnect it, try another port, check batteries and input language, restart the device, and test another application. Also check Fn Lock and accessibility settings such as Filter Keys."],
+  ["Can I test an HP, Dell, Lenovo, Mac, Chromebook, or external keyboard?", "Yes. The tool works with most laptop, desktop, mechanical, membrane, Bluetooth, and USB keyboards that provide standard browser events."],
   ["How do I know whether my laptop keyboard is physically damaged?", "A key that fails across browsers and applications after cleaning and restarting is more likely to have a hardware problem. Sticking, double input, liquid exposure, or several keys failing together are additional warning signs."],
-  ["Can keyboard keys be replaced?", "Many desktop keycaps and mechanical switches are replaceable. Laptop keycaps are model-specific and delicate, so consult the service manual or an authorized repair provider."],
-  ["Does the keyboard test record what I type?", "No. The test runs locally in the browser and does not save your keystrokes."],
+  ["Does the keyboard test record what I type?", "No. Detection runs locally in the browser and the page does not save your keystrokes."],
 ];
 const structuredData = [
-  {
-    "@context": "https://schema.org",
-    "@type": "WebApplication",
-    name: "GOATTYPE Online Keyboard Tester",
-    url: "https://typeittestit.com/keyboard-test/",
-    applicationCategory: "UtilityApplication",
-    operatingSystem: "Any",
-    browserRequirements: "Requires a modern browser with JavaScript enabled",
-    description,
-    offers: { "@type": "Offer", price: "0", priceCurrency: "USD" },
-  },
-  {
-    "@context": "https://schema.org",
-    "@type": "FAQPage",
-    mainEntity: faqItems.map(([name, text]) => ({
-      "@type": "Question",
-      name,
-      acceptedAnswer: { "@type": "Answer", text },
-    })),
-  },
+  { "@context": "https://schema.org", "@type": "WebApplication", name: "GOATTYPE Online Keyboard Tester", url: "https://typeittestit.com/keyboard-test/", applicationCategory: "UtilityApplication", operatingSystem: "Any", browserRequirements: "Modern browser with JavaScript; Keyboard Lock requires a supported browser", description, featureList: ["Full-size 104-key test", "Function-key testing", "Numeric keypad testing", "Keyboard Lock dedicated mode", "Ghosting and rollover check", "Physical KeyboardEvent code display"], offers: { "@type": "Offer", price: "0", priceCurrency: "USD" } },
+  { "@context": "https://schema.org", "@type": "FAQPage", mainEntity: faqItems.map(([name, text]) => ({ "@type": "Question", name, acceptedAnswer: { "@type": "Answer", text } })) },
 ];
 ---
 <SiteLayout title={title} description={description} canonicalPath={canonicalPath} structuredData={structuredData}>
