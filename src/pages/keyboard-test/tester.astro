@@ -1,6 +1,7 @@
 ---
 import SiteLayout from "../../layouts/SiteLayout.astro";
 import KeyboardTester from "../../components/KeyboardTester";
+import Footer from "../../components/Footer";
 
 const title = "Launch Full Keyboard Test | GOATTYPE";
 const description = "Run the GOATTYPE always-on full keyboard test for letters, function keys, arrows, navigation keys, numpad, ghosting, and rollover.";
@@ -13,6 +14,7 @@ const canonicalPath = "/keyboard-test/tester/";
       <a href="/keyboard-test/" class="rounded-full border border-hairline bg-canvas px-4 py-2 font-link text-ink transition-colors hover:border-text-muted">Keyboard test guide</a>
     </div>
     <main><KeyboardTester client:load /></main>
+    <Footer />
   </div>
 
   <script>
