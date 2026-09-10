@@ -25,18 +25,27 @@ const structuredData = [
 
 const tiers = [
   { name: "Developing", range: "Under 30 WPM", note: "Typical for beginners or those still hunting for keys." },
-  { name: "Everyday", range: "30\u201344 WPM", note: "Comfortable for general typing, email, and messaging." },
-  { name: "Good", range: "45\u201364 WPM", note: "Solid touch-typing speed, common among regular computer users." },
-  { name: "Fast", range: "65\u201384 WPM", note: "Above-average speed, often seen in office and administrative roles." },
-  { name: "Advanced", range: "85\u2013109 WPM", note: "Strong professional-level speed with high accuracy." },
+  { name: "Everyday", range: "30 to 44 WPM", note: "Comfortable for general typing, email, and messaging." },
+  { name: "Good", range: "45 to 64 WPM", note: "Solid touch-typing speed, common among regular computer users." },
+  { name: "Fast", range: "65 to 84 WPM", note: "Above-average speed, often seen in office and administrative roles." },
+  { name: "Advanced", range: "85 to 109 WPM", note: "Strong professional-level speed with high accuracy." },
   { name: "Elite", range: "110+ WPM", note: "Reached by a small percentage of typists, usually with years of practice." },
 ];
 
+const ageBenchmarks = [
+  { group: "Children (ages 8 to 12)", range: "15 to 25 WPM" },
+  { group: "Teens (ages 13 to 17)", range: "30 to 45 WPM" },
+  { group: "Adults (ages 18 to 54)", range: "40 to 60 WPM" },
+  { group: "Adults (ages 55+)", range: "30 to 50 WPM" },
+  { group: "Professional typists", range: "65 to 90+ WPM" },
+];
+
 const faqs = [
-  { q: "What is the average typing speed?", a: "Most adults who type regularly on a computer fall somewhere in the Everyday to Good range, around 35\u201355 WPM. People who type for a living, such as data-entry clerks or transcriptionists, are usually faster." },
-  { q: "Is 40 WPM good or bad?", a: "40 WPM sits at the top of the Everyday tier \u2014 perfectly comfortable for daily use like email and messaging, though roles that involve heavy typing often ask for more." },
+  { q: "What is the average typing speed?", a: "Most adults who type regularly on a computer fall somewhere in the Everyday to Good range, around 35 to 55 WPM. People who type for a living, such as data-entry clerks or transcriptionists, are usually faster." },
+  { q: "Is 40 WPM good or bad?", a: "40 WPM sits at the top of the Everyday tier, which is perfectly comfortable for daily use like email and messaging, though roles that involve heavy typing often ask for more." },
   { q: "What WPM is considered fast?", a: "Speeds of 65 WPM and above are generally considered fast, placing you ahead of most casual typists. 85+ WPM is considered advanced, and 110+ WPM is an elite level reached by very few people." },
   { q: "Does typing speed matter if I make a lot of mistakes?", a: "Not much on its own. A fast but inaccurate result usually means more time spent correcting errors, which erases the speed advantage. Aim for 95%+ accuracy at whatever speed you're currently comfortable with." },
+  { q: "Do different keyboard layouts change your WPM?", a: "Yes, somewhat. Compact or non-standard layouts can slow typists down while they adjust, and switching between very different layouts (such as QWERTY and a different script's native layout) usually causes a temporary dip in speed until the new pattern becomes automatic." },
 ];
 ---
 <SiteLayout title={title} description={description} canonicalPath={canonicalPath} structuredData={structuredData}>
@@ -46,7 +55,70 @@ const faqs = [
       <article class="mx-auto max-w-3xl px-4 py-16 sm:px-6 lg:px-8">
         <div class="flex flex-wrap items-center gap-2">
           <p class="font-label text-accent">Guide</p>
-          <span class="font-caption text-text-faint" aria-hidden="true">·</span>
+          <span class="font-caption text-text-faint" aria-hidden="true">&middot;</span>
           <p class="font-caption text-text-faint">{readingTime} min read</p>
         </div>
-        <h1 class="mt-3 font-heading-3 text-ink">What Is a Good Typing Speed? WPM Benchmarks by Age, Job
+        <h1 class="mt-3 font-heading-3 text-ink">What Is a Good Typing Speed? WPM Benchmarks by Age, Job, and Skill Level</h1>
+        <p class="mt-6 font-body text-text-muted">"Good typing speed" depends a lot on context: a comfortable speed for casual email is very different from what a transcriptionist or data-entry professional needs. This guide breaks WPM down into clear skill tiers, shows typical benchmarks by age and profession, and explains how speed and accuracy are actually calculated so you can judge your own results fairly.</p>
+
+        <h2 class="mt-10 font-heading-4 text-ink">WPM skill tiers</h2>
+        <p class="mt-3 font-body text-text-muted">These tiers give a rough sense of where a given speed sits relative to typical typists:</p>
+        <ul class="mt-6 flex flex-col gap-4">
+          {tiers.map((tier) => (
+            <li class="rounded-[24px] border border-hairline bg-canvas p-5 shadow-sm">
+              <p class="font-heading-6 text-ink">{tier.name}: {tier.range}</p>
+              <p class="mt-2 font-body-sm text-text-muted">{tier.note}</p>
+            </li>
+          ))}
+        </ul>
+
+        <h2 class="mt-10 font-heading-4 text-ink">Typical WPM by age group</h2>
+        <p class="mt-3 font-body text-text-muted">Age and typing experience both affect typical speed. These ranges reflect general patterns, not strict rules:</p>
+        <div class="mt-6 overflow-x-auto rounded-[24px] border border-hairline">
+          <table class="w-full border-collapse text-left">
+            <thead>
+              <tr class="border-b border-hairline bg-canvas-alt">
+                <th class="px-4 py-3 font-heading-6 text-ink">Group</th>
+                <th class="px-4 py-3 font-heading-6 text-ink">Typical WPM</th>
+              </tr>
+            </thead>
+            <tbody>
+              {ageBenchmarks.map((row) => (
+                <tr class="border-b border-hairline last:border-0">
+                  <td class="px-4 py-3 font-body-sm text-ink">{row.group}</td>
+                  <td class="px-4 py-3 font-body-sm text-text-muted">{row.range}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+
+        <h2 class="mt-10 font-heading-4 text-ink">How WPM and accuracy are actually calculated</h2>
+        <p class="mt-3 font-body text-text-muted">Words per minute is typically calculated by dividing the total number of characters typed by 5 (the average length of a word, including the space after it), then dividing by the time elapsed in minutes. This is why WPM is comparable across passages of different actual word lengths. "Raw WPM" counts every keystroke, including ones that were later corrected, while "net WPM" subtracts errors, giving a more honest measure of real output. Accuracy is calculated as the percentage of correctly typed characters out of all characters typed. A result of 60 WPM at 90% accuracy represents meaningfully less reliable output than 55 WPM at 98% accuracy, even though the first number looks faster.</p>
+
+        <h2 class="mt-10 font-heading-4 text-ink">Do different languages and keyboards affect WPM?</h2>
+        <p class="mt-3 font-body text-text-muted">Yes. Languages with shorter average word length, like German compound words versus English, or languages using non-Latin scripts with different input methods, naturally produce different raw WPM numbers for the same underlying typing skill, since the calculation is based on character count. Keyboard layout also matters: someone fluent on a QWERTY layout will usually see a temporary speed drop when switching to a different layout, such as Dvorak or a regional layout, until their muscle memory adapts. When comparing your WPM to a benchmark, make sure the benchmark used the same language and a similar layout for a fair comparison.</p>
+
+        <h2 class="mt-10 font-heading-4 text-ink">What to aim for next</h2>
+        <p class="mt-3 font-body text-text-muted">Rather than fixating on a single target number, aim to move up one tier at a time while keeping accuracy above 95%. If you're preparing for a specific requirement, such as a job typing assessment, check our <a href="/blog/typing-test-for-job-interview/" class="text-accent underline">guide to job typing test requirements</a> for typical thresholds by role. If you're just starting out, our <a href="/blog/touch-typing-for-beginners/" class="text-accent underline">beginner's guide to touch typing</a> walks through the fundamentals step by step.</p>
+
+        <h2 class="mt-10 font-heading-4 text-ink">Frequently asked questions</h2>
+        <div class="mt-6 flex flex-col gap-5">
+          {faqs.map((item) => (
+            <div class="rounded-[24px] border border-hairline bg-canvas p-5 shadow-sm">
+              <p class="font-heading-6 text-ink">{item.q}</p>
+              <p class="mt-2 font-body-sm text-text-muted">{item.a}</p>
+            </div>
+          ))}
+        </div>
+
+        <div class="mt-12 rounded-[24px] border border-hairline bg-canvas p-6 text-center shadow-sm sm:p-8">
+          <p class="font-heading-4 text-ink">See where your WPM stands right now</p>
+          <p class="mt-2 font-body text-text-muted">Take a free typing test and get your WPM, accuracy, and error breakdown instantly.</p>
+          <a href="/" class="mt-4 inline-block rounded-full bg-accent px-6 py-3 font-link text-canvas">Start a typing test</a>
+        </div>
+      </article>
+    </main>
+    <Footer />
+  </div>
+</SiteLayout>
