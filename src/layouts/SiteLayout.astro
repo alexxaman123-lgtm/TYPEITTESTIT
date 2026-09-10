@@ -80,7 +80,7 @@ const ogLocaleAlternates = rootPath
   <head>
     <script is:inline src="/ga-init.js"></script>
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-SGDYN5GEJT"></script>
-    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-9769426845506731" crossorigin="anonymous"></script>
+    <script async src="https://pagead2.googlesyndication.com/pagead/js?client=ca-pub-9769426845506731" crossorigin="anonymous"></script>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>{title}</title>
@@ -140,12 +140,25 @@ const ogLocaleAlternates = rootPath
   <body>
     <slot />
     <script is:inline>
-      // Content must be readable immediately. Previously every section waited
-      // for an IntersectionObserver and inherited a page-wide stagger index,
-      // causing lower blog/text sections to appear several seconds late.
+      // Preserve entrance animation while revealing sections slightly before
+      // they reach the viewport. There is no page-wide stagger index, so later
+      // content never inherits the former multi-second loading delay.
       (() => {
         const elements = Array.from(document.querySelectorAll('[data-reveal], [data-reveal-group]'));
-        elements.forEach((element) => element.classList.add('reveal-visible'));
+        if (!elements.length) return;
+        const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+        if (reducedMotion || !('IntersectionObserver' in window)) {
+          elements.forEach((element) => element.classList.add('reveal-visible'));
+          return;
+        }
+        const revealObserver = new IntersectionObserver((entries) => {
+          entries.forEach((entry) => {
+            if (!entry.isIntersecting) return;
+            entry.target.classList.add('reveal-visible');
+            revealObserver.unobserve(entry.target);
+          });
+        }, { threshold: 0.02, rootMargin: '0px 0px 18% 0px' });
+        elements.forEach((element) => revealObserver.observe(element));
       })();
 
       (() => {
