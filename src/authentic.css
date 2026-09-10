@@ -82,29 +82,68 @@ article :where(p, li) {
     box-shadow: inset 0 1px 0 color-mix(in srgb, var(--color-ink) 3%, transparent) !important;
   }
 
-  /* The mobile header used to hide the TYPE half and goat mark. Keep the
-     complete brand visible while sizing it to leave room for its controls. */
+  /* Keep the complete GOATTYPE signature visible, give it enough visual
+     weight, and simplify the control cluster so the pill feels intentional. */
+  header > div:first-child {
+    gap: 0.2rem !important;
+    padding-left: 0.8rem !important;
+    padding-right: 0.65rem !important;
+  }
   header > div:first-child > a:first-child {
     flex: 0 0 auto !important;
+    min-width: 0 !important;
     overflow: visible !important;
     white-space: nowrap;
+    margin-right: auto;
   }
   header > div:first-child > a:first-child > span:nth-child(1),
   header > div:first-child > a:first-child > span:nth-child(2) {
     display: inline !important;
     flex-shrink: 0 !important;
     overflow: visible !important;
-    font-size: 0.72rem !important;
+    font-size: 0.82rem !important;
+    font-weight: 700 !important;
     line-height: 1 !important;
+    letter-spacing: -0.025em !important;
   }
   header > div:first-child > a:first-child > div:nth-child(3) {
     display: block !important;
     flex-shrink: 0 !important;
   }
   header > div:first-child > a:first-child svg {
-    margin-left: 0.2rem !important;
+    margin-left: 0.25rem !important;
+    width: 1.2rem !important;
+    height: 1.2rem !important;
+  }
+  header > div:first-child > div:last-child {
+    gap: 0.1rem !important;
+  }
+  header > div:first-child > div:last-child > div:nth-child(3) {
+    max-width: 4.6rem !important;
+    border-color: transparent !important;
+    background: transparent !important;
+    padding-left: 0.35rem !important;
+    padding-right: 0.35rem !important;
+  }
+  header > div:first-child > div:last-child > button:last-child {
+    box-shadow: none !important;
+    background: color-mix(in srgb, var(--color-canvas) 72%, transparent) !important;
+  }
+}
+
+@media (max-width: 374px) {
+  header > div:first-child > a:first-child > span:nth-child(1),
+  header > div:first-child > a:first-child > span:nth-child(2) {
+    font-size: 0.75rem !important;
+  }
+  header > div:first-child > a:first-child svg {
     width: 1.05rem !important;
     height: 1.05rem !important;
+  }
+  header > div:first-child > div:last-child > div:nth-child(3) {
+    max-width: 3.7rem !important;
+    padding-left: 0.2rem !important;
+    padding-right: 0.2rem !important;
   }
 }
 
