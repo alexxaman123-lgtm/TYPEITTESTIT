@@ -19,17 +19,17 @@ interface TypingMotionSectionProps {
 // exactly cancels its resting position and lands it dead-center.
 const LETTERS = [
   { value: "A", position: "top-[8%] left-[10%]", size: "h-20 w-20 sm:h-24 sm:w-24", rotateDeg: -8, dx: -40, dy: -42, spin: -300, floatDelay: "-1.2s", floatDuration: "2.7s", revealDelay: 0 },
-  { value: "S", position: "top-[18%] left-[29%]", size: "h-16 w-16 sm:h-20 sm:w-20", rotateDeg: 6, dx: -21, dy: -32, spin: -270, floatDelay: "-4s", floatDuration: "3.0s", revealDelay: 0.02 },
-  { value: "D", position: "top-[6%] right-[28%]", size: "h-16 w-16 sm:h-20 sm:w-20", rotateDeg: -5, dx: 22, dy: -44, spin: -330, floatDelay: "-7s", floatDuration: "3.3s", revealDelay: 0.04 },
-  { value: "F", position: "top-[15%] right-[8%]", size: "h-20 w-20 sm:h-24 sm:w-24", rotateDeg: 9, dx: 42, dy: -35, spin: -290, floatDelay: "-2.4s", floatDuration: "2.8s", revealDelay: 0.06 },
-  { value: "J", position: "top-[43%] left-[3%]", size: "h-16 w-16 sm:h-20 sm:w-20", rotateDeg: 7, dx: -47, dy: -7, spin: -310, floatDelay: "-6.2s", floatDuration: "3.5s", revealDelay: 0.08 },
-  { value: "K", position: "top-[46%] right-[3%]", size: "h-20 w-20 sm:h-24 sm:w-24", rotateDeg: -7, dx: 47, dy: -4, spin: -260, floatDelay: "-3.1s", floatDuration: "3.1s", revealDelay: 0.1 },
-  { value: "L", position: "bottom-[12%] left-[11%]", size: "h-20 w-20 sm:h-24 sm:w-24", rotateDeg: -10, dx: -39, dy: 38, spin: -320, floatDelay: "-5.7s", floatDuration: "3.2s", revealDelay: 0.12 },
-  { value: ";", position: "bottom-[8%] right-[12%]", size: "h-16 w-16 sm:h-20 sm:w-20", rotateDeg: 8, dx: 38, dy: 42, spin: -280, floatDelay: "-8s", floatDuration: "2.9s", revealDelay: 0.14 },
-  { value: "Q", position: "bottom-[20%] left-[29%]", size: "h-14 w-14 sm:h-16 sm:w-16", rotateDeg: 5, dx: -21, dy: 30, spin: -300, floatDelay: "-2.8s", floatDuration: "2.8s", revealDelay: 0.16 },
-  { value: "P", position: "bottom-[21%] right-[29%]", size: "h-14 w-14 sm:h-16 sm:w-16", rotateDeg: -6, dx: 21, dy: 29, spin: -270, floatDelay: "-6.5s", floatDuration: "3.4s", revealDelay: 0.18 },
-  { value: "1", position: "top-[61%] left-[17%]", size: "h-12 w-12 sm:h-14 sm:w-14", rotateDeg: -4, dx: -33, dy: 11, spin: -310, floatDelay: "-1.8s", floatDuration: "2.6s", revealDelay: 0.2 },
-  { value: "0", position: "top-[65%] right-[17%]", size: "h-12 w-12 sm:h-14 sm:w-14", rotateDeg: 6, dx: 33, dy: 15, spin: -290, floatDelay: "-4.9s", floatDuration: "3.1s", revealDelay: 0.22 },
+  { value: "S", position: "top-[18%] left-[29%]", size: "h-16 w-16 sm:h-20 sm:w-20", rotateDeg: 6, dx: -21, dy: -32, spin: -270, floatDelay: "-4s", floatDuration: "3.0s", revealDelay: 0.035 },
+  { value: "D", position: "top-[6%] right-[28%]", size: "h-16 w-16 sm:h-20 sm:w-20", rotateDeg: -5, dx: 22, dy: -44, spin: -330, floatDelay: "-7s", floatDuration: "3.3s", revealDelay: 0.07 },
+  { value: "F", position: "top-[15%] right-[8%]", size: "h-20 w-20 sm:h-24 sm:w-24", rotateDeg: 9, dx: 42, dy: -35, spin: -290, floatDelay: "-2.4s", floatDuration: "2.8s", revealDelay: 0.105 },
+  { value: "J", position: "top-[43%] left-[3%]", size: "h-16 w-16 sm:h-20 sm:w-20", rotateDeg: 7, dx: -47, dy: -7, spin: -310, floatDelay: "-6.2s", floatDuration: "3.5s", revealDelay: 0.14 },
+  { value: "K", position: "top-[46%] right-[3%]", size: "h-20 w-20 sm:h-24 sm:w-24", rotateDeg: -7, dx: 47, dy: -4, spin: -260, floatDelay: "-3.1s", floatDuration: "3.1s", revealDelay: 0.175 },
+  { value: "L", position: "bottom-[12%] left-[11%]", size: "h-20 w-20 sm:h-24 sm:w-24", rotateDeg: -10, dx: -39, dy: 38, spin: -320, floatDelay: "-5.7s", floatDuration: "3.2s", revealDelay: 0.21 },
+  { value: ";", position: "bottom-[8%] right-[12%]", size: "h-16 w-16 sm:h-20 sm:w-20", rotateDeg: 8, dx: 38, dy: 42, spin: -280, floatDelay: "-8s", floatDuration: "2.9s", revealDelay: 0.245 },
+  { value: "Q", position: "bottom-[20%] left-[29%]", size: "h-14 w-14 sm:h-16 sm:w-16", rotateDeg: 5, dx: -21, dy: 30, spin: -300, floatDelay: "-2.8s", floatDuration: "2.8s", revealDelay: 0.28 },
+  { value: "P", position: "bottom-[21%] right-[29%]", size: "h-14 w-14 sm:h-16 sm:w-16", rotateDeg: -6, dx: 21, dy: 29, spin: -270, floatDelay: "-6.5s", floatDuration: "3.4s", revealDelay: 0.315 },
+  { value: "1", position: "top-[61%] left-[17%]", size: "h-12 w-12 sm:h-14 sm:w-14", rotateDeg: -4, dx: -33, dy: 11, spin: -310, floatDelay: "-1.8s", floatDuration: "2.6s", revealDelay: 0.35 },
+  { value: "0", position: "top-[65%] right-[17%]", size: "h-12 w-12 sm:h-14 sm:w-14", rotateDeg: 6, dx: 33, dy: 15, spin: -290, floatDelay: "-4.9s", floatDuration: "3.1s", revealDelay: 0.385 },
 ] as const;
 
 // Fires once roughly half of the section's own height has scrolled into the
@@ -223,7 +223,7 @@ export default function TypingMotionSection({ locale = "en" }: TypingMotionSecti
         }
 
         [data-spiral-defer="active"] .typing-motion-float {
-          animation: spiralConverge 0.55s cubic-bezier(0.16, 1, 0.3, 1) var(--reveal-delay, 0s) both;
+          animation: spiralConverge 0.95s cubic-bezier(0.19, 1, 0.22, 1) var(--reveal-delay, 0s) both;
         }
 
         .typing-motion-tile {
@@ -259,7 +259,10 @@ export default function TypingMotionSection({ locale = "en" }: TypingMotionSecti
 
         /* One continuous ease-out sweep: unwind the extra spin while
            converging from dead-center to the resting anchor and growing to
-           full size. No blur, no opacity flicker, no overshoot past 100%. */
+           full size. A gentler mid-flight opacity ramp (vs. an early, abrupt
+           one) makes each tile feel like it is materializing smoothly out of
+           the center rather than popping in partway through the motion. No
+           blur, no flicker, no overshoot past 100%. */
         @keyframes spiralConverge {
           0% {
             opacity: 0;
@@ -268,7 +271,7 @@ export default function TypingMotionSection({ locale = "en" }: TypingMotionSecti
               rotate(calc(var(--tile-rotation) + var(--spiral-spin)))
               scale(0.22);
           }
-          22% {
+          38% {
             opacity: 1;
           }
           100% {
