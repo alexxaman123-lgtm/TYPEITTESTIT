@@ -32,19 +32,28 @@ const LETTERS = [
   { value: "0", position: "top-[65%] right-[17%]", size: "h-12 w-12 sm:h-14 sm:w-14", rotateDeg: 6, dx: 33, dy: 15, spin: -290, floatDelay: "-4.9s", floatDuration: "3.1s", revealDelay: 0.44 },
 ] as const;
 
-// Fires only once the section's entire box is inside the viewport -- not
-// just peeking in at the bottom edge. If the section itself is taller
-// than the viewport (small/short screens), "fully in view" instead means
-// the viewport is entirely covered by the section (its top has reached
-// the top of the screen), which is the closest equivalent of "the whole
-// animation area is what you're looking at".
+// Fires once the section's box is essentially fully inside the viewport --
+// not just peeking in at an edge. If the section itself is taller than the
+// viewport (short mobile screens, where it can never fully fit on screen at
+// once), "fully in view" instead means the viewport is essentially covered
+// edge-to-edge by the section.
+//
+// A generous tolerance is used instead of exact pixel matching: without it,
+// whenever a screen's height happens to sit very close to the section's
+// height, the true "fully framed" window can shrink to only a few pixels of
+// scroll (or even round away to nothing), so a normal-speed or inertial
+// scroll gesture can skip straight past it and the reveal never fires at
+// all. The tolerance keeps the check strict enough to still wait for a
+// genuinely full view while guaranteeing a reliably reachable trigger
+// window on every device.
 function isSectionFullyInViewport(section: HTMLElement): boolean {
   const rect = section.getBoundingClientRect();
   const viewportHeight = window.innerHeight || document.documentElement.clientHeight;
-  if (rect.height <= viewportHeight) {
-    return rect.top >= -1 && rect.bottom <= viewportHeight + 1;
+  const tolerance = Math.max(32, viewportHeight * 0.04);
+  if (rect.height <= viewportHeight + tolerance) {
+    return rect.top >= -tolerance && rect.bottom <= viewportHeight + tolerance;
   }
-  return rect.top <= 1 && rect.bottom >= viewportHeight - 1;
+  return rect.top <= tolerance && rect.bottom >= viewportHeight - tolerance;
 }
 
 const VISIBILITY_THRESHOLDS = Array.from({ length: 21 }, (_, i) => i / 20);
