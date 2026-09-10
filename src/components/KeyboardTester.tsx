@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState, type KeyboardEvent as ReactKeyboardEvent } from "react";
-import { LogOut, RotateCcw } from "lucide-react";
+import { Check, LogOut, RotateCcw } from "lucide-react";
 import { cn } from "../utils/cn";
 
 type KeyDefinition = { code: string; label: string; width?: number };
@@ -54,25 +54,42 @@ export default function KeyboardTester({ onExit, modeNote }: KeyboardTesterProps
     return () => window.clearTimeout(timer);
   }, []);
 
+  const recordDetectedKey = (code: string, key: string) => {
+    setLastKey(key === " " ? "Space" : key === "PrintScreen" ? "Print Screen" : key);
+    setLastCode(code);
+    if (TESTABLE_CODES.has(code)) setTested((current) => new Set(current).add(code));
+  };
+
   const handleKeyDown = (event: ReactKeyboardEvent<HTMLDivElement>) => {
     if ((event.target as HTMLElement).closest("button")) return;
     event.preventDefault();
     event.stopPropagation();
     const code = event.code || "Unknown";
-    setLastKey(event.key === " " ? "Space" : event.key);
-    setLastCode(code);
+    recordDetectedKey(code, event.key);
     setPressed((current) => new Set(current).add(code));
-    if (TESTABLE_CODES.has(code)) setTested((current) => new Set(current).add(code));
     if (code === "Escape") onExit();
   };
 
   const handleKeyUp = (event: ReactKeyboardEvent<HTMLDivElement>) => {
     event.preventDefault();
-    setPressed((current) => { const next = new Set(current); next.delete(event.code); return next; });
+    event.stopPropagation();
+    const code = event.code || "Unknown";
+    // Windows and several browsers often expose Print Screen only on keyup
+    // after the OS has already opened its screenshot UI. Counting releases as
+    // valid detections makes that browser-delivered event visible in the test.
+    recordDetectedKey(code, event.key);
+    setPressed((current) => { const next = new Set(current); next.delete(code); return next; });
   };
 
   const reset = () => {
     setPressed(new Set()); setTested(new Set()); setLastKey("—"); setLastCode("—");
+    window.requestAnimationFrame(() => testerRef.current?.focus({ preventScroll: true }));
+  };
+
+  const confirmSystemPrintScreen = () => {
+    setTested((current) => new Set(current).add("PrintScreen"));
+    setLastKey("Print Screen — system confirmed");
+    setLastCode("PrintScreen");
     window.requestAnimationFrame(() => testerRef.current?.focus({ preventScroll: true }));
   };
 
@@ -87,7 +104,7 @@ export default function KeyboardTester({ onExit, modeNote }: KeyboardTesterProps
         <div>
           <div className="flex items-center gap-2"><span className="h-2.5 w-2.5 animate-pulse rounded-full bg-accent" /><span className="font-label uppercase tracking-[0.12em] text-accent">Dedicated keyboard test active</span></div>
           <h1 className="mt-2 font-heading-3 text-ink">Press every key to verify your keyboard</h1>
-          <p className="mt-2 max-w-3xl font-body text-text-muted"><strong className="text-ink">To finish:</strong> press <kbd className="rounded border border-hairline bg-canvas-soft px-1.5 py-0.5 font-mono-sm text-ink">Esc</kbd> at any time or select <strong className="text-ink">End test</strong>. Your normal page and keyboard behavior will return immediately.</p>
+          <p className="mt-2 max-w-3xl font-body text-text-muted"><strong className="text-ink">To finish:</strong> press <kbd className="rounded border border-hairline bg-canvas-soft px-1.5 py-0.5 font-mono-sm text-ink">Esc</kbd> or select <strong className="text-ink">End test</strong>. Normal page and keyboard behavior will return immediately.</p>
           <p className="mt-2 font-caption text-text-faint">{modeNote}</p>
         </div>
         <div className="flex shrink-0 flex-wrap gap-2">
@@ -96,8 +113,11 @@ export default function KeyboardTester({ onExit, modeNote }: KeyboardTesterProps
         </div>
       </div>
 
-      <div className="mt-5 rounded-2xl border border-hairline bg-canvas-soft px-4 py-3 font-caption text-text-muted"><strong className="text-ink">System-key note:</strong> firmware-controlled brightness, volume, microphone, power, Fn actions, Print Screen, and protected security shortcuts may still execute because a website cannot safely override them.</div>
-      <div className="mt-5 grid gap-3 sm:grid-cols-4"><Metric label="Progress" value={`${progress}%`} detail={progressLabel} /><Metric label="Last key" value={lastKey} detail="Browser key value" /><Metric label="Key code" value={lastCode} detail="Physical key position" /><Metric label="Held now" value={String(pressed.size)} detail="Simultaneous keys" /></div>
+      <div className="mt-5 flex flex-col gap-3 rounded-2xl border border-hairline bg-canvas-soft px-4 py-3 sm:flex-row sm:items-center sm:justify-between">
+        <p className="font-caption text-text-muted"><strong className="text-ink">Print Screen note:</strong> the OS may open its screenshot tool before the browser can block or detect the key. The tester now counts a browser-delivered Print Screen release. If the screenshot tool opened but PrtSc stayed unmarked, that system action itself confirms the physical key worked.</p>
+        <button type="button" onClick={confirmSystemPrintScreen} className="inline-flex shrink-0 items-center justify-center gap-2 rounded-full border border-hairline bg-canvas px-4 py-2 font-link text-ink transition-colors hover:border-text-muted"><Check className="h-4 w-4" aria-hidden="true" />Mark PrtSc working</button>
+      </div>
+      <div className="mt-5 grid gap-3 sm:grid-cols-4"><Metric label="Progress" value={`${progress}%`} detail={progressLabel} /><Metric label="Last key" value={lastKey} detail="Browser or system confirmation" /><Metric label="Key code" value={lastCode} detail="Physical key position" /><Metric label="Held now" value={String(pressed.size)} detail="Simultaneous keys" /></div>
       <div className="mt-5 h-1.5 overflow-hidden rounded-full bg-field" aria-label={progressLabel}><div className="h-full rounded-full bg-accent transition-[width] duration-300" style={{ width: `${progress}%` }} /></div>
 
       <div className="mt-6 overflow-x-auto pb-3">
