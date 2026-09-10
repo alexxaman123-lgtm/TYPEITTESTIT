@@ -52,11 +52,11 @@
 .hero-kicker,
 .hero-feature { background: var(--color-canvas-soft) !important; }
 
-/* The oversized footer signature follows every active palette instead of
-   staying hard-coded black. Blending ink into canvas keeps it subtle while
-   retaining enough contrast in both light and dark themes. */
+/* Keep the oversized footer signature dark and substantial while tinting it
+   with the active palette's accent instead of using fixed black or pale gray. */
 .footer-wordmark {
-  color: color-mix(in srgb, var(--color-ink) 18%, var(--color-canvas)) !important;
+  color: color-mix(in srgb, var(--color-accent) 68%, black 32%) !important;
+  opacity: 0.72;
 }
 
 /* Editorial pages should read as documents, not dashboards made of cards. */
