@@ -49,6 +49,15 @@ function isSectionFullyInViewport(section: HTMLElement): boolean {
 
 const VISIBILITY_THRESHOLDS = Array.from({ length: 21 }, (_, i) => i / 20);
 
+// NOTE: this section intentionally does NOT use the shared `data-motion-defer`
+// attribute that SiteLayout.astro's generic script watches. That global
+// observer uses a loose `rootMargin: '0px 0px 10% 0px'` and fires as soon as
+// an element merely starts intersecting -- which was flipping this section's
+// reveal state active the instant it began peeking into view (e.g. on mobile
+// while only its very top edge was visible), well before it was fully
+// scrolled into frame. This component owns its own strict, fully-in-viewport
+// gate below via a dedicated `data-spiral-defer` attribute so the two
+// observers can never race each other.
 export default function TypingMotionSection({ locale = "en" }: TypingMotionSectionProps) {
   const sectionRef = useRef<HTMLElement | null>(null);
 
@@ -57,7 +66,7 @@ export default function TypingMotionSection({ locale = "en" }: TypingMotionSecti
     if (!section) return;
 
     if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
-      section.dataset.motionDefer = "active";
+      section.dataset.spiralDefer = "active";
       return;
     }
 
@@ -66,7 +75,7 @@ export default function TypingMotionSection({ locale = "en" }: TypingMotionSecti
     const tryTrigger = () => {
       if (triggered || !isSectionFullyInViewport(section)) return;
       triggered = true;
-      section.dataset.motionDefer = "active";
+      section.dataset.spiralDefer = "active";
       observer.disconnect();
       window.removeEventListener("scroll", tryTrigger);
       window.removeEventListener("resize", tryTrigger);
@@ -102,7 +111,7 @@ export default function TypingMotionSection({ locale = "en" }: TypingMotionSecti
       };
 
   return (
-    <section ref={sectionRef} data-motion-defer className="typing-motion-section relative overflow-hidden border-y border-hairline" aria-label={locale === "es" ? "Práctica de mecanografía" : "Typing practice showcase"}>
+    <section ref={sectionRef} data-spiral-defer className="typing-motion-section relative overflow-hidden border-y border-hairline" aria-label={locale === "es" ? "Práctica de mecanografía" : "Typing practice showcase"}>
       <div className="typing-motion-grid" aria-hidden="true" />
       <div className="typing-motion-stage relative mx-auto flex min-h-[620px] max-w-[1500px] items-center justify-center px-5 py-24 sm:min-h-[700px] sm:px-8 lg:min-h-[760px] lg:px-12">
         <div className="typing-motion-copy relative z-10 text-center">
@@ -143,8 +152,6 @@ export default function TypingMotionSection({ locale = "en" }: TypingMotionSecti
           background: var(--color-canvas);
           color: var(--color-ink);
           isolation: isolate;
-          content-visibility: auto;
-          contain-intrinsic-size: 700px;
         }
 
         .typing-motion-stage {
@@ -199,7 +206,7 @@ export default function TypingMotionSection({ locale = "en" }: TypingMotionSecti
           will-change: transform, opacity;
         }
 
-        [data-motion-defer="active"] .typing-motion-float {
+        [data-spiral-defer="active"] .typing-motion-float {
           animation: spiralConverge 0.92s cubic-bezier(0.16, 1, 0.3, 1) var(--reveal-delay, 0s) both;
         }
 
