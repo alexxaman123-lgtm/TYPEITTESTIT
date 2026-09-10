@@ -10,11 +10,11 @@ interface Props { locale: KeyboardPageLocale }
 const { locale } = Astro.props;
 const copy = KEYBOARD_PAGE_COPY[locale];
 const canonicalPath = withLocalePrefix(locale, "/keyboard-test/");
-const canonicalUrl = `https://typeittestit.com${canonicalPath}`;
+const canonicalUrl = "https://typeittestit.com" + canonicalPath;
 const alternates = [
   ...LOCALES.map((code) => ({
     hreflang: LOCALE_META[code].htmlLang,
-    href: `https://typeittestit.com${withLocalePrefix(code, "/keyboard-test/")}`,
+    href: "https://typeittestit.com" + withLocalePrefix(code, "/keyboard-test/"),
   })),
   { hreflang: "x-default", href: "https://typeittestit.com/keyboard-test/" },
 ];
