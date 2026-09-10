@@ -10,11 +10,11 @@ const WORDMARK: Record<Locale, string> = {
   pt: "DIGITE. TESTE-SE.",
   pl: "PISZ. TESTUJ SI\u0118.",
   tr: "YAZ. TEST ET.",
-  uk: "ПИШИ. ТЕСТУйСя.",
+  uk: "\u041f\u0418\u0428\u0418. \u0422\u0415\u0421\u0422\u0423\u0419\u0421\u042f.",
   id: "KETIK. UJI DIRIMU.",
-  zh: "打字。测试。",
-  ja: "タイプして。テストして。",
-  ko: "타이핑하세요. 테스트하세요.",
+  zh: "\u6253\u5b57\u3002\u6d4b\u8bd5\u3002",
+  ja: "\u30bf\u30a4\u30d7\u3057\u3066\u3002\u30c6\u30b9\u30c8\u3057\u3066\u3002",
+  ko: "\ud0c0\uc774\ud551\ud558\uc138\uc694. \ud14c\uc2a4\ud2b8\ud558\uc138\uc694.",
 };
 
 const WORDMARK_STYLE: Partial<Record<Locale, { fontSize: string }>> = {
@@ -31,10 +31,12 @@ const WORDMARK_STYLE: Partial<Record<Locale, { fontSize: string }>> = {
  * Footer link columns, grouped the way large typing-test sites (e.g.
  * 10FastFingers) organize their footers: a Practice column for the core
  * tools, an Explore column for content/discovery pages (including Blog --
- * intentionally NOT in the header nav, only here and it stays that way),
- * a Company column, and a Legal column. Keeping this as data makes it easy
- * to add a fifth column (e.g. Games, Multiplayer) later without restructuring
- * the layout.
+ * intentionally NOT in the header nav, only here, and Typing History, which
+ * lives here since it's something users explore/revisit rather than a
+ * company page), a Company column, and a Legal column. There is
+ * intentionally no separate "Guides" link: the Blog already covers
+ * how-to-type-faster content in depth, so a second guides section would
+ * just duplicate it and risk being flagged as thin/duplicate content.
  */
 function useFooterColumns(locale: Locale) {
   return [
@@ -43,16 +45,16 @@ function useFooterColumns(locale: Locale) {
       links: [
         [tr(locale, "footer", "typingTester"), withLocalePrefix(locale, "/#tester")],
         [tr(locale, "footer", "typingPractice"), withLocalePrefix(locale, "/#typing-practice")],
-        [tr(locale, "footer", "guides"), withLocalePrefix(locale, "/#guides")],
+        [tr(locale, "footer", "howItWorks"), withLocalePrefix(locale, "/#how-it-works")],
       ],
     },
     {
       heading: tr(locale, "footer", "exploreHeading"),
       links: [
-        [tr(locale, "footer", "howItWorks"), withLocalePrefix(locale, "/#how-it-works")],
         [tr(locale, "footer", "faq"), withLocalePrefix(locale, "/#faq")],
         [tr(locale, "nav", "leaderboard"), withLocalePrefix(locale, "/leaderboard/")],
         [tr(locale, "footer", "blog"), "/blog/"],
+        [tr(locale, "footer", "typingHistory"), withLocalePrefix(locale, "/account/")],
       ],
     },
     {
@@ -60,7 +62,6 @@ function useFooterColumns(locale: Locale) {
       links: [
         [tr(locale, "footer", "about"), withLocalePrefix(locale, "/about/")],
         [tr(locale, "footer", "contact"), withLocalePrefix(locale, "/contact/")],
-        [tr(locale, "footer", "typingHistory"), withLocalePrefix(locale, "/account/")],
       ],
     },
     {
