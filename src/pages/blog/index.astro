@@ -3,45 +3,68 @@ import SiteLayout from "../../layouts/SiteLayout.astro";
 import Header from "../../components/Header";
 import Footer from "../../components/Footer";
 
-const title = "Typing Tips & Resources | FreeTypingTestGoat Blog";
-const description = "Practical guides on improving your typing speed, understanding WPM benchmarks, and fixing common touch-typing mistakes.";
+const title = "Typing Tips & Guides Blog | FreeTypingTestGoat";
+const description = "In-depth, practical guides on touch typing, WPM benchmarks, common mistakes, and typing test preparation \u2014 written to help you actually get faster, not just take another test.";
+const canonicalPath = "/blog/";
 
 const posts = [
   {
-    href: "/blog/how-to-increase-typing-speed/",
-    title: "How to Increase Your Typing Speed: A Complete WPM Improvement Guide",
-    description: "A step-by-step guide to building real typing speed without sacrificing accuracy, using deliberate practice and the right settings.",
+    href: "/blog/touch-typing-for-beginners/",
+    title: "Touch Typing for Beginners: A Complete Step-by-Step Guide to Learning the Keyboard",
+    excerpt: "Never learned touch typing? Start here: finger placement, a full key-by-key chart, and a realistic timeline for building the habit from zero.",
+    readingTime: 7,
   },
   {
-    href: "/blog/good-typing-speed-benchmarks/",
-    title: "What Is a Good Typing Speed? WPM Benchmarks by Age, Job, and Skill Level",
-    description: "See how your words-per-minute compares across skill tiers, professions, and age groups, and learn how to set a realistic target.",
+    href: "/blog/how-to-increase-typing-speed/",
+    title: "How to Increase Your Typing Speed: A Complete WPM Improvement Guide",
+    excerpt: "A step-by-step guide to building real typing speed without sacrificing accuracy, including a 4-week practice plan and common myths debunked.",
+    readingTime: 10,
   },
   {
     href: "/blog/touch-typing-mistakes/",
     title: "10 Touch Typing Mistakes That Are Slowing You Down (and How to Fix Them)",
-    description: "The most common habits that quietly cap your typing speed, and concrete fixes for each one.",
+    excerpt: "The habits quietly capping your typing speed, concrete fixes for each, and a simple review system for catching new mistakes early.",
+    readingTime: 8,
+  },
+  {
+    href: "/blog/good-typing-speed-benchmarks/",
+    title: "What's a Good Typing Speed? WPM Benchmarks by Age and Skill Level",
+    excerpt: "See how your WPM compares by age and experience level, how WPM and accuracy are actually calculated, and what to aim for next.",
+    readingTime: 9,
+  },
+  {
+    href: "/blog/typing-test-for-job-interview/",
+    title: "How to Prepare for a Typing Test for a Job: WPM Requirements by Role",
+    excerpt: "What employers actually test for, typical WPM requirements by role, and a one-week plan to prepare before your assessment.",
+    readingTime: 7,
   },
 ];
 ---
-<SiteLayout title={title} description={description} canonicalPath="/blog/">
+<SiteLayout title={title} description={description} canonicalPath={canonicalPath}>
   <div class="relative min-h-screen">
     <Header client:load />
     <main>
-      <section class="mx-auto max-w-4xl px-4 py-16 sm:px-6 lg:px-8">
+      <div class="mx-auto max-w-3xl px-4 py-16 sm:px-6 lg:px-8">
         <p class="font-label text-accent">Blog</p>
-        <h1 class="mt-3 font-heading-3 text-ink">Typing Tips &amp; Resources</h1>
-        <p class="mt-4 font-body text-text-muted">Short, practical guides to help you type faster and more accurately, backed by the same metrics FreeTypingTestGoat measures in every test.</p>
-        <div class="mt-10 flex flex-col gap-6">
+        <h1 class="mt-3 font-heading-3 text-ink">Typing Tips &amp; Guides</h1>
+        <p class="mt-4 font-body text-text-muted">Practical, detailed guides on becoming a faster, more accurate typist \u2014 from your first week of touch typing to preparing for a job assessment.</p>
+
+        <ul class="mt-10 flex flex-col gap-6">
           {posts.map((post) => (
-            <a href={post.href} class="block rounded-[24px] border border-hairline bg-canvas p-6 shadow-sm transition-colors hover:border-accent/40 sm:p-8">
-              <h2 class="font-heading-4 text-ink">{post.title}</h2>
-              <p class="mt-3 font-body text-text-muted">{post.description}</p>
-              <span class="mt-4 inline-block font-link text-accent">Read article →</span>
-            </a>
+            <li class="rounded-[24px] border border-hairline bg-canvas p-6 shadow-sm transition-colors hover:border-accent sm:p-8">
+              <a href={post.href} class="block">
+                <div class="flex flex-wrap items-center gap-2">
+                  <p class="font-label text-accent">Guide</p>
+                  <span class="font-caption text-text-faint" aria-hidden="true">·</span>
+                  <p class="font-caption text-text-faint">{post.readingTime} min read</p>
+                </div>
+                <h2 class="mt-2 font-heading-5 text-ink">{post.title}</h2>
+                <p class="mt-2 font-body-sm text-text-muted">{post.excerpt}</p>
+              </a>
+            </li>
           ))}
-        </div>
-      </section>
+        </ul>
+      </div>
     </main>
     <Footer />
   </div>
