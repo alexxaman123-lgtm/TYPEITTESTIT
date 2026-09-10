@@ -52,20 +52,6 @@
 .hero-kicker,
 .hero-feature { background: var(--color-canvas-soft) !important; }
 
-/* The GOATTYPE wordmark plus goat symbol is now the memorable brand detail;
-   remove the unrelated field of spinning keyboard tiles. */
-.typing-motion-section { display: none !important; }
-
-/* Keep entrance behavior short and quiet. The hero title typing reveal is the
-   only expressive entrance animation left. */
-[data-reveal]:not([data-reveal="blur-type"]),
-[data-reveal-group] > * {
-  filter: none !important;
-  transition-duration: 320ms !important;
-  transition-delay: 0ms !important;
-}
-.animate-drift { animation-duration: 42s !important; opacity: 0.42; }
-
 /* Editorial pages should read as documents, not dashboards made of cards. */
 article {
   font-variant-numeric: oldstyle-nums proportional-nums;
