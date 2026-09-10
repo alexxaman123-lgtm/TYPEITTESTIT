@@ -2,32 +2,118 @@
 import SiteLayout from "../layouts/SiteLayout.astro";
 import Header from "../components/Header";
 import Footer from "../components/Footer";
-import KeyboardTester from "../components/KeyboardTester";
 
 const title = "Keyboard Tester Online – Test All Keys & Numpad | GOATTYPE";
-const description = "Free full-size keyboard tester for letters, F1–F12, arrows, navigation keys, number pad, ghosting, rollover, missing keys, and simultaneous input.";
+const description = "Launch GOATTYPE's free full-size keyboard tester for letters, F1–F12, arrows, navigation keys, number pad, ghosting, rollover, and missing keys.";
 const canonicalPath = "/keyboard-test/";
+const testerUrl = "/keyboard-test/tester/";
 const faqItems = [
-  ["How can I test whether my keyboard is working properly?", "Start the tester and press every physical key. Working keys light up and remain marked. Check letters, numbers, modifiers, function keys, navigation keys, arrows, and the numeric keypad."],
+  ["How can I test whether my keyboard is working properly?", "Launch the tester and press every physical key. Working keys light up and remain marked. Check letters, numbers, modifiers, function keys, navigation keys, arrows, and the numeric keypad."],
+  ["Why does the keyboard tester open on a separate page?", "The separate testing page can keep keyboard focus automatically and provides a distraction-free diagnostic environment. The guide remains on this page so instructions and troubleshooting are easy to find."],
   ["Can the tester stop brightness, volume, screenshot, and other system actions?", "Dedicated Test Mode can suppress many browser actions through fullscreen and Keyboard Lock where supported, but a website cannot override controls handled directly by device firmware or the operating system."],
   ["Can this keyboard tester check the number pad?", "Yes. It includes Num Lock, divide, multiply, subtract, add, Enter, decimal, and number-pad digits 0 through 9."],
   ["How do I test F1–F12 and the F6 key?", "Use Dedicated Test Mode. Compact laptops may also require Fn or Fn Lock. A firmware-handled brightness or media action may not produce a browser event."],
   ["Can a keyboard tester detect ghosting?", "It can reveal practical ghosting or rollover limits. Hold several keys together and compare the highlighted keys with the Held now counter."],
-  ["How do I diagnose a key that works only sometimes?", "Reset the test and press the suspect key repeatedly. Intermittent input can result from debris, a worn switch, a loose cable, low battery, interference, or remapping software."],
   ["What should I do if my keyboard is not typing?", "Reconnect it, try another port, check batteries and input language, restart the device, and test another application. Also check Fn Lock and accessibility settings such as Filter Keys."],
-  ["Can I test an HP, Dell, Lenovo, Mac, Chromebook, or external keyboard?", "Yes. The tool works with most laptop, desktop, mechanical, membrane, Bluetooth, and USB keyboards that provide standard browser events."],
-  ["How do I know whether my laptop keyboard is physically damaged?", "A key that fails across browsers and applications after cleaning and restarting is more likely to have a hardware problem. Sticking, double input, liquid exposure, or several keys failing together are additional warning signs."],
   ["Does the keyboard test record what I type?", "No. Detection runs locally in the browser and the page does not save your keystrokes."],
 ];
 const structuredData = [
-  { "@context": "https://schema.org", "@type": "WebApplication", name: "GOATTYPE Online Keyboard Tester", url: "https://typeittestit.com/keyboard-test/", applicationCategory: "UtilityApplication", operatingSystem: "Any", browserRequirements: "Modern browser with JavaScript; Keyboard Lock requires a supported browser", description, featureList: ["Full-size 104-key test", "Function-key testing", "Numeric keypad testing", "Keyboard Lock dedicated mode", "Ghosting and rollover check", "Physical KeyboardEvent code display"], offers: { "@type": "Offer", price: "0", priceCurrency: "USD" } },
+  { "@context": "https://schema.org", "@type": "WebApplication", name: "GOATTYPE Online Keyboard Tester", url: "https://typeittestit.com/keyboard-test/", applicationCategory: "UtilityApplication", operatingSystem: "Any", description, featureList: ["Full-size 104-key test", "Function-key testing", "Numeric keypad testing", "Always-on testing page", "Keyboard Lock dedicated mode", "Ghosting and rollover check"], offers: { "@type": "Offer", price: "0", priceCurrency: "USD" } },
   { "@context": "https://schema.org", "@type": "FAQPage", mainEntity: faqItems.map(([name, text]) => ({ "@type": "Question", name, acceptedAnswer: { "@type": "Answer", text } })) },
 ];
 ---
 <SiteLayout title={title} description={description} canonicalPath={canonicalPath} structuredData={structuredData}>
   <div class="relative min-h-screen">
     <Header client:idle />
-    <main><KeyboardTester client:load /></main>
+    <main>
+      <section class="mx-auto max-w-7xl px-4 pb-14 pt-20 sm:px-6 sm:pb-20 sm:pt-28 lg:px-8">
+        <div class="grid items-center gap-12 lg:grid-cols-[1.15fr_0.85fr]">
+          <div>
+            <p class="font-label uppercase tracking-[0.16em] text-accent">Free browser diagnostic</p>
+            <h1 class="mt-4 max-w-4xl font-heading-1 text-ink">Test every key without losing focus</h1>
+            <p class="mt-6 max-w-3xl font-body-lg text-text-muted">Open a dedicated keyboard testing page that remains ready after clicks, window switching, and accidental focus changes. Test a complete 104-key layout, including function keys, navigation controls, arrows, modifiers, and the numeric keypad.</p>
+            <div class="mt-8 flex flex-wrap items-center gap-4">
+              <a href={testerUrl} class="inline-flex items-center justify-center rounded-full bg-accent px-7 py-3.5 font-link text-on-primary transition-transform hover:-translate-y-0.5">Launch keyboard test <span class="ml-2" aria-hidden="true">→</span></a>
+              <a href="#how-it-works" class="inline-flex items-center justify-center rounded-full border border-hairline bg-canvas px-7 py-3.5 font-link text-ink transition-colors hover:border-text-muted">How it works</a>
+            </div>
+            <p class="mt-4 font-caption text-text-faint">The test opens at /keyboard-test/tester/ and starts listening automatically.</p>
+          </div>
+          <div class="rounded-[28px] border border-hairline bg-canvas-soft p-7 shadow-sm sm:p-9">
+            <p class="font-label uppercase tracking-[0.12em] text-accent">Inside the tester</p>
+            <div class="mt-6 grid grid-cols-2 gap-3">
+              <div class="rounded-2xl border border-hairline bg-canvas p-4"><div class="font-mono text-2xl text-ink">104</div><div class="mt-1 font-caption text-text-muted">standard keys</div></div>
+              <div class="rounded-2xl border border-hairline bg-canvas p-4"><div class="font-mono text-2xl text-ink">F1–F12</div><div class="mt-1 font-caption text-text-muted">function row</div></div>
+              <div class="rounded-2xl border border-hairline bg-canvas p-4"><div class="font-mono text-2xl text-ink">100%</div><div class="mt-1 font-caption text-text-muted">live progress</div></div>
+              <div class="rounded-2xl border border-hairline bg-canvas p-4"><div class="font-mono text-2xl text-ink">Local</div><div class="mt-1 font-caption text-text-muted">private detection</div></div>
+            </div>
+            <p class="mt-5 font-body text-text-muted">Keys flash while held and remain marked after release. The last key, physical event code, progress, and simultaneous key count are shown in real time.</p>
+          </div>
+        </div>
+      </section>
+
+      <article id="how-it-works" class="mx-auto max-w-7xl space-y-16 border-t border-hairline px-4 py-16 sm:px-6 sm:py-20 lg:px-8">
+        <section>
+          <p class="font-label uppercase tracking-[0.14em] text-accent">Complete guide</p>
+          <h2 class="mt-3 font-heading-3 text-ink">How the GOATTYPE keyboard tester works</h2>
+          <div class="mt-7 grid gap-8 font-body text-text-muted md:grid-cols-2">
+            <div class="space-y-4"><p>When the tester is active, the browser produces a <code class="text-ink">keydown</code> event when a physical key is pressed and a <code class="text-ink">keyup</code> event when it is released. GOATTYPE reads the physical <code class="text-ink">KeyboardEvent.code</code> to match that position with the visual keyboard.</p><p>The physical code lets the tool distinguish left and right Shift, Control, Alt, and Meta keys. The separate browser key value may change with Shift, Caps Lock, Num Lock, language settings, or a remapped layout.</p></div>
+            <div class="space-y-4"><p>A bright key is currently held. A softly marked key has registered at least once. Untested keys remain neutral, while the progress meter shows how much of the full-size layout has been checked.</p><p>The test confirms that a keyboard event reached the webpage. It cannot electrically inspect the switch, matrix, cable, wireless radio, firmware, or operating-system driver, so suspicious results should be compared with another browser and application.</p></div>
+          </div>
+        </section>
+
+        <section class="border-t border-hairline pt-12">
+          <h2 class="font-heading-3 text-ink">Why the tester opens on a separate page</h2>
+          <div class="mt-7 grid gap-5 md:grid-cols-3">
+            <div class="rounded-2xl border border-hairline bg-canvas-soft p-6"><h3 class="font-heading-5 text-ink">Automatic focus</h3><p class="mt-4 font-body text-text-muted">The testing route focuses the keyboard when it loads, restores focus after clicking elsewhere on the page, and focuses it again when the browser window becomes active.</p></div>
+            <div class="rounded-2xl border border-hairline bg-canvas-soft p-6"><h3 class="font-heading-5 text-ink">Fewer distractions</h3><p class="mt-4 font-body text-text-muted">Navigation and educational content stay on this guide page, while the launched test concentrates on the live keyboard, metrics, and test controls.</p></div>
+            <div class="rounded-2xl border border-hairline bg-canvas-soft p-6"><h3 class="font-heading-5 text-ink">Clean URL structure</h3><p class="mt-4 font-body text-text-muted">The clean /keyboard-test/tester/ route serves the same purpose as an older tester.html URL without exposing an implementation-specific file extension.</p></div>
+          </div>
+        </section>
+
+        <section class="border-t border-hairline pt-12">
+          <h2 class="font-heading-3 text-ink">Standard capture and Dedicated Test Mode</h2>
+          <div class="mt-7 grid gap-8 font-body text-text-muted md:grid-cols-2"><div><h3 class="font-heading-5 text-ink">Automatic testing-page capture</h3><p class="mt-3">The launched page automatically keeps the keyboard region focused. Ordinary key actions such as Space or arrow-key scrolling are prevented while captured. This is suitable for letters, number row, punctuation, navigation keys, modifiers, and most keypad checks.</p></div><div><h3 class="font-heading-5 text-ink">Fullscreen Keyboard Lock</h3><p class="mt-3">Dedicated mode requests fullscreen and the Keyboard Lock API in supported Chromium browsers. It provides the strongest isolation available to a normal website, but it cannot override brightness, volume, microphone, power, Fn-layer, screenshot, or protected system shortcuts handled before the browser.</p></div></div>
+        </section>
+
+        <section class="border-t border-hairline pt-12">
+          <h2 class="font-heading-3 text-ink">Complete testing procedure</h2>
+          <ol class="mt-7 grid gap-5 font-body text-text-muted md:grid-cols-2">
+            <li class="rounded-2xl border border-hairline bg-canvas-soft p-6"><strong class="text-ink">1. Prepare the keyboard.</strong><br />Connect it directly when possible, charge wireless models, choose the intended input language, close apps using global shortcuts, and turn Num Lock on.</li>
+            <li class="rounded-2xl border border-hairline bg-canvas-soft p-6"><strong class="text-ink">2. Launch the test.</strong><br />The dedicated route starts capturing automatically. Confirm that its status says Listening for keys before beginning.</li>
+            <li class="rounded-2xl border border-hairline bg-canvas-soft p-6"><strong class="text-ink">3. Work section by section.</strong><br />Test letters, number row, punctuation, modifiers, F1–F12, navigation block, arrows, and every numpad key.</li>
+            <li class="rounded-2xl border border-hairline bg-canvas-soft p-6"><strong class="text-ink">4. Repeat suspicious input.</strong><br />Reset and press a delayed, missing, sticking, or double-registering key repeatedly with normal pressure.</li>
+            <li class="rounded-2xl border border-hairline bg-canvas-soft p-6"><strong class="text-ink">5. Test combinations.</strong><br />Hold real shortcuts or gaming combinations and compare highlighted keys with the Held now counter.</li>
+            <li class="rounded-2xl border border-hairline bg-canvas-soft p-6"><strong class="text-ink">6. Confirm elsewhere.</strong><br />Compare any failure in another browser, application, USB port, or computer before deciding the keyboard needs repair.</li>
+          </ol>
+        </section>
+
+        <section class="border-t border-hairline pt-12">
+          <h2 class="font-heading-3 text-ink">Function keys, media controls, and Fn Lock</h2>
+          <div class="mt-6 grid gap-8 font-body text-text-muted md:grid-cols-2"><div class="space-y-4"><p>Laptops often combine F1–F12 with brightness, volume, microphone mute, keyboard lighting, airplane mode, and playback. Depending on Action Keys or Fn Lock settings, the printed media action may be primary and the traditional function key may require holding Fn.</p><p>If a key changes brightness but F7 does not highlight, the switch may still be working—the firmware may have consumed the action before the browser received it. Try Fn plus the key, toggle Fn Lock, and inspect the reported event code.</p></div><div class="space-y-4"><p>Print Screen, power, sleep, fingerprint, Touch ID, and security combinations are intentionally difficult or impossible for webpages to suppress. Their behavior varies by device, browser, driver, and operating system.</p><p>This restriction is important: a malicious page must not be able to trap essential escape, privacy, power, security, or accessibility controls.</p></div></div>
+        </section>
+
+        <section class="border-t border-hairline pt-12">
+          <h2 class="font-heading-3 text-ink">Numpad, ghosting, and rollover</h2>
+          <div class="mt-6 grid gap-8 font-body text-text-muted md:grid-cols-2"><div><h3 class="font-heading-5 text-ink">Number-pad behavior</h3><p class="mt-3">The tester includes separate codes for keypad 0–9, decimal, operators, Num Lock, and Enter. With Num Lock disabled, some systems report keypad positions as Home, End, Insert, Delete, Page Up, Page Down, or arrows while the physical numpad tile still identifies the position.</p></div><div><h3 class="font-heading-5 text-ink">Multi-key testing</h3><p class="mt-3">Ghosting occurs when the keyboard matrix cannot report a combination correctly. Hold the exact combinations used for games, shortcuts, or fast typing. A successful test in one cluster does not guarantee identical rollover across every part of the matrix.</p></div></div>
+        </section>
+
+        <section class="border-t border-hairline pt-12">
+          <h2 class="font-heading-3 text-ink">Troubleshooting different keyboard types</h2>
+          <div class="mt-7 grid gap-5 md:grid-cols-3"><div class="rounded-2xl border border-hairline bg-canvas-soft p-6"><h3 class="font-heading-5 text-ink">Laptop</h3><p class="mt-4 font-body text-text-muted">Restart, check Fn Lock and Filter Keys, update manufacturer utilities, and test before login when possible. Adjacent rows failing together may indicate a ribbon-cable or matrix fault.</p></div><div class="rounded-2xl border border-hairline bg-canvas-soft p-6"><h3 class="font-heading-5 text-ink">USB or mechanical</h3><p class="mt-4 font-body text-text-muted">Try another cable and port, avoid unpowered hubs, disable remapping profiles, and compare on a second computer. Inspect removable switches only when the keyboard officially supports hot swap.</p></div><div class="rounded-2xl border border-hairline bg-canvas-soft p-6"><h3 class="font-heading-5 text-ink">Bluetooth or wireless</h3><p class="mt-4 font-body text-text-muted">Recharge batteries, pair again, move closer to the receiver, reduce radio interference, and test through a cable if supported. Delayed bursts of input often indicate connection or power trouble.</p></div></div>
+        </section>
+
+        <section class="border-t border-hairline pt-12">
+          <h2 class="font-heading-3 text-ink">Layouts, cleaning, and repair</h2>
+          <div class="mt-6 grid gap-8 font-body text-text-muted md:grid-cols-2"><div class="space-y-4"><p>The diagram follows a common 104-key ANSI layout. ISO, JIS, Apple, regional, ergonomic, 60%, 65%, 75%, and tenkeyless keyboards may add, move, omit, or layer keys. A recognized key without a visual tile can still appear in the Last key and Key code metrics.</p><p>Power down before cleaning. Use compressed air at an angle and a lightly dampened microfiber cloth. Never spray liquid directly onto a keyboard, and do not force fragile laptop scissor keycaps.</p></div><div class="space-y-4"><p>Seek repair when a key fails across devices or applications, several keys in one row or column stop together, input occurs without touching the keyboard, or liquid entered the device. Stop using a laptop immediately if its case or keyboard is lifting because a swollen battery may be unsafe.</p><p>After confirming the hardware works, continue with the <a href="/#tester" class="text-accent underline underline-offset-4">GOATTYPE typing speed test</a> to measure practical accuracy and WPM.</p></div></div>
+        </section>
+      </article>
+
+      <section class="mx-auto max-w-7xl border-t border-hairline px-4 py-16 sm:px-6 sm:py-20 lg:px-8" aria-labelledby="keyboard-faq-heading">
+        <p class="font-label uppercase tracking-[0.14em] text-accent">Keyboard troubleshooting</p><h2 id="keyboard-faq-heading" class="mt-3 font-heading-3 text-ink">Keyboard Tester FAQ</h2>
+        <div class="mt-8 divide-y divide-hairline border-y border-hairline">{faqItems.map(([question, answer]) => <details class="group py-1"><summary class="flex cursor-pointer list-none items-center justify-between gap-6 py-5 font-heading-5 text-ink marker:content-none"><span>{question}</span><span class="flex h-8 w-8 shrink-0 items-center justify-center rounded-full border border-hairline text-text-muted transition-transform group-open:rotate-45" aria-hidden="true">+</span></summary><p class="max-w-4xl pb-6 pr-12 font-body text-text-muted">{answer}</p></details>)}</div>
+        <div class="mt-10"><a href={testerUrl} class="inline-flex items-center justify-center rounded-full bg-accent px-7 py-3.5 font-link text-on-primary transition-transform hover:-translate-y-0.5">Launch keyboard test <span class="ml-2" aria-hidden="true">→</span></a></div>
+      </section>
+    </main>
     <Footer />
   </div>
 </SiteLayout>
