@@ -1,12 +1,14 @@
 @import "./authentic.css";
+@import "./header-stability.css";
 
 /* Self-hosted variable fonts, trimmed to latin + latin-extended subsets only
-   to keep the production bundle small (this project inlines all assets). */
+   to keep the production bundle small (this project inlines all assets).
+   Optional display avoids a late visual swap on slower mobile connections. */
 
 @font-face {
   font-family: "Inter Variable";
   font-style: normal;
-  font-display: swap;
+  font-display: optional;
   font-weight: 100 900;
   src: url("@fontsource-variable/inter/files/inter-latin-wght-normal.woff2") format("woff2-variations");
   unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+2000-206F,
@@ -16,7 +18,7 @@
 @font-face {
   font-family: "JetBrains Mono Variable";
   font-style: normal;
-  font-display: swap;
+  font-display: optional;
   font-weight: 100 800;
   src: url("@fontsource-variable/jetbrains-mono/files/jetbrains-mono-latin-wght-normal.woff2")
     format("woff2-variations");
