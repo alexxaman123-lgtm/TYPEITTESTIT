@@ -5,8 +5,10 @@
   "type": "module",
   "scripts": {
     "dev": "astro dev",
+    "prebuild": "npm run sitemap",
     "build": "astro build",
     "preview": "astro preview",
+    "sitemap": "node scripts/generate-sitemap.mjs",
     "security": "npm audit --audit-level=high",
     "typecheck": "tsc --noEmit",
     "security:static": "node scripts/security-check.mjs"
