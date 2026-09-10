@@ -62,7 +62,6 @@ export default function Header({ locale = "en" as Locale }: { locale?: Locale })
   const NAV_LINKS = [
     { label: tr(locale, "nav", "leaderboard"), href: withLocalePrefix(locale, "/leaderboard/") },
     { label: tr(locale, "nav", "about"), href: withLocalePrefix(locale, "/about/") },
-    { label: tr(locale, "nav", "blog"), href: "/blog/" },
     { label: tr(locale, "nav", "contact"), href: withLocalePrefix(locale, "/contact/") },
   ];
   const typingHistoryLabel = tr(locale, "nav", "typingHistory");
