@@ -16,8 +16,10 @@ const canonicalPath = "/keyboard-test/tester/";
   </div>
 
   <script>
+    const getKeyboardTester = () => document.querySelector<HTMLElement>('[role="application"][aria-label="Interactive full-size keyboard tester"]');
+
     const focusKeyboardTester = () => {
-      const tester = document.querySelector<HTMLElement>('[role="application"][aria-label="Interactive full-size keyboard tester"]');
+      const tester = getKeyboardTester();
       if (!tester || document.fullscreenElement) return;
       if (document.activeElement !== tester) tester.focus({ preventScroll: true });
     };
@@ -26,6 +28,40 @@ const canonicalPath = "/keyboard-test/tester/";
       const target = event?.target;
       if (target instanceof Element && target.closest('a[href]')) return;
       window.setTimeout(focusKeyboardTester, 0);
+    };
+
+    const captureForTester = (event: KeyboardEvent) => {
+      if (!event.isTrusted) return;
+      const tester = getKeyboardTester();
+      if (!tester) return;
+
+      // The launched route is exclusively a keyboard diagnostic. Blocking the
+      // default at document capture phase prevents Space, arrows, Page Up,
+      // Page Down, Home, End, Tab, Backspace and browser-handled F keys from
+      // scrolling or moving focus before React receives the key event.
+      event.preventDefault();
+
+      if (event.target === tester) return;
+
+      // If focus was moved to the page chrome, send an equivalent event to the
+      // tester so the first key after focus loss is still counted. Synthetic
+      // events are ignored above to avoid redispatch loops.
+      event.stopPropagation();
+      tester.focus({ preventScroll: true });
+      tester.dispatchEvent(new KeyboardEvent(event.type, {
+        key: event.key,
+        code: event.code,
+        location: event.location,
+        ctrlKey: event.ctrlKey,
+        shiftKey: event.shiftKey,
+        altKey: event.altKey,
+        metaKey: event.metaKey,
+        repeat: event.repeat,
+        isComposing: event.isComposing,
+        bubbles: true,
+        cancelable: true,
+        composed: true,
+      }));
     };
 
     window.addEventListener('load', () => {
@@ -37,5 +73,7 @@ const canonicalPath = "/keyboard-test/tester/";
     document.addEventListener('visibilitychange', () => {
       if (document.visibilityState === 'visible') restoreTesterFocus();
     });
+    document.addEventListener('keydown', captureForTester, true);
+    document.addEventListener('keyup', captureForTester, true);
   </script>
 </SiteLayout>
