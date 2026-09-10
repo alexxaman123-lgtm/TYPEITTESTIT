@@ -1,0 +1,65 @@
+---
+import SiteLayout from "../../layouts/SiteLayout.astro";
+import Header from "../../components/Header";
+import Footer from "../../components/Footer";
+
+const title = "10 Touch Typing Mistakes That Are Slowing You Down (and How to Fix Them)";
+const description = "The most common habits that quietly cap your typing speed, and concrete fixes for each one.";
+const canonicalPath = "/blog/touch-typing-mistakes/";
+const siteUrl = "https://typeittestit.com";
+
+const structuredData = [
+  {
+    "@context": "https://schema.org",
+    "@type": "BlogPosting",
+    headline: title,
+    description,
+    datePublished: "2026-09-10",
+    dateModified: "2026-09-10",
+    author: { "@type": "Organization", name: "FreeTypingTestGoat" },
+    publisher: { "@type": "Organization", name: "FreeTypingTestGoat" },
+    mainEntityOfPage: siteUrl + canonicalPath,
+  },
+];
+
+const mistakes = [
+  { title: "Looking at the keyboard", fix: "Cover your hands or resist the urge to glance down. Your fingers need to learn key positions by feel, not sight \u2014 every glance down breaks your rhythm and slows you more than a small typo would." },
+  { title: "Not using the home row", fix: "Rest your fingers on ASDF and JKL; between keystrokes and always return to it. Without a fixed \"home base,\" your hands drift and every keystroke becomes a small search." },
+  { title: "Typing in short, distracted bursts", fix: "Rhythm matters more than raw effort. Give yourself focused, uninterrupted stretches of practice rather than typing a few words between distractions \u2014 FreeTypingTestGoat's timed tests are built for exactly this kind of focused session." },
+  { title: "Poor posture", fix: "Slouching or craning toward the screen tires your hands and shoulders, which shows up as sloppier typing over time. Sit with your wrists level and your screen at eye height." },
+  { title: "Ignoring accuracy in favor of speed", fix: "Chasing a higher WPM while accepting lots of mistakes backfires: every correction costs more time than typing carefully the first time. Slow down until your accuracy is consistently above 95%, then build speed back up." },
+  { title: "Relying on hunt-and-peck under pressure", fix: "Many people who learned touch typing still revert to hunting for keys when nervous or rushed. Practice under mild time pressure (like a 1-minute test) specifically to build confidence in your muscle memory when it matters." },
+  { title: "Pressing keys harder than necessary", fix: "Heavy, forceful keystrokes tire your fingers faster and don't register any quicker than a light tap. Use the lightest press that reliably registers each key." },
+  { title: "Skipping a warm-up", fix: "Jumping straight into a hard passage cold often produces your worst results of the session. A short, easy warm-up test helps your hands find their rhythm before you push for speed." },
+  { title: "Only practicing easy or random text", fix: "Comfortable, predictable text doesn't challenge your weak points. Mix in harder difficulty levels and varied passages so you're forced to handle unfamiliar letter combinations, not just the ones you've already mastered." },
+  { title: "Never reviewing your error patterns", fix: "Most typists have a handful of specific letters, symbols, or transitions that cause most of their mistakes. Look at your error breakdown after a test, notice what keeps coming up, and give those spots deliberate extra practice." },
+];
+---
+<SiteLayout title={title} description={description} canonicalPath={canonicalPath} structuredData={structuredData}>
+  <div class="relative min-h-screen">
+    <Header client:load />
+    <main>
+      <article class="mx-auto max-w-3xl px-4 py-16 sm:px-6 lg:px-8">
+        <p class="font-label text-accent">Guide</p>
+        <h1 class="mt-3 font-heading-3 text-ink">10 Touch Typing Mistakes That Are Slowing You Down (and How to Fix Them)</h1>
+        <p class="mt-6 font-body text-text-muted">Most typing plateaus aren't caused by a lack of practice \u2014 they're caused by a small number of habits that quietly cap your speed. Here are the ten most common ones, and how to fix each.</p>
+
+        <ol class="mt-8 flex flex-col gap-6">
+          {mistakes.map((mistake, index) => (
+            <li class="rounded-[24px] border border-hairline bg-canvas p-6 shadow-sm sm:p-8">
+              <h2 class="font-heading-4 text-ink">{index + 1}. {mistake.title}</h2>
+              <p class="mt-3 font-body text-text-muted">{mistake.fix}</p>
+            </li>
+          ))}
+        </ol>
+
+        <div class="mt-12 rounded-[24px] border border-hairline bg-canvas p-6 text-center shadow-sm sm:p-8">
+          <p class="font-heading-4 text-ink">See which habits are holding you back</p>
+          <p class="mt-2 font-body text-text-muted">Take a free typing test and check your accuracy and error breakdown after each session.</p>
+          <a href="/" class="mt-4 inline-block rounded-full bg-accent px-6 py-3 font-link text-canvas">Start a typing test</a>
+        </div>
+      </article>
+    </main>
+    <Footer />
+  </div>
+</SiteLayout>

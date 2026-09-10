@@ -40,6 +40,7 @@ export default function Footer({ locale = "en" as Locale }: { locale?: Locale })
     [tr(locale, "footer", "howItWorks"), withLocalePrefix(locale, "/#how-it-works")],
     [tr(locale, "footer", "faq"), withLocalePrefix(locale, "/#faq")],
     [tr(locale, "footer", "about"), withLocalePrefix(locale, "/about/")],
+    [tr(locale, "footer", "blog"), "/blog/"],
     [tr(locale, "footer", "contact"), withLocalePrefix(locale, "/contact/")],
     [tr(locale, "footer", "typingHistory"), withLocalePrefix(locale, "/account/")],
     [tr(locale, "footer", "privacy"), withLocalePrefix(locale, "/privacy-policy/")],
