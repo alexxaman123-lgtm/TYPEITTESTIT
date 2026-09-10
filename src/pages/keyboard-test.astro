@@ -1,0 +1,28 @@
+---
+import SiteLayout from "../layouts/SiteLayout.astro";
+import Header from "../components/Header";
+import Footer from "../components/Footer";
+import KeyboardTester from "../components/KeyboardTester";
+
+const title = "Keyboard Tester Online | Test Every Keyboard Key | GOATTYPE";
+const description = "Use GOATTYPE's free online keyboard tester to check every key, identify stuck or missing keyboard input, and test multiple keys directly in your browser.";
+const canonicalPath = "/keyboard-test/";
+const structuredData = [{
+  "@context": "https://schema.org",
+  "@type": "WebApplication",
+  name: "GOATTYPE Online Keyboard Tester",
+  url: "https://typeittestit.com/keyboard-test/",
+  applicationCategory: "UtilityApplication",
+  operatingSystem: "Any",
+  browserRequirements: "Requires a modern browser with JavaScript enabled",
+  description,
+  offers: { "@type": "Offer", price: "0", priceCurrency: "USD" },
+}];
+---
+<SiteLayout title={title} description={description} canonicalPath={canonicalPath} structuredData={structuredData}>
+  <div class="relative min-h-screen">
+    <Header client:idle />
+    <main><KeyboardTester client:load /></main>
+    <Footer />
+  </div>
+</SiteLayout>

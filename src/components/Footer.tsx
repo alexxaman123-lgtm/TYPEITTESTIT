@@ -17,6 +17,12 @@ const WORDMARK: Record<Locale, string> = {
   ko: "\ud0c0\uc774\ud551\ud558\uc138\uc694. \ud14c\uc2a4\ud2b8\ud558\uc138\uc694.",
 };
 
+const KEYBOARD_TEST_LABEL: Record<Locale, string> = {
+  en: "Keyboard Tester", es: "Probador de teclado", de: "Tastaturtester", fr: "Testeur de clavier",
+  it: "Tester tastiera", pt: "Testador de teclado", pl: "Tester klawiatury", tr: "Klavye testi",
+  uk: "Тестер клавіатури", id: "Tes keyboard", zh: "键盘测试", ja: "キーボードテスター", ko: "키보드 테스터",
+};
+
 const WORDMARK_STYLE: Partial<Record<Locale, { fontSize: string }>> = {
   es: { fontSize: "clamp(3.2rem, 7.8vw, 10rem)" },
   de: { fontSize: "clamp(2.9rem, 7vw, 9rem)" },
@@ -27,17 +33,6 @@ const WORDMARK_STYLE: Partial<Record<Locale, { fontSize: string }>> = {
   id: { fontSize: "clamp(2.9rem, 7vw, 9rem)" },
 };
 
-/**
- * Footer link columns, grouped the way large typing-test sites (e.g.
- * 10FastFingers) organize their footers: a Practice column for the core
- * tools, an Explore column for content/discovery pages (including Blog --
- * intentionally NOT in the header nav, only here, and Typing History, which
- * lives here since it's something users explore/revisit rather than a
- * company page), a Company column, and a Legal column. There is
- * intentionally no separate "Guides" link: the Blog already covers
- * how-to-type-faster content in depth, so a second guides section would
- * just duplicate it and risk being flagged as thin/duplicate content.
- */
 function useFooterColumns(locale: Locale) {
   return [
     {
@@ -45,6 +40,7 @@ function useFooterColumns(locale: Locale) {
       links: [
         [tr(locale, "footer", "typingTester"), withLocalePrefix(locale, "/#tester")],
         [tr(locale, "footer", "typingPractice"), withLocalePrefix(locale, "/#typing-practice")],
+        [KEYBOARD_TEST_LABEL[locale], "/keyboard-test/"],
         [tr(locale, "footer", "howItWorks"), withLocalePrefix(locale, "/#how-it-works")],
       ],
     },
