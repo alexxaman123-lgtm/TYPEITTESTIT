@@ -1,5 +1,5 @@
 import { createPortal } from "react-dom";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useLayoutEffect, useMemo, useRef, useState, type CSSProperties } from "react";
 import { useTypingTest } from "../lib/useTypingTest";
 import { useReducedMotion } from "../lib/useReducedMotion";
 import { getPreferences, savePreferences } from "../lib/storage";
@@ -20,6 +20,7 @@ import { tr } from "../lib/i18n";
 
 type ViewMode = "test" | "custom";
 type PersonalBest = { wpm: number; accuracy: number } | null;
+type FocusOrigin = { left: number; top: number; width: number; height: number };
 const SLOW_GOAT_WPM_THRESHOLD = 30;
 const SLOW_GOAT_SOUND = "/fahhh_KcgAXfs.mp3";
 const AVERAGE_GOAT_MIN_WPM = 32;
@@ -31,19 +32,20 @@ const GOAT_TALKS_MAX_WPM = 59;
 const GOAT_TALKS_SOUND = "/rizz-sound-effect.mp3";
 const GOAT_TALKS_SOUND_VOLUME = 1;
 const MINIMUM_RESULT_DURATION_MS = 60000;
+const FOCUS_TRANSITION_MS = 760;
+const FOCUS_TRANSITION_EASING = "cubic-bezier(0.22, 1, 0.36, 1)";
 
 export default function TypingTester({ locale = "en" }: { locale?: Locale }) {
   const prefs = useMemo(() => getPreferences(), []);
   const reducedMotion = useReducedMotion();
-  // The typing text now defaults to the page's own locale instead of always
-  // falling back to English (unless the page happened to be Spanish) — that
-  // mismatch was why Spanish text kept showing up on every other localized
-  // page once it had been picked once anywhere on the site.
   const test = useTypingTest(prefs.difficulty, prefs.duration, locale);
   const [viewMode, setViewMode] = useState<ViewMode>("test");
   const [personalBest, setPersonalBest] = useState<PersonalBest>(null);
   const [focusMode, setFocusMode] = useState(false);
   const previousStatusRef = useRef(test.status);
+  const shellRef = useRef<HTMLDivElement | null>(null);
+  const focusOriginRef = useRef<FocusOrigin | null>(null);
+  const focusAnimationRef = useRef<Animation | null>(null);
   const { playSound } = useSound();
 
   useEffect(() => {
@@ -89,6 +91,47 @@ export default function TypingTester({ locale = "en" }: { locale?: Locale }) {
     };
   }, [focusMode]);
 
+  // FLIP-style transition: the full-screen shell begins at the exact screen
+  // bounds of the clicked card, then expands to the viewport. useLayoutEffect
+  // starts it before paint, eliminating the one-frame full-screen jump.
+  useLayoutEffect(() => {
+    if (!focusMode || reducedMotion) return;
+    const shell = shellRef.current;
+    const origin = focusOriginRef.current;
+    if (!shell || !origin) return;
+
+    focusAnimationRef.current?.cancel();
+    const viewportWidth = Math.max(1, window.innerWidth);
+    const viewportHeight = Math.max(1, window.innerHeight);
+    const scaleX = Math.max(0.01, origin.width / viewportWidth);
+    const scaleY = Math.max(0.01, origin.height / viewportHeight);
+
+    const animation = shell.animate(
+      [
+        {
+          transform: `translate3d(${origin.left}px, ${origin.top}px, 0) scale(${scaleX}, ${scaleY})`,
+          borderRadius: "24px",
+          boxShadow: "0 30px 80px -36px rgba(0,0,0,.48)",
+        },
+        {
+          transform: "translate3d(0, 0, 0) scale(1, 1)",
+          borderRadius: "0px",
+          boxShadow: "0 0 0 rgba(0,0,0,0)",
+        },
+      ],
+      {
+        duration: FOCUS_TRANSITION_MS,
+        easing: FOCUS_TRANSITION_EASING,
+        fill: "both",
+      },
+    );
+    focusAnimationRef.current = animation;
+    animation.finished.catch(() => {}).finally(() => {
+      if (focusAnimationRef.current === animation) focusAnimationRef.current = null;
+    });
+    return () => animation.cancel();
+  }, [focusMode, reducedMotion]);
+
   useEffect(() => {
     if (!focusMode) return;
     const onKeyDown = (event: KeyboardEvent) => {
@@ -103,10 +146,20 @@ export default function TypingTester({ locale = "en" }: { locale?: Locale }) {
   };
 
   function enterFocusMode() {
+    const rect = shellRef.current?.getBoundingClientRect();
+    if (rect) {
+      focusOriginRef.current = {
+        left: rect.left,
+        top: rect.top,
+        width: rect.width,
+        height: rect.height,
+      };
+    }
     animateFocusState(true);
   }
 
   function exitFocusMode() {
+    focusAnimationRef.current?.cancel();
     animateFocusState(false);
     (document.activeElement as HTMLElement | null)?.blur?.();
   }
@@ -129,16 +182,18 @@ export default function TypingTester({ locale = "en" }: { locale?: Locale }) {
   };
 
   const controlsDisabled = test.status === "running" || viewMode === "custom";
-  // Shown on every locale (including English) now that it is a meaningful
-  // 13-language choice for the practice text, not just a Spanish/English
-  // toggle that only made sense on the Spanish page.
   const showTypingLanguageSelector = viewMode === "test" && test.status !== "finished";
+  const focusedShellStyle = focusMode
+    ? ({ animation: "none", transformOrigin: "top left" } as CSSProperties)
+    : undefined;
 
   const testerShell = (
     <div
+      ref={shellRef}
       onClick={(event) => {
         if (event.target === event.currentTarget && focusMode) exitFocusMode();
       }}
+      style={focusedShellStyle}
       className={cn("test-shell rounded-[24px] border border-hairline bg-canvas p-6 shadow-sm transition-all duration-300", focusMode && "test-shell-focus")}
     >
       {!focusMode && (
@@ -273,7 +328,18 @@ export default function TypingTester({ locale = "en" }: { locale?: Locale }) {
     </div>
   );
 
-  return focusMode ? createPortal(testerShell, document.body) : <div id="tester" className="scroll-mt-20">{testerShell}</div>;
+  return focusMode
+    ? createPortal(
+        <>
+          <div
+            aria-hidden="true"
+            style={{ position: "fixed", inset: 0, zIndex: 59, background: "var(--color-canvas)" }}
+          />
+          {testerShell}
+        </>,
+        document.body,
+      )
+    : <div id="tester" className="scroll-mt-20">{testerShell}</div>;
 }
 
 function SettingLabel({ text }: { text: string }) {
