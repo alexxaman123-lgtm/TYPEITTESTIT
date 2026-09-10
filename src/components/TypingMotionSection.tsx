@@ -32,28 +32,25 @@ const LETTERS = [
   { value: "0", position: "top-[65%] right-[17%]", size: "h-12 w-12 sm:h-14 sm:w-14", rotateDeg: 6, dx: 33, dy: 15, spin: -290, floatDelay: "-4.9s", floatDuration: "3.1s", revealDelay: 0.22 },
 ] as const;
 
-// Fires once the section's box is essentially fully inside the viewport --
-// not just peeking in at an edge. If the section itself is taller than the
-// viewport (short mobile screens, where it can never fully fit on screen at
-// once), "fully in view" instead means the viewport is essentially covered
-// edge-to-edge by the section.
-//
-// A generous tolerance is used instead of exact pixel matching: without it,
-// whenever a screen's height happens to sit very close to the section's
-// height, the true "fully framed" window can shrink to only a few pixels of
-// scroll (or even round away to nothing), so a normal-speed or inertial
-// scroll gesture can skip straight past it and the reveal never fires at
-// all. The tolerance keeps the check strict enough to still wait for a
-// genuinely full view while guaranteeing a reliably reachable trigger
-// window on every device.
-function isSectionFullyInViewport(section: HTMLElement): boolean {
+// Fires once roughly half of the section's own height has scrolled into the
+// viewport, rather than waiting for the section to be perfectly framed
+// edge-to-edge. Waiting for a full, edge-to-edge frame meant the reveal only
+// fired once the user had already scrolled well past the section's top --
+// on many screens that point sits close to (or past) the section's bottom,
+// which read as "the animation happens after I've left the section". Using
+// the fraction of the section's own height that is currently visible (capped
+// by the viewport height for sections taller than the screen) gives a
+// consistent "I've reached the midpoint of this section" trigger on every
+// device, including short mobile screens and sections taller than the
+// viewport.
+function isSectionHalfwayInViewport(section: HTMLElement): boolean {
   const rect = section.getBoundingClientRect();
   const viewportHeight = window.innerHeight || document.documentElement.clientHeight;
-  const tolerance = Math.max(32, viewportHeight * 0.04);
-  if (rect.height <= viewportHeight + tolerance) {
-    return rect.top >= -tolerance && rect.bottom <= viewportHeight + tolerance;
-  }
-  return rect.top <= tolerance && rect.bottom >= viewportHeight - tolerance;
+  const visibleTop = Math.max(rect.top, 0);
+  const visibleBottom = Math.min(rect.bottom, viewportHeight);
+  const visibleHeight = Math.max(0, visibleBottom - visibleTop);
+  const referenceHeight = Math.min(rect.height, viewportHeight) || 1;
+  return visibleHeight / referenceHeight >= 0.5;
 }
 
 const VISIBILITY_THRESHOLDS = Array.from({ length: 21 }, (_, i) => i / 20);
@@ -63,20 +60,20 @@ const VISIBILITY_THRESHOLDS = Array.from({ length: 21 }, (_, i) => i / 20);
 // observer uses a loose `rootMargin: '0px 0px 10% 0px'` and fires as soon as
 // an element merely starts intersecting -- which was flipping this section's
 // reveal state active the instant it began peeking into view (e.g. on mobile
-// while only its very top edge was visible), well before it was fully
-// scrolled into frame. This component owns its own strict, fully-in-viewport
-// gate below via a dedicated `data-spiral-defer` attribute so the two
-// observers can never race each other.
+// while only its very top edge was visible), well before it was scrolled
+// meaningfully into frame. This component owns its own `data-spiral-defer`
+// attribute, gated by the halfway check above, so the two observers can
+// never race each other.
 //
 // This component is hydrated with `client:load` (not `client:visible`) on
 // every page that uses it. That is intentional: with `client:visible`, the
 // browser only starts downloading and running this component's JS once the
 // section itself begins entering the viewport, so on a fast or continuous
-// scroll the code can still be loading by the moment the section is fully
-// framed, making the reveal fire a beat late. Hydrating immediately on load
+// scroll the code can still be loading by the moment the halfway condition
+// is met, making the reveal fire a beat late. Hydrating immediately on load
 // means the observer and scroll listener below are already armed well
 // before the user ever reaches this section, so the reveal fires the exact
-// instant the fully-in-viewport condition is met, with no perceptible delay.
+// instant the halfway-in-viewport condition is met, with no perceptible delay.
 export default function TypingMotionSection({ locale = "en" }: TypingMotionSectionProps) {
   const sectionRef = useRef<HTMLElement | null>(null);
 
@@ -92,7 +89,7 @@ export default function TypingMotionSection({ locale = "en" }: TypingMotionSecti
     let triggered = false;
 
     const tryTrigger = () => {
-      if (triggered || !isSectionFullyInViewport(section)) return;
+      if (triggered || !isSectionHalfwayInViewport(section)) return;
       triggered = true;
       section.dataset.spiralDefer = "active";
       observer.disconnect();
@@ -104,7 +101,7 @@ export default function TypingMotionSection({ locale = "en" }: TypingMotionSecti
     observer.observe(section);
     // Scroll/resize fallback: IntersectionObserver only re-checks at the
     // threshold steps above, so these catch the exact frame the section
-    // becomes fully framed even on fast or inertial scrolls.
+    // crosses the halfway point even on fast or inertial scrolls.
     window.addEventListener("scroll", tryTrigger, { passive: true });
     window.addEventListener("resize", tryTrigger);
 
