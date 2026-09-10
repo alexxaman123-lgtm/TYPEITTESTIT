@@ -61,12 +61,23 @@ const themeMap = Object.fromEntries(
   THEMES.map((theme) => [theme.id, { type: theme.type, variables: theme.variables }])
 );
 
+// The account page is a private, per-user dashboard (typing history, email,
+// account info) that renders an empty sign-in prompt when logged out. It has
+// no unique public content to rank for and should never be crawled/indexed,
+// on any locale.
+const isPrivatePage = pageKey === "account";
+const robotsContent = isPrivatePage
+  ? "noindex, nofollow"
+  : "index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1";
+
 // When a pageKey is provided, generate a complete, reciprocal 13-locale +
 // x-default hreflang cluster automatically. This is the single place that
 // knows about every locale, so adding a 14th language later means adding
 // one entry to LOCALES/LOCALE_META in src/lib/i18n.ts -- nothing here needs
-// to change.
-const generatedAlternates: AlternateLink[] = rootPath
+// to change. Private pages are excluded: hreflang clusters are a signal for
+// content Google should index and swap between locales, which doesn't apply
+// to a noindex page.
+const generatedAlternates: AlternateLink[] = rootPath && !isPrivatePage
   ? [
       ...LOCALES.map((l) => ({ hreflang: LOCALE_META[l].htmlLang, href: `${siteUrl}${withLocalePrefix(l, rootPath)}` })),
       { hreflang: "x-default", href: `${siteUrl}${rootPath}` },
@@ -90,8 +101,8 @@ const ogLocaleAlternates = rootPath
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>{title}</title>
     <meta name="description" content={description} />
-    <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1" />
-    <meta name="googlebot" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1" />
+    <meta name="robots" content={robotsContent} />
+    <meta name="googlebot" content={robotsContent} />
     <meta name="referrer" content="strict-origin-when-cross-origin" />
     <meta name="author" content={localizedBrand} />
     <link rel="canonical" href={canonicalUrl} />
