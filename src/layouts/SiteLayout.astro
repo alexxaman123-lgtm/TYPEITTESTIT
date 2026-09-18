@@ -60,8 +60,36 @@ const themeMap = Object.fromEntries(
 
 const isPrivatePage = pageKey === "account";
 const robotsContent = isPrivatePage
-  ? "noindex, nofollow"
+  ? "noindex, follow"
   : "index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1";
+
+const SEO_DESCRIPTION_SUFFIX: Record<Locale, string> = {
+  en: "Practice free typing tests and improve WPM and accuracy with GOATTYPE.",
+  es: "Practica gratis con pruebas cronometradas, controla WPM y precisión, y mejora tu mecanografía online con GOATTYPE.",
+  de: "Übe kostenlos mit zeitgesteuerten Tests, verfolge WPM und Genauigkeit und verbessere deine Tippfähigkeiten online mit GOATTYPE.",
+  fr: "Entraînez-vous gratuitement avec des tests chronométrés, suivez le WPM et la précision, et progressez en ligne avec GOATTYPE.",
+  it: "Esercitati gratis con test a tempo, controlla WPM e precisione e migliora la digitazione online con GOATTYPE.",
+  pt: "Pratique grátis com testes cronometrados, acompanhe WPM e precisão e melhore sua digitação online com GOATTYPE.",
+  pl: "Ćwicz bezpłatnie w testach na czas, śledź WPM i dokładność oraz rozwijaj umiejętność pisania online z GOATTYPE.",
+  tr: "Ücretsiz süreli testlerle pratik yapın, WPM ve doğruluğu izleyin ve GOATTYPE ile yazma becerinizi geliştirin.",
+  uk: "Практикуйтеся безкоштовно з тестами на час, відстежуйте WPM і точність та покращуйте навички друку з GOATTYPE.",
+  id: "Berlatih gratis dengan tes berwaktu, pantau WPM dan akurasi, lalu tingkatkan keterampilan mengetik bersama GOATTYPE.",
+  zh: "无需安装或注册，即可在浏览器中免费进行限时练习、查看每分钟字数和准确率，并使用多语言内容持续提升打字速度、键盘熟练度与输入稳定性。",
+  ja: "インストールや登録は不要です。ブラウザで無料の時間制テストに挑戦し、WPMと正確性を確認しながら、GOATTYPEでタイピング速度とキーボード操作を継続的に上達させましょう。",
+  ko: "브라우저에서 무료 테스트를 연습하고 WPM과 정확도를 확인하며 GOATTYPE으로 타이핑 실력을 높이세요.",
+};
+
+function fitMetaDescription(value: string, suffix: string): string {
+  let result = value.trim();
+  if (result.length < 94) result = `${result} ${suffix}`;
+  if (result.length <= 160) return result;
+  const candidate = result.slice(0, 159);
+  const lastSpace = candidate.lastIndexOf(" ");
+  result = candidate.slice(0, lastSpace >= 94 ? lastSpace : 159).replace(/[,:;–—-]+$/u, "").trimEnd();
+  return /[.!?。！？]$/u.test(result) ? result : `${result}.`;
+}
+
+const metaDescription = fitMetaDescription(description, SEO_DESCRIPTION_SUFFIX[locale as Locale] ?? SEO_DESCRIPTION_SUFFIX.en);
 
 const generatedAlternates: AlternateLink[] = rootPath && !isPrivatePage
   ? [
@@ -84,7 +112,7 @@ const ogLocaleAlternates = rootPath
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>{title}</title>
-    <meta name="description" content={description} />
+    <meta name="description" content={metaDescription} />
     <meta name="robots" content={robotsContent} />
     <meta name="googlebot" content={robotsContent} />
     <meta name="referrer" content="strict-origin-when-cross-origin" />
@@ -95,7 +123,7 @@ const ogLocaleAlternates = rootPath
     <meta property="og:type" content="website" />
     <meta property="og:site_name" content={localizedBrand} />
     <meta property="og:title" content={title} />
-    <meta property="og:description" content={description} />
+    <meta property="og:description" content={metaDescription} />
     <meta property="og:url" content={canonicalUrl} />
     <meta property="og:locale" content={meta.bcp47.replace("-", "_")} />
     {ogLocaleAlternates.map((code) => <meta property="og:locale:alternate" content={code} />)}
@@ -104,7 +132,7 @@ const ogLocaleAlternates = rootPath
 
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:title" content={title} />
-    <meta name="twitter:description" content={description} />
+    <meta name="twitter:description" content={metaDescription} />
     <meta name="twitter:image" content={`${siteUrl}/og-image.png`} />
     <meta name="twitter:image:alt" content={localizedImageAlt} />
 

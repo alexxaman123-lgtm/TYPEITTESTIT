@@ -3,10 +3,18 @@ import SiteLayout from "../layouts/SiteLayout.astro";
 import Header from "../components/Header";
 import Footer from "../components/Footer";
 import KeyboardTestLauncher from "../components/KeyboardTestLauncher";
+import { LOCALES, LOCALE_META, withLocalePrefix } from "../lib/i18n";
 
 const title = "Keyboard Tester Online – Test All Keys & Numpad | GOATTYPE";
 const description = "Launch GOATTYPE's free fullscreen keyboard tester for letters, F1–F12, arrows, navigation keys, number pad, ghosting, rollover, and missing keys.";
 const canonicalPath = "/keyboard-test/";
+const alternates = [
+  ...LOCALES.map((locale) => ({
+    hreflang: LOCALE_META[locale].htmlLang,
+    href: `https://typeittestit.com${withLocalePrefix(locale, canonicalPath)}`,
+  })),
+  { hreflang: "x-default", href: "https://typeittestit.com/keyboard-test/" },
+];
 const faqItems = [
   ["How can I test whether my keyboard is working properly?", "Select Launch keyboard test, then press every physical key in the fullscreen tester. Working keys light up and remain marked. Press Escape or End test to return to the guide."],
   ["Does the keyboard tester open another page?", "No. The tester opens as a fullscreen experience over the current keyboard-test page. Closing it returns you to the same guide, header, content, and footer."],
@@ -22,7 +30,7 @@ const structuredData = [
   { "@context": "https://schema.org", "@type": "FAQPage", mainEntity: faqItems.map(([name, text]) => ({ "@type": "Question", name, acceptedAnswer: { "@type": "Answer", text } })) },
 ];
 ---
-<SiteLayout title={title} description={description} canonicalPath={canonicalPath} structuredData={structuredData}>
+<SiteLayout title={title} description={description} canonicalPath={canonicalPath} alternates={alternates} structuredData={structuredData}>
   <div class="relative min-h-screen">
     <Header client:idle />
     <main>
