@@ -1,20 +1,49 @@
 import { useEffect, useRef, useState } from "react";
-import { LOCALES, LOCALE_META, stripLocalePrefix, withLocalePrefix, type Locale } from "../lib/i18n";
+import {
+  LOCALES,
+  LOCALE_META,
+  stripLocalePrefix,
+  withLocalePrefix,
+  type Locale,
+} from "../lib/i18n";
+
+const LOCALIZED_PATHS = new Set([
+  "/",
+  "/about/",
+  "/account/",
+  "/contact/",
+  "/keyboard-test/",
+  "/leaderboard/",
+  "/privacy-policy/",
+  "/terms-of-use/",
+]);
 
 function getLocalizedPath(targetLocale: Locale, pathname: string): string {
   const rootPath = stripLocalePrefix(pathname || "/");
-  return withLocalePrefix(targetLocale, rootPath);
+  // Only preserve the current route when an equivalent localized page exists.
+  // English-only content such as blog articles switches to the selected locale's
+  // homepage instead of producing a non-existent /<locale>/blog/... URL.
+  return withLocalePrefix(
+    targetLocale,
+    LOCALIZED_PATHS.has(rootPath) ? rootPath : "/",
+  );
 }
 
-export default function LanguagePicker({ locale = "en" as Locale }: { locale?: Locale }) {
+export default function LanguagePicker({
+  locale = "en" as Locale,
+}: {
+  locale?: Locale;
+}) {
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDivElement | null>(null);
   const current = LOCALE_META[locale] ?? LOCALE_META.en;
-  const pathname = typeof window !== "undefined" ? window.location.pathname : "/";
+  const pathname =
+    typeof window !== "undefined" ? window.location.pathname : "/";
 
   useEffect(() => {
     const onPointerDown = (event: MouseEvent) => {
-      if (ref.current && !ref.current.contains(event.target as Node)) setOpen(false);
+      if (ref.current && !ref.current.contains(event.target as Node))
+        setOpen(false);
     };
     document.addEventListener("mousedown", onPointerDown);
     return () => document.removeEventListener("mousedown", onPointerDown);
