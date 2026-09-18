@@ -241,3 +241,35 @@ export function expectedNextChar(targetText: string, typedText: string): string 
   const targetWord = targetWords[index] ?? "";
   return targetWord[words[index].length];
 }
+
+/**
+ * Classify one real text insertion for typing feedback.
+ *
+ * This deliberately works from the input value before and after the browser's
+ * input event instead of KeyboardEvent.key. Mobile virtual keyboards may omit
+ * keydown, report "Unidentified", or update through an IME. A simple one-
+ * character append is the only operation that represents one unambiguous
+ * keystroke; replacements, composition updates, paste and deletion stay
+ * silent rather than producing a false error sound.
+ */
+export function typingSoundForInput(
+  targetText: string,
+  previousValue: string,
+  nextValue: string,
+): "correct" | "wrong" | null {
+  if (
+    nextValue.length !== previousValue.length + 1
+    || !nextValue.startsWith(previousValue)
+  ) {
+    return null;
+  }
+
+  const inserted = nextValue.slice(previousValue.length);
+  if (inserted === " ") return "correct";
+
+  const expected = expectedNextChar(targetText, previousValue);
+  // Once a word is full, do not let overflow keep sounding wrong. The visual
+  // grading still records the extra character; audio remains non-nagging.
+  if (expected === undefined) return "correct";
+  return inserted === expected ? "correct" : "wrong";
+}

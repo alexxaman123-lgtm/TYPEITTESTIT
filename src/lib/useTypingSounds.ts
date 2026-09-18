@@ -4,12 +4,19 @@ let soundsEnabled = true;
 type TypingBufferKind = "correct" | "wrong";
 
 const TYPING_SOUND_URLS: Record<TypingBufferKind, string> = {
-  correct: "/koiroylers-keyboard-press-351952_[cut_0sec].mp3",
+  // Use the already encoded asset path. The literal brackets trigger a 307
+  // normalization redirect at Cloudflare, which adds avoidable delay before
+  // decoding on mobile browsers.
+  correct: "/koiroylers-keyboard-press-351952_%5Bcut_0sec%5D.mp3",
   wrong: "/piano-noise-suprise.mp3",
 };
 
 const typingBuffers = new Map<TypingBufferKind, AudioBuffer>();
 const typingLoads = new Map<TypingBufferKind, Promise<AudioBuffer | null>>();
+let activeWrongSource: {
+  source: AudioBufferSourceNode;
+  gain: GainNode;
+} | null = null;
 
 function getContext(): AudioContext | null {
   if (typeof window === "undefined") return null;
@@ -20,12 +27,44 @@ function getContext(): AudioContext | null {
 }
 
 export function getTypingSoundsEnabled(): boolean { return soundsEnabled; }
-export function setTypingSoundsEnabled(enabled: boolean): void { soundsEnabled = enabled; }
+export function setTypingSoundsEnabled(enabled: boolean): void {
+  soundsEnabled = enabled;
+  if (!enabled) stopActiveWrongSound();
+}
+
+function stopActiveWrongSound(): void {
+  const active = activeWrongSource;
+  if (!active) return;
+  activeWrongSource = null;
+
+  const c = audioContext;
+  if (!c || c.state === "closed") return;
+  const now = c.currentTime;
+  try {
+    active.gain.gain.cancelScheduledValues(now);
+    active.gain.gain.setTargetAtTime(0.0001, now, 0.004);
+    active.source.stop(now + 0.025);
+  } catch {
+    // The source may already have ended between the key event and this call.
+  }
+}
 
 export function unlockTypingSounds(): void {
   const c = getContext();
   if (!c) return;
-  if (c.state !== "running") void c.resume().catch(() => undefined);
+  if (c.state === "running") return;
+
+  // Scheduling a silent frame from the actual pointer/focus gesture primes
+  // Web Audio on iOS Safari as well as Chrome on Android.
+  try {
+    const source = c.createBufferSource();
+    source.buffer = c.createBuffer(1, 1, c.sampleRate);
+    source.connect(c.destination);
+    source.start(0);
+  } catch {
+    // resume() below is still the primary unlock path.
+  }
+  void c.resume().catch(() => undefined);
 }
 
 function tone(frequency: number, duration: number, volume: number): void {
@@ -93,13 +132,31 @@ function playBuffer(kind: TypingBufferKind, volume: number): boolean {
   const buffer = typingBuffers.get(kind);
   if (!c || !buffer || !soundsEnabled || c.state !== "running") return false;
 
+  stopActiveWrongSound();
   const source = c.createBufferSource();
   const gain = c.createGain();
   source.buffer = buffer;
   gain.gain.setValueAtTime(Math.max(0, Math.min(1, volume)), c.currentTime);
   source.connect(gain);
   gain.connect(c.destination);
-  source.start(0);
+
+  // The click MP3 contains about 125 ms of leading silence. Starting at its
+  // audible portion makes feedback immediate, particularly on mobile.
+  const offset = kind === "correct" ? Math.min(0.125, Math.max(0, buffer.duration - 0.01)) : 0;
+  source.start(0, offset);
+  if (kind === "wrong") {
+    activeWrongSource = { source, gain };
+    source.onended = () => {
+      if (activeWrongSource?.source === source) activeWrongSource = null;
+      source.disconnect();
+      gain.disconnect();
+    };
+  } else {
+    source.onended = () => {
+      source.disconnect();
+      gain.disconnect();
+    };
+  }
   return true;
 }
 
@@ -114,11 +171,24 @@ export function playTypingKeySound(kind: TypingBufferKind): void {
   const c = getContext();
   if (!c) return;
 
-  if (playBuffer(kind, kind === "correct" ? 0.72 : 0.09)) return;
+  // Any later keystroke immediately fades an earlier long error sample, so a
+  // run of mistakes can never keep ringing over subsequent correct letters.
+  stopActiveWrongSound();
 
-  const fallback = kind === "correct" ? [440, 0.045, 0.032] as const : [270, 0.035, 0.02] as const;
-  tone(fallback[0], fallback[1], fallback[2]);
-  void loadTypingBuffer(kind);
+  const playReadySound = () => {
+    if (!soundsEnabled) return;
+    if (playBuffer(kind, kind === "correct" ? 0.72 : 0.09)) return;
+
+    const fallback = kind === "correct" ? [440, 0.045, 0.032] as const : [270, 0.035, 0.02] as const;
+    tone(fallback[0], fallback[1], fallback[2]);
+    void loadTypingBuffer(kind);
+  };
+
+  // Android/iOS commonly keep a preloaded AudioContext suspended. Resume
+  // first, then retry the decoded sample; the old order always selected the
+  // synthesized fallback even when the real buffer was already available.
+  if (c.state === "running") playReadySound();
+  else void c.resume().then(playReadySound).catch(() => undefined);
 }
 
 export function playTypingSound(type: "key" | "error" | "backspace"): void {
