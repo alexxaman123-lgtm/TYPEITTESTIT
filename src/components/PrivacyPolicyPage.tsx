@@ -3,7 +3,7 @@ import type { Locale } from "../lib/i18n";
 type Section = { h: string; body: string };
 type PrivacyText = { eyebrow: string; heading: string; lastUpdated: string; sections: Section[] };
 
-const MAIL = '<a href="mailto:typeittestit@gmail.com" class="text-accent hover:underline">typeittestit@gmail.com</a>';
+const MAIL = '<a href="mailto:hello@typeittestit.com" class="text-accent hover:underline">hello@typeittestit.com</a>';
 const ADS = '<a href="https://adssettings.google.com/" target="_blank" rel="noreferrer" class="text-accent hover:underline">Google Ads Settings</a>';
 const ADS_INFO = '<a href="https://www.aboutads.info/choices/" target="_blank" rel="noreferrer" class="text-accent hover:underline">aboutads.info</a>';
 
