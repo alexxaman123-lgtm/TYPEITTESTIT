@@ -3,7 +3,7 @@ import type { Locale } from "../lib/i18n";
 type Section = { h: string; body: string };
 type TermsText = { eyebrow: string; heading: string; lastUpdated: string; sections: Section[] };
 
-const MAIL = '<a href="mailto:typeittestit@gmail.com" class="text-accent hover:underline">typeittestit@gmail.com</a>';
+const MAIL = '<a href="mailto:hello@typeittestit.com" class="text-accent hover:underline">hello@typeittestit.com</a>';
 
 const TEXT: Record<Locale, TermsText> = {
   en: { eyebrow: "Legal", heading: "TERMS OF USE", lastUpdated: "Last updated: August 31, 2026", sections: [

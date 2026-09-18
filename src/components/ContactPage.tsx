@@ -36,10 +36,10 @@ export default function ContactPage({ locale = "en" as Locale }: { locale?: Loca
         </div>
         <p className="mt-6 max-w-2xl font-body-sm text-text-muted">{t.responseNote}</p>
         <a
-          href="mailto:typeittestit@gmail.com"
+          href="mailto:hello@typeittestit.com"
           className="mt-6 inline-flex items-center rounded-full border border-hairline bg-canvas px-6 py-3 font-link text-ink transition hover:bg-canvas-soft"
         >
-          typeittestit@gmail.com
+          hello@typeittestit.com
         </a>
       </div>
     </section>
