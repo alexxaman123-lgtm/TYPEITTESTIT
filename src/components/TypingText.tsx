@@ -1,8 +1,13 @@
 import { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import { cn } from "../utils/cn";
 import { getSoundEnabled, setSoundEnabled } from "../lib/useSound";
-import { playTypingKeySound, preloadTypingSounds, unlockTypingSounds } from "../lib/useTypingSounds";
-import { expectedNextChar } from "../lib/grade";
+import {
+  playTypingKeySound,
+  preloadTypingSounds,
+  setTypingSoundsEnabled,
+  unlockTypingSounds,
+} from "../lib/useTypingSounds";
+import { typingSoundForInput } from "../lib/grade";
 import type { Locale } from "../lib/i18n";
 import { tr } from "../lib/i18n";
 
@@ -59,16 +64,16 @@ export default function TypingText({
   const surfaceRef = useRef<HTMLDivElement | null>(null);
   const caretRef = useRef<HTMLSpanElement | null>(null);
   const currentCharRef = useRef<HTMLSpanElement | null>(null);
-  // Caret position at which the error sound last rang, so one wrong letter can
-  // never ring twice (key repeat, a re-render, or retyping the same position).
-  const lastWrongPosRef = useRef<number | null>(null);
+  // The value from the last real input event. Unlike React state or keydown,
+  // this remains exact when a mobile IME emits several events quickly.
+  const inputValueRef = useRef(typed);
 
   const targetWords = useMemo(() => target.split(" "), [target]);
   const typedWords = useMemo(() => typed.split(" "), [typed]);
   const completedCount = Math.max(0, typedWords.length - 1);
 
   useEffect(() => { setWordWindowStart(0); }, [resetKey]);
-  useEffect(() => { lastWrongPosRef.current = null; }, [resetKey]);
+  useEffect(() => { inputValueRef.current = typed; }, [typed, resetKey]);
   useEffect(() => { setSoundEnabledState(getSoundEnabled()); }, [status, resetKey]);
   useEffect(() => { preloadTypingSounds(); }, []);
   useEffect(() => {
@@ -160,55 +165,27 @@ export default function TypingText({
     }
   };
 
-  // Key sounds fire here and nowhere else, so the error sound can only ever be
-  // heard on the keystroke that was actually wrong - never again afterwards.
-  const handleKeyDown = (event: React.KeyboardEvent<HTMLInputElement>) => {
-    if (disabled || !getSoundEnabled()) return;
-    if (event.key.length !== 1 || event.ctrlKey || event.metaKey || event.altKey) return;
-    if (freeTyping) return;
+  // Classify feedback from the value produced by the browser's input event.
+  // This works for desktop keys and Android/iOS virtual keyboards; keydown
+  // does not, because mobile IMEs can omit it or report "Unidentified".
+  const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const nextValue = event.currentTarget.value;
+    const previousValue = inputValueRef.current;
+    inputValueRef.current = nextValue;
 
-    // Read what is in the input RIGHT NOW rather than the `typed` prop. React
-    // state can still be a keystroke behind while typing fast, and a stale
-    // position made letters in later words get compared against the wrong
-    // target letter - which is why correct words kept sounding wrong.
-    const valueNow = event.currentTarget.value;
-
-    // Space just separates words. It is never a mistake, so finishing a word
-    // that contained a typo can never re-trigger the error sound.
-    if (event.key === " ") {
-      playTypingKeySound("correct");
-      lastWrongPosRef.current = null;
-      return;
+    if (!disabled && !freeTyping && getSoundEnabled()) {
+      unlockTypingSounds();
+      const sound = typingSoundForInput(target, previousValue, nextValue);
+      if (sound) playTypingKeySound(sound);
     }
 
-    // Word-aligned expected character: a mistake in one word never makes the
-    // keystrokes that follow it sound wrong.
-    const expected = expectedNextChar(target, valueNow);
-
-    // No expected letter left means the word is already full and this key is an
-    // extra character. The mistake that caused the overflow already rang once;
-    // re-alerting on every following keystroke is exactly the nagging we do not
-    // want, so this gets the normal key click.
-    if (expected === undefined) {
-      playTypingKeySound("correct");
-      return;
-    }
-
-    if (event.key === expected) {
-      playTypingKeySound("correct");
-      lastWrongPosRef.current = null;
-      return;
-    }
-
-    // Wrong letter: ring once, here, at this position - and only once.
-    if (lastWrongPosRef.current === valueNow.length) return;
-    lastWrongPosRef.current = valueNow.length;
-    playTypingKeySound("wrong");
+    onChange(nextValue);
   };
 
   const toggleSound = () => {
     const next = !getSoundEnabled();
     setSoundEnabled(next);
+    setTypingSoundsEnabled(next);
     setSoundEnabledState(next);
     if (next) { unlockTypingSounds(); preloadTypingSounds(); }
     inputRef.current?.focus();
@@ -365,8 +342,7 @@ export default function TypingText({
           type="text"
           value={typed}
           disabled={disabled}
-          onKeyDown={handleKeyDown}
-          onChange={(e) => onChange(e.currentTarget.value)}
+          onChange={handleInputChange}
           onFocus={() => { setFocused(true); unlockTypingSounds(); preloadTypingSounds(); onFocusModeRequest?.(); }}
           onBlur={() => setFocused(false)}
           autoComplete="off"
