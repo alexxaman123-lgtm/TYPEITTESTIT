@@ -9,7 +9,7 @@ export interface KeyboardPageCopy {
 
 export const KEYBOARD_PAGE_COPY: Record<KeyboardPageLocale, KeyboardPageCopy> = {
   es: {
-    title: "Prueba de teclado online gratis | Comprobar teclas y teclado numérico | GOATTYPE",
+    title: "Prueba de teclado online | Comprobar todas las teclas | GOATTYPE",
     description: "Prueba todas las teclas de tu teclado online: F1–F12, flechas, teclado numérico, teclas bloqueadas, ghosting y pulsaciones simultáneas.",
     keywords: ["prueba de teclado", "test de teclado online", "comprobar teclas", "probador de teclado", "teclado numérico", "teclas que no funcionan", "ghosting teclado"],
     eyebrow: "Diagnóstico gratuito en el navegador", hero: "Prueba cada tecla de tu teclado online", intro: "Comprueba un teclado completo de 104 teclas sin instalar programas. La prueba a pantalla completa detecta letras, números, teclas de función, flechas, modificadores y teclado numérico, y marca cada tecla que responde.",
