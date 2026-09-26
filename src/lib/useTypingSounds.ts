@@ -13,6 +13,8 @@ const TYPING_SOUND_URLS: Record<TypingBufferKind, string> = {
 
 const typingBuffers = new Map<TypingBufferKind, AudioBuffer>();
 const typingLoads = new Map<TypingBufferKind, Promise<AudioBuffer | null>>();
+const sampleBuffers = new Map<string, AudioBuffer>();
+const sampleLoads = new Map<string, Promise<AudioBuffer | null>>();
 let activeWrongSource: {
   source: AudioBufferSourceNode;
   gain: GainNode;
@@ -125,6 +127,81 @@ export function preloadTypingSounds(): void {
   if (typeof window === "undefined") return;
   void loadTypingBuffer("correct");
   void loadTypingBuffer("wrong");
+}
+
+function loadSampleBuffer(src: string): Promise<AudioBuffer | null> {
+  const existing = sampleBuffers.get(src);
+  if (existing) return Promise.resolve(existing);
+
+  const pending = sampleLoads.get(src);
+  if (pending) return pending;
+
+  const c = getContext();
+  if (!c) return Promise.resolve(null);
+
+  const request = fetch(src, { cache: "force-cache" })
+    .then((response) => {
+      if (!response.ok) throw new Error(`Could not load sound: ${response.status}`);
+      return response.arrayBuffer();
+    })
+    .then((data) => c.decodeAudioData(data))
+    .then((buffer) => {
+      sampleBuffers.set(src, buffer);
+      return buffer;
+    })
+    .catch(() => null)
+    .finally(() => {
+      sampleLoads.delete(src);
+    });
+
+  sampleLoads.set(src, request);
+  return request;
+}
+
+/** Decode result sounds early so they are ready when a timed test ends. */
+export function preloadSoundSamples(srcs: readonly string[]): void {
+  if (typeof window === "undefined") return;
+  for (const src of srcs) void loadSampleBuffer(src);
+}
+
+/**
+ * Play a decoded MP3 through the same AudioContext that typing unlocks.
+ * HTMLAudioElement.play() is commonly blocked when it runs a minute after the
+ * user's last click, which made WPM-specific result sounds fail on mobile.
+ */
+export function playSoundSample(src: string, volume: number = 1): void {
+  if (!soundsEnabled) return;
+  const c = getContext();
+  if (!c) return;
+
+  const play = (buffer: AudioBuffer) => {
+    if (!soundsEnabled || c.state !== "running") return;
+    const source = c.createBufferSource();
+    const gain = c.createGain();
+    source.buffer = buffer;
+    gain.gain.setValueAtTime(Math.max(0, Math.min(1, volume)), c.currentTime);
+    source.connect(gain);
+    gain.connect(c.destination);
+    source.onended = () => {
+      source.disconnect();
+      gain.disconnect();
+    };
+    source.start();
+  };
+
+  const playReadySound = () => {
+    const buffer = sampleBuffers.get(src);
+    if (buffer) {
+      play(buffer);
+      return;
+    }
+    void loadSampleBuffer(src).then((loaded) => {
+      if (loaded) play(loaded);
+    });
+  };
+
+  if (c.state === "running") playReadySound();
+  else void c.resume().then(playReadySound).catch(() => undefined);
 }
 
 function playBuffer(kind: TypingBufferKind, volume: number): boolean {
