@@ -3,6 +3,7 @@ export function runGADiagnostic() {
 
   try {
     // 1. Verify dataLayer existence and contents
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any -- GA dataLayer is an untyped third-party global
     const dataLayer = (window as any).dataLayer;
     if (!dataLayer || !Array.isArray(dataLayer)) {
       console.error("❌ window.dataLayer is not initialized or is not an array.");
@@ -10,6 +11,7 @@ export function runGADiagnostic() {
       console.log("✅ window.dataLayer is initialized. Length:", dataLayer.length);
       
       // Look for the specific G-SGDYN5GEJT property in the dataLayer history
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any -- dataLayer entries are untyped GA payloads
       const containsMeasurementId = dataLayer.some((item: any) => {
         try {
           return JSON.stringify(Array.from(item)).includes("G-SGDYN5GEJT");
@@ -25,6 +27,7 @@ export function runGADiagnostic() {
       }
 
       // Look for pageview events or events pushed to the dataLayer
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any -- dataLayer entries are untyped GA payloads
       const pageViewEvents = dataLayer.filter((item: any) => {
         try {
           const str = JSON.stringify(Array.from(item));

@@ -1,5 +1,5 @@
 export default {
-  async fetch(request, env, ctx) {
+  async fetch(request, env) {
     // Let Cloudflare serve real static assets first.
     const response = await env.ASSETS.fetch(request);
 

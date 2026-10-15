@@ -159,7 +159,7 @@ const ogLocaleAlternates = rootPath
             root.style.colorScheme = 'light';
           }
           Object.entries(theme.variables).forEach(([name, value]) => root.style.setProperty(name, value));
-        } catch (_) {
+        } catch {
           // Theme loading is cosmetic and must never block page rendering.
         }
       })();
