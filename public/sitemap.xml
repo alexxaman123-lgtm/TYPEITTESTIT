@@ -2,24 +2,13 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url><loc>https://typeittestit.com/</loc></url>
   <url><loc>https://typeittestit.com/about/</loc></url>
-  <url><loc>https://typeittestit.com/contact/</loc></url>
-  <url><loc>https://typeittestit.com/keyboard-test/</loc></url>
-  <url><loc>https://typeittestit.com/leaderboard/</loc></url>
-  <url><loc>https://typeittestit.com/privacy-policy/</loc></url>
-  <url><loc>https://typeittestit.com/terms-of-use/</loc></url>
   <url><loc>https://typeittestit.com/blog/</loc></url>
-  <url><loc>https://typeittestit.com/blog/touch-typing-for-beginners/</loc></url>
-  <url><loc>https://typeittestit.com/blog/how-to-increase-typing-speed/</loc></url>
-  <url><loc>https://typeittestit.com/blog/touch-typing-mistakes/</loc></url>
   <url><loc>https://typeittestit.com/blog/good-typing-speed-benchmarks/</loc></url>
+  <url><loc>https://typeittestit.com/blog/how-to-increase-typing-speed/</loc></url>
+  <url><loc>https://typeittestit.com/blog/touch-typing-for-beginners/</loc></url>
+  <url><loc>https://typeittestit.com/blog/touch-typing-mistakes/</loc></url>
   <url><loc>https://typeittestit.com/blog/typing-test-for-job-interview/</loc></url>
-  <url><loc>https://typeittestit.com/es/</loc></url>
-  <url><loc>https://typeittestit.com/es/about/</loc></url>
-  <url><loc>https://typeittestit.com/es/contact/</loc></url>
-  <url><loc>https://typeittestit.com/es/keyboard-test/</loc></url>
-  <url><loc>https://typeittestit.com/es/leaderboard/</loc></url>
-  <url><loc>https://typeittestit.com/es/privacy-policy/</loc></url>
-  <url><loc>https://typeittestit.com/es/terms-of-use/</loc></url>
+  <url><loc>https://typeittestit.com/contact/</loc></url>
   <url><loc>https://typeittestit.com/de/</loc></url>
   <url><loc>https://typeittestit.com/de/about/</loc></url>
   <url><loc>https://typeittestit.com/de/contact/</loc></url>
@@ -27,6 +16,13 @@
   <url><loc>https://typeittestit.com/de/leaderboard/</loc></url>
   <url><loc>https://typeittestit.com/de/privacy-policy/</loc></url>
   <url><loc>https://typeittestit.com/de/terms-of-use/</loc></url>
+  <url><loc>https://typeittestit.com/es/</loc></url>
+  <url><loc>https://typeittestit.com/es/about/</loc></url>
+  <url><loc>https://typeittestit.com/es/contact/</loc></url>
+  <url><loc>https://typeittestit.com/es/keyboard-test/</loc></url>
+  <url><loc>https://typeittestit.com/es/leaderboard/</loc></url>
+  <url><loc>https://typeittestit.com/es/privacy-policy/</loc></url>
+  <url><loc>https://typeittestit.com/es/terms-of-use/</loc></url>
   <url><loc>https://typeittestit.com/fr/</loc></url>
   <url><loc>https://typeittestit.com/fr/about/</loc></url>
   <url><loc>https://typeittestit.com/fr/contact/</loc></url>
@@ -34,6 +30,13 @@
   <url><loc>https://typeittestit.com/fr/leaderboard/</loc></url>
   <url><loc>https://typeittestit.com/fr/privacy-policy/</loc></url>
   <url><loc>https://typeittestit.com/fr/terms-of-use/</loc></url>
+  <url><loc>https://typeittestit.com/id/</loc></url>
+  <url><loc>https://typeittestit.com/id/about/</loc></url>
+  <url><loc>https://typeittestit.com/id/contact/</loc></url>
+  <url><loc>https://typeittestit.com/id/keyboard-test/</loc></url>
+  <url><loc>https://typeittestit.com/id/leaderboard/</loc></url>
+  <url><loc>https://typeittestit.com/id/privacy-policy/</loc></url>
+  <url><loc>https://typeittestit.com/id/terms-of-use/</loc></url>
   <url><loc>https://typeittestit.com/it/</loc></url>
   <url><loc>https://typeittestit.com/it/about/</loc></url>
   <url><loc>https://typeittestit.com/it/contact/</loc></url>
@@ -41,13 +44,22 @@
   <url><loc>https://typeittestit.com/it/leaderboard/</loc></url>
   <url><loc>https://typeittestit.com/it/privacy-policy/</loc></url>
   <url><loc>https://typeittestit.com/it/terms-of-use/</loc></url>
-  <url><loc>https://typeittestit.com/pt/</loc></url>
-  <url><loc>https://typeittestit.com/pt/about/</loc></url>
-  <url><loc>https://typeittestit.com/pt/contact/</loc></url>
-  <url><loc>https://typeittestit.com/pt/keyboard-test/</loc></url>
-  <url><loc>https://typeittestit.com/pt/leaderboard/</loc></url>
-  <url><loc>https://typeittestit.com/pt/privacy-policy/</loc></url>
-  <url><loc>https://typeittestit.com/pt/terms-of-use/</loc></url>
+  <url><loc>https://typeittestit.com/ja/</loc></url>
+  <url><loc>https://typeittestit.com/ja/about/</loc></url>
+  <url><loc>https://typeittestit.com/ja/contact/</loc></url>
+  <url><loc>https://typeittestit.com/ja/keyboard-test/</loc></url>
+  <url><loc>https://typeittestit.com/ja/leaderboard/</loc></url>
+  <url><loc>https://typeittestit.com/ja/privacy-policy/</loc></url>
+  <url><loc>https://typeittestit.com/ja/terms-of-use/</loc></url>
+  <url><loc>https://typeittestit.com/keyboard-test/</loc></url>
+  <url><loc>https://typeittestit.com/ko/</loc></url>
+  <url><loc>https://typeittestit.com/ko/about/</loc></url>
+  <url><loc>https://typeittestit.com/ko/contact/</loc></url>
+  <url><loc>https://typeittestit.com/ko/keyboard-test/</loc></url>
+  <url><loc>https://typeittestit.com/ko/leaderboard/</loc></url>
+  <url><loc>https://typeittestit.com/ko/privacy-policy/</loc></url>
+  <url><loc>https://typeittestit.com/ko/terms-of-use/</loc></url>
+  <url><loc>https://typeittestit.com/leaderboard/</loc></url>
   <url><loc>https://typeittestit.com/pl/</loc></url>
   <url><loc>https://typeittestit.com/pl/about/</loc></url>
   <url><loc>https://typeittestit.com/pl/contact/</loc></url>
@@ -55,6 +67,15 @@
   <url><loc>https://typeittestit.com/pl/leaderboard/</loc></url>
   <url><loc>https://typeittestit.com/pl/privacy-policy/</loc></url>
   <url><loc>https://typeittestit.com/pl/terms-of-use/</loc></url>
+  <url><loc>https://typeittestit.com/privacy-policy/</loc></url>
+  <url><loc>https://typeittestit.com/pt/</loc></url>
+  <url><loc>https://typeittestit.com/pt/about/</loc></url>
+  <url><loc>https://typeittestit.com/pt/contact/</loc></url>
+  <url><loc>https://typeittestit.com/pt/keyboard-test/</loc></url>
+  <url><loc>https://typeittestit.com/pt/leaderboard/</loc></url>
+  <url><loc>https://typeittestit.com/pt/privacy-policy/</loc></url>
+  <url><loc>https://typeittestit.com/pt/terms-of-use/</loc></url>
+  <url><loc>https://typeittestit.com/terms-of-use/</loc></url>
   <url><loc>https://typeittestit.com/tr/</loc></url>
   <url><loc>https://typeittestit.com/tr/about/</loc></url>
   <url><loc>https://typeittestit.com/tr/contact/</loc></url>
@@ -69,13 +90,6 @@
   <url><loc>https://typeittestit.com/uk/leaderboard/</loc></url>
   <url><loc>https://typeittestit.com/uk/privacy-policy/</loc></url>
   <url><loc>https://typeittestit.com/uk/terms-of-use/</loc></url>
-  <url><loc>https://typeittestit.com/id/</loc></url>
-  <url><loc>https://typeittestit.com/id/about/</loc></url>
-  <url><loc>https://typeittestit.com/id/contact/</loc></url>
-  <url><loc>https://typeittestit.com/id/keyboard-test/</loc></url>
-  <url><loc>https://typeittestit.com/id/leaderboard/</loc></url>
-  <url><loc>https://typeittestit.com/id/privacy-policy/</loc></url>
-  <url><loc>https://typeittestit.com/id/terms-of-use/</loc></url>
   <url><loc>https://typeittestit.com/zh/</loc></url>
   <url><loc>https://typeittestit.com/zh/about/</loc></url>
   <url><loc>https://typeittestit.com/zh/contact/</loc></url>
@@ -83,18 +97,4 @@
   <url><loc>https://typeittestit.com/zh/leaderboard/</loc></url>
   <url><loc>https://typeittestit.com/zh/privacy-policy/</loc></url>
   <url><loc>https://typeittestit.com/zh/terms-of-use/</loc></url>
-  <url><loc>https://typeittestit.com/ja/</loc></url>
-  <url><loc>https://typeittestit.com/ja/about/</loc></url>
-  <url><loc>https://typeittestit.com/ja/contact/</loc></url>
-  <url><loc>https://typeittestit.com/ja/keyboard-test/</loc></url>
-  <url><loc>https://typeittestit.com/ja/leaderboard/</loc></url>
-  <url><loc>https://typeittestit.com/ja/privacy-policy/</loc></url>
-  <url><loc>https://typeittestit.com/ja/terms-of-use/</loc></url>
-  <url><loc>https://typeittestit.com/ko/</loc></url>
-  <url><loc>https://typeittestit.com/ko/about/</loc></url>
-  <url><loc>https://typeittestit.com/ko/contact/</loc></url>
-  <url><loc>https://typeittestit.com/ko/keyboard-test/</loc></url>
-  <url><loc>https://typeittestit.com/ko/leaderboard/</loc></url>
-  <url><loc>https://typeittestit.com/ko/privacy-policy/</loc></url>
-  <url><loc>https://typeittestit.com/ko/terms-of-use/</loc></url>
 </urlset>

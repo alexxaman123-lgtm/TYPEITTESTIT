@@ -3,6 +3,6 @@ import SiteLayout from "../../layouts/SiteLayout.astro";
 import Header from "../../components/Header";
 import LeaderboardPage from "../../components/LeaderboardPage";
 import Footer from "../../components/Footer";
-const title="Clasificación del test de mecanografía | Test de mecanografía Cabra"; const description="Consulta la clasificación pública de Test de mecanografía Cabra y compara WPM y precisión con otros usuarios.";
+const title="Clasificación del test de mecanografía | GOATTYPE"; const description="Consulta la clasificación pública de GOATTYPE y compara WPM y precisión con otros usuarios.";
 ---
 <SiteLayout title={title} description={description} pageKey="leaderboard" locale="es"><div class="relative min-h-screen"><Header client:load locale="es"/><LeaderboardPage client:load locale="es"/><Footer locale="es"/></div></SiteLayout>

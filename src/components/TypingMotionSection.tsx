@@ -1,8 +1,33 @@
 import { useEffect, useRef } from "react";
+import type { Locale } from "../lib/i18n";
 
 interface TypingMotionSectionProps {
-  locale?: "en" | "es";
+  locale?: Locale;
 }
+
+type ShowcaseContent = {
+  eyebrow: string;
+  title: string;
+  subtitle: string;
+  accuracy: string;
+  aria: string;
+};
+
+const SHOWCASE: Record<Locale, ShowcaseContent> = {
+  en: { eyebrow: "TYPING PRACTICE", title: "TYPE IT.\nTEST IT.", subtitle: "Speed starts with practice.", accuracy: "100% ACCURACY", aria: "Typing practice showcase" },
+  es: { eyebrow: "PRÁCTICA DE MECANOGRAFÍA", title: "ESCRIBE.\nPONTE A PRUEBA.", subtitle: "La velocidad empieza practicando.", accuracy: "100% PRECISIÓN", aria: "Práctica de mecanografía" },
+  de: { eyebrow: "SCHREIBÜBUNG", title: "TIPPE ES.\nTESTE ES.", subtitle: "Geschwindigkeit beginnt mit Übung.", accuracy: "100 % GENAUIGKEIT", aria: "Schreibübung" },
+  fr: { eyebrow: "PRATIQUE DE LA FRAPPE", title: "TAPEZ.\nTESTEZ.", subtitle: "La vitesse commence par la pratique.", accuracy: "100 % DE PRÉCISION", aria: "Pratique de la frappe" },
+  it: { eyebrow: "PRATICA DI DIGITAZIONE", title: "DIGITA.\nMETTITI ALLA PROVA.", subtitle: "La velocità inizia con la pratica.", accuracy: "100% DI PRECISIONE", aria: "Pratica di digitazione" },
+  pt: { eyebrow: "PRÁTICA DE DIGITAÇÃO", title: "DIGITE.\nTESTE-SE.", subtitle: "A velocidade começa com a prática.", accuracy: "100% DE PRECISÃO", aria: "Prática de digitação" },
+  pl: { eyebrow: "PRAKTYKA PISANIA", title: "PISZ.\nTESTUJ.", subtitle: "Szybkość zaczyna się od praktyki.", accuracy: "100% DOKŁADNOŚCI", aria: "Praktyka pisania" },
+  tr: { eyebrow: "KLAVYE PRATİĞİ", title: "YAZ.\nTEST ET.", subtitle: "Hız, pratikle başlar.", accuracy: "%100 DOĞRULUK", aria: "Klavye pratiği" },
+  uk: { eyebrow: "ПРАКТИКА ДРУКУ", title: "ДРУКУЙ.\nТЕСТУЙ.", subtitle: "Швидкість починається з практики.", accuracy: "ТОЧНІСТЬ 100%", aria: "Практика друку" },
+  id: { eyebrow: "LATIHAN MENGETIK", title: "KETIK.\nUJI.", subtitle: "Kecepatan dimulai dari latihan.", accuracy: "AKURASI 100%", aria: "Latihan mengetik" },
+  zh: { eyebrow: "打字练习", title: "输入。\n测试。", subtitle: "速度始于练习。", accuracy: "100% 准确率", aria: "打字练习展示" },
+  ja: { eyebrow: "タイピング練習", title: "入力。\nテスト。", subtitle: "速さは練習から始まる。", accuracy: "正確率100%", aria: "タイピング練習" },
+  ko: { eyebrow: "타자 연습", title: "입력.\n테스트.", subtitle: "속도는 연습에서 시작됩니다.", accuracy: "정확도 100%", aria: "타자 연습" },
+};
 
 const LETTERS = [
   { value: "A", position: "top-[8%] left-[10%]", size: "h-20 w-20 sm:h-24 sm:w-24", rotateDeg: -8, dx: -40, dy: -42, spin: -300, floatDelay: "-1.2s", floatDuration: "2.7s", revealDelay: 0 },
@@ -65,22 +90,10 @@ export default function TypingMotionSection({ locale = "en" }: TypingMotionSecti
     };
   }, []);
 
-  const content = locale === "es"
-    ? {
-        eyebrow: "PRÁCTICA DE MECANOGRAFÍA",
-        title: "ESCRIBE.\nPONTE A PRUEBA.",
-        subtitle: "La velocidad empieza practicando.",
-        accuracy: "100% PRECISIÓN",
-      }
-    : {
-        eyebrow: "TYPING PRACTICE",
-        title: "TYPE IT.\nTEST IT.",
-        subtitle: "Speed starts with practice.",
-        accuracy: "100% ACCURACY",
-      };
+  const content = SHOWCASE[locale] ?? SHOWCASE.en;
 
   return (
-    <section ref={sectionRef} data-spiral-defer className="typing-motion-section relative overflow-hidden border-y border-hairline" aria-label={locale === "es" ? "Práctica de mecanografía" : "Typing practice showcase"}>
+    <section ref={sectionRef} data-spiral-defer className="typing-motion-section relative overflow-hidden border-y border-hairline" aria-label={content.aria}>
       <div className="typing-motion-grid" aria-hidden="true" />
       <div className="typing-motion-stage relative mx-auto flex min-h-[620px] max-w-[1500px] items-center justify-center px-5 py-24 sm:min-h-[700px] sm:px-8 lg:min-h-[760px] lg:px-12">
         <div className="typing-motion-copy relative z-10 text-center">
