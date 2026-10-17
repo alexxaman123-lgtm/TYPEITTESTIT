@@ -4,8 +4,12 @@ import { useTypingTest } from "../lib/useTypingTest";
 import { useReducedMotion } from "../lib/useReducedMotion";
 import { getPreferences, savePreferences } from "../lib/storage";
 import { getProfileBest } from "../lib/leaderboard";
-import { playTestCompleteSound } from "../lib/useTypingSounds";
-import { getSoundEnabled, useSound } from "../lib/useSound";
+import {
+  playSoundSample,
+  playTestCompleteSound,
+  preloadSoundSamples,
+} from "../lib/useTypingSounds";
+import { getSoundEnabled } from "../lib/useSound";
 import DifficultySelector from "./DifficultySelector";
 import DurationSelector from "./DurationSelector";
 import TypingText from "./TypingText";
@@ -31,6 +35,11 @@ const GOAT_TALKS_MIN_WPM = 48;
 const GOAT_TALKS_MAX_WPM = 59;
 const GOAT_TALKS_SOUND = "/rizz-sound-effect.mp3";
 const GOAT_TALKS_SOUND_VOLUME = 1;
+const RESULT_SOUND_SAMPLES = [
+  SLOW_GOAT_SOUND,
+  AVERAGE_GOAT_SOUND,
+  GOAT_TALKS_SOUND,
+] as const;
 const MINIMUM_RESULT_DURATION_MS = 60000;
 const FOCUS_TRANSITION_MS = 760;
 const FOCUS_TRANSITION_EASING = "cubic-bezier(0.22, 1, 0.36, 1)";
@@ -46,7 +55,10 @@ export default function TypingTester({ locale = "en" }: { locale?: Locale }) {
   const shellRef = useRef<HTMLDivElement | null>(null);
   const focusOriginRef = useRef<FocusOrigin | null>(null);
   const focusAnimationRef = useRef<Animation | null>(null);
-  const { playSound } = useSound();
+
+  useEffect(() => {
+    preloadSoundSamples(RESULT_SOUND_SAMPLES);
+  }, []);
 
   useEffect(() => {
     let cancelled = false;
@@ -73,12 +85,12 @@ export default function TypingTester({ locale = "en" }: { locale?: Locale }) {
     if (previous === "running" && test.status === "finished") {
       const finalWpm = test.result?.wpm ?? 0;
       if (!getSoundEnabled() || test.elapsedMs < MINIMUM_RESULT_DURATION_MS) return;
-      if (finalWpm < SLOW_GOAT_WPM_THRESHOLD) playSound(SLOW_GOAT_SOUND, 0.5);
-      else if (finalWpm >= AVERAGE_GOAT_MIN_WPM && finalWpm <= AVERAGE_GOAT_MAX_WPM) playSound(AVERAGE_GOAT_SOUND, AVERAGE_GOAT_SOUND_VOLUME);
-      else if (finalWpm >= GOAT_TALKS_MIN_WPM && finalWpm <= GOAT_TALKS_MAX_WPM) playSound(GOAT_TALKS_SOUND, GOAT_TALKS_SOUND_VOLUME);
+      if (finalWpm < SLOW_GOAT_WPM_THRESHOLD) playSoundSample(SLOW_GOAT_SOUND, 0.5);
+      else if (finalWpm >= AVERAGE_GOAT_MIN_WPM && finalWpm <= AVERAGE_GOAT_MAX_WPM) playSoundSample(AVERAGE_GOAT_SOUND, AVERAGE_GOAT_SOUND_VOLUME);
+      else if (finalWpm >= GOAT_TALKS_MIN_WPM && finalWpm <= GOAT_TALKS_MAX_WPM) playSoundSample(GOAT_TALKS_SOUND, GOAT_TALKS_SOUND_VOLUME);
       else playTestCompleteSound();
     }
-  }, [test.status, test.result, test.elapsedMs, playSound]);
+  }, [test.status, test.result, test.elapsedMs]);
 
   useEffect(() => {
     const body = document.body;
