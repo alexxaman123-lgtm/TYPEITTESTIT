@@ -286,7 +286,7 @@ export default function TypingTester({ locale = "en" }: { locale?: Locale }) {
           />
         ) : (
           <div
-            className={cn("space-y-6", focusMode && "focus-test-stack")}
+            className={focusMode ? "focus-test-stack" : "space-y-6"}
             onClick={(event) => {
               if (focusMode) event.stopPropagation();
             }}
