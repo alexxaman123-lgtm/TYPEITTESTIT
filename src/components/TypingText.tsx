@@ -25,7 +25,6 @@ interface Props {
 }
 
 /** Visible lines in the typing viewport; the view slides exactly one line at a time. */
-const VISIBLE_LINES = 3;
 /** How long after the last keystroke the caret starts blinking again. */
 const CARET_BLINK_RESUME_MS = 650;
 /** Caret height as a multiple of the font size, and an absolute floor in px. */
@@ -54,11 +53,9 @@ export default function TypingText({
   locale = "en",
 }: Props) {
   const inputRef = useRef<HTMLInputElement | null>(null);
-  // How many lines the passage has slid up; the current line always rests on
-  // the second visible line, so motion is exactly one line per step.
-  const [lineShift, setLineShift] = useState(0);
-  // Measured line height of the passage; drives the fixed viewport height.
-  const [lineHeight, setLineHeight] = useState(0);
+  // The passage is a single horizontal track. Its transform is updated directly
+  // from measured caret geometry so rapid keystrokes can interrupt the motion
+  // without accumulating cursor drift.
   const wordsRef = useRef<HTMLParagraphElement | null>(null);
   // Stable first-line marker: measuring against the paragraph bounding box can
   // be ambiguous when inline content fragments across multiple wrapped lines.
@@ -79,7 +76,6 @@ export default function TypingText({
   const typedWords = useMemo(() => typed.split(" "), [typed]);
   const completedCount = Math.max(0, typedWords.length - 1);
 
-  useEffect(() => { setLineShift(0); }, [resetKey]);
   useEffect(() => { inputValueRef.current = typed; }, [typed, resetKey]);
   useEffect(() => { setSoundEnabledState(getSoundEnabled()); }, [status, resetKey]);
   useEffect(() => { preloadTypingSounds(); }, []);
@@ -96,41 +92,64 @@ export default function TypingText({
   }, [typed, resetKey]);
   const disabled = status === "finished";
 
-  // Monkeytype-style line scrolling: the whole passage renders inside a fixed
-  // 3-line viewport. When the caret's line moves past the second visible line,
-  // the text slides up by exactly one line - never a multi-line jump, and the
-  // current line always sits in the same place so fast typers are not thrown.
+  // Cinematic horizontal banner: keep the active caret around 42% of the
+  // viewport while the passage glides from right to left as the user types.
+  // Read the in-flight transform before calculating the next one, so a fast
+  // typist can interrupt the previous animation without overshooting.
   useLayoutEffect(() => {
     if (freeTyping || disabled) return;
     const words = wordsRef.current;
     const anchor = currentCharRef.current;
-    const passageStart = passageStartRef.current;
-    if (!words || !anchor || !passageStart) return;
+    const surface = surfaceRef.current;
+    if (!words || !anchor || !surface) return;
 
-    const computed = window.getComputedStyle(words);
-    const parsedLineHeight = parseFloat(computed.lineHeight);
-    const fontSize = parseFloat(computed.fontSize) || 16;
-    const measured =
-      Number.isFinite(parsedLineHeight) && parsedLineHeight > 0
-        ? parsedLineHeight
-        : fontSize * 1.6;
-    setLineHeight((prev) => (Math.abs(prev - measured) > 0.5 ? measured : prev));
+    const alignTrack = () => {
+      const activeAnchor = currentCharRef.current;
+      if (!activeAnchor || !wordsRef.current || !surfaceRef.current) return;
 
-    const startRect = passageStart.getBoundingClientRect();
-    const anchorRect = anchor.getBoundingClientRect();
-    // Both markers use identical inline-block metrics. Comparing them avoids
-    // paragraph union-rect quirks when a mistyped token wraps onto extra lines.
-    const line = Math.max(0, Math.round((anchorRect.top - startRect.top) / measured));
-    const next = Math.max(0, line - (VISIBLE_LINES - 2));
-    setLineShift((prev) => (prev === next ? prev : next));
-  }, [typed, target, resetKey, freeTyping, disabled, focusMode, status]);
+      const surfaceRect = surfaceRef.current.getBoundingClientRect();
+      const surfaceStyles = window.getComputedStyle(surfaceRef.current);
+      const paddingLeft = parseFloat(surfaceStyles.paddingLeft) || 0;
+      const paddingRight = parseFloat(surfaceStyles.paddingRight) || 0;
+      const contentWidth = Math.max(1, surfaceRect.width - paddingLeft - paddingRight);
+      const targetX = surfaceRect.left + paddingLeft + contentWidth * 0.42;
+      const anchorRect = activeAnchor.getBoundingClientRect();
+      const currentTransform = window.getComputedStyle(wordsRef.current).transform;
+      const currentX = currentTransform === "none"
+        ? 0
+        : new DOMMatrixReadOnly(currentTransform).m41;
+      const nextX = currentX + targetX - anchorRect.left;
+      const snapToStart = typed.length === 0 && status === "idle";
 
-  // Smooth sliding caret: one persistent element that lives INSIDE the
-  // translated passage, positioned against a zero-width anchor rendered exactly
-  // where the next keystroke will land. Because it is a child of the sliding
-  // text, it rides along during line shifts and can never detach from the
-  // words mid-transition; its own CSS transition (.typing-caret) still makes it
-  // glide between letters and across line wraps instead of teleporting.
+      // On reset, place the first word immediately. During a test, use a smooth
+      // eased transform. Reduced-motion preferences disable the animation.
+      wordsRef.current.style.transition = snapToStart || reducedMotion
+        ? "none"
+        : "transform 420ms cubic-bezier(0.22, 1, 0.36, 1)";
+      wordsRef.current.style.transform = `translate3d(${nextX}px, 0, 0)`;
+
+      if (snapToStart && !reducedMotion) {
+        // Force the reset position to take effect before re-enabling motion.
+        void wordsRef.current.offsetWidth;
+        wordsRef.current.style.transition = "transform 420ms cubic-bezier(0.22, 1, 0.36, 1)";
+      }
+    };
+
+    alignTrack();
+
+    const resizeObserver = typeof ResizeObserver !== "undefined"
+      ? new ResizeObserver(() => alignTrack())
+      : undefined;
+    resizeObserver?.observe(surface);
+    window.addEventListener("resize", alignTrack);
+    return () => {
+      resizeObserver?.disconnect();
+      window.removeEventListener("resize", alignTrack);
+    };
+  }, [typed, target, resetKey, freeTyping, disabled, focusMode, status, reducedMotion]);
+
+  // The caret sits inside the moving track and is positioned against the exact
+  // next-character anchor, so it travels with the passage without detaching.
   useLayoutEffect(() => {
     if (freeTyping) return;
 
@@ -160,12 +179,11 @@ export default function TypingText({
         fontSize * 1.6;
       const caretHeight = Math.max(CARET_MIN_HEIGHT_PX, fontSize * CARET_HEIGHT_EM);
 
-      // Both rects are measured in viewport coordinates, so their difference is
-      // the anchor's position inside the passage - unaffected by the viewport's
-      // line-shift translate, which moves words and caret together.
+      // Both markers share the same horizontal track transform; subtracting
+      // their viewport coordinates gives the caret's position inside that track.
       const x = anchorRect.left - startRect.left;
-      // Position against the same fixed passage-start marker used for line
-      // scrolling, so the caret cannot drift when the paragraph spans many lines.
+      // The caret and passage start share the same transform, keeping the caret
+      // locked to the next character while the banner moves left.
       const y =
         anchorRect.top - startRect.top + (lineBoxHeight - caretHeight) / 2;
 
@@ -189,7 +207,7 @@ export default function TypingText({
       observer?.disconnect();
       window.removeEventListener("resize", positionCaret);
     };
-  }, [typed, target, lineShift, freeTyping, disabled, focusMode, focused, status]);
+  }, [typed, target, freeTyping, disabled, focusMode, focused, status]);
 
   const focusInput = () => {
     if (!disabled) {
@@ -359,6 +377,7 @@ export default function TypingText({
         onPointerDown={unlockTypingSounds}
         className={cn(
           "typing-surface relative cursor-text select-none rounded-[24px] border bg-canvas-soft/70 font-sans tracking-normal transition-[border-color,box-shadow] duration-300",
+          !freeTyping && "flex items-center",
           focusMode
             ? "min-h-[220px] p-6 text-[22px] leading-[1.68] sm:min-h-[260px] sm:p-8 sm:text-[24px] sm:leading-[1.72] lg:min-h-[300px] lg:p-9 lg:text-[26px] lg:leading-[1.72]"
             : "min-h-[132px] p-4 text-[16px] leading-7 sm:min-h-[150px] sm:p-5 sm:text-[17px] sm:leading-8",
@@ -384,45 +403,31 @@ export default function TypingText({
             )}
           </p>
         ) : (
-          <>
-            <div
-              className="overflow-hidden"
-              style={lineHeight > 0 ? { height: `${lineHeight * VISIBLE_LINES}px` } : undefined}
+          <div className="typing-banner-viewport">
+            <p
+              ref={wordsRef}
+              className={cn("typing-track relative whitespace-nowrap", copyClass)}
             >
-              <p
-                ref={wordsRef}
-                style={
-                  lineHeight > 0
-                    ? {
-                        transform: `translateY(${-lineShift * lineHeight}px)`,
-                        transition: reducedMotion ? undefined : "transform 200ms ease-out",
-                        willChange: "transform",
-                      }
-                    : undefined
-                }
-                className={cn("relative whitespace-pre-wrap break-words", copyClass)}
+              <span
+                ref={caretRef}
+                aria-hidden="true"
+                style={{ opacity: 0, height: `${CARET_MIN_HEIGHT_PX}px` }}
+                className={cn(
+                  "pointer-events-none absolute left-0 top-0 z-[1] w-[2px] rounded-full bg-accent",
+                  !reducedMotion && "typing-caret",
+                  !reducedMotion && caretBlinking && "caret-blink",
+                )}
+              />
+              <span
+                ref={passageStartRef}
+                aria-hidden="true"
+                className="inline-block w-0 align-baseline"
               >
-                <span
-                  ref={caretRef}
-                  aria-hidden="true"
-                  style={{ opacity: 0, height: `${CARET_MIN_HEIGHT_PX}px` }}
-                  className={cn(
-                    "pointer-events-none absolute left-0 top-0 z-[1] w-[2px] rounded-full bg-accent",
-                    !reducedMotion && "typing-caret",
-                    !reducedMotion && caretBlinking && "caret-blink",
-                  )}
-                />
-                <span
-                  ref={passageStartRef}
-                  aria-hidden="true"
-                  className="inline-block w-0 align-baseline"
-                >
-                  {ANCHOR_CHAR}
-                </span>
-                {visibleNodes}
-              </p>
-            </div>
-          </>
+                {ANCHOR_CHAR}
+              </span>
+              {visibleNodes}
+            </p>
+          </div>
         )}
         <input
           ref={inputRef}
