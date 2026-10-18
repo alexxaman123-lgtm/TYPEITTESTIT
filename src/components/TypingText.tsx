@@ -242,7 +242,7 @@ export default function TypingText({
     inputRef.current?.focus();
   };
 
-  const copyClass = focusMode ? "typing-copy" : "text-left";
+  const copyClass = focusMode ? "typing-copy-focus" : "text-left";
 
   // Letter states follow Monkeytype's renderer (frontend/src/styles/test.scss):
   //   .correct          -> normal text colour
@@ -376,12 +376,12 @@ export default function TypingText({
         onClick={focusInput}
         onPointerDown={unlockTypingSounds}
         className={cn(
-          "typing-surface relative cursor-text select-none rounded-[24px] border bg-canvas-soft/70 font-sans tracking-normal transition-[border-color,box-shadow] duration-300",
-          !freeTyping && "flex items-center",
           focusMode
-            ? "min-h-[220px] p-6 text-[22px] leading-[1.68] sm:min-h-[260px] sm:p-8 sm:text-[24px] sm:leading-[1.72] lg:min-h-[300px] lg:p-9 lg:text-[26px] lg:leading-[1.72]"
-            : "min-h-[132px] p-4 text-[16px] leading-7 sm:min-h-[150px] sm:p-5 sm:text-[17px] sm:leading-8",
-          focused ? "border-accent shadow-sm" : "border-hairline",
+            ? "typing-surface typing-surface-focus relative flex cursor-text select-none items-center font-sans tracking-normal"
+            : "typing-surface relative cursor-text select-none rounded-[24px] border bg-canvas-soft/70 font-sans tracking-normal transition-[border-color,box-shadow] duration-300 min-h-[132px] p-4 text-[16px] leading-7 sm:min-h-[150px] sm:p-5 sm:text-[17px] sm:leading-8",
+          !freeTyping && "flex items-center",
+          focusMode && "text-[34px] leading-none tracking-[-0.04em] sm:text-[42px] lg:text-[52px] xl:text-[58px]",
+          !focusMode && (focused ? "border-accent shadow-sm" : "border-hairline"),
           disabled && "opacity-60",
         )}
       >
