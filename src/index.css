@@ -71,6 +71,23 @@ body {
   will-change: transform, height;
 }
 
+/* One-line cinematic typing banner: text flows right-to-left behind a steady
+   caret, with soft edge fades so words enter and leave the frame cleanly. */
+.typing-banner-viewport {
+  position: relative;
+  width: 100%;
+  overflow: hidden;
+  -webkit-mask-image: linear-gradient(90deg, transparent 0%, #000 7%, #000 91%, transparent 100%);
+  mask-image: linear-gradient(90deg, transparent 0%, #000 7%, #000 91%, transparent 100%);
+}
+.typing-track {
+  display: block;
+  width: max-content;
+  min-width: max-content;
+  white-space: nowrap;
+  will-change: transform;
+}
+
 @media (prefers-reduced-motion: reduce) {
   .caret-blink { animation: none; }
   .typing-caret { transition: none; }
