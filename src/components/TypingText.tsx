@@ -234,6 +234,7 @@ export default function TypingText({
     const targetWord = targetWords[wordIndex] ?? "";
     const typedWord = kind === "future" ? "" : (typedWords[wordIndex] ?? "");
     const length = Math.max(targetWord.length, typedWord.length);
+    const hasExtraCharacters = typedWord.length > targetWord.length;
     const letters: React.ReactNode[] = [];
     let hasError = false;
 
@@ -288,7 +289,9 @@ export default function TypingText({
       <span
         key={`w${wordIndex}`}
         className={cn(
-          "inline-block",
+          // Normal words stay together; over-typed words wrap inline so a
+          // long run of accidental characters cannot shove later words around.
+          hasExtraCharacters ? "inline break-all" : "inline-block",
           kind === "completed" && hasError && "border-b-2 border-red-500/70",
         )}
       >
