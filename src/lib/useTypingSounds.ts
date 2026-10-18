@@ -122,11 +122,10 @@ function loadTypingBuffer(kind: TypingBufferKind): Promise<AudioBuffer | null> {
   return request;
 }
 
-/** Start decoding both typing sounds without ever blocking the key event path. */
+/** Start decoding the typing sound without ever blocking the key event path. */
 export function preloadTypingSounds(): void {
   if (typeof window === "undefined") return;
   void loadTypingBuffer("correct");
-  void loadTypingBuffer("wrong");
 }
 
 function loadSampleBuffer(src: string): Promise<AudioBuffer | null> {
@@ -248,9 +247,14 @@ export function playTypingKeySound(kind: TypingBufferKind): void {
   const c = getContext();
   if (!c) return;
 
-  // Any later keystroke immediately fades an earlier long error sample, so a
-  // run of mistakes can never keep ringing over subsequent correct letters.
-  stopActiveWrongSound();
+  // Mistakes get one short, soft, consistent blip - never a long or
+  // distracting sample. Any earlier blip is cut first so a run of mistakes
+  // can never stack or ring over subsequent correct letters.
+  if (kind === "wrong") {
+    stopActiveWrongSound();
+    tone(196, 0.04, 0.03);
+    return;
+  }
 
   const playReadySound = () => {
     if (!soundsEnabled) return;
