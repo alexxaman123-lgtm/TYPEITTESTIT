@@ -389,7 +389,7 @@ body {
 }
 .focus-content { min-height: calc(100dvh - clamp(2rem, 5vw, 5rem)); display: flex; flex-direction: column; justify-content: center; }
 .focus-test-stack { width: min(1200px, calc(100vw - 96px)); margin-inline: auto; display: flex; flex-direction: column; gap: 1rem; }
-.typing-copy { width: min(1280px, 100%); margin-inline: auto; text-align: justify; text-align-last: center; text-justify: inter-word; hyphens: none; overflow-wrap: normal; word-break: normal; }
+.typing-copy { width: min(1280px, 100%); margin-inline: auto; text-align: left; hyphens: none; overflow-wrap: normal; word-break: normal; }
 @keyframes typingFocusIn {
   from { opacity: 0; transform: scale(0.992); }
   to { opacity: 1; transform: scale(1); }

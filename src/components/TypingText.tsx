@@ -121,19 +121,19 @@ export default function TypingText({
     setLineShift((prev) => (prev === next ? prev : next));
   }, [typed, target, resetKey, freeTyping, disabled, focusMode, status]);
 
-  // Smooth sliding caret: one persistent element whose position is measured
-  // against a zero-width anchor rendered exactly where the next keystroke will
-  // land, then animated with a CSS transition (.typing-caret) so it glides
-  // between letters and across line wraps instead of teleporting - modeled on
-  // Monkeytype's "smooth caret" (frontend/src/ts/elements/caret.ts and
-  // frontend/src/styles/caret.scss in monkeytypegame/monkeytype).
+  // Smooth sliding caret: one persistent element that lives INSIDE the
+  // translated passage, positioned against a zero-width anchor rendered exactly
+  // where the next keystroke will land. Because it is a child of the sliding
+  // text, it rides along during line shifts and can never detach from the
+  // words mid-transition; its own CSS transition (.typing-caret) still makes it
+  // glide between letters and across line wraps instead of teleporting.
   useLayoutEffect(() => {
     if (freeTyping) return;
 
     const positionCaret = () => {
-      const surface = surfaceRef.current;
+      const words = wordsRef.current;
       const caret = caretRef.current;
-      if (!surface || !caret) return;
+      if (!words || !caret) return;
 
       const anchor = disabled ? null : currentCharRef.current;
       if (!anchor) {
@@ -141,10 +141,9 @@ export default function TypingText({
         return;
       }
 
-      const surfaceRect = surface.getBoundingClientRect();
+      const wordsRect = words.getBoundingClientRect();
       const anchorRect = anchor.getBoundingClientRect();
       const anchorStyles = window.getComputedStyle(anchor);
-      const surfaceStyles = window.getComputedStyle(surface);
 
       const fontSize = parseFloat(anchorStyles.fontSize) || 16;
       const parsedLineHeight = parseFloat(anchorStyles.lineHeight);
@@ -156,16 +155,14 @@ export default function TypingText({
         fontSize * 1.6;
       const caretHeight = Math.max(CARET_MIN_HEIGHT_PX, fontSize * CARET_HEIGHT_EM);
 
-      // getBoundingClientRect() includes the surface border, but an absolutely
-      // positioned child is offset from the padding box, so drop the border.
-      const borderLeft = parseFloat(surfaceStyles.borderLeftWidth) || 0;
-      const borderTop = parseFloat(surfaceStyles.borderTopWidth) || 0;
-
-      const x = anchorRect.left - surfaceRect.left - borderLeft;
+      // Both rects are measured in viewport coordinates, so their difference is
+      // the anchor's position inside the passage - unaffected by the viewport's
+      // line-shift translate, which moves words and caret together.
+      const x = anchorRect.left - wordsRect.left;
       // Centre the caret in the line box rather than letting it hang off the
       // text baseline.
       const y =
-        anchorRect.top - surfaceRect.top - borderTop + (lineBoxHeight - caretHeight) / 2;
+        anchorRect.top - wordsRect.top + (lineBoxHeight - caretHeight) / 2;
 
       caret.style.height = `${caretHeight}px`;
       caret.style.transform = `translate(${x}px, ${y}px)`;
@@ -350,16 +347,6 @@ export default function TypingText({
           </p>
         ) : (
           <>
-            <span
-              ref={caretRef}
-              aria-hidden="true"
-              style={{ opacity: 0, height: `${CARET_MIN_HEIGHT_PX}px` }}
-              className={cn(
-                "pointer-events-none absolute left-0 top-0 z-[1] w-[2px] rounded-full bg-accent",
-                !reducedMotion && "typing-caret",
-                !reducedMotion && caretBlinking && "caret-blink",
-              )}
-            />
             <div
               className="overflow-hidden"
               style={lineHeight > 0 ? { height: `${lineHeight * VISIBLE_LINES}px` } : undefined}
@@ -375,8 +362,18 @@ export default function TypingText({
                       }
                     : undefined
                 }
-                className={cn("whitespace-pre-wrap break-words", copyClass)}
+                className={cn("relative whitespace-pre-wrap break-words", copyClass)}
               >
+                <span
+                  ref={caretRef}
+                  aria-hidden="true"
+                  style={{ opacity: 0, height: `${CARET_MIN_HEIGHT_PX}px` }}
+                  className={cn(
+                    "pointer-events-none absolute left-0 top-0 z-[1] w-[2px] rounded-full bg-accent",
+                    !reducedMotion && "typing-caret",
+                    !reducedMotion && caretBlinking && "caret-blink",
+                  )}
+                />
                 {visibleNodes}
               </p>
             </div>
