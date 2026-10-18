@@ -1,4 +1,4 @@
-import { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
+import { Fragment, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import { cn } from "../utils/cn";
 import { getSoundEnabled, setSoundEnabled } from "../lib/useSound";
 import {
@@ -60,6 +60,9 @@ export default function TypingText({
   // Measured line height of the passage; drives the fixed viewport height.
   const [lineHeight, setLineHeight] = useState(0);
   const wordsRef = useRef<HTMLParagraphElement | null>(null);
+  // Stable first-line marker: measuring against the paragraph bounding box can
+  // be ambiguous when inline content fragments across multiple wrapped lines.
+  const passageStartRef = useRef<HTMLSpanElement | null>(null);
   const [focused, setFocused] = useState(false);
   const [soundEnabled, setSoundEnabledState] = useState(getSoundEnabled());
   // The caret holds still (solid) while you are typing and only breathes once
@@ -101,7 +104,8 @@ export default function TypingText({
     if (freeTyping || disabled) return;
     const words = wordsRef.current;
     const anchor = currentCharRef.current;
-    if (!words || !anchor) return;
+    const passageStart = passageStartRef.current;
+    if (!words || !anchor || !passageStart) return;
 
     const computed = window.getComputedStyle(words);
     const parsedLineHeight = parseFloat(computed.lineHeight);
@@ -112,11 +116,11 @@ export default function TypingText({
         : fontSize * 1.6;
     setLineHeight((prev) => (Math.abs(prev - measured) > 0.5 ? measured : prev));
 
-    const wordsRect = words.getBoundingClientRect();
+    const startRect = passageStart.getBoundingClientRect();
     const anchorRect = anchor.getBoundingClientRect();
-    // Both rects share the same translate, so their difference is the caret's
-    // true (unshifted) line index.
-    const line = Math.max(0, Math.round((anchorRect.top - wordsRect.top) / measured));
+    // Both markers use identical inline-block metrics. Comparing them avoids
+    // paragraph union-rect quirks when a mistyped token wraps onto extra lines.
+    const line = Math.max(0, Math.round((anchorRect.top - startRect.top) / measured));
     const next = Math.max(0, line - (VISIBLE_LINES - 2));
     setLineShift((prev) => (prev === next ? prev : next));
   }, [typed, target, resetKey, freeTyping, disabled, focusMode, status]);
@@ -133,7 +137,8 @@ export default function TypingText({
     const positionCaret = () => {
       const words = wordsRef.current;
       const caret = caretRef.current;
-      if (!words || !caret) return;
+      const passageStart = passageStartRef.current;
+      if (!words || !caret || !passageStart) return;
 
       const anchor = disabled ? null : currentCharRef.current;
       if (!anchor) {
@@ -141,7 +146,7 @@ export default function TypingText({
         return;
       }
 
-      const wordsRect = words.getBoundingClientRect();
+      const startRect = passageStart.getBoundingClientRect();
       const anchorRect = anchor.getBoundingClientRect();
       const anchorStyles = window.getComputedStyle(anchor);
 
@@ -158,11 +163,11 @@ export default function TypingText({
       // Both rects are measured in viewport coordinates, so their difference is
       // the anchor's position inside the passage - unaffected by the viewport's
       // line-shift translate, which moves words and caret together.
-      const x = anchorRect.left - wordsRect.left;
-      // Centre the caret in the line box rather than letting it hang off the
-      // text baseline.
+      const x = anchorRect.left - startRect.left;
+      // Position against the same fixed passage-start marker used for line
+      // scrolling, so the caret cannot drift when the paragraph spans many lines.
       const y =
-        anchorRect.top - wordsRect.top + (lineBoxHeight - caretHeight) / 2;
+        anchorRect.top - startRect.top + (lineBoxHeight - caretHeight) / 2;
 
       caret.style.height = `${caretHeight}px`;
       caret.style.transform = `translate(${x}px, ${y}px)`;
@@ -233,7 +238,6 @@ export default function TypingText({
   const renderWord = (wordIndex: number, kind: WordKind) => {
     const targetWord = targetWords[wordIndex] ?? "";
     const typedWord = kind === "future" ? "" : (typedWords[wordIndex] ?? "");
-    const length = Math.max(targetWord.length, typedWord.length);
     const hasExtraCharacters = typedWord.length > targetWord.length;
     const letters: React.ReactNode[] = [];
     let hasError = false;
@@ -249,35 +253,68 @@ export default function TypingText({
       </span>
     );
 
+    // Keep the actual target word as one inline-block. Only the accidental
+    // over-typed suffix is allowed to wrap as ordinary inline content. Making
+    // the whole word inline caused its error underline to fragment across lines.
+    if (hasExtraCharacters) {
+      const targetLetters: React.ReactNode[] = [];
+      for (let idx = 0; idx < targetWord.length; idx += 1) {
+        const targetChar = targetWord[idx];
+        const typedChar = typedWord[idx];
+
+        if (targetChar === typedChar) {
+          targetLetters.push(<span key={idx} className="typing-correct">{targetChar}</span>);
+        } else {
+          hasError = true;
+          targetLetters.push(<span key={idx} className="text-red-500">{targetChar}</span>);
+        }
+      }
+
+      const extraLetters: React.ReactNode[] = [];
+      for (let idx = targetWord.length; idx < typedWord.length; idx += 1) {
+        hasError = true;
+        extraLetters.push(
+          <span key={`extra-${idx}`} className="text-red-400">{typedWord[idx]}</span>,
+        );
+      }
+      if (kind === "current") extraLetters.push(caretAnchor("caret-end"));
+
+      return (
+        <Fragment key={`w${wordIndex}`}>
+          {targetWord.length > 0 && (
+            <span
+              className={cn(
+                "inline-block",
+                kind === "completed" && hasError && "border-b-2 border-red-500/70",
+              )}
+            >
+              {targetLetters}
+            </span>
+          )}
+          <span className="inline break-all">{extraLetters}</span>
+        </Fragment>
+      );
+    }
+
+    const length = targetWord.length;
     for (let idx = 0; idx < length; idx += 1) {
       if (kind === "current" && idx === typedWord.length) {
         letters.push(caretAnchor(`caret-${idx}`));
       }
 
-      const tChar = targetWord[idx];
-      const pChar = typedWord[idx];
+      const targetChar = targetWord[idx];
+      const typedChar = typedWord[idx];
 
-      if (tChar !== undefined && pChar !== undefined) {
-        if (tChar === pChar) {
-          letters.push(<span key={idx} className="typing-correct">{tChar}</span>);
-        } else {
-          // Mistyped: keep showing the letter you needed to type, in red.
-          hasError = true;
-          letters.push(<span key={idx} className="text-red-500">{tChar}</span>);
-        }
-      } else if (pChar !== undefined) {
-        // Extra character typed past the end of the word: show what you typed,
-        // in the dimmer "extra" red, which grows the word just like Monkeytype.
+      if (typedChar !== undefined && targetChar === typedChar) {
+        letters.push(<span key={idx} className="typing-correct">{targetChar}</span>);
+      } else if (typedChar !== undefined) {
         hasError = true;
-        letters.push(
-          <span key={idx} className="text-red-400">{pChar === " " ? "\u00b7" : pChar}</span>,
-        );
+        letters.push(<span key={idx} className="text-red-500">{targetChar}</span>);
       } else if (kind === "completed") {
-        // Word was left before finishing it: remaining letters are "missing".
         hasError = true;
-        letters.push(<span key={idx} className="text-red-500/50">{tChar}</span>);
+        letters.push(<span key={idx} className="text-red-500/50">{targetChar}</span>);
       } else {
-        letters.push(<span key={idx} className="typing-pending">{tChar}</span>);
+        letters.push(<span key={idx} className="typing-pending">{targetChar}</span>);
       }
     }
 
@@ -289,9 +326,7 @@ export default function TypingText({
       <span
         key={`w${wordIndex}`}
         className={cn(
-          // Normal words stay together; over-typed words wrap inline so a
-          // long run of accidental characters cannot shove later words around.
-          hasExtraCharacters ? "inline break-all" : "inline-block",
+          "inline-block",
           kind === "completed" && hasError && "border-b-2 border-red-500/70",
         )}
       >
@@ -377,6 +412,13 @@ export default function TypingText({
                     !reducedMotion && caretBlinking && "caret-blink",
                   )}
                 />
+                <span
+                  ref={passageStartRef}
+                  aria-hidden="true"
+                  className="inline-block w-0 align-baseline"
+                >
+                  {ANCHOR_CHAR}
+                </span>
                 {visibleNodes}
               </p>
             </div>
