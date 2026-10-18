@@ -234,7 +234,7 @@ export const THEMES: ThemeDefinition[] = [
   },
 ];
 
-export const DEFAULT_THEME: ThemeId = "ivory-black";
+export const DEFAULT_THEME: ThemeId = "charcoal-coral";
 const STORAGE_KEY = "goattype-theme-v5";
 
 export function applyTheme(themeId: ThemeId): void {

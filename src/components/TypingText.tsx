@@ -24,9 +24,8 @@ interface Props {
   locale?: Locale;
 }
 
-const WORD_WINDOW_SIZE = 70;
-const WORD_SHIFT_THRESHOLD = 50;
-const WORD_LOOKBACK = 15;
+/** Visible lines in the typing viewport; the view slides exactly one line at a time. */
+const VISIBLE_LINES = 3;
 /** How long after the last keystroke the caret starts blinking again. */
 const CARET_BLINK_RESUME_MS = 650;
 /** Caret height as a multiple of the font size, and an absolute floor in px. */
@@ -55,7 +54,12 @@ export default function TypingText({
   locale = "en",
 }: Props) {
   const inputRef = useRef<HTMLInputElement | null>(null);
-  const [wordWindowStart, setWordWindowStart] = useState(0);
+  // How many lines the passage has slid up; the current line always rests on
+  // the second visible line, so motion is exactly one line per step.
+  const [lineShift, setLineShift] = useState(0);
+  // Measured line height of the passage; drives the fixed viewport height.
+  const [lineHeight, setLineHeight] = useState(0);
+  const wordsRef = useRef<HTMLParagraphElement | null>(null);
   const [focused, setFocused] = useState(false);
   const [soundEnabled, setSoundEnabledState] = useState(getSoundEnabled());
   // The caret holds still (solid) while you are typing and only breathes once
@@ -72,23 +76,50 @@ export default function TypingText({
   const typedWords = useMemo(() => typed.split(" "), [typed]);
   const completedCount = Math.max(0, typedWords.length - 1);
 
-  useEffect(() => { setWordWindowStart(0); }, [resetKey]);
+  useEffect(() => { setLineShift(0); }, [resetKey]);
   useEffect(() => { inputValueRef.current = typed; }, [typed, resetKey]);
   useEffect(() => { setSoundEnabledState(getSoundEnabled()); }, [status, resetKey]);
   useEffect(() => { preloadTypingSounds(); }, []);
+  // The test starts on the first keystroke, so the input is focused as soon as
+  // the test mounts (and after every restart) - no click needed to begin.
+  // Programmatic focus never opens the mobile keyboard; it just readies input.
+  useEffect(() => {
+    if (status !== "finished") inputRef.current?.focus({ preventScroll: true });
+  }, [resetKey, status]);
   useEffect(() => {
     setCaretBlinking(false);
     const timeoutId = window.setTimeout(() => setCaretBlinking(true), CARET_BLINK_RESUME_MS);
     return () => window.clearTimeout(timeoutId);
   }, [typed, resetKey]);
-  useEffect(() => {
-    if (freeTyping) return;
-    if (completedCount - wordWindowStart > WORD_SHIFT_THRESHOLD) {
-      setWordWindowStart(Math.max(0, completedCount - WORD_LOOKBACK));
-    }
-  }, [completedCount, wordWindowStart, freeTyping]);
-
   const disabled = status === "finished";
+
+  // Monkeytype-style line scrolling: the whole passage renders inside a fixed
+  // 3-line viewport. When the caret's line moves past the second visible line,
+  // the text slides up by exactly one line - never a multi-line jump, and the
+  // current line always sits in the same place so fast typers are not thrown.
+  useLayoutEffect(() => {
+    if (freeTyping || disabled) return;
+    const words = wordsRef.current;
+    const anchor = currentCharRef.current;
+    if (!words || !anchor) return;
+
+    const computed = window.getComputedStyle(words);
+    const parsedLineHeight = parseFloat(computed.lineHeight);
+    const fontSize = parseFloat(computed.fontSize) || 16;
+    const measured =
+      Number.isFinite(parsedLineHeight) && parsedLineHeight > 0
+        ? parsedLineHeight
+        : fontSize * 1.6;
+    setLineHeight((prev) => (Math.abs(prev - measured) > 0.5 ? measured : prev));
+
+    const wordsRect = words.getBoundingClientRect();
+    const anchorRect = anchor.getBoundingClientRect();
+    // Both rects share the same translate, so their difference is the caret's
+    // true (unshifted) line index.
+    const line = Math.max(0, Math.round((anchorRect.top - wordsRect.top) / measured));
+    const next = Math.max(0, line - (VISIBLE_LINES - 2));
+    setLineShift((prev) => (prev === next ? prev : next));
+  }, [typed, target, resetKey, freeTyping, disabled, focusMode, status]);
 
   // Smooth sliding caret: one persistent element whose position is measured
   // against a zero-width anchor rendered exactly where the next keystroke will
@@ -156,7 +187,7 @@ export default function TypingText({
       observer?.disconnect();
       window.removeEventListener("resize", positionCaret);
     };
-  }, [typed, target, wordWindowStart, freeTyping, disabled, focusMode, focused, status]);
+  }, [typed, target, lineShift, freeTyping, disabled, focusMode, focused, status]);
 
   const focusInput = () => {
     if (!disabled) {
@@ -269,9 +300,11 @@ export default function TypingText({
     );
   };
 
-  const windowEndIndex = Math.min(targetWords.length, wordWindowStart + WORD_WINDOW_SIZE);
+  // The full passage renders - no word window. A fixed-height viewport shows
+  // three lines and slides one line at a time, so typing never reflows or
+  // jumps the text the user is reading.
   const visibleNodes: React.ReactNode[] = [];
-  for (let i = wordWindowStart; i < windowEndIndex; i += 1) {
+  for (let i = 0; i < targetWords.length; i += 1) {
     const kind: WordKind = i < completedCount ? "completed" : i === completedCount ? "current" : "future";
     visibleNodes.push(renderWord(i, kind));
     if (i < targetWords.length - 1) {
@@ -327,15 +360,27 @@ export default function TypingText({
                 !reducedMotion && caretBlinking && "caret-blink",
               )}
             />
-            <p className={cn("whitespace-pre-wrap break-words", copyClass)}>{visibleNodes}</p>
+            <div
+              className="overflow-hidden"
+              style={lineHeight > 0 ? { height: `${lineHeight * VISIBLE_LINES}px` } : undefined}
+            >
+              <p
+                ref={wordsRef}
+                style={
+                  lineHeight > 0
+                    ? {
+                        transform: `translateY(${-lineShift * lineHeight}px)`,
+                        transition: reducedMotion ? undefined : "transform 200ms ease-out",
+                        willChange: "transform",
+                      }
+                    : undefined
+                }
+                className={cn("whitespace-pre-wrap break-words", copyClass)}
+              >
+                {visibleNodes}
+              </p>
+            </div>
           </>
-        )}
-        {!focused && status !== "finished" && (
-          <div className="pointer-events-none absolute inset-0 z-[2] flex items-center justify-center rounded-[24px] bg-canvas/70 backdrop-blur-[2px]">
-            <span className={cn("rounded-full border border-accent bg-accent/10 px-6 py-3 font-link text-accent", focusMode && "px-8 py-4 text-[18px]")}>
-              {tr(locale, "tester", "clickStart")}
-            </span>
-          </div>
         )}
         <input
           ref={inputRef}
