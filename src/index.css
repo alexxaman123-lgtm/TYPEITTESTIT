@@ -613,34 +613,45 @@ body {
   /* Edge-to-edge sweep with no stationary pause between repetitions. */
   animation: leaderboardGoatSweep 2.8s linear infinite;
 }
-.leaderboard-goat-lockup {
-  display: inline-flex;
-  flex: 0 0 auto;
-  align-items: center;
-  gap: 0.22rem;
-  white-space: nowrap;
-}
-.leaderboard-goat-badge {
+/* Desktop champion title sits in the unused center of the entire row, not in a pill. */
+.leaderboard-goat-center {
+  position: absolute;
+  z-index: 2;
+  top: 50%;
+  left: 50%;
   display: inline-flex;
   align-items: center;
-  border: 1px solid color-mix(in srgb, var(--color-accent) 40%, transparent);
-  border-radius: 999px;
-  padding: 0.18rem 0.42rem;
-  background: color-mix(in srgb, var(--color-accent) 9%, transparent);
+  gap: clamp(0.4rem, 1vw, 0.85rem);
+  transform: translate(-50%, -50%);
   color: var(--color-accent);
   font-family: var(--font-sans);
-  font-size: 9px;
-  font-weight: 750;
-  letter-spacing: 0.13em;
-  line-height: 1.2;
+  font-size: clamp(15px, 1.35vw, 20px);
+  font-weight: 800;
+  letter-spacing: 0.2em;
+  line-height: 1.25;
+  text-shadow:
+    0 0 10px color-mix(in srgb, var(--color-accent) 22%, transparent),
+    0 0 24px color-mix(in srgb, var(--color-accent) 12%, transparent);
+  pointer-events: none;
   white-space: nowrap;
 }
-.leaderboard-goat-star {
+.leaderboard-goat-center-stars {
+  font-size: 0.95em;
+  letter-spacing: 0;
+  text-shadow: 0 0 12px color-mix(in srgb, var(--color-accent) 42%, transparent);
+}
+.leaderboard-goat-mobile {
+  display: none;
   color: var(--color-accent);
   font-family: var(--font-sans);
-  font-size: 0.76rem;
-  line-height: 1;
-  text-shadow: 0 0 8px color-mix(in srgb, var(--color-accent) 32%, transparent);
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  white-space: nowrap;
+}
+@media (max-width: 700px) {
+  .leaderboard-goat-center { display: none; }
+  .leaderboard-goat-mobile { display: inline-flex; align-items: center; }
 }
 .leaderboard-goat-name {
   color: var(--color-ink);
@@ -669,5 +680,8 @@ body {
   .leaderboard-row-goat::before,
   .leaderboard-goat-name {
     animation: none;
+  }
+  .leaderboard-goat-name {
+    text-shadow: 0 0 10px color-mix(in srgb, var(--color-accent) 26%, transparent);
   }
 }
