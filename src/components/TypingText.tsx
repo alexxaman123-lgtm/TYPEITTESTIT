@@ -123,16 +123,12 @@ export default function TypingText({
 
       // On reset, place the first word immediately. During a test, use a smooth
       // eased transform. Reduced-motion preferences disable the animation.
+      // Match the caret's 110ms movement. A long transition restarts on
+      // every key and makes the passage perpetually chase the user's typing.
       wordsRef.current.style.transition = snapToStart || reducedMotion
         ? "none"
-        : "transform 420ms cubic-bezier(0.22, 1, 0.36, 1)";
+        : "transform 110ms linear";
       wordsRef.current.style.transform = `translate3d(${nextX}px, 0, 0)`;
-
-      if (snapToStart && !reducedMotion) {
-        // Force the reset position to take effect before re-enabling motion.
-        void wordsRef.current.offsetWidth;
-        wordsRef.current.style.transition = "transform 420ms cubic-bezier(0.22, 1, 0.36, 1)";
-      }
     };
 
     alignTrack();
@@ -378,7 +374,7 @@ export default function TypingText({
             ? "typing-surface typing-surface-focus relative flex cursor-text select-none items-center font-sans tracking-normal"
             : "typing-surface relative cursor-text select-none rounded-[24px] border bg-canvas-soft/70 font-sans tracking-normal transition-[border-color,box-shadow] duration-300 min-h-[132px] p-4 text-[16px] leading-7 sm:min-h-[150px] sm:p-5 sm:text-[17px] sm:leading-8",
           !freeTyping && "flex items-center",
-          focusMode && "text-[34px] leading-none tracking-[-0.04em] sm:text-[42px] lg:text-[52px] xl:text-[58px]",
+          focusMode && "text-[34px] leading-[1.28] tracking-[-0.04em] sm:text-[42px] lg:text-[52px] xl:text-[58px]",
           !focusMode && (focused ? "border-accent shadow-sm" : "border-hairline"),
           disabled && "opacity-60",
         )}
