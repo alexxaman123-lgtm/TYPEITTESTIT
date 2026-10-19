@@ -598,71 +598,45 @@ body {
   z-index: 0;
   inset: 0;
   pointer-events: none;
-  background: linear-gradient(
+  /* A two-width gradient lets its highlight travel from the left edge to the
+     right edge, then loop back to the left edge without an offscreen dead gap. */
+  background-image: linear-gradient(
     108deg,
     transparent 0%,
-    transparent 34%,
-    color-mix(in srgb, var(--color-ink) 3%, transparent) 43%,
-    color-mix(in srgb, var(--color-accent) 15%, transparent) 49%,
-    color-mix(in srgb, #fff 12%, transparent) 51%,
-    color-mix(in srgb, var(--color-accent) 12%, transparent) 54%,
-    transparent 66%,
+    transparent 46%,
+    color-mix(in srgb, var(--color-accent) 12%, transparent) 48.5%,
+    color-mix(in srgb, #fff 28%, transparent) 50%,
+    color-mix(in srgb, var(--color-accent) 18%, transparent) 51.5%,
+    transparent 54%,
     transparent 100%
   );
-  transform: translateX(-120%);
-  /* Edge-to-edge sweep with no stationary pause between repetitions. */
-  animation: leaderboardGoatSweep 2.8s linear infinite;
+  background-size: 200% 100%;
+  background-position: 100% 0;
+  animation: leaderboardGoatSweep 1.45s linear infinite;
 }
-/* Desktop champion title sits in the unused center of the entire row, not in a pill. */
-.leaderboard-goat-center {
-  position: absolute;
-  z-index: 2;
-  top: 50%;
-  left: 50%;
+/* Simple, unboxed accolade beside the first-place username. */
+.leaderboard-goat-inline {
   display: inline-flex;
+  flex: 0 0 auto;
   align-items: center;
-  gap: clamp(0.4rem, 1vw, 0.85rem);
-  transform: translate(-50%, -50%);
   color: var(--color-accent);
   font-family: var(--font-sans);
-  font-size: clamp(15px, 1.35vw, 20px);
-  font-weight: 800;
-  letter-spacing: 0.2em;
-  line-height: 1.25;
-  text-shadow:
-    0 0 10px color-mix(in srgb, var(--color-accent) 22%, transparent),
-    0 0 24px color-mix(in srgb, var(--color-accent) 12%, transparent);
-  pointer-events: none;
+  font-size: 12px;
+  font-weight: 750;
+  letter-spacing: 0.04em;
   white-space: nowrap;
-}
-.leaderboard-goat-center-stars {
-  font-size: 0.95em;
-  letter-spacing: 0;
-  text-shadow: 0 0 12px color-mix(in srgb, var(--color-accent) 42%, transparent);
-}
-.leaderboard-goat-mobile {
-  display: none;
-  color: var(--color-accent);
-  font-family: var(--font-sans);
-  font-size: 10px;
-  font-weight: 800;
-  letter-spacing: 0.06em;
-  white-space: nowrap;
-}
-@media (max-width: 700px) {
-  .leaderboard-goat-center { display: none; }
-  .leaderboard-goat-mobile { display: inline-flex; align-items: center; }
+  text-shadow: 0 0 9px color-mix(in srgb, var(--color-accent) 28%, transparent);
 }
 .leaderboard-goat-name {
   color: var(--color-ink);
   text-shadow:
     0 0 9px color-mix(in srgb, var(--color-accent) 35%, transparent),
     0 0 20px color-mix(in srgb, var(--color-accent) 17%, transparent);
-  animation: leaderboardGoatNameGlow 2.8s ease-in-out infinite;
+  animation: leaderboardGoatNameGlow 1.45s ease-in-out infinite;
 }
 @keyframes leaderboardGoatSweep {
-  0% { transform: translateX(-120%); }
-  100% { transform: translateX(120%); }
+  from { background-position: 100% 0; }
+  to { background-position: 0% 0; }
 }
 @keyframes leaderboardGoatNameGlow {
   0%, 100% {
