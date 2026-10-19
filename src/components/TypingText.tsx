@@ -97,7 +97,7 @@ export default function TypingText({
   // Read the in-flight transform before calculating the next one, so a fast
   // typist can interrupt the previous animation without overshooting.
   useLayoutEffect(() => {
-    if (freeTyping || disabled) return;
+    if (disabled) return;
     const words = wordsRef.current;
     const anchor = currentCharRef.current;
     const surface = surfaceRef.current;
@@ -151,8 +151,6 @@ export default function TypingText({
   // The caret sits inside the moving track and is positioned against the exact
   // next-character anchor, so it travels with the passage without detaching.
   useLayoutEffect(() => {
-    if (freeTyping) return;
-
     const positionCaret = () => {
       const words = wordsRef.current;
       const caret = caretRef.current;
@@ -386,22 +384,48 @@ export default function TypingText({
         )}
       >
         {freeTyping ? (
-          <p className={cn("whitespace-pre-wrap break-words text-ink-soft", copyClass)}>
-            {typed.length > 0 ? typed : (
-              <span className="text-faint">
-                {locale === "es" ? "Empieza a escribir lo que quieras..." : "Start typing anything you want..."}
-              </span>
-            )}
-            {status !== "finished" && typed.length > 0 && (
+          <div className="typing-banner-viewport">
+            <p
+              ref={wordsRef}
+              className={cn("typing-track typing-track-free relative", copyClass, "text-ink-soft")}
+            >
               <span
+                ref={caretRef}
+                aria-hidden="true"
+                style={{ opacity: 0, height: `${CARET_MIN_HEIGHT_PX}px` }}
                 className={cn(
-                  "ml-[1px] inline-block h-[1.15em] w-[2px] translate-y-[0.12em] rounded-full bg-accent",
+                  "pointer-events-none absolute left-0 top-0 z-[1] w-[2px] rounded-full bg-accent",
+                  !reducedMotion && "typing-caret",
                   !reducedMotion && caretBlinking && "caret-blink",
                 )}
-                aria-hidden="true"
               />
-            )}
-          </p>
+              <span
+                ref={passageStartRef}
+                aria-hidden="true"
+                className="inline-block w-0 align-baseline"
+              >
+                {ANCHOR_CHAR}
+              </span>
+              {typed.length > 0 ? (
+                <>
+                  {typed}
+                  {status !== "finished" && (
+                    <span
+                      ref={currentCharRef}
+                      aria-hidden="true"
+                      className="inline-block w-0 align-baseline"
+                    >
+                      {ANCHOR_CHAR}
+                    </span>
+                  )}
+                </>
+              ) : (
+                <span className="text-faint">
+                  {locale === "es" ? "Empieza a escribir lo que quieras..." : "Start typing anything you want..."}
+                </span>
+              )}
+            </p>
+          </div>
         ) : (
           <div className="typing-banner-viewport">
             <p
