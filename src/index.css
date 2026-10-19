@@ -581,3 +581,72 @@ body {
     text-align: center;
   }
 }
+
+
+/* First-place GOAT treatment: a quiet, premium light sweep across the full row. */
+.leaderboard-row > * {
+  position: relative;
+  z-index: 1;
+}
+.leaderboard-row-goat {
+  background: color-mix(in srgb, var(--color-accent) 5%, transparent);
+  box-shadow: inset 2px 0 0 color-mix(in srgb, var(--color-accent) 65%, transparent);
+}
+.leaderboard-row-goat::before {
+  content: "";
+  position: absolute;
+  z-index: 0;
+  inset: 0;
+  pointer-events: none;
+  background: linear-gradient(
+    108deg,
+    transparent 0%,
+    transparent 34%,
+    color-mix(in srgb, var(--color-ink) 3%, transparent) 43%,
+    color-mix(in srgb, var(--color-accent) 15%, transparent) 49%,
+    color-mix(in srgb, #fff 12%, transparent) 51%,
+    color-mix(in srgb, var(--color-accent) 12%, transparent) 54%,
+    transparent 66%,
+    transparent 100%
+  );
+  transform: translateX(-120%);
+  animation: leaderboardGoatSweep 5.8s cubic-bezier(0.45, 0, 0.55, 1) infinite;
+}
+.leaderboard-goat-badge {
+  flex: 0 0 auto;
+  display: inline-flex;
+  align-items: center;
+  border: 1px solid color-mix(in srgb, var(--color-accent) 40%, transparent);
+  border-radius: 999px;
+  padding: 0.18rem 0.42rem;
+  background: color-mix(in srgb, var(--color-accent) 9%, transparent);
+  color: var(--color-accent);
+  font-family: var(--font-sans);
+  font-size: 9px;
+  font-weight: 750;
+  letter-spacing: 0.13em;
+  line-height: 1.2;
+  white-space: nowrap;
+}
+.leaderboard-goat-name {
+  color: var(--color-ink);
+  animation: leaderboardGoatNameGlow 5.8s ease-in-out infinite;
+}
+@keyframes leaderboardGoatSweep {
+  0%, 12% { transform: translateX(-120%); }
+  62%, 100% { transform: translateX(120%); }
+}
+@keyframes leaderboardGoatNameGlow {
+  0%, 38%, 75%, 100% { text-shadow: 0 0 0 transparent; }
+  48%, 60% {
+    text-shadow:
+      0 0 10px color-mix(in srgb, var(--color-accent) 28%, transparent),
+      0 0 22px color-mix(in srgb, var(--color-accent) 13%, transparent);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .leaderboard-row-goat::before,
+  .leaderboard-goat-name {
+    animation: none;
+  }
+}
