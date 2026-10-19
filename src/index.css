@@ -610,10 +610,17 @@ body {
     transparent 100%
   );
   transform: translateX(-120%);
-  animation: leaderboardGoatSweep 5.8s cubic-bezier(0.45, 0, 0.55, 1) infinite;
+  /* Edge-to-edge sweep with no stationary pause between repetitions. */
+  animation: leaderboardGoatSweep 2.8s linear infinite;
+}
+.leaderboard-goat-lockup {
+  display: inline-flex;
+  flex: 0 0 auto;
+  align-items: center;
+  gap: 0.22rem;
+  white-space: nowrap;
 }
 .leaderboard-goat-badge {
-  flex: 0 0 auto;
   display: inline-flex;
   align-items: center;
   border: 1px solid color-mix(in srgb, var(--color-accent) 40%, transparent);
@@ -628,20 +635,34 @@ body {
   line-height: 1.2;
   white-space: nowrap;
 }
+.leaderboard-goat-star {
+  color: var(--color-accent);
+  font-family: var(--font-sans);
+  font-size: 0.76rem;
+  line-height: 1;
+  text-shadow: 0 0 8px color-mix(in srgb, var(--color-accent) 32%, transparent);
+}
 .leaderboard-goat-name {
   color: var(--color-ink);
-  animation: leaderboardGoatNameGlow 5.8s ease-in-out infinite;
+  text-shadow:
+    0 0 9px color-mix(in srgb, var(--color-accent) 35%, transparent),
+    0 0 20px color-mix(in srgb, var(--color-accent) 17%, transparent);
+  animation: leaderboardGoatNameGlow 2.8s ease-in-out infinite;
 }
 @keyframes leaderboardGoatSweep {
-  0%, 12% { transform: translateX(-120%); }
-  62%, 100% { transform: translateX(120%); }
+  0% { transform: translateX(-120%); }
+  100% { transform: translateX(120%); }
 }
 @keyframes leaderboardGoatNameGlow {
-  0%, 38%, 75%, 100% { text-shadow: 0 0 0 transparent; }
-  48%, 60% {
+  0%, 100% {
     text-shadow:
-      0 0 10px color-mix(in srgb, var(--color-accent) 28%, transparent),
-      0 0 22px color-mix(in srgb, var(--color-accent) 13%, transparent);
+      0 0 7px color-mix(in srgb, var(--color-accent) 23%, transparent),
+      0 0 16px color-mix(in srgb, var(--color-accent) 11%, transparent);
+  }
+  50% {
+    text-shadow:
+      0 0 11px color-mix(in srgb, var(--color-accent) 42%, transparent),
+      0 0 24px color-mix(in srgb, var(--color-accent) 22%, transparent);
   }
 }
 @media (prefers-reduced-motion: reduce) {
