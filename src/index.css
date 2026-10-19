@@ -87,6 +87,8 @@ body {
   white-space: nowrap;
   will-change: transform;
 }
+/* Free-typing mode preserves every space the user enters while remaining one line. */
+.typing-track-free { white-space: pre; }
 
 @media (prefers-reduced-motion: reduce) {
   .caret-blink { animation: none; }
