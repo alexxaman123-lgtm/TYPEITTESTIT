@@ -522,7 +522,7 @@ export default function LeaderboardPage({ locale = "en" as Locale }: { locale?: 
         </div>
 
         <div className="mt-6 overflow-hidden rounded-2xl border border-white/10 bg-surface2/50">
-          <div className="grid grid-cols-[32px_minmax(100px,1fr)_65px_80px_80px_75px] gap-2 border-b border-white/8 px-3 py-3 text-[9px] font-bold uppercase tracking-[0.12em] text-faint sm:grid-cols-[48px_minmax(150px,1fr)_100px_105px_110px_95px] sm:gap-3 sm:px-5 sm:text-[10px] sm:tracking-[0.16em]">
+          <div className="grid grid-cols-[32px_minmax(100px,1fr)_65px_80px_80px_75px] gap-2 border-b border-white/8 px-3 py-3 font-sans text-[9px] font-bold uppercase tracking-[0.12em] text-faint sm:grid-cols-[48px_minmax(150px,1fr)_100px_105px_110px_95px] sm:gap-3 sm:px-5 sm:text-[10px] sm:tracking-[0.16em]">
             <span>{t.columnRank}</span>
             <span>{t.columnUsername}</span>
             <span className="text-right">{t.columnWpm}</span>
@@ -562,28 +562,30 @@ function LeaderboardRow({ rank, score, difficultyLabel, minuteAbbrev }: { rank: 
       )}
       aria-label={isGoat ? `First place: ${score.username}` : undefined}
     >
-      <div className={cn("font-mono text-xs font-bold sm:text-sm", isGoat ? "text-accent" : "text-faint")}>
+      <div className={cn("font-sans text-xs font-bold sm:text-sm", isGoat ? "text-accent" : "text-faint")}>
         {rank === 1 ? "01" : rank}
       </div>
       <div className="min-w-0">
-        <div className="flex min-w-0 items-center gap-2">
-          {isGoat && (
-            <span className="leaderboard-goat-badge" title="Greatest of All Time">
-              G.O.A.T
-            </span>
-          )}
+        <div className="flex min-w-0 flex-wrap items-center gap-2 font-sans">
           <span className={cn(
             "truncate text-xs font-bold text-ink sm:text-sm",
             isGoat && "leaderboard-goat-name",
           )}>
             {score.username}
           </span>
+          {isGoat && (
+            <span className="leaderboard-goat-lockup" aria-label="G.O.A.T, greatest of all time">
+              <span className="leaderboard-goat-star" aria-hidden="true">★</span>
+              <span className="leaderboard-goat-badge" title="Greatest of All Time">G.O.A.T</span>
+              <span className="leaderboard-goat-star" aria-hidden="true">★</span>
+            </span>
+          )}
         </div>
         <div className="mt-1 text-[9px] uppercase tracking-[0.1em] text-faint sm:text-[10px] sm:tracking-[0.12em]">{difficultyLabel}</div>
       </div>
-      <div className={cn("text-right font-mono text-xs font-bold sm:text-sm", isGoat ? "text-accent" : "text-accent")}>{score.wpm.toFixed(1)}</div>
-      <div className="text-right font-mono text-xs font-bold text-ink-soft sm:text-sm">{score.accuracy.toFixed(2)}%</div>
-      <div className="text-right font-mono text-xs text-muted sm:text-sm">{score.words_written.toFixed(1)}</div>
+      <div className={cn("text-right font-sans text-xs font-bold sm:text-sm", isGoat ? "text-accent" : "text-accent")}>{score.wpm.toFixed(1)}</div>
+      <div className="text-right font-sans text-xs font-bold text-ink-soft sm:text-sm">{score.accuracy.toFixed(2)}%</div>
+      <div className="text-right font-sans text-xs text-muted sm:text-sm">{score.words_written.toFixed(1)}</div>
       <div className="text-right text-xs text-muted sm:text-sm">{score.duration_sec / 60} {minuteAbbrev}</div>
     </div>
   );
