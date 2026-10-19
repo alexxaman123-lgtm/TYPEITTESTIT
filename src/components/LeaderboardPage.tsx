@@ -574,10 +574,8 @@ function LeaderboardRow({ rank, score, difficultyLabel, minuteAbbrev }: { rank: 
             {score.username}
           </span>
           {isGoat && (
-            <span className="leaderboard-goat-lockup" aria-label="G.O.A.T, greatest of all time">
-              <span className="leaderboard-goat-star" aria-hidden="true">★</span>
-              <span className="leaderboard-goat-badge" title="Greatest of All Time">G.O.A.T</span>
-              <span className="leaderboard-goat-star" aria-hidden="true">★</span>
+            <span className="leaderboard-goat-mobile" aria-label="Greatest of All Time">
+              ★ G.O.A.T
             </span>
           )}
         </div>
@@ -587,6 +585,13 @@ function LeaderboardRow({ rank, score, difficultyLabel, minuteAbbrev }: { rank: 
       <div className="text-right font-sans text-xs font-bold text-ink-soft sm:text-sm">{score.accuracy.toFixed(2)}%</div>
       <div className="text-right font-sans text-xs text-muted sm:text-sm">{score.words_written.toFixed(1)}</div>
       <div className="text-right text-xs text-muted sm:text-sm">{score.duration_sec / 60} {minuteAbbrev}</div>
+      {isGoat && (
+        <div className="leaderboard-goat-center" aria-label="Greatest of All Time">
+          <span className="leaderboard-goat-center-stars" aria-hidden="true">★</span>
+          <span>G.O.A.T</span>
+          <span className="leaderboard-goat-center-stars" aria-hidden="true">★</span>
+        </div>
+      )}
     </div>
   );
 }
