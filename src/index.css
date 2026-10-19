@@ -85,6 +85,8 @@ body {
   width: max-content;
   min-width: max-content;
   white-space: nowrap;
+  line-height: 1.28;
+  padding-block: 0.06em 0.12em;
   will-change: transform;
 }
 /* Free-typing mode preserves every space the user enters while remaining one line. */
