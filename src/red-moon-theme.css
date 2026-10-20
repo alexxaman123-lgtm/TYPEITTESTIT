@@ -183,5 +183,5 @@ a.bg-primary::after {
   white-space: nowrap;
 }
 .blur-type-space {
-  white-space: pre;
+  white-space: normal;
 }
