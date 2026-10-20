@@ -24,7 +24,7 @@ const STEPS: Record<Locale, [Step, Step, Step, Step]> = {
   en: [
     { title: "Choose your setup", body: "Pick Easy, Medium or Hard, then choose a duration \u2014 1, 2, 3 or 5 minutes. Your preference is remembered for next time." },
     { title: "Start typing", body: "There's no separate start button to click. The timer begins automatically the moment you type the first character." },
-    { title: "Type the passage", body: "Correct characters turn black, mistakes are marked in red, and a bright caret always shows your current position." },
+    { title: "Type the passage", body: "Correct characters remain easy to follow, mistakes are marked with a clear underline, and a bright caret shows your current position." },
     { title: "Get your results", body: "When the timer hits zero, GOATTYPE instantly shows your WPM, accuracy, and errors. You can take a test without signing in; account-based progress and leaderboard features require Google Sign-In." },
   ],
   es: [
