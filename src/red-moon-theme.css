@@ -17,14 +17,15 @@
   --app-accent: #ff2548;
   --app-typed: #ffffff;
   color-scheme: dark;
+  --white-arrow-cursor: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24'%3E%3Cpath d='M4 2 L4 20 L9 15 L13 22 L16 20 L12 13 L20 13 Z' fill='%23fff' stroke='%23000' stroke-width='1.5' stroke-linejoin='round'/%3E%3C/svg%3E") 4 2, auto;
 }
 
 html, body {
-  cursor: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24'%3E%3Cpath d='M4 2 L4 20 L9 15 L13 22 L16 20 L12 13 L20 13 Z' fill='%23fff' stroke='%23000' stroke-width='1.5' stroke-linejoin='round'/%3E%3C/svg%3E") 4 2, auto;
+  cursor: var(--white-arrow-cursor);
 }
 
 a[href], button:not(:disabled), [role="button"] {
-  cursor: pointer;
+  cursor: var(--white-arrow-cursor);
 }
 
 button:disabled {
