@@ -103,34 +103,57 @@ export default function TypingText({
     const surface = surfaceRef.current;
     if (!words || !anchor || !surface) return;
 
+    let trackFrame = 0;
+
     const alignTrack = () => {
       const activeAnchor = currentCharRef.current;
-      if (!activeAnchor || !wordsRef.current || !surfaceRef.current) return;
+      const track = wordsRef.current;
+      const typingSurface = surfaceRef.current;
+      if (!activeAnchor || !track || !typingSurface) return;
 
-      const surfaceRect = surfaceRef.current.getBoundingClientRect();
-      const surfaceStyles = window.getComputedStyle(surfaceRef.current);
-      const paddingLeft = parseFloat(surfaceStyles.paddingLeft) || 0;
-      const paddingRight = parseFloat(surfaceStyles.paddingRight) || 0;
+      const surfaceRect = typingSurface.getBoundingClientRect();
+      const styles = window.getComputedStyle(typingSurface);
+      const paddingLeft = parseFloat(styles.paddingLeft) || 0;
+      const paddingRight = parseFloat(styles.paddingRight) || 0;
       const contentWidth = Math.max(1, surfaceRect.width - paddingLeft - paddingRight);
-      const targetX = surfaceRect.left + paddingLeft + contentWidth * 0.5;
+      const centerX = surfaceRect.left + paddingLeft + contentWidth * 0.5;
       const anchorRect = activeAnchor.getBoundingClientRect();
-      const currentTransform = window.getComputedStyle(wordsRef.current).transform;
-      const currentX = currentTransform === "none"
-        ? 0
-        : new DOMMatrixReadOnly(currentTransform).m41;
-      const nextX = currentX + targetX - anchorRect.left;
-      const snapToStart = typed.length === 0 && status === "idle";
+      const transform = window.getComputedStyle(track).transform;
+      const currentX = transform === "none" ? 0 : new DOMMatrixReadOnly(transform).m41;
+      const targetX = currentX + centerX - anchorRect.left;
+      const snap = (typed.length === 0 && status === "idle") || reducedMotion;
 
-      // On reset, place the first word immediately. During a test, use a smooth
-      // eased transform. Reduced-motion preferences disable the animation.
-      // Match the caret's 110ms movement. A long transition restarts on
-      // every key and makes the passage perpetually chase the user's typing.
-      wordsRef.current.style.transition = snapToStart || reducedMotion
-        ? "none"
-        : "transform 85ms linear";
-      wordsRef.current.style.transform = `translate3d(${nextX}px, 0, 0)`;
+      cancelAnimationFrame(trackFrame);
+      track.style.transition = "none";
+
+      if (snap) {
+        track.style.transform = `translate3d(${targetX}px, 0, 0)`;
+        trackFrame = 0;
+        return;
+      }
+
+      let previousTime = 0;
+      const easeTrack = (now: number) => {
+        const currentTransform = window.getComputedStyle(track).transform;
+        const liveX = currentTransform === "none" ? 0 : new DOMMatrixReadOnly(currentTransform).m41;
+        const delta = targetX - liveX;
+
+        if (Math.abs(delta) < 0.25) {
+          track.style.transform = `translate3d(${targetX}px, 0, 0)`;
+          trackFrame = 0;
+          return;
+        }
+
+        const elapsed = previousTime === 0 ? 16 : Math.min(32, now - previousTime);
+        previousTime = now;
+        const blend = 1 - Math.exp(-elapsed / 48);
+        const nextX = liveX + delta * blend;
+        track.style.transform = `translate3d(${nextX}px, 0, 0)`;
+        trackFrame = requestAnimationFrame(easeTrack);
+      };
+
+      trackFrame = requestAnimationFrame(easeTrack);
     };
-
     alignTrack();
 
     const resizeObserver = typeof ResizeObserver !== "undefined"
@@ -139,6 +162,7 @@ export default function TypingText({
     resizeObserver?.observe(surface);
     window.addEventListener("resize", alignTrack);
     return () => {
+      cancelAnimationFrame(trackFrame);
       resizeObserver?.disconnect();
       window.removeEventListener("resize", alignTrack);
     };
@@ -163,7 +187,7 @@ export default function TypingText({
       const trackRect = words.getBoundingClientRect();
       const halfWidth = Math.max(surfaceRect.width / 2, 1);
       const centerX = surfaceRect.left + halfWidth;
-      const arcDepth = Math.min(42, Math.max(18, surfaceRect.width * 0.025));
+      const arcDepth = Math.min(50, Math.max(24, surfaceRect.width * 0.03));
 
       if (!focusMode || reducedMotion) {
         arcElements.forEach((element) => {
@@ -180,11 +204,7 @@ export default function TypingText({
         const layoutCenterX = trackRect.left + element.offsetLeft + element.offsetWidth / 2;
         const normalized = Math.max(-1, Math.min(1, (layoutCenterX - centerX) / halfWidth));
         const y = arcDepth * normalized * normalized;
-        const angle = Math.max(
-          -2.2,
-          Math.min(2.2, Math.atan((2 * arcDepth * normalized) / halfWidth) * (180 / Math.PI)),
-        );
-        return { element, transform: `translate3d(0, ${y.toFixed(2)}px, 0) rotate(${angle.toFixed(2)}deg)` };
+        return { element, transform: `translate3d(0, ${y.toFixed(2)}px, 0)` };
       });
 
       updates.forEach(({ element, transform }) => {
