@@ -153,6 +153,21 @@ export default function TypingTester({ locale = "en" }: { locale?: Locale }) {
     return () => window.removeEventListener("keydown", onKeyDown);
   }, [focusMode]);
 
+  useEffect(() => {
+    if (!focusMode) return;
+    const onOutsidePointerDown = (event: PointerEvent) => {
+      const target = event.target;
+      if (!(target instanceof Element)) return;
+      const insideInteractiveArea = target.closest(
+        ".typing-surface-focus, .focus-sound-toggle, .focus-test-stack button, .focus-test-stack a, .focus-test-stack select, .focus-test-stack input, .focus-test-stack [role='button']",
+      );
+      if (insideInteractiveArea) return;
+      exitFocusMode();
+    };
+    window.addEventListener("pointerdown", onOutsidePointerDown);
+    return () => window.removeEventListener("pointerdown", onOutsidePointerDown);
+  }, [focusMode]);
+
   const animateFocusState = (next: boolean) => {
     if (focusMode !== next) setFocusMode(next);
   };
@@ -208,6 +223,55 @@ export default function TypingTester({ locale = "en" }: { locale?: Locale }) {
       style={focusedShellStyle}
       className={cn("test-shell rounded-[24px] border border-hairline bg-canvas p-6 shadow-sm transition-all duration-300", focusMode && "test-shell-focus")}
     >
+      {focusMode && (
+        <svg
+          className="focus-controls-arc"
+          viewBox="0 0 1600 360"
+          preserveAspectRatio="none"
+          aria-hidden="true"
+          focusable="false"
+        >
+          <defs>
+            <linearGradient id="focus-controls-stroke" x1="0" y1="0" x2="1" y2="0">
+              <stop offset="0%" stopColor="#760a23" stopOpacity="0" />
+              <stop offset="12%" stopColor="#a50e31" stopOpacity="0.3" />
+              <stop offset="30%" stopColor="#e71c46" stopOpacity="0.66" />
+              <stop offset="50%" stopColor="#ff3158" stopOpacity="0.9" />
+              <stop offset="70%" stopColor="#e71c46" stopOpacity="0.66" />
+              <stop offset="88%" stopColor="#a50e31" stopOpacity="0.3" />
+              <stop offset="100%" stopColor="#760a23" stopOpacity="0" />
+            </linearGradient>
+            <linearGradient id="focus-controls-fade" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stopColor="#5c061c" stopOpacity="0.11" />
+              <stop offset="38%" stopColor="#34030f" stopOpacity="0.055" />
+              <stop offset="76%" stopColor="#1a0108" stopOpacity="0.018" />
+              <stop offset="100%" stopColor="#000000" stopOpacity="0" />
+            </linearGradient>
+            <filter id="focus-controls-glow" x="-10%" y="-35%" width="120%" height="190%">
+              <feGaussianBlur stdDeviation="12" />
+            </filter>
+          </defs>
+          <path
+            d="M -50 350 Q 800 -160 1650 350 L 1650 380 L -50 380 Z"
+            fill="url(#focus-controls-fade)"
+          />
+          <path
+            d="M -50 350 Q 800 -160 1650 350"
+            fill="none"
+            stroke="url(#focus-controls-stroke)"
+            strokeWidth="9"
+            opacity="0.82"
+            filter="url(#focus-controls-glow)"
+          />
+          <path
+            d="M -50 350 Q 800 -160 1650 350"
+            fill="none"
+            stroke="url(#focus-controls-stroke)"
+            strokeWidth="1.4"
+            opacity="0.95"
+          />
+        </svg>
+      )}
       {!focusMode && (
         <div className="flex flex-col gap-4 border-b border-hairline pb-5 lg:flex-row lg:items-center lg:justify-between">
           <div className="flex flex-wrap items-center gap-3">
