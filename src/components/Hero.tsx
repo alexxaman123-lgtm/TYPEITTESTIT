@@ -263,6 +263,12 @@ export default function Hero({ locale = "en" as Locale }: { locale?: Locale }) {
       aria-labelledby={titleId}
     >
       <div className="hero-banner-grid" aria-hidden="true" />
+      <div className="hero-moon-scene" aria-hidden="true">
+        <span className="hero-moon-upper-glow" />
+        <span className="hero-moon-halo" />
+        <span className="hero-moon-beam" />
+        <span className="hero-moon-disc" />
+      </div>
 
       <div className="relative mx-auto grid min-h-0 w-full max-w-7xl items-center gap-8 py-10 sm:min-h-[720px] sm:gap-10 sm:py-20 lg:grid-cols-[minmax(0,1.08fr)_minmax(360px,0.92fr)] lg:gap-14">
         <div className="min-w-0 w-full max-w-4xl">
@@ -297,13 +303,13 @@ export default function Hero({ locale = "en" as Locale }: { locale?: Locale }) {
           <div className="mt-8 flex min-w-0 flex-col items-start gap-3 animate-fade-up sm:mt-9 sm:flex-row" style={{ animationDelay: "190ms" }}>
             <a
               href="#tester"
-              className="hero-primary-cta inline-flex min-h-14 max-w-full items-center justify-center rounded-full px-6 font-link transition-transform duration-200 hover:-translate-y-0.5 sm:px-7"
+              className="hero-primary-cta red-orbit-button inline-flex min-h-14 max-w-full items-center justify-center rounded-full px-6 font-link transition-transform duration-200 hover:-translate-y-0.5 sm:px-7"
             >
               {c.ctaPrimary}
             </a>
             <a
               href={leaderboardHref}
-              className="hero-secondary-cta inline-flex min-h-14 max-w-full items-center justify-center rounded-full border px-6 font-link transition-colors duration-200 sm:px-7"
+              className="hero-secondary-cta red-orbit-button inline-flex min-h-14 max-w-full items-center justify-center rounded-full border px-6 font-link transition-colors duration-200 sm:px-7"
             >
               {c.ctaSecondary}
             </a>
