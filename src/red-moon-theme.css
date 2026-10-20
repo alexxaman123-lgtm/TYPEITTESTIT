@@ -187,20 +187,7 @@ a.bg-primary::after {
 }
 
 
-/* Focus-mode typing arc: an understated semicircle with a crimson edge that
-   fades before the corners. The words sit on a shallow matching curve. */
-.typing-surface-focus .typing-arc-backdrop {
-  position: absolute;
-  z-index: 0;
-  top: calc(50% - 8.75rem);
-  left: -5%;
-  width: 110%;
-  height: clamp(200px, 18vw, 260px);
-  overflow: visible;
-  pointer-events: none;
-  opacity: 0.78;
-}
-
+/* The typing text follows a shallow curve; no arc is drawn above the text. */
 .typing-surface-focus .typing-banner-viewport {
   position: relative;
   z-index: 1;
@@ -219,16 +206,6 @@ a.bg-primary::after {
   white-space: pre;
 }
 
-@media (max-width: 640px) {
-  .typing-surface-focus .typing-arc-backdrop {
-    top: calc(50% - 7rem);
-    left: -12%;
-    width: 124%;
-    height: 190px;
-    opacity: 0.68;
-  }
-}
-
 @media (prefers-reduced-motion: reduce) {
   .typing-surface-focus .typing-arc-word,
   .typing-surface-focus .typing-arc-space {
@@ -237,17 +214,12 @@ a.bg-primary::after {
 }
 
 
-/* Focus-mode composition: a clearer upper arc and a second, larger arc around controls. */
-.typing-surface-focus .typing-arc-backdrop {
-  top: calc(50% - 8.75rem);
-  opacity: 1;
-}
-
+/* Focus-mode composition: the lower arc frames the controls. */
 .test-shell-focus .focus-controls-arc {
   position: absolute;
   z-index: 0;
   left: -2%;
-  bottom: -0.75rem;
+  bottom: 0.75rem;
   width: 104%;
   height: clamp(280px, 42vh, 390px);
   overflow: visible;
@@ -279,7 +251,7 @@ a.bg-primary::after {
     left: -12%;
     width: 124%;
     height: clamp(260px, 38vh, 340px);
-    bottom: -0.5rem;
+    bottom: 0.75rem;
     opacity: 0.86;
   }
 

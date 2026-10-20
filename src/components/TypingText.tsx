@@ -154,39 +154,45 @@ export default function TypingText({
       const surface = surfaceRef.current;
       if (!words || !caret || !passageStart || !surface) return;
 
-      // Bend complete words very slightly around the arc. Measuring each
-      // element from its untransformed layout offset keeps the curve stable as
-      // the passage itself slides beneath the caret.
+      // Shape the moving passage along a shallow circular arc. Reset previous
+      // bends before measuring so they never accumulate with each keystroke.
       const arcElements = Array.from(
         surface.querySelectorAll<HTMLElement>(".typing-arc-word, .typing-arc-space"),
       );
-      const surfaceRect = surface.getBoundingClientRect();
-      const trackRect = words.getBoundingClientRect();
-      const halfWidth = Math.max(surfaceRect.width / 2, 1);
-      const arcDepth = Math.min(18, Math.max(6, surfaceRect.width * 0.011));
-      const centerX = surfaceRect.left + halfWidth;
 
-      arcElements.forEach((element) => {
-        if (!focusMode || reducedMotion) {
+      if (!focusMode || reducedMotion) {
+        arcElements.forEach((element) => {
           element.style.transform = "";
           element.style.transition = "";
-          return;
-        }
+        });
+      } else {
+        arcElements.forEach((element) => {
+          element.style.transform = "";
+          element.style.transition = "none";
+        });
 
-        const layoutCenterX = trackRect.left + element.offsetLeft + element.offsetWidth / 2;
-        const normalized = Math.max(-1, Math.min(1, (layoutCenterX - centerX) / halfWidth));
-        const y = arcDepth * normalized * normalized;
-        const angle = Math.max(
-          -2.6,
-          Math.min(2.6, Math.atan((2 * arcDepth * normalized) / halfWidth) * (180 / Math.PI)),
-        );
+        const surfaceRect = surface.getBoundingClientRect();
+        const halfWidth = Math.max(surfaceRect.width / 2, 1);
+        const arcDepth = Math.min(26, Math.max(12, surfaceRect.width * 0.016));
+        const centerX = surfaceRect.left + halfWidth;
 
-        element.style.transformOrigin = "center center";
-        element.style.transition = typed.length === 0 && status === "idle"
-          ? "none"
-          : "transform 110ms linear";
-        element.style.transform = `translate3d(0, ${y.toFixed(2)}px, 0) rotate(${angle.toFixed(2)}deg)`;
-      });
+        arcElements.forEach((element) => {
+          const rect = element.getBoundingClientRect();
+          const position = rect.left + rect.width / 2;
+          const normalized = Math.max(-1, Math.min(1, (position - centerX) / halfWidth));
+          const y = arcDepth * normalized * normalized;
+          const angle = Math.max(
+            -3.3,
+            Math.min(3.3, Math.atan((2 * arcDepth * normalized) / halfWidth) * (180 / Math.PI)),
+          );
+
+          element.style.transformOrigin = "center center";
+          element.style.transition = typed.length === 0 && status === "idle"
+            ? "none"
+            : "transform 110ms linear";
+          element.style.transform = `translate3d(0, ${y.toFixed(2)}px, 0) rotate(${angle.toFixed(2)}deg)`;
+        });
+      }
 
       const anchor = disabled ? null : currentCharRef.current;
       if (!anchor) {
@@ -419,43 +425,7 @@ export default function TypingText({
         )}
       >
         {focusMode && (
-          <svg
-            className="typing-arc-backdrop"
-            viewBox="0 0 1600 260"
-            preserveAspectRatio="none"
-            aria-hidden="true"
-            focusable="false"
-          >
-            <defs>
-              <linearGradient id="typing-arc-stroke" x1="0" y1="0" x2="1" y2="0">
-                <stop offset="0%" stopColor="#760a23" stopOpacity="0" />
-                <stop offset="12%" stopColor="#a50e31" stopOpacity="0.34" />
-                <stop offset="30%" stopColor="#e71c46" stopOpacity="0.72" />
-                <stop offset="50%" stopColor="#ff3158" stopOpacity="0.96" />
-                <stop offset="70%" stopColor="#e71c46" stopOpacity="0.72" />
-                <stop offset="88%" stopColor="#a50e31" stopOpacity="0.34" />
-                <stop offset="100%" stopColor="#760a23" stopOpacity="0" />
-              </linearGradient>
-              <filter id="typing-arc-glow" x="-10%" y="-55%" width="120%" height="210%">
-                <feGaussianBlur stdDeviation="13" />
-              </filter>
-            </defs>
-            <path
-              d="M -40 145 Q 800 10 1640 145"
-              fill="none"
-              stroke="url(#typing-arc-stroke)"
-              strokeWidth="10"
-              opacity="0.76"
-              filter="url(#typing-arc-glow)"
-            />
-            <path
-              d="M -40 145 Q 800 10 1640 145"
-              fill="none"
-              stroke="url(#typing-arc-stroke)"
-              strokeWidth="1.55"
-              opacity="0.98"
-            />
-          </svg>
+          
         )}
         {freeTyping ? (
           <div className="typing-banner-viewport">
