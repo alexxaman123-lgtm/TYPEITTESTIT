@@ -154,14 +154,18 @@ button:disabled {
   to { --button-orbit-angle: 360deg; }
 }
 
-.red-orbit-button {
+.red-orbit-button,
+button.bg-primary,
+a.bg-primary {
   position: relative;
   isolation: isolate;
   border-color: rgba(255, 42, 74, 0.42);
   box-shadow: 0 0 20px rgba(255, 20, 56, 0.09);
 }
 
-.red-orbit-button::after {
+.red-orbit-button::after,
+button.bg-primary::after,
+a.bg-primary::after {
   content: "";
   position: absolute;
   inset: -1.25px;
@@ -228,7 +232,9 @@ button:disabled {
     animation: none !important;
   }
 
-  .red-orbit-button::after {
+  .red-orbit-button::after,
+  button.bg-primary::after,
+  a.bg-primary::after {
     background: linear-gradient(120deg, rgba(255, 37, 72, 0.25), #ff2548, rgba(255, 243, 245, 0.75), rgba(255, 37, 72, 0.25));
   }
 }
