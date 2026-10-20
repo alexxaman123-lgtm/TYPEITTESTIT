@@ -297,6 +297,7 @@ export default function TypingText({
             <span
               className={cn(
                 "inline-block",
+                kind === "current" && "typing-word-current",
                 kind === "completed" && hasError && "border-b-2 border-red-500/70",
               )}
             >
@@ -339,6 +340,7 @@ export default function TypingText({
         key={`w${wordIndex}`}
         className={cn(
           "inline-block",
+          kind === "current" && "typing-word-current",
           kind === "completed" && hasError && "border-b-2 border-red-500/70",
         )}
       >

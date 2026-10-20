@@ -6,6 +6,7 @@ import type { Locale } from "../lib/i18n";
 import { tr } from "../lib/i18n";
 
 const SPANISH_THEME_NAMES: Record<string, string> = {
+  "red moon": "luna roja",
   "ivory black": "marfil negro",
   "plum brass": "ciruela latón",
   "cobalt peach": "cobalto melocotón",
