@@ -1,0 +1,233 @@
+/* Red Moon visual layer for GOATTYPE / TypeItTestIt.
+   Deliberately separate from the main stylesheet so the base design stays easy
+   to maintain. Theme palette applies to the full site; lunar lighting is hero-only. */
+
+:root {
+  --app-primary: #ef2043;
+  --app-on-primary: #ffffff;
+  --app-ink: #ffffff;
+  --app-ink-soft: #f1f1f1;
+  --app-text-muted: #c6c6c6;
+  --app-text-faint: #969696;
+  --app-canvas: #000000;
+  --app-canvas-soft: #080808;
+  --app-field: #0d0d0d;
+  --app-hairline-soft: #281018;
+  --app-hairline: #48202a;
+  --app-accent: #ff2548;
+  --app-typed: #ffffff;
+  color-scheme: dark;
+}
+
+html, body {
+  cursor: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24'%3E%3Cpath d='M4 2 L4 20 L9 15 L13 22 L16 20 L12 13 L20 13 Z' fill='%23fff' stroke='%23000' stroke-width='1.5' stroke-linejoin='round'/%3E%3C/svg%3E") 4 2, auto;
+}
+
+a[href], button:not(:disabled), [role="button"] {
+  cursor: pointer;
+}
+
+button:disabled {
+  cursor: not-allowed;
+}
+
+/* The typing input is transparent by design; use a visible white I-beam so
+   the pointer itself remains legible over the black typing surface. */
+.typing-surface,
+.typing-surface input {
+  cursor: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='20' height='28' viewBox='0 0 20 28'%3E%3Cpath d='M4 3H16 M10 3V25 M4 25H16' fill='none' stroke='%23000' stroke-width='5' stroke-linecap='round'/%3E%3Cpath d='M4 3H16 M10 3V25 M4 25H16' fill='none' stroke='%23fff' stroke-width='2.4' stroke-linecap='round'/%3E%3C/svg%3E") 10 14, text !important;
+  caret-color: #ffffff;
+}
+
+/* A bright white typing caret with a red aura fixes the low-contrast position
+   marker. The current word also receives a restrained red underline. */
+.typing-caret {
+  width: 3px !important;
+  min-width: 3px;
+  background: #ffffff !important;
+  border-radius: 999px;
+  box-shadow: 0 0 7px rgba(255,255,255,.95), 0 0 18px rgba(255,30,65,.82), 0 0 30px rgba(255,20,55,.38) !important;
+  z-index: 4 !important;
+}
+
+.typing-word-current {
+  text-decoration-line: underline;
+  text-decoration-color: rgba(255, 43, 73, 0.7);
+  text-decoration-thickness: 1px;
+  text-underline-offset: 0.2em;
+  text-decoration-skip-ink: none;
+}
+
+/* The half-lit moon sits above the hero media, with a red upper rim light. */
+.hero-moon-scene {
+  position: absolute;
+  z-index: 0;
+  top: clamp(0.5rem, 1.8vw, 1.65rem);
+  right: clamp(1rem, 7vw, 7.5rem);
+  width: clamp(8rem, 17vw, 14rem);
+  aspect-ratio: 1;
+  pointer-events: none;
+  opacity: 0.94;
+  isolation: isolate;
+}
+
+.hero-moon-upper-glow {
+  position: absolute;
+  inset: -42% -50% -8%;
+  border-radius: 50%;
+  background: radial-gradient(ellipse at 50% 77%, rgba(255, 28, 61, 0.47) 0%, rgba(255, 15, 47, 0.2) 31%, rgba(255, 0, 40, 0.06) 51%, transparent 70%);
+  filter: blur(16px);
+  animation: lunarRedPulse 5.4s ease-in-out infinite;
+}
+
+.hero-moon-halo {
+  position: absolute;
+  inset: -20%;
+  border-radius: 50%;
+  background: radial-gradient(circle at 53% 52%, rgba(255, 25, 58, 0.16) 0%, rgba(255, 19, 53, 0.08) 34%, transparent 67%);
+  filter: blur(11px);
+}
+
+.hero-moon-beam {
+  position: absolute;
+  z-index: -1;
+  top: -31%;
+  left: 50%;
+  width: 68%;
+  height: 78%;
+  transform: translateX(-50%);
+  background: radial-gradient(ellipse at 50% 100%, rgba(255, 37, 70, 0.24), rgba(255, 28, 60, 0.08) 42%, transparent 72%);
+  filter: blur(9px);
+}
+
+.hero-moon-disc {
+  position: absolute;
+  inset: 16%;
+  overflow: hidden;
+  border-radius: 50%;
+  border: 1px solid rgba(255, 228, 233, 0.62);
+  background:
+    radial-gradient(circle at 68% 26%, rgba(255,255,255,.9) 0%, rgba(255,245,247,.25) 2%, transparent 6%),
+    linear-gradient(90deg, #080609 0%, #171014 45%, #eadfe2 49%, #fff9fa 63%, #c6a7ad 100%);
+  box-shadow:
+    0 0 12px rgba(255, 245, 247, 0.2),
+    0 0 34px rgba(255, 28, 60, 0.34),
+    0 0 76px rgba(255, 18, 53, 0.16),
+    inset -9px -3px 22px rgba(71, 8, 23, 0.25);
+}
+
+.hero-moon-disc::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: linear-gradient(150deg, rgba(255, 37, 70, 0.18), transparent 42%, rgba(104, 0, 22, 0.2));
+  mix-blend-mode: screen;
+}
+
+.hero-banner::after {
+  content: "";
+  position: absolute;
+  z-index: 0;
+  pointer-events: none;
+  inset: auto -8% -7.8rem;
+  height: 15rem;
+  background: radial-gradient(ellipse at 50% 0%, rgba(255, 16, 52, 0.32) 0%, rgba(255, 12, 48, 0.13) 27%, rgba(255, 0, 36, 0.035) 49%, transparent 68%);
+  filter: blur(5px);
+}
+
+@keyframes lunarRedPulse {
+  0%, 100% { opacity: 0.72; transform: scale(0.96); }
+  50% { opacity: 1; transform: scale(1.04); }
+}
+
+/* One hot highlight travels around the perimeter while the button face stays
+   stable and readable. Both hero CTAs share the effect. */
+@property --button-orbit-angle {
+  syntax: "<angle>";
+  inherits: false;
+  initial-value: 0deg;
+}
+
+@keyframes orbitRedEdge {
+  to { --button-orbit-angle: 360deg; }
+}
+
+.red-orbit-button {
+  position: relative;
+  isolation: isolate;
+  border-color: rgba(255, 42, 74, 0.42);
+  box-shadow: 0 0 20px rgba(255, 20, 56, 0.09);
+}
+
+.red-orbit-button::after {
+  content: "";
+  position: absolute;
+  inset: -1.25px;
+  padding: 1.5px;
+  border-radius: inherit;
+  pointer-events: none;
+  background: conic-gradient(
+    from var(--button-orbit-angle),
+    transparent 0deg 250deg,
+    rgba(255, 37, 72, 0.25) 270deg,
+    #ff2449 288deg,
+    #fff3f5 299deg,
+    #ff2449 309deg,
+    transparent 328deg 360deg
+  );
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  mask-composite: exclude;
+  animation: orbitRedEdge 3.1s linear infinite;
+}
+
+.hero-primary-cta {
+  color: #ffffff;
+  background: #ef2043;
+}
+
+.hero-primary-cta:hover {
+  background: #ff2b4d;
+  box-shadow: 0 0 28px rgba(255, 28, 65, 0.28);
+}
+
+.hero-secondary-cta {
+  background: rgba(0, 0, 0, 0.72);
+  border-color: rgba(255, 255, 255, 0.22);
+}
+
+.hero-secondary-cta:hover {
+  border-color: rgba(255, 40, 74, 0.75);
+  background: #0a0507;
+}
+
+@media (max-width: 640px) {
+  .hero-moon-scene {
+    top: 0.5rem;
+    right: 1rem;
+    width: 6.5rem;
+    opacity: 0.76;
+  }
+
+  .hero-moon-upper-glow {
+    filter: blur(11px);
+  }
+
+  .hero-banner::after {
+    inset: auto -30% -5.5rem;
+    height: 11rem;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hero-moon-upper-glow,
+  .red-orbit-button::after {
+    animation: none !important;
+  }
+
+  .red-orbit-button::after {
+    background: linear-gradient(120deg, rgba(255, 37, 72, 0.25), #ff2548, rgba(255, 243, 245, 0.75), rgba(255, 37, 72, 0.25));
+  }
+}
