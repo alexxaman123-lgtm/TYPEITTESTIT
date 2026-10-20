@@ -484,8 +484,8 @@ export default function TypingText({
               </span>
               {typed.length > 0 ? (
                 <>
-                  {typed.split(/(\\s+)/u).filter((part) => part.length > 0).map((part, index) => (
-                    /^\\s+$/u.test(part) ? (
+                  {typed.split(/(\s+)/u).filter((part) => part.length > 0).map((part, index) => (
+                    /^\s+$/u.test(part) ? (
                       <span key={`free-space-${index}`} className="typing-arc-space">{part}</span>
                     ) : (
                       <span key={`free-word-${index}`} className="typing-arc-word">{part}</span>
