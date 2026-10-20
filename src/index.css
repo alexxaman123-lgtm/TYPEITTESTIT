@@ -31,19 +31,19 @@
 }
 
 :root {
-  --app-primary: #35f28b;
-  --app-on-primary: #05110a;
-  --app-ink: #f3fff7;
-  --app-ink-soft: #d4f7e2;
-  --app-text-muted: #94b7a1;
-  --app-text-faint: #50665a;
-  --app-canvas: #080d0a;
-  --app-canvas-soft: #101811;
-  --app-field: #172219;
-  --app-hairline-soft: #1b2b20;
-  --app-hairline: #294132;
-  --app-accent: #20d977;
-  --app-typed: #35f28b;
+  --app-primary: #ffffff;
+  --app-on-primary: #ffffff;
+  --app-ink: #ffffff;
+  --app-ink-soft: #ffffff;
+  --app-text-muted: #ffffff;
+  --app-text-faint: #ffffff;
+  --app-canvas: #000000;
+  --app-canvas-soft: #000000;
+  --app-field: #000000;
+  --app-hairline-soft: #1b1b1b;
+  --app-hairline: #2b2b2b;
+  --app-accent: #ffffff;
+  --app-typed: #ffffff;
 }
 
 * { box-sizing: border-box; }
@@ -658,4 +658,63 @@ body {
   .leaderboard-goat-name {
     text-shadow: 0 0 10px color-mix(in srgb, var(--color-accent) 26%, transparent);
   }
+}
+
+
+/* Monochrome default: pure-black surfaces and white typography throughout the site. */
+html[data-theme="monochrome"] {
+  color-scheme: dark;
+}
+html[data-theme="monochrome"] body {
+  background: #000000 !important;
+  color: #ffffff !important;
+  --app-primary: #ffffff;
+  --app-on-primary: #ffffff;
+  --app-ink: #ffffff;
+  --app-ink-soft: #ffffff;
+  --app-text-muted: #ffffff;
+  --app-text-faint: #ffffff;
+  --app-canvas: #000000;
+  --app-canvas-soft: #000000;
+  --app-field: #000000;
+  --app-hairline-soft: #1b1b1b;
+  --app-hairline: #2b2b2b;
+  --app-accent: #ffffff;
+  --app-typed: #ffffff;
+}
+html[data-theme="monochrome"] body * {
+  color: #ffffff !important;
+}
+html[data-theme="monochrome"] body [class*="bg-"] {
+  background: #000000 !important;
+  background-image: none !important;
+}
+html[data-theme="monochrome"] .hero-primary-cta,
+html[data-theme="monochrome"] .hero-secondary-cta {
+  background: #000000 !important;
+  color: #ffffff !important;
+  border: 1px solid #ffffff !important;
+  box-shadow: none !important;
+}
+html[data-theme="monochrome"] .hero-banner::before {
+  background: none !important;
+  opacity: 0 !important;
+}
+html[data-theme="monochrome"] .hero-banner-grid {
+  background-image: none !important;
+  opacity: 0 !important;
+}
+html[data-theme="monochrome"] .footer-wordmark {
+  color: #ffffff !important;
+  opacity: 1 !important;
+}
+html[data-theme="monochrome"] .blur-type-caret {
+  background: #ffffff !important;
+}
+html[data-theme="monochrome"] .typing-pending {
+  opacity: 0.48;
+}
+html[data-theme="monochrome"] ::selection {
+  background: #ffffff;
+  color: #000000 !important;
 }
