@@ -428,39 +428,32 @@ export default function TypingText({
           >
             <defs>
               <linearGradient id="typing-arc-stroke" x1="0" y1="0" x2="1" y2="0">
-                <stop offset="0%" stopColor="#4a0716" stopOpacity="0" />
-                <stop offset="16%" stopColor="#790b24" stopOpacity="0.1" />
-                <stop offset="34%" stopColor="#8d102b" stopOpacity="0.2" />
-                <stop offset="50%" stopColor="#9a1230" stopOpacity="0.3" />
-                <stop offset="66%" stopColor="#8d102b" stopOpacity="0.2" />
-                <stop offset="84%" stopColor="#790b24" stopOpacity="0.1" />
-                <stop offset="100%" stopColor="#4a0716" stopOpacity="0" />
+                <stop offset="0%" stopColor="#760a23" stopOpacity="0" />
+                <stop offset="12%" stopColor="#a50e31" stopOpacity="0.34" />
+                <stop offset="30%" stopColor="#e71c46" stopOpacity="0.72" />
+                <stop offset="50%" stopColor="#ff3158" stopOpacity="0.96" />
+                <stop offset="70%" stopColor="#e71c46" stopOpacity="0.72" />
+                <stop offset="88%" stopColor="#a50e31" stopOpacity="0.34" />
+                <stop offset="100%" stopColor="#760a23" stopOpacity="0" />
               </linearGradient>
-              <linearGradient id="typing-arc-fill" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="0%" stopColor="#4b0617" stopOpacity="0.09" />
-                <stop offset="36%" stopColor="#380311" stopOpacity="0.055" />
-                <stop offset="72%" stopColor="#26020c" stopOpacity="0.02" />
-                <stop offset="100%" stopColor="#180108" stopOpacity="0" />
-              </linearGradient>
-              <filter id="typing-arc-glow" x="-10%" y="-40%" width="120%" height="180%">
-                <feGaussianBlur stdDeviation="11" />
+              <filter id="typing-arc-glow" x="-10%" y="-55%" width="120%" height="210%">
+                <feGaussianBlur stdDeviation="13" />
               </filter>
             </defs>
-            <path d="M -40 135 Q 800 70 1640 135 L 1640 260 L -40 260 Z" fill="url(#typing-arc-fill)" />
             <path
-              d="M -40 135 Q 800 70 1640 135"
+              d="M -40 145 Q 800 10 1640 145"
               fill="none"
               stroke="url(#typing-arc-stroke)"
-              strokeWidth="4"
-              opacity="0.52"
+              strokeWidth="10"
+              opacity="0.76"
               filter="url(#typing-arc-glow)"
             />
             <path
-              d="M -40 135 Q 800 70 1640 135"
+              d="M -40 145 Q 800 10 1640 145"
               fill="none"
               stroke="url(#typing-arc-stroke)"
-              strokeWidth="0.9"
-              opacity="0.62"
+              strokeWidth="1.55"
+              opacity="0.98"
             />
           </svg>
         )}
@@ -559,7 +552,7 @@ export default function TypingText({
           className="absolute inset-0 z-10 h-full w-full cursor-text opacity-0"
         />
       </div>
-      <div className="mt-3 flex justify-end">
+      <div className={focusMode ? "focus-sound-toggle" : "mt-3 flex justify-end"}>
         <button
           type="button"
           onMouseDown={(e) => e.preventDefault()}
