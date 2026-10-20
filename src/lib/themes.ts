@@ -13,6 +13,29 @@ export interface ThemeDefinition {
 // High-contrast three-tone themes: real base color, readable text, distinct typing/accent.
 export const THEMES: ThemeDefinition[] = [
   {
+    id: "red-moon",
+    name: "Red Moon",
+    type: "dark",
+    primary: "#ef2043",
+    canvas: "#000000",
+    swatch: ["#000000", "#ffffff", "#ff2548"],
+    variables: {
+      "--app-primary": "#ef2043",
+      "--app-on-primary": "#ffffff",
+      "--app-ink": "#ffffff",
+      "--app-ink-soft": "#f1f1f1",
+      "--app-text-muted": "#c6c6c6",
+      "--app-text-faint": "#969696",
+      "--app-canvas": "#000000",
+      "--app-canvas-soft": "#080808",
+      "--app-field": "#0d0d0d",
+      "--app-hairline-soft": "#281018",
+      "--app-hairline": "#48202a",
+      "--app-accent": "#ff2548",
+      "--app-typed": "#ffffff",
+    },
+  },
+  {
     id: "monochrome",
     name: "Monochrome",
     type: "dark",
@@ -257,8 +280,8 @@ export const THEMES: ThemeDefinition[] = [
   },
 ];
 
-export const DEFAULT_THEME: ThemeId = "monochrome";
-const STORAGE_KEY = "goattype-theme-v6";
+export const DEFAULT_THEME: ThemeId = "red-moon";
+const STORAGE_KEY = "goattype-theme-v7";
 
 export function applyTheme(themeId: ThemeId): void {
   const theme = THEMES.find((t) => t.id === themeId) ?? THEMES[0];
@@ -276,6 +299,7 @@ export function applyTheme(themeId: ThemeId): void {
   for (const [name, value] of Object.entries(theme.variables)) {
     root.style.setProperty(name, value);
   }
+  root.style.setProperty("--app-typed", theme.variables["--app-typed"] ?? "#35f28b");
 
   window.localStorage.setItem(STORAGE_KEY, theme.id);
   window.dispatchEvent(new CustomEvent("themechange", { detail: theme.id }));
