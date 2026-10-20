@@ -222,7 +222,7 @@ export default function TypingText({
     // Start from the caret's current rendered position so every new keystroke
     // continues the same motion instead of snapping to a fresh target.
     const initialTransform = caret.style.transform.match(
-      /translate\\(\\s*(-?[\\d.]+)px(?:,\\s*(-?[\\d.]+)px)?\\s*\\)/u,
+      /translate\(\s*(-?[\d.]+)px(?:,\s*(-?[\d.]+)px)?\s*\)/u,
     );
     let caretX = initialTransform ? Number(initialTransform[1]) : 0;
     let caretY = initialTransform?.[2] ? Number(initialTransform[2]) : 0;
