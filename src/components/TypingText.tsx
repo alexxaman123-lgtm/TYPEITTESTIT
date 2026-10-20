@@ -151,7 +151,42 @@ export default function TypingText({
       const words = wordsRef.current;
       const caret = caretRef.current;
       const passageStart = passageStartRef.current;
-      if (!words || !caret || !passageStart) return;
+      const surface = surfaceRef.current;
+      if (!words || !caret || !passageStart || !surface) return;
+
+      // Bend complete words very slightly around the arc. Measuring each
+      // element from its untransformed layout offset keeps the curve stable as
+      // the passage itself slides beneath the caret.
+      const arcElements = Array.from(
+        surface.querySelectorAll<HTMLElement>(".typing-arc-word, .typing-arc-space"),
+      );
+      const surfaceRect = surface.getBoundingClientRect();
+      const trackRect = words.getBoundingClientRect();
+      const halfWidth = Math.max(surfaceRect.width / 2, 1);
+      const arcDepth = Math.min(18, Math.max(6, surfaceRect.width * 0.011));
+      const centerX = surfaceRect.left + halfWidth;
+
+      arcElements.forEach((element) => {
+        if (!focusMode || reducedMotion) {
+          element.style.transform = "";
+          element.style.transition = "";
+          return;
+        }
+
+        const layoutCenterX = trackRect.left + element.offsetLeft + element.offsetWidth / 2;
+        const normalized = Math.max(-1, Math.min(1, (layoutCenterX - centerX) / halfWidth));
+        const y = arcDepth * normalized * normalized;
+        const angle = Math.max(
+          -2.6,
+          Math.min(2.6, Math.atan((2 * arcDepth * normalized) / halfWidth) * (180 / Math.PI)),
+        );
+
+        element.style.transformOrigin = "center center";
+        element.style.transition = typed.length === 0 && status === "idle"
+          ? "none"
+          : "transform 110ms linear";
+        element.style.transform = `translate3d(0, ${y.toFixed(2)}px, 0) rotate(${angle.toFixed(2)}deg)`;
+      });
 
       const anchor = disabled ? null : currentCharRef.current;
       if (!anchor) {
@@ -201,7 +236,7 @@ export default function TypingText({
       observer?.disconnect();
       window.removeEventListener("resize", positionCaret);
     };
-  }, [typed, target, freeTyping, disabled, focusMode, focused, status]);
+  }, [typed, target, freeTyping, disabled, focusMode, focused, status, reducedMotion]);
 
   const focusInput = () => {
     if (!disabled) {
@@ -297,6 +332,7 @@ export default function TypingText({
             <span
               className={cn(
                 "inline-block",
+                "typing-arc-word",
                 kind === "current" && "typing-word-current",
                 kind === "completed" && hasError && "border-b-2 border-red-500/70",
               )}
@@ -340,6 +376,7 @@ export default function TypingText({
         key={`w${wordIndex}`}
         className={cn(
           "inline-block",
+          "typing-arc-word",
           kind === "current" && "typing-word-current",
           kind === "completed" && hasError && "border-b-2 border-red-500/70",
         )}
@@ -358,7 +395,7 @@ export default function TypingText({
     visibleNodes.push(renderWord(i, kind));
     if (i < targetWords.length - 1) {
       visibleNodes.push(
-        <span key={`sp-${i}`} className={i < completedCount ? "typing-correct" : "typing-pending"}> </span>,
+        <span key={`sp-${i}`} className={cn("typing-arc-space", i < completedCount ? "typing-correct" : "typing-pending")}> </span>,
       );
     }
   }
@@ -381,6 +418,47 @@ export default function TypingText({
           disabled && "opacity-60",
         )}
       >
+        {focusMode && (
+          <svg
+            className="typing-arc-backdrop"
+            viewBox="0 0 1600 260"
+            preserveAspectRatio="none"
+            aria-hidden="true"
+            focusable="false"
+          >
+            <defs>
+              <linearGradient id="typing-arc-stroke" x1="0" y1="0" x2="1" y2="0">
+                <stop offset="0%" stopColor="#ff2548" stopOpacity="0" />
+                <stop offset="16%" stopColor="#ff2548" stopOpacity="0.3" />
+                <stop offset="50%" stopColor="#ff2548" stopOpacity="0.72" />
+                <stop offset="84%" stopColor="#ff2548" stopOpacity="0.3" />
+                <stop offset="100%" stopColor="#ff2548" stopOpacity="0" />
+              </linearGradient>
+              <linearGradient id="typing-arc-fill" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stopColor="#ff173f" stopOpacity="0.12" />
+                <stop offset="52%" stopColor="#ff173f" stopOpacity="0.045" />
+                <stop offset="100%" stopColor="#ff173f" stopOpacity="0" />
+              </linearGradient>
+              <filter id="typing-arc-glow" x="-10%" y="-30%" width="120%" height="160%">
+                <feGaussianBlur stdDeviation="8" />
+              </filter>
+            </defs>
+            <path d="M -40 135 Q 800 70 1640 135 L 1640 260 L -40 260 Z" fill="url(#typing-arc-fill)" />
+            <path
+              d="M -40 135 Q 800 70 1640 135"
+              fill="none"
+              stroke="url(#typing-arc-stroke)"
+              strokeWidth="5"
+              filter="url(#typing-arc-glow)"
+            />
+            <path
+              d="M -40 135 Q 800 70 1640 135"
+              fill="none"
+              stroke="url(#typing-arc-stroke)"
+              strokeWidth="1.2"
+            />
+          </svg>
+        )}
         {freeTyping ? (
           <div className="typing-banner-viewport">
             <p
@@ -406,7 +484,13 @@ export default function TypingText({
               </span>
               {typed.length > 0 ? (
                 <>
-                  {typed}
+                  {typed.split(/(\s+)/u).filter((part) => part.length > 0).map((part, index) => (
+                    /^\s+$/u.test(part) ? (
+                      <span key={`free-space-${index}`} className="typing-arc-space">{part}</span>
+                    ) : (
+                      <span key={`free-word-${index}`} className="typing-arc-word">{part}</span>
+                    )
+                  ))}
                   {status !== "finished" && (
                     <span
                       ref={currentCharRef}
