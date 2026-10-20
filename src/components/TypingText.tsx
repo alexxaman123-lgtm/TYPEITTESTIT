@@ -179,15 +179,14 @@ export default function TypingText({
     if (!words || !caret || !passageStart || !surface) return;
 
     const arcElements = Array.from(
-      surface.querySelectorAll<HTMLElement>(".typing-arc-word, .typing-arc-space"),
+      surface.querySelectorAll<HTMLElement>(".typing-arc-letter, .typing-arc-space"),
     );
 
     const updateArc = () => {
       const surfaceRect = surface.getBoundingClientRect();
-      const trackRect = words.getBoundingClientRect();
       const halfWidth = Math.max(surfaceRect.width / 2, 1);
       const centerX = surfaceRect.left + halfWidth;
-      const arcDepth = Math.min(50, Math.max(24, surfaceRect.width * 0.03));
+      const arcDepth = Math.min(42, Math.max(20, surfaceRect.width * 0.026));
 
       if (!focusMode || reducedMotion) {
         arcElements.forEach((element) => {
@@ -201,7 +200,11 @@ export default function TypingText({
       // describe each word's untransformed inline layout, while trackRect includes
       // the live horizontal scroll position. This avoids transform feedback loops.
       const updates = arcElements.map((element) => {
-        const layoutCenterX = trackRect.left + element.offsetLeft + element.offsetWidth / 2;
+        // The track is translated horizontally as typing continues. Measure each glyph's
+        // live viewport position so the curve remains symmetrical around center.
+        // This reads X only; our transforms affect Y, so there is no feedback loop.
+        const rect = element.getBoundingClientRect();
+        const layoutCenterX = rect.left + rect.width / 2;
         const normalized = Math.max(-1, Math.min(1, (layoutCenterX - centerX) / halfWidth));
         const y = arcDepth * normalized * normalized;
         return { element, transform: `translate3d(0, ${y.toFixed(2)}px, 0)` };
@@ -327,7 +330,7 @@ export default function TypingText({
         key={key}
         ref={(el) => { currentCharRef.current = el; }}
         aria-hidden="true"
-        className="inline-block w-0 align-baseline"
+        className="typing-arc-letter inline-block w-0 align-baseline"
       >
         {ANCHOR_CHAR}
       </span>
@@ -343,10 +346,10 @@ export default function TypingText({
         const typedChar = typedWord[idx];
 
         if (targetChar === typedChar) {
-          targetLetters.push(<span key={idx} className="typing-correct">{targetChar}</span>);
+          targetLetters.push(<span key={idx} className="typing-arc-letter typing-correct">{targetChar}</span>);
         } else {
           hasError = true;
-          targetLetters.push(<span key={idx} className="text-red-500">{targetChar}</span>);
+          targetLetters.push(<span key={idx} className="typing-arc-letter text-red-500">{targetChar}</span>);
         }
       }
 
@@ -354,7 +357,7 @@ export default function TypingText({
       for (let idx = targetWord.length; idx < typedWord.length; idx += 1) {
         hasError = true;
         extraLetters.push(
-          <span key={`extra-${idx}`} className="text-red-400">{typedWord[idx]}</span>,
+          <span key={`extra-${idx}`} className="typing-arc-letter text-red-400">{typedWord[idx]}</span>,
         );
       }
       if (kind === "current") extraLetters.push(caretAnchor("caret-end"));
@@ -388,15 +391,15 @@ export default function TypingText({
       const typedChar = typedWord[idx];
 
       if (typedChar !== undefined && targetChar === typedChar) {
-        letters.push(<span key={idx} className="typing-correct">{targetChar}</span>);
+        letters.push(<span key={idx} className="typing-arc-letter typing-correct">{targetChar}</span>);
       } else if (typedChar !== undefined) {
         hasError = true;
-        letters.push(<span key={idx} className="text-red-500">{targetChar}</span>);
+        letters.push(<span key={idx} className="typing-arc-letter text-red-500">{targetChar}</span>);
       } else if (kind === "completed") {
         hasError = true;
-        letters.push(<span key={idx} className="text-red-500/50">{targetChar}</span>);
+        letters.push(<span key={idx} className="typing-arc-letter text-red-500/50">{targetChar}</span>);
       } else {
-        letters.push(<span key={idx} className="typing-pending">{targetChar}</span>);
+        letters.push(<span key={idx} className="typing-arc-letter typing-pending">{targetChar}</span>);
       }
     }
 
@@ -480,14 +483,18 @@ export default function TypingText({
                     /^\s+$/u.test(part) ? (
                       <span key={`free-space-${index}`} className="typing-arc-space">{part}</span>
                     ) : (
-                      <span key={`free-word-${index}`} className="typing-arc-word">{part}</span>
+                      <span key={`free-word-${index}`} className="typing-arc-word">
+                        {Array.from(part).map((character, charIndex) => (
+                          <span key={`free-glyph-${index}-${charIndex}`} className="typing-arc-letter">{character}</span>
+                        ))}
+                      </span>
                     )
                   ))}
                   {status !== "finished" && (
                     <span
                       ref={currentCharRef}
                       aria-hidden="true"
-                      className="inline-block w-0 align-baseline"
+                      className="typing-arc-letter inline-block w-0 align-baseline"
                     >
                       {ANCHOR_CHAR}
                     </span>
