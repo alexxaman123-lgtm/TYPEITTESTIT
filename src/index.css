@@ -685,6 +685,16 @@ html[data-theme="monochrome"] body {
 html[data-theme="monochrome"] body * {
   color: #ffffff !important;
 }
+html[data-theme="monochrome"] body [class~="text-red-500"],
+html[data-theme="monochrome"] body [class~="text-red-400"],
+html[data-theme="monochrome"] body [class~="text-red-600"],
+html[data-theme="monochrome"] body [class~="text-red-600/50"] {
+  color: #ffffff !important;
+  text-decoration-line: underline;
+  text-decoration-color: #ffffff;
+  text-decoration-thickness: 1.5px;
+  text-underline-offset: 0.12em;
+}
 html[data-theme="monochrome"] body [class*="bg-"] {
   background: #000000 !important;
   background-image: none !important;
