@@ -284,9 +284,9 @@ export default function Hero({ locale = "en" as Locale }: { locale?: Locale }) {
             <feGaussianBlur stdDeviation="10" />
           </filter>
         </defs>
-        <path d="M -40 230 Q 800 50 1640 230 L 1640 280 L -40 280 Z" fill="#000000" />
+        <path d="M -40 258 Q 800 160 1640 258 L 1640 280 L -40 280 Z" fill="#000000" />
         <path
-          d="M -40 230 Q 800 50 1640 230"
+          d="M -40 258 Q 800 160 1640 258"
           fill="none"
           stroke="url(#hero-bottom-edge)"
           strokeWidth="16"
@@ -294,7 +294,7 @@ export default function Hero({ locale = "en" as Locale }: { locale?: Locale }) {
           filter="url(#hero-bottom-glow)"
         />
         <path
-          d="M -40 230 Q 800 50 1640 230"
+          d="M -40 258 Q 800 160 1640 258"
           fill="none"
           stroke="url(#hero-bottom-edge)"
           strokeWidth="1.6"
