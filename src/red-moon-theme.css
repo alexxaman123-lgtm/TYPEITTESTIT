@@ -195,7 +195,20 @@ a.bg-primary::after {
   z-index: 1;
 }
 
-.typing-surface-focus .typing-arc-word,
+.typing-surface-focus .typing-arc-word {
+  display: inline-block;
+  vertical-align: baseline;
+  white-space: nowrap;
+}
+
+/* Curve each glyph, not each whole word: word-level transforms create a
+   staircase baseline. Extra viewport height keeps the lower edge of the arc
+   from being clipped while every character stays smoothly aligned. */
+.typing-surface-focus .typing-banner-viewport {
+  padding-bottom: clamp(1.5rem, 3vw, 3rem);
+}
+
+.typing-surface-focus .typing-arc-letter,
 .typing-surface-focus .typing-arc-space {
   display: inline-block;
   vertical-align: baseline;
@@ -209,7 +222,7 @@ a.bg-primary::after {
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .typing-surface-focus .typing-arc-word,
+  .typing-surface-focus .typing-arc-letter,
   .typing-surface-focus .typing-arc-space {
     will-change: auto;
   }
