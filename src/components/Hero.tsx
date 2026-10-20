@@ -263,12 +263,6 @@ export default function Hero({ locale = "en" as Locale }: { locale?: Locale }) {
       aria-labelledby={titleId}
     >
       <div className="hero-banner-grid" aria-hidden="true" />
-      <div className="hero-moon-scene" aria-hidden="true">
-        <span className="hero-moon-upper-glow" />
-        <span className="hero-moon-halo" />
-        <span className="hero-moon-beam" />
-        <span className="hero-moon-disc" />
-      </div>
 
       <div className="relative mx-auto grid min-h-0 w-full max-w-7xl items-center gap-8 py-10 sm:min-h-[720px] sm:gap-10 sm:py-20 lg:grid-cols-[minmax(0,1.08fr)_minmax(360px,0.92fr)] lg:gap-14">
         <div className="min-w-0 w-full max-w-4xl">
@@ -285,6 +279,7 @@ export default function Hero({ locale = "en" as Locale }: { locale?: Locale }) {
             style={c.titleFontSize ? { fontSize: c.titleFontSize } : undefined}
             text={c.title}
             by="char"
+            keepWordsTogether
             stagger={c.titleStagger ?? 22}
             delay={120}
           />

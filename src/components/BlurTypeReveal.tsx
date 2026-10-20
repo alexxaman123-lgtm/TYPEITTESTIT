@@ -3,6 +3,11 @@ import { cn } from "../utils/cn";
 
 type SplitMode = "char" | "word";
 
+type RevealToken =
+  | { kind: "break"; index: number }
+  | { kind: "space"; value: string; index: number }
+  | { kind: "word"; chars: { value: string; index: number }[]; index: number };
+
 interface Props {
   /** The sentence to reveal. Use "\n" to force a line break. */
   text: string;
@@ -17,6 +22,8 @@ interface Props {
   stagger?: number;
   /** Delay before the first unit, in ms. */
   delay?: number;
+  /** Keep each whole word together while retaining the per-character reveal. */
+  keepWordsTogether?: boolean;
   /** Show the trailing blinking bar while the line resolves. */
   caret?: boolean;
   id?: string;
@@ -65,11 +72,39 @@ export default function BlurTypeReveal({
   by = "char",
   stagger,
   delay = 0,
+  keepWordsTogether = false,
   caret = true,
   id,
 }: Props) {
   const step = stagger ?? DEFAULT_STAGGER[by];
   const units = useMemo(() => splitText(text, by), [text, by]);
+  const groupedTokens = useMemo<RevealToken[] | null>(() => {
+    if (!keepWordsTogether || by !== "char") return null;
+
+    const tokens: RevealToken[] = [];
+    let currentWord: { value: string; index: number }[] = [];
+
+    const flushWord = () => {
+      if (currentWord.length === 0) return;
+      tokens.push({ kind: "word", chars: currentWord, index: currentWord[0].index });
+      currentWord = [];
+    };
+
+    units.forEach((unit, index) => {
+      if (unit === LINE_BREAK) {
+        flushWord();
+        tokens.push({ kind: "break", index });
+      } else if (/^\s+$/u.test(unit)) {
+        flushWord();
+        tokens.push({ kind: "space", value: unit, index });
+      } else {
+        currentWord.push({ value: unit, index });
+      }
+    });
+
+    flushWord();
+    return tokens;
+  }, [units, by, keepWordsTogether]);
   const totalMs = delay + units.length * step + UNIT_DURATION_MS;
 
   return createElement(
@@ -84,19 +119,39 @@ export default function BlurTypeReveal({
       style,
     },
     <span aria-hidden="true">
-      {units.map((unit, index) =>
-        unit === LINE_BREAK ? (
-          <br key={`br-${index}`} />
-        ) : (
-          <span
-            key={`u-${index}`}
-            className="blur-type-unit"
-            style={{ animationDelay: `${delay + index * step}ms` }}
-          >
-            {unit}
-          </span>
-        ),
-      )}
+      {groupedTokens
+        ? groupedTokens.map((token) => {
+            if (token.kind === "break") return <br key={`br-${token.index}`} />;
+            if (token.kind === "space") {
+              return <span key={`space-${token.index}`} className="blur-type-space">{token.value}</span>;
+            }
+            return (
+              <span key={`word-${token.index}`} className="blur-type-word">
+                {token.chars.map(({ value, index }) => (
+                  <span
+                    key={`u-${index}`}
+                    className="blur-type-unit"
+                    style={{ animationDelay: `${delay + index * step}ms` }}
+                  >
+                    {value}
+                  </span>
+                ))}
+              </span>
+            );
+          })
+        : units.map((unit, index) =>
+            unit === LINE_BREAK ? (
+              <br key={`br-${index}`} />
+            ) : (
+              <span
+                key={`u-${index}`}
+                className="blur-type-unit"
+                style={{ animationDelay: `${delay + index * step}ms` }}
+              >
+                {unit}
+              </span>
+            ),
+          )}
       {/* Visible only for the sentence's typing-in window -- see the
           blurTypeCaretLife keyframes in index.css, driven by this duration. */}
       {caret && (
