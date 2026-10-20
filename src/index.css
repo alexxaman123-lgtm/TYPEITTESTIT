@@ -714,6 +714,17 @@ html[data-theme="monochrome"] .hero-banner-grid {
   background-image: none !important;
   opacity: 0 !important;
 }
+html[data-theme="monochrome"] .test-shell-focus {
+  background: #000000 !important;
+}
+html[data-theme="monochrome"] .test-shell::before,
+html[data-theme="monochrome"] .test-shell-focus::before {
+  background: none !important;
+  opacity: 0 !important;
+}
+html[data-theme="monochrome"] .leaderboard-row-goat {
+  background: #000000 !important;
+}
 html[data-theme="monochrome"] .footer-wordmark {
   color: #ffffff !important;
   opacity: 1 !important;
