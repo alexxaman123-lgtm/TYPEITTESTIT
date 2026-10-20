@@ -219,13 +219,24 @@ export default function TypingText({
       });
     };
 
-    const positionCaret = () => {
+    // Start from the caret's current rendered position so every new keystroke
+    // continues the same motion instead of snapping to a fresh target.
+    const initialTransform = caret.style.transform.match(
+      /translate\\(\\s*(-?[\\d.]+)px(?:,\\s*(-?[\\d.]+)px)?\\s*\\)/u,
+    );
+    let caretX = initialTransform ? Number(initialTransform[1]) : 0;
+    let caretY = initialTransform?.[2] ? Number(initialTransform[2]) : 0;
+    const smoothCaret = focusMode && !reducedMotion;
+    const previousTransition = caret.style.transition;
+    if (smoothCaret) caret.style.transition = "none";
+
+    const positionCaret = (elapsed = 16): number => {
       updateArc();
 
       const anchor = disabled ? null : currentCharRef.current;
       if (!anchor) {
         caret.style.opacity = "0";
-        return;
+        return 0;
       }
 
       const startRect = passageStart.getBoundingClientRect();
@@ -239,27 +250,50 @@ export default function TypingText({
         fontSize * 1.6;
       const caretHeight = Math.max(CARET_MIN_HEIGHT_PX, fontSize * CARET_HEIGHT_EM);
 
-      const x = anchorRect.left - startRect.left;
-      const y = anchorRect.top - startRect.top + (lineBoxHeight - caretHeight) / 2;
-      caret.style.height = `${caretHeight}px`;
-      caret.style.transform = `translate(${x}px, ${y}px)`;
-      caret.style.opacity = "1";
-    };
+      const targetX = anchorRect.left - startRect.left;
+      const targetY = anchorRect.top - startRect.top + (lineBoxHeight - caretHeight) / 2;
 
-    positionCaret();
-
-    // Follow the active scroll transition for 180ms. If another key arrives,
-    // the effect restarts from the current geometry and never clears the line.
-    let arcFrame = 0;
-    const animationStart = performance.now();
-    const followTrack = () => {
-      positionCaret();
-      if (performance.now() - animationStart < 180) {
-        arcFrame = requestAnimationFrame(followTrack);
+      if (smoothCaret) {
+        // A short exponential ease avoids both the old hard snap and the lag
+        // caused by restarting a CSS transition on every animation frame.
+        const blend = 1 - Math.exp(-Math.max(0, elapsed) / 42);
+        caretX += (targetX - caretX) * blend;
+        caretY += (targetY - caretY) * blend;
+      } else {
+        caretX = targetX;
+        caretY = targetY;
       }
+
+      caret.style.height = `${caretHeight}px`;
+      caret.style.transform = `translate(${caretX}px, ${caretY}px)`;
+      caret.style.opacity = "1";
+      return Math.max(Math.abs(targetX - caretX), Math.abs(targetY - caretY));
     };
-    if (focusMode && !reducedMotion) {
+
+    let arcFrame = 0;
+    if (smoothCaret) {
+      let previousTime = 0;
+      let stableFrames = 0;
+      const animationStart = performance.now();
+
+      const followTrack = (now: number) => {
+        const elapsed = previousTime === 0 ? 16 : Math.min(32, now - previousTime);
+        previousTime = now;
+        const remaining = positionCaret(elapsed);
+        const elapsedTotal = now - animationStart;
+
+        stableFrames = remaining < 0.18 ? stableFrames + 1 : 0;
+        if (elapsedTotal < 420 && (elapsedTotal < 280 || stableFrames < 4)) {
+          arcFrame = requestAnimationFrame(followTrack);
+        } else {
+          // Finish within a fraction of a pixel and leave the browser at rest.
+          positionCaret(1000);
+        }
+      };
+
       arcFrame = requestAnimationFrame(followTrack);
+    } else {
+      positionCaret(16);
     }
 
     const resizeObserver = typeof ResizeObserver !== "undefined"
