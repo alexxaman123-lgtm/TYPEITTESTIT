@@ -103,34 +103,57 @@ export default function TypingText({
     const surface = surfaceRef.current;
     if (!words || !anchor || !surface) return;
 
+    let trackFrame = 0;
+
     const alignTrack = () => {
       const activeAnchor = currentCharRef.current;
-      if (!activeAnchor || !wordsRef.current || !surfaceRef.current) return;
+      const track = wordsRef.current;
+      const typingSurface = surfaceRef.current;
+      if (!activeAnchor || !track || !typingSurface) return;
 
-      const surfaceRect = surfaceRef.current.getBoundingClientRect();
-      const surfaceStyles = window.getComputedStyle(surfaceRef.current);
-      const paddingLeft = parseFloat(surfaceStyles.paddingLeft) || 0;
-      const paddingRight = parseFloat(surfaceStyles.paddingRight) || 0;
+      const surfaceRect = typingSurface.getBoundingClientRect();
+      const styles = window.getComputedStyle(typingSurface);
+      const paddingLeft = parseFloat(styles.paddingLeft) || 0;
+      const paddingRight = parseFloat(styles.paddingRight) || 0;
       const contentWidth = Math.max(1, surfaceRect.width - paddingLeft - paddingRight);
-      const targetX = surfaceRect.left + paddingLeft + contentWidth * 0.42;
+      const centerX = surfaceRect.left + paddingLeft + contentWidth * 0.5;
       const anchorRect = activeAnchor.getBoundingClientRect();
-      const currentTransform = window.getComputedStyle(wordsRef.current).transform;
-      const currentX = currentTransform === "none"
-        ? 0
-        : new DOMMatrixReadOnly(currentTransform).m41;
-      const nextX = currentX + targetX - anchorRect.left;
-      const snapToStart = typed.length === 0 && status === "idle";
+      const transform = window.getComputedStyle(track).transform;
+      const currentX = transform === "none" ? 0 : new DOMMatrixReadOnly(transform).m41;
+      const targetX = currentX + centerX - anchorRect.left;
+      const snap = (typed.length === 0 && status === "idle") || reducedMotion;
 
-      // On reset, place the first word immediately. During a test, use a smooth
-      // eased transform. Reduced-motion preferences disable the animation.
-      // Match the caret's 110ms movement. A long transition restarts on
-      // every key and makes the passage perpetually chase the user's typing.
-      wordsRef.current.style.transition = snapToStart || reducedMotion
-        ? "none"
-        : "transform 110ms linear";
-      wordsRef.current.style.transform = `translate3d(${nextX}px, 0, 0)`;
+      cancelAnimationFrame(trackFrame);
+      track.style.transition = "none";
+
+      if (snap) {
+        track.style.transform = `translate3d(${targetX}px, 0, 0)`;
+        trackFrame = 0;
+        return;
+      }
+
+      let previousTime = 0;
+      const easeTrack = (now: number) => {
+        const currentTransform = window.getComputedStyle(track).transform;
+        const liveX = currentTransform === "none" ? 0 : new DOMMatrixReadOnly(currentTransform).m41;
+        const delta = targetX - liveX;
+
+        if (Math.abs(delta) < 0.25) {
+          track.style.transform = `translate3d(${targetX}px, 0, 0)`;
+          trackFrame = 0;
+          return;
+        }
+
+        const elapsed = previousTime === 0 ? 16 : Math.min(32, now - previousTime);
+        previousTime = now;
+        const blend = 1 - Math.exp(-elapsed / 48);
+        const nextX = liveX + delta * blend;
+        track.style.transform = `translate3d(${nextX}px, 0, 0)`;
+        trackFrame = requestAnimationFrame(easeTrack);
+      };
+
+      trackFrame = requestAnimationFrame(easeTrack);
     };
-
     alignTrack();
 
     const resizeObserver = typeof ResizeObserver !== "undefined"
@@ -139,60 +162,62 @@ export default function TypingText({
     resizeObserver?.observe(surface);
     window.addEventListener("resize", alignTrack);
     return () => {
+      cancelAnimationFrame(trackFrame);
       resizeObserver?.disconnect();
       window.removeEventListener("resize", alignTrack);
     };
   }, [typed, target, resetKey, freeTyping, disabled, focusMode, status, reducedMotion]);
 
-  // The caret sits inside the moving track and is positioned against the exact
-  // next-character anchor, so it travels with the passage without detaching.
+  // Keep the caret locked to the active character and refresh the curve while
+  // the horizontal track is gliding. The short RAF window follows the CSS scroll
+  // transition, so words never jump back to a flat baseline between keystrokes.
   useLayoutEffect(() => {
-    const positionCaret = () => {
-      const words = wordsRef.current;
-      const caret = caretRef.current;
-      const passageStart = passageStartRef.current;
-      const surface = surfaceRef.current;
-      if (!words || !caret || !passageStart || !surface) return;
+    const words = wordsRef.current;
+    const caret = caretRef.current;
+    const passageStart = passageStartRef.current;
+    const surface = surfaceRef.current;
+    if (!words || !caret || !passageStart || !surface) return;
 
-      // Shape the moving passage along a shallow circular arc. Reset previous
-      // bends before measuring so they never accumulate with each keystroke.
-      const arcElements = Array.from(
-        surface.querySelectorAll<HTMLElement>(".typing-arc-word, .typing-arc-space"),
-      );
+    const arcElements = Array.from(
+      surface.querySelectorAll<HTMLElement>(".typing-arc-word, .typing-arc-space"),
+    );
+
+    const updateArc = () => {
+      const surfaceRect = surface.getBoundingClientRect();
+      const trackRect = words.getBoundingClientRect();
+      const halfWidth = Math.max(surfaceRect.width / 2, 1);
+      const centerX = surfaceRect.left + halfWidth;
+      const arcDepth = Math.min(50, Math.max(24, surfaceRect.width * 0.03));
 
       if (!focusMode || reducedMotion) {
         arcElements.forEach((element) => {
           element.style.transform = "";
           element.style.transition = "";
         });
-      } else {
-        arcElements.forEach((element) => {
-          element.style.transform = "";
-          element.style.transition = "none";
-        });
-
-        const surfaceRect = surface.getBoundingClientRect();
-        const halfWidth = Math.max(surfaceRect.width / 2, 1);
-        const arcDepth = Math.min(26, Math.max(12, surfaceRect.width * 0.016));
-        const centerX = surfaceRect.left + halfWidth;
-
-        arcElements.forEach((element) => {
-          const rect = element.getBoundingClientRect();
-          const position = rect.left + rect.width / 2;
-          const normalized = Math.max(-1, Math.min(1, (position - centerX) / halfWidth));
-          const y = arcDepth * normalized * normalized;
-          const angle = Math.max(
-            -3.3,
-            Math.min(3.3, Math.atan((2 * arcDepth * normalized) / halfWidth) * (180 / Math.PI)),
-          );
-
-          element.style.transformOrigin = "center center";
-          element.style.transition = typed.length === 0 && status === "idle"
-            ? "none"
-            : "transform 110ms linear";
-          element.style.transform = `translate3d(0, ${y.toFixed(2)}px, 0) rotate(${angle.toFixed(2)}deg)`;
-        });
+        return;
       }
+
+      // Read all positions before writing transforms. offsetLeft/offsetWidth
+      // describe each word's untransformed inline layout, while trackRect includes
+      // the live horizontal scroll position. This avoids transform feedback loops.
+      const updates = arcElements.map((element) => {
+        const layoutCenterX = trackRect.left + element.offsetLeft + element.offsetWidth / 2;
+        const normalized = Math.max(-1, Math.min(1, (layoutCenterX - centerX) / halfWidth));
+        const y = arcDepth * normalized * normalized;
+        return { element, transform: `translate3d(0, ${y.toFixed(2)}px, 0)` };
+      });
+
+      updates.forEach(({ element, transform }) => {
+        // RAF updates follow the scrolling track frame by frame; CSS transitions
+        // here would restart every frame and make the letters shimmer.
+        element.style.transition = "none";
+        element.style.transformOrigin = "center center";
+        element.style.transform = transform;
+      });
+    };
+
+    const positionCaret = () => {
+      updateArc();
 
       const anchor = disabled ? null : currentCharRef.current;
       if (!anchor) {
@@ -203,25 +228,16 @@ export default function TypingText({
       const startRect = passageStart.getBoundingClientRect();
       const anchorRect = anchor.getBoundingClientRect();
       const anchorStyles = window.getComputedStyle(anchor);
-
       const fontSize = parseFloat(anchorStyles.fontSize) || 16;
       const parsedLineHeight = parseFloat(anchorStyles.lineHeight);
-      // Height of the text line the caret sits on. Every term has a fallback so
-      // this can never end up as 0 and hide the caret again.
       const lineBoxHeight =
         anchorRect.height ||
         (Number.isFinite(parsedLineHeight) ? parsedLineHeight : 0) ||
         fontSize * 1.6;
       const caretHeight = Math.max(CARET_MIN_HEIGHT_PX, fontSize * CARET_HEIGHT_EM);
 
-      // Both markers share the same horizontal track transform; subtracting
-      // their viewport coordinates gives the caret's position inside that track.
       const x = anchorRect.left - startRect.left;
-      // The caret and passage start share the same transform, keeping the caret
-      // locked to the next character while the banner moves left.
-      const y =
-        anchorRect.top - startRect.top + (lineBoxHeight - caretHeight) / 2;
-
+      const y = anchorRect.top - startRect.top + (lineBoxHeight - caretHeight) / 2;
       caret.style.height = `${caretHeight}px`;
       caret.style.transform = `translate(${x}px, ${y}px)`;
       caret.style.opacity = "1";
@@ -229,17 +245,28 @@ export default function TypingText({
 
     positionCaret();
 
-    // Fonts loading, entering focus mode, or a window resize all reflow the
-    // passage; without this the caret would stay at its old coordinates.
-    const surface = surfaceRef.current;
-    let observer: ResizeObserver | undefined;
-    if (surface && typeof ResizeObserver !== "undefined") {
-      observer = new ResizeObserver(() => positionCaret());
-      observer.observe(surface);
+    // Follow the active scroll transition for 180ms. If another key arrives,
+    // the effect restarts from the current geometry and never clears the line.
+    let arcFrame = 0;
+    const animationStart = performance.now();
+    const followTrack = () => {
+      positionCaret();
+      if (performance.now() - animationStart < 180) {
+        arcFrame = requestAnimationFrame(followTrack);
+      }
+    };
+    if (focusMode && !reducedMotion) {
+      arcFrame = requestAnimationFrame(followTrack);
     }
+
+    const resizeObserver = typeof ResizeObserver !== "undefined"
+      ? new ResizeObserver(() => positionCaret())
+      : undefined;
+    resizeObserver?.observe(surface);
     window.addEventListener("resize", positionCaret);
     return () => {
-      observer?.disconnect();
+      cancelAnimationFrame(arcFrame);
+      resizeObserver?.disconnect();
       window.removeEventListener("resize", positionCaret);
     };
   }, [typed, target, freeTyping, disabled, focusMode, focused, status, reducedMotion]);

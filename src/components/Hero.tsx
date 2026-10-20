@@ -263,8 +263,45 @@ export default function Hero({ locale = "en" as Locale }: { locale?: Locale }) {
       aria-labelledby={titleId}
     >
       <div className="hero-banner-grid" aria-hidden="true" />
+      <svg
+        className="hero-bottom-arc"
+        viewBox="0 0 1600 260"
+        preserveAspectRatio="none"
+        aria-hidden="true"
+        focusable="false"
+      >
+        <defs>
+          <linearGradient id="hero-bottom-edge" x1="0" y1="0" x2="1" y2="0">
+            <stop offset="0%" stopColor="#7c0922" stopOpacity="0" />
+            <stop offset="12%" stopColor="#ad1034" stopOpacity="0.52" />
+            <stop offset="32%" stopColor="#e31b45" stopOpacity="0.82" />
+            <stop offset="50%" stopColor="#ff3158" stopOpacity="1" />
+            <stop offset="68%" stopColor="#e31b45" stopOpacity="0.82" />
+            <stop offset="88%" stopColor="#ad1034" stopOpacity="0.52" />
+            <stop offset="100%" stopColor="#7c0922" stopOpacity="0" />
+          </linearGradient>
+          <filter id="hero-bottom-glow" x="-8%" y="-45%" width="116%" height="190%">
+            <feGaussianBlur stdDeviation="10" />
+          </filter>
+        </defs>
+        <path d="M -40 258 Q 800 160 1640 258 L 1640 280 L -40 280 Z" fill="#000000" />
+        <path
+          d="M -40 258 Q 800 160 1640 258"
+          fill="none"
+          stroke="url(#hero-bottom-edge)"
+          strokeWidth="16"
+          opacity="0.74"
+          filter="url(#hero-bottom-glow)"
+        />
+        <path
+          d="M -40 258 Q 800 160 1640 258"
+          fill="none"
+          stroke="url(#hero-bottom-edge)"
+          strokeWidth="1.6"
+        />
+      </svg>
 
-      <div className="relative mx-auto grid min-h-0 w-full max-w-7xl items-center gap-8 py-10 sm:min-h-[720px] sm:gap-10 sm:py-20 lg:grid-cols-[minmax(0,1.08fr)_minmax(360px,0.92fr)] lg:gap-14">
+      <div className="relative z-10 mx-auto grid min-h-0 w-full max-w-7xl items-center gap-8 py-10 sm:min-h-[720px] sm:gap-10 sm:py-20 lg:grid-cols-[minmax(0,1.08fr)_minmax(360px,0.92fr)] lg:gap-14">
         <div className="min-w-0 w-full max-w-4xl">
           <div className="animate-fade-up flex min-w-0 flex-wrap items-center gap-2 sm:gap-3" style={{ animationDelay: "40ms" }}>
             <span className="hero-kicker min-w-0 max-w-full truncate font-label">{c.kicker}</span>
