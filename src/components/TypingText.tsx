@@ -428,19 +428,22 @@ export default function TypingText({
           >
             <defs>
               <linearGradient id="typing-arc-stroke" x1="0" y1="0" x2="1" y2="0">
-                <stop offset="0%" stopColor="#ff2548" stopOpacity="0" />
-                <stop offset="16%" stopColor="#ff2548" stopOpacity="0.3" />
-                <stop offset="50%" stopColor="#ff2548" stopOpacity="0.72" />
-                <stop offset="84%" stopColor="#ff2548" stopOpacity="0.3" />
-                <stop offset="100%" stopColor="#ff2548" stopOpacity="0" />
+                <stop offset="0%" stopColor="#4a0716" stopOpacity="0" />
+                <stop offset="16%" stopColor="#790b24" stopOpacity="0.1" />
+                <stop offset="34%" stopColor="#8d102b" stopOpacity="0.2" />
+                <stop offset="50%" stopColor="#9a1230" stopOpacity="0.3" />
+                <stop offset="66%" stopColor="#8d102b" stopOpacity="0.2" />
+                <stop offset="84%" stopColor="#790b24" stopOpacity="0.1" />
+                <stop offset="100%" stopColor="#4a0716" stopOpacity="0" />
               </linearGradient>
               <linearGradient id="typing-arc-fill" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="0%" stopColor="#ff173f" stopOpacity="0.12" />
-                <stop offset="52%" stopColor="#ff173f" stopOpacity="0.045" />
-                <stop offset="100%" stopColor="#ff173f" stopOpacity="0" />
+                <stop offset="0%" stopColor="#4b0617" stopOpacity="0.09" />
+                <stop offset="36%" stopColor="#380311" stopOpacity="0.055" />
+                <stop offset="72%" stopColor="#26020c" stopOpacity="0.02" />
+                <stop offset="100%" stopColor="#180108" stopOpacity="0" />
               </linearGradient>
-              <filter id="typing-arc-glow" x="-10%" y="-30%" width="120%" height="160%">
-                <feGaussianBlur stdDeviation="8" />
+              <filter id="typing-arc-glow" x="-10%" y="-40%" width="120%" height="180%">
+                <feGaussianBlur stdDeviation="11" />
               </filter>
             </defs>
             <path d="M -40 135 Q 800 70 1640 135 L 1640 260 L -40 260 Z" fill="url(#typing-arc-fill)" />
@@ -448,14 +451,16 @@ export default function TypingText({
               d="M -40 135 Q 800 70 1640 135"
               fill="none"
               stroke="url(#typing-arc-stroke)"
-              strokeWidth="5"
+              strokeWidth="4"
+              opacity="0.52"
               filter="url(#typing-arc-glow)"
             />
             <path
               d="M -40 135 Q 800 70 1640 135"
               fill="none"
               stroke="url(#typing-arc-stroke)"
-              strokeWidth="1.2"
+              strokeWidth="0.9"
+              opacity="0.62"
             />
           </svg>
         )}
