@@ -192,13 +192,13 @@ a.bg-primary::after {
 .typing-surface-focus .typing-arc-backdrop {
   position: absolute;
   z-index: 0;
-  top: calc(50% - 6.5rem);
+  top: calc(50% - 8.75rem);
   left: -5%;
   width: 110%;
   height: clamp(200px, 18vw, 260px);
   overflow: visible;
   pointer-events: none;
-  opacity: 0.94;
+  opacity: 0.78;
 }
 
 .typing-surface-focus .typing-banner-viewport {
@@ -221,11 +221,11 @@ a.bg-primary::after {
 
 @media (max-width: 640px) {
   .typing-surface-focus .typing-arc-backdrop {
-    top: calc(50% - 5.5rem);
+    top: calc(50% - 7rem);
     left: -12%;
     width: 124%;
     height: 190px;
-    opacity: 0.8;
+    opacity: 0.68;
   }
 }
 
