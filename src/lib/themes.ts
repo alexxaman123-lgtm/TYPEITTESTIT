@@ -23,7 +23,7 @@ export const THEMES: ThemeDefinition[] = [
       "--app-primary": "#ef2043",
       "--app-on-primary": "#ffffff",
       "--app-ink": "#ffffff",
-      "--app-ink-soft": "#f1f1f1",
+      "--app-ink-soft": "#ffffff",
       "--app-text-muted": "#ffffff",
       "--app-text-faint": "#ffffff",
       "--app-canvas": "#000000",
