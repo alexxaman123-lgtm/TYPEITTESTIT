@@ -112,7 +112,7 @@ export default function TypingText({
       const paddingLeft = parseFloat(surfaceStyles.paddingLeft) || 0;
       const paddingRight = parseFloat(surfaceStyles.paddingRight) || 0;
       const contentWidth = Math.max(1, surfaceRect.width - paddingLeft - paddingRight);
-      const targetX = surfaceRect.left + paddingLeft + contentWidth * 0.42;
+      const targetX = surfaceRect.left + paddingLeft + contentWidth * 0.5;
       const anchorRect = activeAnchor.getBoundingClientRect();
       const currentTransform = window.getComputedStyle(wordsRef.current).transform;
       const currentX = currentTransform === "none"
@@ -127,7 +127,7 @@ export default function TypingText({
       // every key and makes the passage perpetually chase the user's typing.
       wordsRef.current.style.transition = snapToStart || reducedMotion
         ? "none"
-        : "transform 110ms linear";
+        : "transform 85ms linear";
       wordsRef.current.style.transform = `translate3d(${nextX}px, 0, 0)`;
     };
 
@@ -154,45 +154,39 @@ export default function TypingText({
       const surface = surfaceRef.current;
       if (!words || !caret || !passageStart || !surface) return;
 
-      // Shape the moving passage along a shallow circular arc. Reset previous
-      // bends before measuring so they never accumulate with each keystroke.
+      // Map each word onto a shallow circle using its stable inline layout
+      // offset. Never clear/reapply transforms between keystrokes: that forced
+      // layout twice per key and made the text visibly snap and wobble.
       const arcElements = Array.from(
         surface.querySelectorAll<HTMLElement>(".typing-arc-word, .typing-arc-space"),
       );
+      const surfaceRect = surface.getBoundingClientRect();
+      const trackRect = words.getBoundingClientRect();
+      const halfWidth = Math.max(surfaceRect.width / 2, 1);
+      const centerX = surfaceRect.left + halfWidth;
+      const arcDepth = Math.min(42, Math.max(18, surfaceRect.width * 0.025));
 
-      if (!focusMode || reducedMotion) {
-        arcElements.forEach((element) => {
+      arcElements.forEach((element) => {
+        if (!focusMode || reducedMotion) {
           element.style.transform = "";
           element.style.transition = "";
-        });
-      } else {
-        arcElements.forEach((element) => {
-          element.style.transform = "";
-          element.style.transition = "none";
-        });
+          return;
+        }
 
-        const surfaceRect = surface.getBoundingClientRect();
-        const halfWidth = Math.max(surfaceRect.width / 2, 1);
-        const arcDepth = Math.min(26, Math.max(12, surfaceRect.width * 0.016));
-        const centerX = surfaceRect.left + halfWidth;
+        const layoutCenterX = trackRect.left + element.offsetLeft + element.offsetWidth / 2;
+        const normalized = Math.max(-1, Math.min(1, (layoutCenterX - centerX) / halfWidth));
+        const y = arcDepth * normalized * normalized;
+        const angle = Math.max(
+          -2.2,
+          Math.min(2.2, Math.atan((2 * arcDepth * normalized) / halfWidth) * (180 / Math.PI)),
+        );
 
-        arcElements.forEach((element) => {
-          const rect = element.getBoundingClientRect();
-          const position = rect.left + rect.width / 2;
-          const normalized = Math.max(-1, Math.min(1, (position - centerX) / halfWidth));
-          const y = arcDepth * normalized * normalized;
-          const angle = Math.max(
-            -3.3,
-            Math.min(3.3, Math.atan((2 * arcDepth * normalized) / halfWidth) * (180 / Math.PI)),
-          );
-
-          element.style.transformOrigin = "center center";
-          element.style.transition = typed.length === 0 && status === "idle"
-            ? "none"
-            : "transform 110ms linear";
-          element.style.transform = `translate3d(0, ${y.toFixed(2)}px, 0) rotate(${angle.toFixed(2)}deg)`;
-        });
-      }
+        element.style.transformOrigin = "center center";
+        element.style.transition = typed.length === 0 && status === "idle"
+          ? "none"
+          : "transform 85ms linear";
+        element.style.transform = `translate3d(0, ${y.toFixed(2)}px, 0) rotate(${angle.toFixed(2)}deg)`;
+      });
 
       const anchor = disabled ? null : currentCharRef.current;
       if (!anchor) {
