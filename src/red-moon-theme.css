@@ -185,3 +185,53 @@ a.bg-primary::after {
 .blur-type-space {
   white-space: normal;
 }
+
+
+/* Focus-mode typing arc: an understated semicircle with a crimson edge that
+   fades before the corners. The words sit on a shallow matching curve. */
+.typing-surface-focus .typing-arc-backdrop {
+  position: absolute;
+  z-index: 0;
+  top: calc(50% - clamp(6rem, 8vw, 8rem));
+  left: -5%;
+  width: 110%;
+  height: clamp(200px, 18vw, 260px);
+  overflow: visible;
+  pointer-events: none;
+  opacity: 0.94;
+}
+
+.typing-surface-focus .typing-banner-viewport {
+  position: relative;
+  z-index: 1;
+}
+
+.typing-surface-focus .typing-arc-word,
+.typing-surface-focus .typing-arc-space {
+  display: inline-block;
+  vertical-align: baseline;
+  white-space: nowrap;
+  will-change: transform;
+  transform-origin: center center;
+}
+
+.typing-surface-focus .typing-arc-space {
+  white-space: pre;
+}
+
+@media (max-width: 640px) {
+  .typing-surface-focus .typing-arc-backdrop {
+    top: calc(50% - 5.5rem);
+    left: -12%;
+    width: 124%;
+    height: 190px;
+    opacity: 0.8;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .typing-surface-focus .typing-arc-word,
+  .typing-surface-focus .typing-arc-space {
+    will-change: auto;
+  }
+}
