@@ -13,6 +13,30 @@ export interface ThemeDefinition {
 // High-contrast three-tone themes: real base color, readable text, distinct typing/accent.
 export const THEMES: ThemeDefinition[] = [
   {
+    id: "monochrome",
+    name: "Monochrome",
+    type: "dark",
+    primary: "#ffffff",
+    canvas: "#000000",
+    swatch: ["#000000", "#ffffff", "#ffffff"],
+    variables: {
+      "--app-primary": "#ffffff",
+      "--app-on-primary": "#ffffff",
+      "--app-ink": "#ffffff",
+      "--app-ink-soft": "#ffffff",
+      "--app-text-muted": "#ffffff",
+      "--app-text-faint": "#ffffff",
+      "--app-canvas": "#000000",
+      "--app-canvas-soft": "#000000",
+      "--app-field": "#000000",
+      "--app-hairline-soft": "#1b1b1b",
+      "--app-hairline": "#2b2b2b",
+      "--app-accent": "#ffffff",
+      "--app-typed": "#ffffff",
+    },
+  },
+
+  {
     id: "ivory-black",
     name: "Ivory Black",
     type: "light",
@@ -234,12 +258,13 @@ export const THEMES: ThemeDefinition[] = [
   },
 ];
 
-export const DEFAULT_THEME: ThemeId = "charcoal-coral";
-const STORAGE_KEY = "goattype-theme-v5";
+export const DEFAULT_THEME: ThemeId = "monochrome";
+const STORAGE_KEY = "goattype-theme-v6";
 
 export function applyTheme(themeId: ThemeId): void {
   const theme = THEMES.find((t) => t.id === themeId) ?? THEMES[0];
   const root = document.documentElement;
+  root.dataset.theme = theme.id;
 
   if (theme.type === "dark") {
     root.classList.add("dark");
