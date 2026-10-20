@@ -192,7 +192,7 @@ a.bg-primary::after {
 .typing-surface-focus .typing-arc-backdrop {
   position: absolute;
   z-index: 0;
-  top: calc(50% - clamp(6rem, 8vw, 8rem));
+  top: calc(50% - 6.5rem);
   left: -5%;
   width: 110%;
   height: clamp(200px, 18vw, 260px);
