@@ -94,7 +94,7 @@ export default function BlurTypeReveal({
       if (unit === LINE_BREAK) {
         flushWord();
         tokens.push({ kind: "break", index });
-      } else if (/^\\s+$/u.test(unit)) {
+      } else if (/^\s+$/u.test(unit)) {
         flushWord();
         tokens.push({ kind: "space", value: unit, index });
       } else {
