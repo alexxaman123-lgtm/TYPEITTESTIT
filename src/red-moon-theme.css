@@ -6,7 +6,7 @@
   --app-primary: #ef2043;
   --app-on-primary: #ffffff;
   --app-ink: #ffffff;
-  --app-ink-soft: #f1f1f1;
+  --app-ink-soft: #ffffff;
   --app-text-muted: #ffffff;
   --app-text-faint: #ffffff;
   --app-canvas: #000000;
@@ -233,7 +233,9 @@ a.bg-primary::after {
 
 @media (prefers-reduced-motion: reduce) {
   .hero-moon-upper-glow,
-  .red-orbit-button::after {
+  .red-orbit-button::after,
+  button.bg-primary::after,
+  a.bg-primary::after {
     animation: none !important;
   }
 
