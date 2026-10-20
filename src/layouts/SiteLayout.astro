@@ -136,7 +136,7 @@ const ogLocaleAlternates = rootPath
     <meta name="twitter:image" content={`${siteUrl}/og-image.png`} />
     <meta name="twitter:image:alt" content={localizedImageAlt} />
 
-    <meta name="theme-color" content="#050706" />
+    <meta name="theme-color" content="#000000" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
 
     {structuredData.map((data) => (
@@ -146,11 +146,13 @@ const ogLocaleAlternates = rootPath
     <script is:inline define:vars={{ themeMap, defaultTheme: DEFAULT_THEME }}>
       (() => {
         try {
-          const saved = localStorage.getItem('goattype-theme-v5');
+          const saved = localStorage.getItem('goattype-theme-v6');
           const themes = themeMap;
-          const theme = (saved && themes[saved]) ? themes[saved] : themes[defaultTheme];
+          const themeId = (saved && themes[saved]) ? saved : defaultTheme;
+          const theme = themes[themeId];
           if (!theme) return;
           const root = document.documentElement;
+          root.dataset.theme = themeId;
           if (theme.type === 'dark') {
             root.classList.add('dark');
             root.style.colorScheme = 'dark';
