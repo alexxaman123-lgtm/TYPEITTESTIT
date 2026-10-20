@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { THEMES, type ThemeId, applyTheme, loadTheme } from "../lib/themes";
+import { THEMES, DEFAULT_THEME, type ThemeId, applyTheme, loadTheme } from "../lib/themes";
 import { cn } from "../utils/cn";
 import { Palette, Check } from "lucide-react";
 import type { Locale } from "../lib/i18n";
@@ -16,6 +16,7 @@ const SPANISH_THEME_NAMES: Record<string, string> = {
   "charcoal coral": "carbón coral",
   "navy mint": "azul marino menta",
   "slate lime": "pizarra lima",
+  "monochrome": "monocromo",
 };
 
 function localizedThemeName(name: string, locale: Locale): string {
@@ -25,7 +26,7 @@ function localizedThemeName(name: string, locale: Locale): string {
 
 export default function ThemePicker({ locale = "en" as Locale }: { locale?: Locale }) {
   const [isOpen, setIsOpen] = useState(false);
-  const [currentThemeId, setCurrentThemeId] = useState<ThemeId>("carbon-mint");
+  const [currentThemeId, setCurrentThemeId] = useState<ThemeId>(DEFAULT_THEME);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
