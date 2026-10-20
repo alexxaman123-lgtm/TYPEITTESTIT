@@ -424,9 +424,6 @@ export default function TypingText({
           disabled && "opacity-60",
         )}
       >
-        {focusMode && (
-          
-        )}
         {freeTyping ? (
           <div className="typing-banner-viewport">
             <p
