@@ -32,7 +32,6 @@ export const THEMES: ThemeDefinition[] = [
       "--app-hairline-soft": "#1b1b1b",
       "--app-hairline": "#2b2b2b",
       "--app-accent": "#ffffff",
-      "--app-typed": "#ffffff",
     },
   },
 
