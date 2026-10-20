@@ -236,7 +236,7 @@ export default function TypingText({
       observer?.disconnect();
       window.removeEventListener("resize", positionCaret);
     };
-  }, [typed, target, freeTyping, disabled, focusMode, focused, status]);
+  }, [typed, target, freeTyping, disabled, focusMode, focused, status, reducedMotion]);
 
   const focusInput = () => {
     if (!disabled) {
