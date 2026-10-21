@@ -247,6 +247,17 @@ a.bg-primary::after {
   z-index: 1;
 }
 
+.test-shell-focus .focus-content-result {
+  justify-content: flex-start;
+  padding-top: clamp(0.75rem, 2.5vh, 2rem);
+  padding-bottom: 2rem;
+}
+
+/* Keep focus controls visually tied to the currently selected palette. */
+.test-shell-focus .focus-controls-arc {
+  color: var(--app-accent);
+}
+
 .focus-sound-toggle {
   position: fixed;
   top: clamp(1rem, 3vh, 2rem);
@@ -255,10 +266,11 @@ a.bg-primary::after {
 }
 
 .focus-sound-toggle button {
-  background: rgba(15, 5, 8, 0.9);
+  background: color-mix(in srgb, var(--app-canvas-soft) 90%, transparent);
+  border-color: color-mix(in srgb, var(--app-accent) 42%, transparent);
   backdrop-filter: blur(8px);
   -webkit-backdrop-filter: blur(8px);
-  box-shadow: 0 5px 22px rgba(0, 0, 0, 0.35);
+  box-shadow: 0 5px 22px color-mix(in srgb, var(--app-canvas) 35%, transparent);
 }
 
 @media (max-width: 640px) {
