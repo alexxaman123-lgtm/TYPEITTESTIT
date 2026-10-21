@@ -345,3 +345,108 @@ a.bg-primary::after {
     height: 230px;
   }
 }
+
+
+/* Lightweight typing-test mascot. Keep its path geometry in sync with the
+   focus-controls arc via FOCUS_ARC_PATH in TypingArcRunner.tsx. */
+.focus-arc-runner {
+  color: var(--app-accent, var(--color-accent));
+  pointer-events: none;
+  transition: opacity 120ms ease-out;
+  filter: drop-shadow(0 0 4px color-mix(in srgb, var(--app-accent, var(--color-accent)) 22%, transparent));
+}
+.focus-arc-runner-bob {
+  transform-origin: 0 0;
+}
+.focus-arc-runner-outline {
+  fill: none;
+  stroke: var(--app-accent, var(--color-accent));
+  stroke-width: 2.8;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+.focus-arc-runner-head-glow {
+  fill: var(--app-accent, var(--color-accent));
+  opacity: 0.2;
+}
+.focus-arc-runner-head {
+  fill: var(--app-accent, var(--color-accent));
+  stroke: color-mix(in srgb, var(--app-accent, var(--color-accent)) 80%, white);
+  stroke-width: 0.7;
+}
+.focus-arc-runner-face {
+  fill: none;
+  stroke: var(--app-on-primary, #ffffff);
+  stroke-width: 1.55;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+.focus-arc-runner-limb {
+  /* Each animated limb sits inside a translated pivot wrapper in the SVG. */
+  transform-box: fill-box;
+  transform-origin: 0 0;
+  animation-duration: var(--runner-stride-duration, 0.8s);
+  animation-iteration-count: infinite;
+  animation-timing-function: ease-in-out;
+  animation-direction: alternate;
+}
+.focus-arc-runner-arm-back,
+.focus-arc-runner-leg-back {
+  transform-origin: 100% 0;
+}
+.focus-arc-runner-arm-back,
+.focus-arc-runner-leg-front {
+  animation-direction: alternate-reverse;
+}
+.focus-arc-runner[data-running="true"] .focus-arc-runner-bob {
+  animation: focusArcRunnerBounce var(--runner-stride-duration, 0.8s) ease-in-out infinite;
+}
+.focus-arc-runner[data-running="true"][data-gait="walk"] .focus-arc-runner-limb {
+  animation-name: focusArcRunnerWalkSwing;
+}
+.focus-arc-runner[data-running="true"][data-gait="jog"] .focus-arc-runner-limb {
+  animation-name: focusArcRunnerJogSwing;
+}
+.focus-arc-runner[data-running="true"][data-gait="run"] .focus-arc-runner-limb {
+  animation-name: focusArcRunnerRunSwing;
+}
+.focus-arc-runner-trail {
+  opacity: 0;
+  transition: opacity 160ms ease-out;
+}
+.focus-arc-runner[data-running="true"][data-gait="jog"] .focus-arc-runner-trail {
+  opacity: 0.22;
+}
+.focus-arc-runner[data-running="true"][data-gait="run"] .focus-arc-runner-trail {
+  opacity: 0.52;
+}
+.focus-arc-runner[data-reduced-motion="true"] .focus-arc-runner-limb,
+.focus-arc-runner[data-reduced-motion="true"] .focus-arc-runner-bob {
+  animation: none !important;
+}
+@keyframes focusArcRunnerWalkSwing {
+  from { transform: rotate(-13deg); }
+  to { transform: rotate(13deg); }
+}
+@keyframes focusArcRunnerJogSwing {
+  from { transform: rotate(-25deg); }
+  to { transform: rotate(25deg); }
+}
+@keyframes focusArcRunnerRunSwing {
+  from { transform: rotate(-39deg); }
+  to { transform: rotate(39deg); }
+}
+@keyframes focusArcRunnerBounce {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-1.4px); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .focus-arc-runner,
+  .focus-arc-runner-trail {
+    transition: none !important;
+  }
+  .focus-arc-runner-limb,
+  .focus-arc-runner-bob {
+    animation: none !important;
+  }
+}
