@@ -13,6 +13,7 @@ import { getSoundEnabled } from "../lib/useSound";
 import DifficultySelector from "./DifficultySelector";
 import DurationSelector from "./DurationSelector";
 import TypingText from "./TypingText";
+import TypingArcRunner, { FOCUS_ARC_FILL_PATH, FOCUS_ARC_PATH } from "./TypingArcRunner";
 import TypingLanguageSelector from "./TypingLanguageSelector";
 import LiveMetrics from "./LiveMetrics";
 import TestControls from "./TestControls";
@@ -58,6 +59,35 @@ export default function TypingTester({ locale = "en" }: { locale?: Locale }) {
   const scrollToTesterAfterExitRef = useRef(false);
   const focusExitRequestedRef = useRef(false);
   const bodyOverflowBeforeFocusRef = useRef<string | null>(null);
+
+  // Keep a stable lap length for this test session. The hook appends another
+  // passage near the end of the current one, so using the ever-growing target
+  // string as the denominator would make the mascot jump backwards.
+  const runnerLapRef = useRef({
+    sessionId: test.sessionId,
+    length: Math.max(1, test.targetText.length),
+  });
+  if (runnerLapRef.current.sessionId !== test.sessionId) {
+    runnerLapRef.current = {
+      sessionId: test.sessionId,
+      length: Math.max(1, test.targetText.length),
+    };
+  }
+  const runnerLapLength = test.isFreeTyping
+    ? Math.max(250, Math.round(test.duration * 45 / 12))
+    : runnerLapRef.current.length;
+  const charsIntoRunnerLap = test.typed.length % runnerLapLength;
+  const runnerProgress =
+    test.status === "finished" && test.typed.length >= test.targetText.length
+      ? 1
+      : test.typed.length > 0 && charsIntoRunnerLap === 0
+        ? 1
+        : charsIntoRunnerLap / runnerLapLength;
+  // A five-second warm-up prevents one or two initial keystrokes from making
+  // the mascot sprint before the user's actual typing rhythm is established.
+  const runnerWpm = test.status === "running"
+    ? Math.min(140, (test.typed.length / 5) / (Math.max(test.elapsedMs, 5000) / 60000))
+    : 0;
 
   useEffect(() => {
     preloadSoundSamples(RESULT_SOUND_SAMPLES);
@@ -306,11 +336,11 @@ export default function TypingTester({ locale = "en" }: { locale?: Locale }) {
             </filter>
           </defs>
           <path
-            d="M -50 350 Q 800 -160 1650 350 L 1650 380 L -50 380 Z"
+            d={FOCUS_ARC_FILL_PATH}
             fill="url(#focus-controls-fade)"
           />
           <path
-            d="M -50 350 Q 800 -160 1650 350"
+            d={FOCUS_ARC_PATH}
             fill="none"
             stroke="url(#focus-controls-stroke)"
             strokeWidth="9"
@@ -318,11 +348,17 @@ export default function TypingTester({ locale = "en" }: { locale?: Locale }) {
             filter="url(#focus-controls-glow)"
           />
           <path
-            d="M -50 350 Q 800 -160 1650 350"
+            d={FOCUS_ARC_PATH}
             fill="none"
             stroke="url(#focus-controls-stroke)"
             strokeWidth="1.4"
             opacity="0.95"
+          />
+          <TypingArcRunner
+            progress={runnerProgress}
+            wpm={runnerWpm}
+            active={test.status === "running"}
+            reducedMotion={reducedMotion}
           />
         </svg>
       )}
