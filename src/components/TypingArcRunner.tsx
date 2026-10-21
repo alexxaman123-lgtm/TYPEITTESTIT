@@ -141,18 +141,26 @@ export default function TypingArcRunner({
             <path d="M -27 -13 H -18" />
           </g>
 
-          <g className="focus-arc-runner-limb focus-arc-runner-arm focus-arc-runner-arm-back" transform="translate(0 -35)">
-            <path className="focus-arc-runner-outline" d="M 0 0 L -7 7 L -9 15" />
+          <g transform="translate(0 -35)">
+            <g className="focus-arc-runner-limb focus-arc-runner-arm focus-arc-runner-arm-back">
+              <path className="focus-arc-runner-outline" d="M 0 0 L -7 7 L -9 15" />
+            </g>
           </g>
-          <g className="focus-arc-runner-limb focus-arc-runner-arm focus-arc-runner-arm-front" transform="translate(0 -35)">
-            <path className="focus-arc-runner-outline" d="M 0 0 L 7 7 L 10 14" />
+          <g transform="translate(0 -35)">
+            <g className="focus-arc-runner-limb focus-arc-runner-arm focus-arc-runner-arm-front">
+              <path className="focus-arc-runner-outline" d="M 0 0 L 7 7 L 10 14" />
+            </g>
           </g>
 
-          <g className="focus-arc-runner-limb focus-arc-runner-leg focus-arc-runner-leg-back" transform="translate(0 -21)">
-            <path className="focus-arc-runner-outline" d="M 0 0 L -6 8 L -10 21" />
+          <g transform="translate(0 -21)">
+            <g className="focus-arc-runner-limb focus-arc-runner-leg focus-arc-runner-leg-back">
+              <path className="focus-arc-runner-outline" d="M 0 0 L -6 8 L -10 21" />
+            </g>
           </g>
-          <g className="focus-arc-runner-limb focus-arc-runner-leg focus-arc-runner-leg-front" transform="translate(0 -21)">
-            <path className="focus-arc-runner-outline" d="M 0 0 L 6 8 L 10 21" />
+          <g transform="translate(0 -21)">
+            <g className="focus-arc-runner-limb focus-arc-runner-leg focus-arc-runner-leg-front">
+              <path className="focus-arc-runner-outline" d="M 0 0 L 6 8 L 10 21" />
+            </g>
           </g>
 
           <path className="focus-arc-runner-outline focus-arc-runner-torso" d="M 0 -37 L 0 -21" />
