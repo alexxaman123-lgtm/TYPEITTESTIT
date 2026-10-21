@@ -272,19 +272,19 @@ export default function Hero({ locale = "en" as Locale }: { locale?: Locale }) {
       >
         <defs>
           <linearGradient id="hero-bottom-edge" x1="0" y1="0" x2="1" y2="0">
-            <stop offset="0%" stopColor="#7c0922" stopOpacity="0" />
-            <stop offset="12%" stopColor="#ad1034" stopOpacity="0.52" />
-            <stop offset="32%" stopColor="#e31b45" stopOpacity="0.82" />
-            <stop offset="50%" stopColor="#ff3158" stopOpacity="1" />
-            <stop offset="68%" stopColor="#e31b45" stopOpacity="0.82" />
-            <stop offset="88%" stopColor="#ad1034" stopOpacity="0.52" />
-            <stop offset="100%" stopColor="#7c0922" stopOpacity="0" />
+            <stop offset="0%" stopColor="var(--app-accent)" stopOpacity="0" />
+            <stop offset="12%" stopColor="var(--app-accent)" stopOpacity="0.36" />
+            <stop offset="32%" stopColor="var(--app-primary)" stopOpacity="0.68" />
+            <stop offset="50%" stopColor="var(--app-primary)" stopOpacity="0.84" />
+            <stop offset="68%" stopColor="var(--app-primary)" stopOpacity="0.68" />
+            <stop offset="88%" stopColor="var(--app-accent)" stopOpacity="0.36" />
+            <stop offset="100%" stopColor="var(--app-accent)" stopOpacity="0" />
           </linearGradient>
           <filter id="hero-bottom-glow" x="-8%" y="-45%" width="116%" height="190%">
             <feGaussianBlur stdDeviation="10" />
           </filter>
         </defs>
-        <path d="M -40 258 Q 800 160 1640 258 L 1640 280 L -40 280 Z" fill="#000000" />
+        <path d="M -40 258 Q 800 160 1640 258 L 1640 280 L -40 280 Z" fill="var(--app-canvas)" />
         <path
           d="M -40 258 Q 800 160 1640 258"
           fill="none"
@@ -371,7 +371,7 @@ export default function Hero({ locale = "en" as Locale }: { locale?: Locale }) {
               <span className="hero-stat-label font-caption">{c.statAccuracyLabel}</span>
             </div>
             <div className="hero-stat premium-card">
-              <span className="hero-stat-value font-heading-3">1\u20135 min</span>
+              <span className="hero-stat-value font-heading-3">1–5 min</span>
               <span className="hero-stat-label font-caption">{c.statDurationLabel}</span>
             </div>
           </div>
