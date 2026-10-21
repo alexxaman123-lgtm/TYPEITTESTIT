@@ -96,7 +96,7 @@ export default function ThemePicker({ locale = "en" as Locale }: { locale?: Loca
                     </div>
 
                     <div
-                      className="ml-2 flex shrink-0 items-center gap-1 rounded-full border border-black/5 bg-canvas p-1 dark:border-white/5"
+                      className="ml-2 flex shrink-0 items-center gap-1 rounded-full border border-hairline-soft bg-canvas p-1"
                       aria-label={`${displayName} ${tr(locale, "theme", "colors")}`}
                     >
                       {theme.swatch.map((color, i) => (
