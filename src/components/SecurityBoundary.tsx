@@ -28,7 +28,7 @@ export default class SecurityBoundary extends Component<Props, State> {
 
     return (
       <main className="flex min-h-screen items-center justify-center px-6 text-center">
-        <section className="max-w-md rounded-2xl border border-white/10 bg-surface1 p-8">
+        <section className="max-w-md rounded-2xl border border-hairline-soft bg-surface1 p-8">
           <h1 className="text-2xl font-bold text-ink">Something went wrong</h1>
           <p className="mt-3 text-muted">
             The typing test hit an unexpected error. Refresh the page to safely restart the session.
