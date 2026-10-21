@@ -605,7 +605,7 @@ body {
     transparent 0%,
     transparent 46%,
     color-mix(in srgb, var(--color-accent) 12%, transparent) 48.5%,
-    color-mix(in srgb, #fff 28%, transparent) 50%,
+    color-mix(in srgb, var(--color-ink) 28%, transparent) 50%,
     color-mix(in srgb, var(--color-accent) 18%, transparent) 51.5%,
     transparent 54%,
     transparent 100%
