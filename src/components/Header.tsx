@@ -198,7 +198,7 @@ export default function Header({ locale = "en" as Locale }: { locale?: Locale })
   return (
     <>
       <header className="sticky top-3 z-50 w-full px-2 sm:top-6 sm:px-6 pointer-events-none">
-        <div className={cn("pointer-events-auto mx-auto flex h-12 min-w-0 max-w-7xl items-center gap-1.5 rounded-full border px-3 sm:h-14 sm:gap-2 sm:px-6", "border-white/10 bg-canvas-soft/70 backdrop-blur-xl backdrop-saturate-150 shadow-[0_8px_32px_rgba(0,0,0,0.18)]", scrolled && "bg-canvas-soft/55")}>
+        <div className={cn("pointer-events-auto mx-auto flex h-12 min-w-0 max-w-7xl items-center gap-1.5 rounded-full border px-3 sm:h-14 sm:gap-2 sm:px-6", "border-hairline-soft bg-canvas-soft/70 backdrop-blur-xl backdrop-saturate-150 shadow-[0_8px_32px_rgba(0,0,0,0.18)]", scrolled && "bg-canvas-soft/55")}>
           <a href={homeHref} onClick={(event) => handleInternalNavigation(event, homeHref)} className="flex min-w-0 flex-1 items-center select-none" aria-label={meta.brandParts.join("").trim() ? tr(locale, "nav", "homeAria") : meta.brand}>
             <span className="font-title min-w-0 shrink truncate text-[14px] font-semibold leading-tight tracking-tight sm:text-xl">{meta.brandParts[0]}</span>
             <span className="font-title hidden shrink-0 text-[14px] font-semibold leading-tight tracking-tight text-primary sm:inline sm:text-xl">{meta.brandParts[1]}</span>
@@ -225,7 +225,7 @@ export default function Header({ locale = "en" as Locale }: { locale?: Locale })
           </div>
         </div>
         {open && (
-          <div className="pointer-events-auto mx-auto mt-2 max-w-7xl rounded-2xl border border-white/10 bg-canvas-soft/65 p-2 shadow-lg backdrop-blur-xl">
+          <div className="pointer-events-auto mx-auto mt-2 max-w-7xl rounded-2xl border border-hairline-soft bg-canvas-soft/65 p-2 shadow-lg backdrop-blur-xl">
             <nav className="flex flex-col gap-1" aria-label={mobileNavLabel}>
               {isAuthenticated && <a href={accountHref} onClick={(event) => { handleInternalNavigation(event, accountHref); setOpen(false); }} className="rounded-xl px-4 py-3 font-link text-ink hover:bg-canvas/60">{typingHistoryLabel}</a>}
               {NAV_LINKS.map((link) => (
