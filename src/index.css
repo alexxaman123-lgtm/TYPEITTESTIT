@@ -127,7 +127,7 @@ body {
   max-width: 100vw;
   padding: 0;
   white-space: nowrap;
-  color: #000000;
+  color: var(--color-ink);
   font-family: var(--font-sans);
   font-size: clamp(4.25rem, 10vw, 12rem);
   font-weight: 750;
