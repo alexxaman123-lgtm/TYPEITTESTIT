@@ -382,12 +382,17 @@ a.bg-primary::after {
   stroke-linejoin: round;
 }
 .focus-arc-runner-limb {
-  transform-box: view-box;
+  /* Each animated limb sits inside a translated pivot wrapper in the SVG. */
+  transform-box: fill-box;
   transform-origin: 0 0;
   animation-duration: var(--runner-stride-duration, 0.8s);
   animation-iteration-count: infinite;
   animation-timing-function: ease-in-out;
   animation-direction: alternate;
+}
+.focus-arc-runner-arm-back,
+.focus-arc-runner-leg-back {
+  transform-origin: 100% 0;
 }
 .focus-arc-runner-arm-back,
 .focus-arc-runner-leg-front {
