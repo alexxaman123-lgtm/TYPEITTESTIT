@@ -457,8 +457,8 @@ export default function LeaderboardPage({ locale = "en" as Locale }: { locale?: 
 
   return (
     <main className="mx-auto max-w-6xl px-4 pb-20 pt-12 sm:px-6 lg:px-8">
-      <section className="rounded-3xl border border-white/10 bg-surface1/75 p-5 shadow-[0_0_70px_-24px_rgba(0,0,0,0.7)] backdrop-blur-sm sm:p-8">
-        <div className="flex flex-col gap-5 border-b border-white/8 pb-6 lg:flex-row lg:items-end lg:justify-between">
+      <section className="rounded-3xl border border-hairline-soft bg-surface1/75 p-5 shadow-[0_0_70px_-24px_rgba(0,0,0,0.7)] backdrop-blur-sm sm:p-8">
+        <div className="flex flex-col gap-5 border-b border-hairline-soft pb-6 lg:flex-row lg:items-end lg:justify-between">
           <div>
             <span className="text-[10px] font-semibold uppercase tracking-[0.3em] text-faint">{t.brand}</span>
             <h1 className="mt-2 text-3xl font-extrabold tracking-tight text-ink sm:text-4xl">{t.title}</h1>
@@ -469,7 +469,7 @@ export default function LeaderboardPage({ locale = "en" as Locale }: { locale?: 
             type="button"
             onClick={() => void load()}
             disabled={loading}
-            className="rounded-lg border border-white/12 bg-surface2 px-4 py-2.5 text-sm font-semibold text-ink-soft transition-colors hover:border-accent/40 hover:text-ink disabled:cursor-not-allowed disabled:opacity-50"
+            className="rounded-lg border border-hairline bg-surface2 px-4 py-2.5 text-sm font-semibold text-ink-soft transition-colors hover:border-accent/40 hover:text-ink disabled:cursor-not-allowed disabled:opacity-50"
           >
             {loading ? t.refreshing : t.refresh}
           </button>
@@ -486,7 +486,7 @@ export default function LeaderboardPage({ locale = "en" as Locale }: { locale?: 
                   "rounded-full border px-4 py-2 text-xs font-bold uppercase tracking-[0.15em] transition-colors",
                   sortMode === mode
                     ? "border-accent/50 bg-accent/10 text-accent"
-                    : "border-white/10 bg-surface2 text-muted hover:border-accent/30 hover:text-ink"
+                    : "border-hairline-soft bg-surface2 text-muted hover:border-accent/30 hover:text-ink"
                 )}
               >
                 {mode === "wpm" ? t.sortWpm : t.sortAccuracy}
@@ -521,8 +521,8 @@ export default function LeaderboardPage({ locale = "en" as Locale }: { locale?: 
           </div>
         </div>
 
-        <div className="mt-6 overflow-hidden rounded-2xl border border-white/10 bg-surface2/50">
-          <div className="grid grid-cols-[32px_minmax(100px,1fr)_65px_80px_80px_75px] gap-2 border-b border-white/8 px-3 py-3 font-sans text-[9px] font-bold uppercase tracking-[0.12em] text-faint sm:grid-cols-[48px_minmax(150px,1fr)_100px_105px_110px_95px] sm:gap-3 sm:px-5 sm:text-[10px] sm:tracking-[0.16em]">
+        <div className="mt-6 overflow-hidden rounded-2xl border border-hairline-soft bg-surface2/50">
+          <div className="grid grid-cols-[32px_minmax(100px,1fr)_65px_80px_80px_75px] gap-2 border-b border-hairline-soft px-3 py-3 font-sans text-[9px] font-bold uppercase tracking-[0.12em] text-faint sm:grid-cols-[48px_minmax(150px,1fr)_100px_105px_110px_95px] sm:gap-3 sm:px-5 sm:text-[10px] sm:tracking-[0.16em]">
             <span>{t.columnRank}</span>
             <span>{t.columnUsername}</span>
             <span className="text-right">{t.columnWpm}</span>
@@ -557,7 +557,7 @@ function LeaderboardRow({ rank, score, difficultyLabel, minuteAbbrev }: { rank: 
   return (
     <div
       className={cn(
-        "leaderboard-row relative isolate grid grid-cols-[32px_minmax(100px,1fr)_65px_80px_80px_75px] gap-2 border-b border-white/6 px-3 py-4 last:border-b-0 sm:grid-cols-[48px_minmax(150px,1fr)_100px_105px_110px_95px] sm:gap-3 sm:px-5",
+        "leaderboard-row relative isolate grid grid-cols-[32px_minmax(100px,1fr)_65px_80px_80px_75px] gap-2 border-b border-hairline-soft px-3 py-4 last:border-b-0 sm:grid-cols-[48px_minmax(150px,1fr)_100px_105px_110px_95px] sm:gap-3 sm:px-5",
         isGoat && "leaderboard-row-goat",
       )}
       aria-label={isGoat ? `First place: ${score.username}` : undefined}
@@ -601,7 +601,7 @@ function FilterSelect({
   options: Array<[string, string]>;
 }) {
   return (
-    <label className="flex items-center gap-2 rounded-lg border border-white/10 bg-surface2 px-3 py-2 text-xs text-muted">
+    <label className="flex items-center gap-2 rounded-lg border border-hairline-soft bg-surface2 px-3 py-2 text-xs text-muted">
       <span className="uppercase tracking-[0.12em] text-faint">{label}</span>
       <select
         value={value}
