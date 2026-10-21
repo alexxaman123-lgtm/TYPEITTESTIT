@@ -56,6 +56,8 @@ export default function TypingTester({ locale = "en" }: { locale?: Locale }) {
   const focusOriginRef = useRef<FocusOrigin | null>(null);
   const focusAnimationRef = useRef<Animation | null>(null);
   const scrollToTesterAfterExitRef = useRef(false);
+  const focusExitRequestedRef = useRef(false);
+  const bodyOverflowBeforeFocusRef = useRef<string | null>(null);
 
   useEffect(() => {
     preloadSoundSamples(RESULT_SOUND_SAMPLES);
@@ -80,8 +82,16 @@ export default function TypingTester({ locale = "en" }: { locale?: Locale }) {
   useEffect(() => {
     const previous = previousStatusRef.current;
     previousStatusRef.current = test.status;
-    if (test.status === "idle") setFocusMode(false);
-    else if (previous !== "running" && test.status === "running") setFocusMode(true);
+    if (test.status === "idle") {
+      focusExitRequestedRef.current = false;
+      setFocusMode(false);
+    } else if (
+      previous !== "running" &&
+      test.status === "running" &&
+      !focusExitRequestedRef.current
+    ) {
+      setFocusMode(true);
+    }
 
     if (previous === "running" && test.status === "finished") {
       const finalWpm = test.result?.wpm ?? 0;
@@ -95,12 +105,28 @@ export default function TypingTester({ locale = "en" }: { locale?: Locale }) {
 
   useEffect(() => {
     const body = document.body;
-    const previousOverflow = body.style.overflow;
-    body.classList.toggle("typing-focus-active", focusMode);
-    if (focusMode) body.style.overflow = "hidden";
+
+    if (!focusMode) {
+      body.classList.remove("typing-focus-active");
+      if (bodyOverflowBeforeFocusRef.current !== null) {
+        body.style.overflow = bodyOverflowBeforeFocusRef.current;
+        bodyOverflowBeforeFocusRef.current = null;
+      }
+      return;
+    }
+
+    if (bodyOverflowBeforeFocusRef.current === null) {
+      bodyOverflowBeforeFocusRef.current = body.style.overflow;
+    }
+    body.classList.add("typing-focus-active");
+    body.style.overflow = "hidden";
+
     return () => {
       body.classList.remove("typing-focus-active");
-      body.style.overflow = previousOverflow;
+      if (bodyOverflowBeforeFocusRef.current !== null) {
+        body.style.overflow = bodyOverflowBeforeFocusRef.current;
+        bodyOverflowBeforeFocusRef.current = null;
+      }
     };
   }, [focusMode]);
 
@@ -151,7 +177,13 @@ export default function TypingTester({ locale = "en" }: { locale?: Locale }) {
       if (event.key !== "Escape") return;
       event.preventDefault();
       event.stopPropagation();
+
+      // Prevent a running test's status effect from reopening focus mode.
+      focusExitRequestedRef.current = true;
       scrollToTesterAfterExitRef.current = true;
+
+      // Release the page lock synchronously; don't wait for React's effect cleanup.
+      releaseFocusScrollLock();
       exitFocusMode();
     };
     // Capture phase makes Escape reliable even when the transparent typing
@@ -163,10 +195,18 @@ export default function TypingTester({ locale = "en" }: { locale?: Locale }) {
   useEffect(() => {
     if (focusMode || !scrollToTesterAfterExitRef.current) return;
     scrollToTesterAfterExitRef.current = false;
+
+    // Wait for the normal in-page tester shell to be restored from the portal.
     const frame = window.requestAnimationFrame(() => {
-      document.getElementById("tester")?.scrollIntoView({
+      const testerElement = document.getElementById("tester");
+      if (!testerElement) return;
+      const targetTop = Math.max(
+        0,
+        window.scrollY + testerElement.getBoundingClientRect().top - 24,
+      );
+      window.scrollTo({
+        top: targetTop,
         behavior: reducedMotion ? "auto" : "smooth",
-        block: "start",
       });
     });
     return () => window.cancelAnimationFrame(frame);
@@ -189,8 +229,21 @@ export default function TypingTester({ locale = "en" }: { locale?: Locale }) {
     animateFocusState(true);
   }
 
+  function releaseFocusScrollLock() {
+    const body = document.body;
+    body.classList.remove("typing-focus-active");
+
+    if (bodyOverflowBeforeFocusRef.current !== null) {
+      body.style.overflow = bodyOverflowBeforeFocusRef.current;
+      bodyOverflowBeforeFocusRef.current = null;
+    } else if (body.style.overflow === "hidden") {
+      body.style.overflow = "";
+    }
+  }
+
   function exitFocusMode() {
     focusAnimationRef.current?.cancel();
+    releaseFocusScrollLock();
     animateFocusState(false);
     (document.activeElement as HTMLElement | null)?.blur?.();
   }
