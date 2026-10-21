@@ -26,33 +26,32 @@ function lerp(a: number, b: number, t: number): number {
 }
 
 /*
- * Procedural stick-runner skeleton.
+ * Procedural chibi goat — the GOATTYPE mascot on the focus-mode arc.
  *
- * The figure is drawn facing LEFT (the direction of travel along the arc):
- * forward is local -x, the ground is local y = 0, and up is local -y.
- * Feet are placed from a run-cycle trajectory and the knees/elbows are
- * solved with two-bone IK every frame, so a foot is genuinely planted on
- * the arc during its stance phase instead of the whole figure hovering or
- * "flying" on a fixed bob. The whole runner is rotated to the arc's local
- * tangent so the feet stay flush with the slope at the steep ends.
+ * The goat faces LEFT (the direction of travel): forward is local -x, the
+ * ground is local y = 0, up is local -y. All four legs are placed from a
+ * quadruped gait cycle and solved with two-bone IK every frame, so hooves
+ * genuinely plant on the arc during stance instead of the body hovering.
+ * Slow typing walks (lateral 4-beat sequence), faster typing blends into a
+ * diagonal trot, and sprinting adds body rock and bounce. When typing
+ * stops he settles into a standing pose and dips his head. The whole goat
+ * is rotated to the arc's tangent, and hoof targets follow the curve's own
+ * deviation from that tangent, so he stays grounded even at the steep ends.
  */
 const FWD = -1;
-const THIGH = 23;
-const CALF = 23;
-const HIP_HEIGHT = 43; // < THIGH + CALF, so the knees always keep a slight bend
-const TORSO = 25;
-const HEAD_R = 8.5;
-const HEAD_LIFT = 11; // shoulder -> head centre distance along the torso line
-const UPPER_ARM = 15;
-const FOREARM = 14.5;
-const RUNNER_SCALE = 1.18;
+const UPPER_LEG = 15;
+const LOWER_LEG = 15;
+const BODY_Y = -24; // leg attach height (belly line)
+const FRONT_X = -11; // front leg attach x
+const BACK_X = 12; // back leg attach x
+const GOAT_SCALE = 1.22;
 
 interface Vec {
   x: number;
   y: number;
 }
 
-/** Two-bone IK: returns the joint (knee/elbow) for start -> target. */
+/** Two-bone IK: returns the joint (knee/hock) for start -> target. */
 function solveJoint(
   start: Vec,
   target: Vec,
@@ -68,9 +67,6 @@ function solveJoint(
   const uy = dy / rawDist;
   const along = (l1 * l1 - l2 * l2 + dist * dist) / (2 * dist);
   const height = Math.sqrt(Math.max(0, l1 * l1 - along * along));
-  // Perpendicular (rotated +90deg in screen space). With poleSign +1 the
-  // knees land on the forward side of the hip->foot line; elbows use -1 so
-  // they bend backwards, the way a runner's arms actually fold.
   const px = -uy;
   const py = ux;
   return {
@@ -87,11 +83,31 @@ function setLine(el: SVGLineElement | null, a: Vec, b: Vec) {
   el.setAttribute("y2", b.y.toFixed(2));
 }
 
-function setPoint(el: SVGCircleElement | SVGEllipseElement | null, p: Vec) {
+function setPoint(el: SVGCircleElement | null, p: Vec) {
   if (!el) return;
   el.setAttribute("cx", p.x.toFixed(2));
   el.setAttribute("cy", p.y.toFixed(2));
 }
+
+/** Per-leg gait configuration. Walk = lateral sequence, trot = diagonal pairs. */
+interface LegConfig {
+  attachX: number;
+  /** Phase offset (fraction of a cycle) in a walk. */
+  walkOffset: number;
+  /** Phase offset (fraction of a cycle) in a trot. */
+  trotOffset: number;
+  /** Front legs fold forward (+1), hind legs fold at the hock (-1). */
+  pole: 1 | -1;
+  idleOffset: number;
+}
+
+const LEG_CONFIGS: LegConfig[] = [
+  // Order matches the ref arrays / JSX: frontNear, frontFar, backNear, backFar.
+  { attachX: FRONT_X, walkOffset: 0.25, trotOffset: 0.0, pole: 1, idleOffset: 1 },
+  { attachX: FRONT_X, walkOffset: 0.75, trotOffset: 0.5, pole: 1, idleOffset: -1.5 },
+  { attachX: BACK_X, walkOffset: 0.0, trotOffset: 0.5, pole: -1, idleOffset: -1 },
+  { attachX: BACK_X, walkOffset: 0.5, trotOffset: 0.0, pole: -1, idleOffset: 1.5 },
+];
 
 export default function TypingArcRunner({
   progress,
@@ -101,27 +117,14 @@ export default function TypingArcRunner({
 }: TypingArcRunnerProps) {
   const pathRef = useRef<SVGPathElement | null>(null);
   const runnerRef = useRef<SVGGElement | null>(null);
+  const bodyRef = useRef<SVGGElement | null>(null);
+  const headRef = useRef<SVGGElement | null>(null);
+  const tailRef = useRef<SVGGElement | null>(null);
 
-  const torsoRef = useRef<SVGLineElement | null>(null);
-  const thighFrontRef = useRef<SVGLineElement | null>(null);
-  const calfFrontRef = useRef<SVGLineElement | null>(null);
-  const thighBackRef = useRef<SVGLineElement | null>(null);
-  const calfBackRef = useRef<SVGLineElement | null>(null);
-  const upperArmFrontRef = useRef<SVGLineElement | null>(null);
-  const forearmFrontRef = useRef<SVGLineElement | null>(null);
-  const upperArmBackRef = useRef<SVGLineElement | null>(null);
-  const forearmBackRef = useRef<SVGLineElement | null>(null);
-  const footFrontRef = useRef<SVGLineElement | null>(null);
-  const footBackRef = useRef<SVGLineElement | null>(null);
-  const kneeFrontRef = useRef<SVGCircleElement | null>(null);
-  const kneeBackRef = useRef<SVGCircleElement | null>(null);
-  const elbowFrontRef = useRef<SVGCircleElement | null>(null);
-  const elbowBackRef = useRef<SVGCircleElement | null>(null);
-  const handFrontRef = useRef<SVGCircleElement | null>(null);
-  const handBackRef = useRef<SVGCircleElement | null>(null);
-  const headRef = useRef<SVGCircleElement | null>(null);
-  const headGlowRef = useRef<SVGCircleElement | null>(null);
-  const eyeRef = useRef<SVGEllipseElement | null>(null);
+  const upperRefs = useRef<(SVGLineElement | null)[]>([]);
+  const lowerRefs = useRef<(SVGLineElement | null)[]>([]);
+  const hoofRefs = useRef<(SVGLineElement | null)[]>([]);
+  const jointRefs = useRef<(SVGCircleElement | null)[]>([]);
   const trailRefs = useRef<(SVGPathElement | null)[]>([]);
 
   const targetProgressRef = useRef(clampProgress(progress));
@@ -134,9 +137,8 @@ export default function TypingArcRunner({
   const lastTargetRef = useRef(clampProgress(progress));
   const lastProgressChangeAtRef = useRef(0);
   // How far the arc's curve sits from its tangent line 26 path-units to
-  // either side of the runner (in the runner's rotated frame). Feet follow
-  // this so a planted foot touches the curve itself, not the tangent line
-  // floating above/below it — most visible at the steep ends of the arc.
+  // either side of the goat (in the goat's rotated frame). Hooves follow
+  // this so a planted hoof touches the curve itself, not the tangent line.
   const groundCurveRef = useRef({ plus: 0, minus: 0 });
 
   // Keep the RAF loop stable while typing. React only updates its targets.
@@ -144,7 +146,7 @@ export default function TypingArcRunner({
   targetWpmRef.current = clamp(Math.max(0, Number.isFinite(wpm) ? wpm : 0), 0, 160);
   activeRef.current = active;
 
-  /** Places the runner on the arc, rotated to the arc's tangent there. */
+  /** Places the goat on the arc, rotated to the arc's tangent there. */
   const placeRunner = useCallback((runnerProgress: number) => {
     const path = pathRef.current;
     const runner = runnerRef.current;
@@ -153,18 +155,15 @@ export default function TypingArcRunner({
     // Travel is right-to-left: progress 0 sits at the right-hand end.
     const distance = totalLength * (0.985 - 0.97 * clampProgress(runnerProgress));
     const point = path.getPointAtLength(distance);
-    // Tangent of the ground line (path direction), used only as a slope:
-    // the figure faces left natively, so we rotate by the slope angle and
-    // never flip him upside down.
     const before = path.getPointAtLength(Math.max(0, distance - 10));
     const after = path.getPointAtLength(Math.min(totalLength, distance + 10));
     const slopeDeg = (Math.atan2(after.y - before.y, after.x - before.x) * 180) / Math.PI;
     runner.setAttribute(
       "transform",
-      `translate(${point.x.toFixed(2)} ${point.y.toFixed(2)}) rotate(${slopeDeg.toFixed(2)}) scale(${RUNNER_SCALE})`,
+      `translate(${point.x.toFixed(2)} ${point.y.toFixed(2)}) rotate(${slopeDeg.toFixed(2)}) scale(${GOAT_SCALE})`,
     );
     // Measure the curve's deviation from the tangent at +/-26 path units,
-    // expressed in the runner's rotated frame, for the foot-grounding above.
+    // expressed in the goat's rotated frame, for hoof grounding.
     const slopeRad = (slopeDeg * Math.PI) / 180;
     const cos = Math.cos(slopeRad);
     const sin = Math.sin(slopeRad);
@@ -172,139 +171,103 @@ export default function TypingArcRunner({
       const q = path.getPointAtLength(Math.min(totalLength, Math.max(0, distance + offset)));
       const vx = q.x - point.x;
       const vy = q.y - point.y;
-      return -sin * vx + cos * vy; // y of the curve point in the rotated frame
+      return -sin * vx + cos * vy;
     };
     groundCurveRef.current = { plus: deviationAt(26), minus: deviationAt(-26) };
   }, []);
 
-  /**
-   * Draws one skeleton frame.
-   * @param phase run-cycle phase in radians
-   * @param move  0 = standing idle, 1 = fully running (blends every joint
-   *              target, so starting and stopping never snap or freeze a
-   *              foot in mid-air)
-   * @param intensity 0..1 speed factor (stride, lean, cadence, trails)
-   */
-  const applyPose = useCallback((phase: number, move: number, intensity: number) => {
-    const strideAmp = move * (7 + 14 * intensity);
-    const liftAmp = move * (2.5 + 6.5 * intensity);
-    const armAmp = move * (5 + 9 * intensity);
-    const bob = -move * (0.6 + 1.7 * intensity) * Math.abs(Math.sin(phase));
-    const leanRad = ((2 + move * (4 + 9 * intensity)) * Math.PI) / 180;
-
-    const hip: Vec = { x: 0, y: -HIP_HEIGHT + bob };
-    const torsoDir: Vec = { x: FWD * Math.sin(leanRad), y: -Math.cos(leanRad) };
-    const shoulder: Vec = {
-      x: hip.x + torsoDir.x * TORSO,
-      y: hip.y + torsoDir.y * TORSO,
-    };
-    const head: Vec = {
-      x: shoulder.x + torsoDir.x * HEAD_LIFT + FWD * 1.1,
-      y: shoulder.y + torsoDir.y * HEAD_LIFT,
-    };
-
-    setLine(torsoRef.current, hip, shoulder);
-    setPoint(headGlowRef.current, head);
-    setPoint(headRef.current, head);
-    if (eyeRef.current) {
-      eyeRef.current.setAttribute("cx", (head.x + FWD * HEAD_R * 0.42).toFixed(2));
-      eyeRef.current.setAttribute("cy", (head.y - 1.4).toFixed(2));
-    }
-
-    // Legs: front leg runs at `phase`, back leg half a cycle later.
-    const legs = [
-      {
-        phase,
-        idleOffset: 4,
-        thigh: thighFrontRef.current,
-        calf: calfFrontRef.current,
-        foot: footFrontRef.current,
-        knee: kneeFrontRef.current,
-      },
-      {
-        phase: phase + Math.PI,
-        idleOffset: -4,
-        thigh: thighBackRef.current,
-        calf: calfBackRef.current,
-        foot: footBackRef.current,
-        knee: kneeBackRef.current,
-      },
-    ];
-    for (const leg of legs) {
-      // Run-cycle foot path: swings forward through the air for half the
-      // cycle (sin > 0 lifts it), then plants and pushes back along the
-      // ground for the other half (y stays exactly 0 = on the arc).
-      const footX = lerp(FWD * leg.idleOffset, FWD * strideAmp * -Math.cos(leg.phase), move);
-      // Ground height of the curve itself under this foot (see
-      // groundCurveRef): on the steep ends the arc bends away from its
-      // tangent, and a foot planted at y=0 would hover off the line.
-      const u = footX * RUNNER_SCALE;
-      const dev = u >= 0 ? groundCurveRef.current.plus : groundCurveRef.current.minus;
-      const tt = Math.min(1, Math.abs(u) / 26);
-      const groundY = (dev * tt * tt) / RUNNER_SCALE;
-      const foot: Vec = {
-        x: footX,
-        y: groundY + lerp(0, -liftAmp * Math.max(0, Math.sin(leg.phase)), move),
-      };
-      const knee = solveJoint(hip, foot, THIGH, CALF, 1);
-      setLine(leg.thigh, hip, knee);
-      setLine(leg.calf, knee, foot);
-      setLine(leg.foot, foot, { x: foot.x + FWD * 5.5, y: foot.y });
-      setPoint(leg.knee, knee);
-    }
-
-    // Arms swing opposite to the leg on the same side.
-    const arms = [
-      {
-        phase: phase + Math.PI,
-        upper: upperArmFrontRef.current,
-        fore: forearmFrontRef.current,
-        elbow: elbowFrontRef.current,
-        hand: handFrontRef.current,
-      },
-      {
-        phase,
-        upper: upperArmBackRef.current,
-        fore: forearmBackRef.current,
-        elbow: elbowBackRef.current,
-        hand: handBackRef.current,
-      },
-    ];
-    for (const arm of arms) {
-      const gaitHand: Vec = {
-        x: shoulder.x + FWD * armAmp * -Math.cos(arm.phase) + FWD * 2,
-        y: shoulder.y + 16.5 - move * 2.5 * Math.max(0, Math.sin(arm.phase)),
-      };
-      const hand: Vec = {
-        x: lerp(shoulder.x + FWD * 1.5, gaitHand.x, move),
-        y: lerp(shoulder.y + 18, gaitHand.y, move),
-      };
-      const elbow = solveJoint(shoulder, hand, UPPER_ARM, FOREARM, -1);
-      setLine(arm.upper, shoulder, elbow);
-      setLine(arm.fore, elbow, hand);
-      setPoint(arm.elbow, elbow);
-      setPoint(arm.hand, hand);
-    }
-
-    // Speed trails stream behind him (local +x, opposite the facing).
-    trailRefs.current.forEach((trail, i) => {
-      if (!trail) return;
-      const y = shoulder.y + 3 + i * 6.5;
-      const x1 = shoulder.x - FWD * 7.5;
-      const len = (9 + 17 * intensity) * (1 - i * 0.22);
-      trail.setAttribute("d", `M ${x1.toFixed(2)} ${y.toFixed(2)} H ${(x1 - FWD * len).toFixed(2)}`);
-      trail.style.opacity = (0.55 * intensity * move).toFixed(2);
-    });
+  /** Ground height of the curve itself under a hoof at local x. */
+  const groundYAt = useCallback((localX: number) => {
+    const u = localX * GOAT_SCALE;
+    const dev = u >= 0 ? groundCurveRef.current.plus : groundCurveRef.current.minus;
+    const t = Math.min(1, Math.abs(u) / 26);
+    return (dev * t * t) / GOAT_SCALE;
   }, []);
 
-  // Set the first frame before paint so the runner never flashes on the left
+  /**
+   * Draws one goat frame.
+   * @param phase gait cycle phase in radians
+   * @param move  0 = standing idle, 1 = fully moving (blends every hoof
+   *              target so starting/stopping never freezes a hoof mid-air)
+   * @param intensity 0..1 speed factor (stride, cadence, rock, trails)
+   * @param nowMs clock for idle-only motion (tail sway)
+   */
+  const applyPose = useCallback(
+    (phase: number, move: number, intensity: number, nowMs: number) => {
+      const trotBlend = clamp((intensity - 0.28) / 0.34, 0, 1);
+      const strideAmp = move * (5 + 9 * intensity);
+      const liftAmp = move * (1.8 + 4.6 * intensity);
+      const bounce = -move * (0.5 + 1.5 * intensity) * Math.abs(Math.sin(phase));
+      const rockDeg = move * Math.sin(phase) * (0.8 + 3.2 * intensity * intensity);
+
+      if (bodyRef.current) {
+        bodyRef.current.setAttribute(
+          "transform",
+          `translate(0 ${bounce.toFixed(2)}) rotate(${rockDeg.toFixed(2)} 2 -35)`,
+        );
+      }
+      // Head: up and eager while running; dips down curiously when idle.
+      if (headRef.current) {
+        const headBob = move * Math.sin(phase * 2 + 0.6) * 0.7;
+        const tilt = lerp(9, -5 - 3 * intensity, move);
+        headRef.current.setAttribute(
+          "transform",
+          `translate(-15 ${(-33 + headBob).toFixed(2)}) rotate(${tilt.toFixed(2)} 0 0)`,
+        );
+      }
+      // Tail: lazy sway when idle, happy wagging while moving.
+      if (tailRef.current) {
+        const wag =
+          move > 0.05
+            ? Math.sin(phase * 2) * (4 + 7 * intensity)
+            : Math.sin(nowMs / 700) * 5;
+        tailRef.current.setAttribute(
+          "transform",
+          `translate(17 -42) rotate(${wag.toFixed(2)} 0 0)`,
+        );
+      }
+
+      LEG_CONFIGS.forEach((cfg, i) => {
+        const offset = lerp(cfg.walkOffset, cfg.trotOffset, trotBlend) * Math.PI * 2;
+        const legPhase = phase + offset;
+        const attach: Vec = { x: cfg.attachX, y: BODY_Y + bounce };
+        const hoofX = lerp(
+          cfg.attachX + cfg.idleOffset,
+          cfg.attachX + FWD * strideAmp * -Math.cos(legPhase),
+          move,
+        );
+        const hoof: Vec = {
+          x: hoofX,
+          y: groundYAt(hoofX) + lerp(0, -liftAmp * Math.max(0, Math.sin(legPhase)), move),
+        };
+        const joint = solveJoint(attach, hoof, UPPER_LEG, LOWER_LEG, cfg.pole);
+        setLine(upperRefs.current[i], attach, joint);
+        setLine(lowerRefs.current[i], joint, hoof);
+        setLine(hoofRefs.current[i], hoof, { x: hoof.x + FWD * 3.4, y: hoof.y });
+        setPoint(jointRefs.current[i], joint);
+      });
+
+      // Speed trails stream behind him (local +x, opposite the facing).
+      trailRefs.current.forEach((trail, i) => {
+        if (!trail) return;
+        const y = -38 + bounce + i * 6.5;
+        const x1 = 21;
+        const len = (8 + 15 * intensity) * (1 - i * 0.22);
+        trail.setAttribute("d", `M ${x1} ${y.toFixed(2)} H ${(x1 + len).toFixed(2)}`);
+        trail.style.opacity = (0.5 * intensity * move).toFixed(2);
+      });
+    },
+    [groundYAt],
+  );
+
+  // Set the first frame before paint so the goat never flashes on the left
   // before being moved to the right-hand starting point.
   useLayoutEffect(() => {
     const initialProgress = clampProgress(targetProgressRef.current);
     displayedProgressRef.current = initialProgress;
     lastTargetRef.current = initialProgress;
     placeRunner(initialProgress);
-    applyPose(0, 0, 0);
+    applyPose(0, 0, 0, 0);
   }, [applyPose, placeRunner]);
 
   // Reduced motion still keeps position synchronized with typing progress,
@@ -314,7 +277,7 @@ export default function TypingArcRunner({
     const next = clampProgress(progress);
     displayedProgressRef.current = next;
     placeRunner(next);
-    applyPose(0, 0, 0);
+    applyPose(0, 0, 0, 0);
   }, [progress, reducedMotion, applyPose, placeRunner]);
 
   useEffect(() => {
@@ -368,17 +331,16 @@ export default function TypingArcRunner({
       if (smoothedWpmRef.current < 0.05) smoothedWpmRef.current = 0;
       const speed = smoothedWpmRef.current;
 
-      // Move blend follows speed so stopping plants both feet in an idle
-      // stance instead of freezing mid-stride.
+      // Move blend follows speed so stopping plants all four hooves in a
+      // standing pose instead of freezing mid-stride.
       const targetMove = clamp(speed / 10, 0, 1);
       moveBlendRef.current +=
         (targetMove - moveBlendRef.current) * (1 - Math.exp(-deltaSeconds / 0.22));
       const move = moveBlendRef.current;
       const intensity = clamp(speed / 95, 0, 1);
 
-      // Cadence rises continuously with speed: ~1 cycle/s at a slow jog,
-      // ~3 cycles/s at a sprint. Phase only advances while he is moving.
-      const cadenceHz = 1.0 + 2.0 * intensity;
+      // Cadence rises with speed: a stately walk up to a quick trot/gallop.
+      const cadenceHz = 0.85 + 1.75 * intensity;
       if (move > 0.02) {
         phaseRef.current =
           (phaseRef.current + deltaSeconds * Math.PI * 2 * cadenceHz * Math.min(1, speed / 8)) %
@@ -390,7 +352,7 @@ export default function TypingArcRunner({
         runner.setAttribute("data-gait", speed < 18 ? "walk" : speed < 42 ? "jog" : "run");
         runner.style.opacity = activeRef.current ? "1" : "0.92";
       }
-      applyPose(phaseRef.current, move, intensity);
+      applyPose(phaseRef.current, move, intensity, now);
 
       frame = requestAnimationFrame(tick);
     };
@@ -401,6 +363,53 @@ export default function TypingArcRunner({
 
   const runnerStyle = { opacity: active ? 1 : 0.92 } as CSSProperties;
   const limbClass = "focus-arc-runner-outline";
+
+  const legEls = (i: number) => (
+    <>
+      <line
+        ref={(el) => {
+          upperRefs.current[i] = el;
+        }}
+        className={limbClass}
+        style={{ strokeWidth: 3.7 }}
+        x1="0"
+        y1="0"
+        x2="0"
+        y2="0"
+      />
+      <line
+        ref={(el) => {
+          lowerRefs.current[i] = el;
+        }}
+        className={limbClass}
+        style={{ strokeWidth: 3.7 }}
+        x1="0"
+        y1="0"
+        x2="0"
+        y2="0"
+      />
+      <line
+        ref={(el) => {
+          hoofRefs.current[i] = el;
+        }}
+        className={`${limbClass} focus-arc-runner-foot`}
+        style={{ strokeWidth: 3.9 }}
+        x1="0"
+        y1="0"
+        x2="0"
+        y2="0"
+      />
+      <circle
+        ref={(el) => {
+          jointRefs.current[i] = el;
+        }}
+        className="focus-arc-runner-joint"
+        r="1.5"
+        cx="0"
+        cy="0"
+      />
+    </>
+  );
 
   return (
     <>
@@ -417,7 +426,7 @@ export default function TypingArcRunner({
         data-running={active ? "true" : "false"}
         data-gait="walk"
         data-reduced-motion={reducedMotion ? "true" : "false"}
-        transform={`translate(1507 337) scale(${RUNNER_SCALE})`}
+        transform={`translate(1507 337) scale(${GOAT_SCALE})`}
         style={runnerStyle}
         aria-hidden="true"
         focusable="false"
@@ -436,32 +445,66 @@ export default function TypingArcRunner({
           ))}
         </g>
 
-        {/* Back arm and back leg (far side of the body). */}
-        <line ref={upperArmBackRef} className={limbClass} x1="0" y1="0" x2="0" y2="0" />
-        <line ref={forearmBackRef} className={limbClass} x1="0" y1="0" x2="0" y2="0" />
-        <line ref={thighBackRef} className={limbClass} x1="0" y1="0" x2="0" y2="0" />
-        <line ref={calfBackRef} className={limbClass} x1="0" y1="0" x2="0" y2="0" />
-        <line ref={footBackRef} className={`${limbClass} focus-arc-runner-foot`} x1="0" y1="0" x2="0" y2="0" />
-        <circle ref={kneeBackRef} className="focus-arc-runner-joint" r="1.7" cx="0" cy="0" />
-        <circle ref={elbowBackRef} className="focus-arc-runner-joint" r="1.7" cx="0" cy="0" />
-        <circle ref={handBackRef} className="focus-arc-runner-joint" r="1.8" cx="0" cy="0" />
+        {/* Far-side legs, dimmed for depth. */}
+        <g opacity={0.45}>
+          {legEls(1)}
+          {legEls(3)}
+        </g>
 
-        {/* Torso and head. */}
-        <line ref={torsoRef} className={`${limbClass} focus-arc-runner-torso`} x1="0" y1="0" x2="0" y2="0" />
-        <circle ref={headGlowRef} className="focus-arc-runner-head-glow" r={HEAD_R + 3} cx="0" cy="0" />
-        <circle ref={headRef} className="focus-arc-runner-head" r={HEAD_R} cx="0" cy="0" />
-        {/* Side-facing profile, looking left along the direction of travel. */}
-        <ellipse ref={eyeRef} className="focus-arc-runner-eye" rx="1.05" ry="1.6" cx="0" cy="0" />
+        {/* Body, head and tail ride together on the bounce/rock group. */}
+        <g ref={bodyRef}>
+          {/* Tail at the rear (+x), wagging from its base. */}
+          <g ref={tailRef} transform="translate(17 -42)">
+            <path
+              className={limbClass}
+              d="M 0 0 Q 6 -2 7.5 -9"
+              fill="none"
+            />
+          </g>
+          {/* Chunky chibi body. */}
+          <path
+            className="focus-arc-runner-head"
+            d="M -16 -38 Q -17 -47 -7 -47.5 L 9 -47.5 Q 18 -47 18 -38 Q 18 -25 7 -24 L -7 -24 Q -16 -25 -16 -38 Z"
+          />
+          {/* Head group pivots at the neck (-15, -33). */}
+          <g ref={headRef} transform="translate(-15 -33)">
+            <g transform="translate(-8 -4)">
+              {/* Horns: two small curved arcs sweeping back. */}
+              <path
+                className={limbClass}
+                d="M -1 -9.5 Q -7 -15 -3.5 -20.5"
+                fill="none"
+              />
+              <path
+                className={limbClass}
+                d="M 3.5 -10 Q -0.5 -16.5 4 -21"
+                fill="none"
+              />
+              {/* Floppy ear, poking out behind the head as a silhouette bump. */}
+              <ellipse
+                className="focus-arc-runner-head"
+                cx="9"
+                cy="-5.5"
+                rx="5.4"
+                ry="2.6"
+                transform="rotate(38 9 -5.5)"
+              />
+              <circle className="focus-arc-runner-head-glow" r="13.5" cx="0" cy="0" />
+              <circle className="focus-arc-runner-head" r="10.5" cx="0" cy="0" />
+              {/* Beard tuft hanging under the chin. */}
+              <path
+                className="focus-arc-runner-head"
+                d="M -8 6.5 L -8.8 11.5 L -5 8 Z"
+              />
+              {/* Eye: side-facing, looking along the direction of travel. */}
+              <ellipse className="focus-arc-runner-eye" rx="1.5" ry="2.1" cx="-4.5" cy="-1.2" />
+            </g>
+          </g>
+        </g>
 
-        {/* Front leg and front arm (near side of the body). */}
-        <line ref={thighFrontRef} className={limbClass} x1="0" y1="0" x2="0" y2="0" />
-        <line ref={calfFrontRef} className={limbClass} x1="0" y1="0" x2="0" y2="0" />
-        <line ref={footFrontRef} className={`${limbClass} focus-arc-runner-foot`} x1="0" y1="0" x2="0" y2="0" />
-        <line ref={upperArmFrontRef} className={limbClass} x1="0" y1="0" x2="0" y2="0" />
-        <line ref={forearmFrontRef} className={limbClass} x1="0" y1="0" x2="0" y2="0" />
-        <circle ref={kneeFrontRef} className="focus-arc-runner-joint" r="1.7" cx="0" cy="0" />
-        <circle ref={elbowFrontRef} className="focus-arc-runner-joint" r="1.7" cx="0" cy="0" />
-        <circle ref={handFrontRef} className="focus-arc-runner-joint" r="1.8" cx="0" cy="0" />
+        {/* Near-side legs, full strength. */}
+        {legEls(0)}
+        {legEls(2)}
       </g>
     </>
   );
