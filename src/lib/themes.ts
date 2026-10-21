@@ -299,7 +299,10 @@ export function applyTheme(themeId: ThemeId): void {
   for (const [name, value] of Object.entries(theme.variables)) {
     root.style.setProperty(name, value);
   }
-  root.style.setProperty("--app-typed", theme.variables["--app-typed"] ?? "#35f28b");
+  root.style.setProperty(
+    "--app-typed",
+    theme.variables["--app-typed"] ?? theme.variables["--app-ink"] ?? theme.primary,
+  );
 
   window.localStorage.setItem(STORAGE_KEY, theme.id);
   window.dispatchEvent(new CustomEvent("themechange", { detail: theme.id }));
