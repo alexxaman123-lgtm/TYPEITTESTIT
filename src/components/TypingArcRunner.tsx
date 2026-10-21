@@ -1,4 +1,4 @@
-import { useEffect, useLayoutEffect, useRef, type CSSProperties } from "react";
+import { useCallback, useEffect, useLayoutEffect, useRef, type CSSProperties } from "react";
 
 // The arc is inset from the SVG edges so the entire runner stays on-screen.
 export const FOCUS_ARC_PATH = "M 70 350 Q 800 -160 1530 350";
@@ -66,7 +66,7 @@ export default function TypingArcRunner({
   targetWpmRef.current = Math.max(0, Math.min(140, Number.isFinite(wpm) ? wpm : 0));
   activeRef.current = active;
 
-  const resetPose = () => {
+  const resetPose = useCallback(() => {
     rotateAtJoint(armBackRef.current, 0);
     rotateAtJoint(armFrontRef.current, 0);
     rotateAtJoint(forearmBackRef.current, 0);
@@ -77,7 +77,7 @@ export default function TypingArcRunner({
     rotateAtJoint(calfFrontRef.current, 0);
     if (bobRef.current) bobRef.current.setAttribute("transform", "translate(0 0)");
     if (bodyRef.current) bodyRef.current.setAttribute("transform", "rotate(-3 0 -21)");
-  };
+  }, []);
 
   // Set the first frame before paint so the runner never flashes on the left
   // before being moved to the right-hand starting point.
@@ -90,7 +90,7 @@ export default function TypingArcRunner({
     displayedProgressRef.current = initialProgress;
     placeRunner(path, runner, totalLength, initialProgress);
     resetPose();
-  }, []);
+  }, [resetPose]);
 
   // Reduced motion still keeps position synchronized with typing progress, but
   // removes the gait and spring-follow animation.
@@ -104,7 +104,7 @@ export default function TypingArcRunner({
     displayedProgressRef.current = next;
     placeRunner(path, runner, totalLength, next);
     resetPose();
-  }, [progress, reducedMotion]);
+  }, [progress, reducedMotion, resetPose]);
 
   useEffect(() => {
     if (reducedMotion) return;
@@ -194,7 +194,7 @@ export default function TypingArcRunner({
 
     frame = requestAnimationFrame(tick);
     return () => cancelAnimationFrame(frame);
-  }, [reducedMotion]);
+  }, [reducedMotion, resetPose]);
 
   const runnerStyle = { opacity: active ? 1 : 0.92 } as CSSProperties;
 
