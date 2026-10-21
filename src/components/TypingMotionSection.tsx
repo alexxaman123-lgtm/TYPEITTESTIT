@@ -190,7 +190,7 @@ export default function TypingMotionSection({ locale = "en" }: TypingMotionSecti
           box-shadow:
             0 30px 54px -28px color-mix(in srgb, var(--color-ink) 45%, transparent),
             0 8px 18px -10px color-mix(in srgb, var(--color-accent) 22%, transparent),
-            inset 0 1px 0 color-mix(in srgb, white 22%, transparent),
+            inset 0 1px 0 color-mix(in srgb, var(--color-ink) 22%, transparent),
             inset 0 -1px 0 color-mix(in srgb, var(--color-ink) 8%, transparent);
           backdrop-filter: blur(9px);
           -webkit-backdrop-filter: blur(9px);
