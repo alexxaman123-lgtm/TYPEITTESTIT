@@ -55,6 +55,7 @@ export default function TypingTester({ locale = "en" }: { locale?: Locale }) {
   const shellRef = useRef<HTMLDivElement | null>(null);
   const focusOriginRef = useRef<FocusOrigin | null>(null);
   const focusAnimationRef = useRef<Animation | null>(null);
+  const scrollToTesterAfterExitRef = useRef(false);
 
   useEffect(() => {
     preloadSoundSamples(RESULT_SOUND_SAMPLES);
@@ -79,7 +80,7 @@ export default function TypingTester({ locale = "en" }: { locale?: Locale }) {
   useEffect(() => {
     const previous = previousStatusRef.current;
     previousStatusRef.current = test.status;
-    if (test.status === "finished" || test.status === "idle") setFocusMode(false);
+    if (test.status === "idle") setFocusMode(false);
     else if (previous !== "running" && test.status === "running") setFocusMode(true);
 
     if (previous === "running" && test.status === "finished") {
@@ -147,26 +148,29 @@ export default function TypingTester({ locale = "en" }: { locale?: Locale }) {
   useEffect(() => {
     if (!focusMode) return;
     const onKeyDown = (event: KeyboardEvent) => {
-      if (event.key === "Escape") exitFocusMode();
+      if (event.key !== "Escape") return;
+      event.preventDefault();
+      event.stopPropagation();
+      scrollToTesterAfterExitRef.current = true;
+      exitFocusMode();
     };
-    window.addEventListener("keydown", onKeyDown);
-    return () => window.removeEventListener("keydown", onKeyDown);
+    // Capture phase makes Escape reliable even when the transparent typing
+    // input or another focused control would otherwise consume the key.
+    window.addEventListener("keydown", onKeyDown, true);
+    return () => window.removeEventListener("keydown", onKeyDown, true);
   }, [focusMode]);
 
   useEffect(() => {
-    if (!focusMode) return;
-    const onOutsidePointerDown = (event: PointerEvent) => {
-      const target = event.target;
-      if (!(target instanceof Element)) return;
-      const insideInteractiveArea = target.closest(
-        ".typing-surface-focus, .focus-sound-toggle, .focus-test-stack button, .focus-test-stack a, .focus-test-stack select, .focus-test-stack input, .focus-test-stack [role='button']",
-      );
-      if (insideInteractiveArea) return;
-      exitFocusMode();
-    };
-    window.addEventListener("pointerdown", onOutsidePointerDown);
-    return () => window.removeEventListener("pointerdown", onOutsidePointerDown);
-  }, [focusMode]);
+    if (focusMode || !scrollToTesterAfterExitRef.current) return;
+    scrollToTesterAfterExitRef.current = false;
+    const frame = window.requestAnimationFrame(() => {
+      document.getElementById("tester")?.scrollIntoView({
+        behavior: reducedMotion ? "auto" : "smooth",
+        block: "start",
+      });
+    });
+    return () => window.cancelAnimationFrame(frame);
+  }, [focusMode, reducedMotion]);
 
   const animateFocusState = (next: boolean) => {
     if (focusMode !== next) setFocusMode(next);
@@ -217,9 +221,6 @@ export default function TypingTester({ locale = "en" }: { locale?: Locale }) {
   const testerShell = (
     <div
       ref={shellRef}
-      onClick={(event) => {
-        if (event.target === event.currentTarget && focusMode) exitFocusMode();
-      }}
       style={focusedShellStyle}
       className={cn("test-shell rounded-[24px] border border-hairline bg-canvas p-6 shadow-sm transition-all duration-300", focusMode && "test-shell-focus")}
     >
@@ -233,19 +234,19 @@ export default function TypingTester({ locale = "en" }: { locale?: Locale }) {
         >
           <defs>
             <linearGradient id="focus-controls-stroke" x1="0" y1="0" x2="1" y2="0">
-              <stop offset="0%" stopColor="#760a23" stopOpacity="0" />
-              <stop offset="12%" stopColor="#a50e31" stopOpacity="0.3" />
-              <stop offset="30%" stopColor="#e71c46" stopOpacity="0.66" />
-              <stop offset="50%" stopColor="#ff3158" stopOpacity="0.9" />
-              <stop offset="70%" stopColor="#e71c46" stopOpacity="0.66" />
-              <stop offset="88%" stopColor="#a50e31" stopOpacity="0.3" />
-              <stop offset="100%" stopColor="#760a23" stopOpacity="0" />
+              <stop offset="0%" stopColor="var(--app-accent)" stopOpacity="0" />
+              <stop offset="12%" stopColor="var(--app-accent)" stopOpacity="0.2" />
+              <stop offset="30%" stopColor="var(--app-primary)" stopOpacity="0.48" />
+              <stop offset="50%" stopColor="var(--app-primary)" stopOpacity="0.78" />
+              <stop offset="70%" stopColor="var(--app-primary)" stopOpacity="0.48" />
+              <stop offset="88%" stopColor="var(--app-accent)" stopOpacity="0.2" />
+              <stop offset="100%" stopColor="var(--app-accent)" stopOpacity="0" />
             </linearGradient>
             <linearGradient id="focus-controls-fade" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="0%" stopColor="#5c061c" stopOpacity="0.11" />
-              <stop offset="38%" stopColor="#34030f" stopOpacity="0.055" />
-              <stop offset="76%" stopColor="#1a0108" stopOpacity="0.018" />
-              <stop offset="100%" stopColor="#000000" stopOpacity="0" />
+              <stop offset="0%" stopColor="var(--app-accent)" stopOpacity="0.10" />
+              <stop offset="38%" stopColor="var(--app-canvas)" stopOpacity="0.055" />
+              <stop offset="76%" stopColor="var(--app-canvas)" stopOpacity="0.018" />
+              <stop offset="100%" stopColor="var(--app-canvas)" stopOpacity="0" />
             </linearGradient>
             <filter id="focus-controls-glow" x="-10%" y="-35%" width="120%" height="190%">
               <feGaussianBlur stdDeviation="12" />
@@ -302,7 +303,11 @@ export default function TypingTester({ locale = "en" }: { locale?: Locale }) {
         </p>
       )}
 
-      <div className={cn("mt-6", focusMode && "focus-content mt-0")}>
+      <div className={cn(
+        "mt-6",
+        focusMode && "focus-content mt-0",
+        focusMode && test.status === "finished" && "focus-content-result",
+      )}>
         {viewMode === "custom" ? (
           <CustomTextPanel
             duration={test.duration}
@@ -409,7 +414,7 @@ export default function TypingTester({ locale = "en" }: { locale?: Locale }) {
         <>
           <div
             aria-hidden="true"
-            style={{ position: "fixed", inset: 0, zIndex: 59, background: "var(--color-canvas)" }}
+            style={{ position: "fixed", inset: 0, zIndex: 59, background: "var(--app-canvas)" }}
           />
           {testerShell}
         </>,
