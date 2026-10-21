@@ -17,48 +17,62 @@
   --app-accent: #ff2548;
   --app-typed: #ffffff;
   color-scheme: dark;
-  --white-arrow-cursor: url("data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20width='24'%20height='24'%20viewBox='0%200%2024%2024'%3E%3Cpath%20d='M4%202%20L4%2020%20L9%2015%20L13%2022%20L16%2020%20L12%2013%20L20%2013%20Z'%20fill='%23fff'%20stroke='%23000'%20stroke-width='1.5'%20stroke-linejoin='round'/%3E%3C/svg%3E") 4 2, auto;
 }
 
 html, body {
-  cursor: var(--white-arrow-cursor);
+  cursor: auto;
 }
 
 a[href], button:not(:disabled), [role="button"] {
-  cursor: var(--white-arrow-cursor);
+  cursor: pointer;
 }
 
 button:disabled {
   cursor: not-allowed;
 }
 
-/* The typing input is transparent by design; use a visible white I-beam so
-   the pointer itself remains legible over the black typing surface. */
+/* The visible typing caret below follows the theme accent. Use the native
+   text cursor so a white custom I-beam cannot disappear on light themes. */
 .typing-surface,
 .typing-surface input {
-  cursor: url("data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20width='20'%20height='28'%20viewBox='0%200%2020%2028'%3E%3Cpath%20d='M4%203H16%20M10%203V25%20M4%2025H16'%20fill='none'%20stroke='%23000'%20stroke-width='5'%20stroke-linecap='round'/%3E%3Cpath%20d='M4%203H16%20M10%203V25%20M4%2025H16'%20fill='none'%20stroke='%23fff'%20stroke-width='2.4'%20stroke-linecap='round'/%3E%3C/svg%3E") 10 14, text !important;
-  caret-color: #ffffff;
+  cursor: text !important;
+  caret-color: var(--app-accent);
 }
 
-/* Keep the default typography white. Pending passage characters are subdued
-   with opacity, not a competing gray color, so the palette stays monochrome. */
-.typing-pending { color: #ffffff !important; opacity: 0.42; }
-.typing-correct { color: #ffffff !important; opacity: 1; }
+/* Typing text and caret always derive their color from the active theme.
+   Pending glyphs use reduced opacity; correct glyphs retain full contrast. */
+.typing-pending {
+  color: var(--app-ink) !important;
+  opacity: 0.48;
+}
 
-/* A bright white typing caret with a red aura fixes the low-contrast position
-   marker. The current word also receives a restrained red underline. */
+.typing-correct {
+  color: var(--app-typed, var(--app-ink)) !important;
+  opacity: 1;
+}
+
+/* A theme-colored caret and underline remain visible on both light and dark canvases. */
 .typing-caret {
   width: 3px !important;
   min-width: 3px;
-  background: #ffffff !important;
+  background: var(--app-accent) !important;
   border-radius: 999px;
-  box-shadow: 0 0 7px rgba(255,255,255,.95), 0 0 18px rgba(255,30,65,.82), 0 0 30px rgba(255,20,55,.38) !important;
+  box-shadow:
+    0 0 7px color-mix(in srgb, var(--app-accent) 78%, transparent),
+    0 0 18px color-mix(in srgb, var(--app-accent) 54%, transparent),
+    0 0 30px color-mix(in srgb, var(--app-accent) 24%, transparent) !important;
   z-index: 4 !important;
+}
+
+.typing-surface .text-red-500,
+.typing-surface .text-red-400,
+.typing-surface .text-red-500\/50 {
+  color: var(--app-accent) !important;
 }
 
 .typing-word-current {
   text-decoration-line: underline;
-  text-decoration-color: rgba(255, 43, 73, 0.7);
+  text-decoration-color: color-mix(in srgb, var(--app-accent) 70%, transparent);
   text-decoration-thickness: 1px;
   text-underline-offset: 0.2em;
   text-decoration-skip-ink: none;
@@ -72,8 +86,19 @@ button:disabled {
   inset: auto 0 0;
   height: clamp(220px, 24vw, 360px);
   background:
-    linear-gradient(to top, rgba(92, 0, 24, 0.8) 0%, rgba(59, 0, 16, 0.52) 28%, rgba(31, 0, 9, 0.2) 62%, transparent 100%),
-    radial-gradient(ellipse at 50% 100%, rgba(255, 22, 60, 0.2) 0%, rgba(150, 0, 36, 0.11) 36%, transparent 73%);
+    linear-gradient(
+      to top,
+      color-mix(in srgb, var(--app-accent) 28%, transparent) 0%,
+      color-mix(in srgb, var(--app-accent) 18%, transparent) 28%,
+      color-mix(in srgb, var(--app-accent) 7%, transparent) 62%,
+      transparent 100%
+    ),
+    radial-gradient(
+      ellipse at 50% 100%,
+      color-mix(in srgb, var(--app-accent) 13%, transparent) 0%,
+      color-mix(in srgb, var(--app-accent) 7%, transparent) 36%,
+      transparent 73%
+    );
   filter: none;
 }
 
@@ -94,8 +119,8 @@ button.bg-primary,
 a.bg-primary {
   position: relative;
   isolation: isolate;
-  border-color: rgba(255, 42, 74, 0.42);
-  box-shadow: 0 0 20px rgba(255, 20, 56, 0.09);
+  border-color: color-mix(in srgb, var(--app-accent) 42%, transparent);
+  box-shadow: 0 0 20px color-mix(in srgb, var(--app-accent) 9%, transparent);
 }
 
 .red-orbit-button::after,
@@ -110,10 +135,10 @@ a.bg-primary::after {
   background: conic-gradient(
     from var(--button-orbit-angle),
     transparent 0deg 250deg,
-    rgba(255, 37, 72, 0.25) 270deg,
-    #ff2449 288deg,
-    #fff3f5 299deg,
-    #ff2449 309deg,
+    color-mix(in srgb, var(--app-accent) 25%, transparent) 270deg,
+    var(--app-accent) 288deg,
+    var(--app-on-primary) 299deg,
+    var(--app-accent) 309deg,
     transparent 328deg 360deg
   );
   -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
@@ -124,23 +149,24 @@ a.bg-primary::after {
 }
 
 .hero-primary-cta {
-  color: #ffffff;
-  background: #ef2043;
+  color: var(--app-on-primary);
+  background: var(--app-primary);
 }
 
 .hero-primary-cta:hover {
-  background: #ff2b4d;
-  box-shadow: 0 0 28px rgba(255, 28, 65, 0.28);
+  background: color-mix(in srgb, var(--app-primary) 88%, var(--app-accent));
+  box-shadow: 0 0 28px color-mix(in srgb, var(--app-accent) 28%, transparent);
 }
 
 .hero-secondary-cta {
-  background: rgba(0, 0, 0, 0.72);
-  border-color: rgba(255, 255, 255, 0.22);
+  background: color-mix(in srgb, var(--app-canvas) 72%, transparent);
+  border-color: color-mix(in srgb, var(--app-ink) 22%, transparent);
+  color: var(--app-ink);
 }
 
 .hero-secondary-cta:hover {
-  border-color: rgba(255, 40, 74, 0.75);
-  background: #0a0507;
+  border-color: color-mix(in srgb, var(--app-accent) 75%, transparent);
+  background: var(--app-canvas-soft);
 }
 
 @media (max-width: 640px) {
@@ -160,23 +186,31 @@ a.bg-primary::after {
   .red-orbit-button::after,
   button.bg-primary::after,
   a.bg-primary::after {
-    background: linear-gradient(120deg, rgba(255, 37, 72, 0.25), #ff2548, rgba(255, 243, 245, 0.75), rgba(255, 37, 72, 0.25));
+    background: linear-gradient(
+      120deg,
+      color-mix(in srgb, var(--app-accent) 25%, transparent),
+      var(--app-accent),
+      color-mix(in srgb, var(--app-on-primary) 75%, transparent),
+      color-mix(in srgb, var(--app-accent) 25%, transparent)
+    );
   }
 }
 
 /* Refinements: sober editorial depth rather than a glossy, over-produced look. */
 .hero-title {
   text-shadow:
-    0 1px 0 rgba(255, 255, 255, 0.14),
-    0 2px 2px rgba(0, 0, 0, 0.62),
-    0 8px 18px rgba(255, 255, 255, 0.035);
+    0 1px 0 color-mix(in srgb, var(--app-ink) 14%, transparent),
+    0 2px 2px color-mix(in srgb, var(--app-canvas) 62%, transparent),
+    0 8px 18px color-mix(in srgb, var(--app-ink) 4%, transparent);
 }
 
 .hero-kicker {
   box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.09),
-    0 4px 12px rgba(0, 0, 0, 0.55);
-  text-shadow: 0 1px 1px rgba(255, 255, 255, 0.16), 0 2px 3px rgba(0, 0, 0, 0.8);
+    inset 0 1px 0 color-mix(in srgb, var(--app-ink) 9%, transparent),
+    0 4px 12px color-mix(in srgb, var(--app-canvas) 55%, transparent);
+  text-shadow:
+    0 1px 1px color-mix(in srgb, var(--app-ink) 16%, transparent),
+    0 2px 3px color-mix(in srgb, var(--app-canvas) 80%, transparent);
 }
 
 /* Keep every animated character, but never allow a browser line-break inside
