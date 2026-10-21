@@ -395,8 +395,14 @@ export default function Hero({ locale = "en" as Locale }: { locale?: Locale }) {
               <source src="/goat-typing-on-laptop-1080p-202609030103-1_QfYbMZo0.mp4" type="video/mp4" />
               <source src="/Goat_typing_on_laptop_1080p_202609030103.mp4" type="video/mp4" />
             </video>
-            <div className="pointer-events-none absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/45 via-black/5 to-transparent px-4 pb-4 pt-16 sm:px-5 sm:pb-5 sm:pt-20">
-              <p className="font-caption font-semibold text-white">{c.caption}</p>
+            <div
+              className="pointer-events-none absolute inset-x-0 bottom-0 px-4 pb-4 pt-16 sm:px-5 sm:pb-5 sm:pt-20"
+              style={{
+                background:
+                  "linear-gradient(to top, color-mix(in srgb, var(--app-canvas) 72%, transparent) 0%, color-mix(in srgb, var(--app-canvas) 10%, transparent) 56%, transparent 100%)",
+              }}
+            >
+              <p className="font-caption font-semibold text-ink">{c.caption}</p>
             </div>
           </div>
         </div>
