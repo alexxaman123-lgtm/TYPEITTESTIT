@@ -83,11 +83,41 @@ export default function TypingTester({ locale = "en" }: { locale?: Locale }) {
       : test.typed.length > 0 && charsIntoRunnerLap === 0
         ? 1
         : charsIntoRunnerLap / runnerLapLength;
-  // A five-second warm-up prevents one or two initial keystrokes from making
-  // the mascot sprint before the user's actual typing rhythm is established.
-  const runnerWpm = test.status === "running"
-    ? Math.min(140, (test.typed.length / 5) / (Math.max(test.elapsedMs, 5000) / 60000))
-    : 0;
+  // The runner's speed comes from a trailing ~2.5s window of actual typing,
+  // not the test's cumulative average — with an average, speeding up barely
+  // registers and pausing leaves him running at the old pace for many
+  // seconds. Samples are recorded during render (typed only changes on
+  // keystrokes); the runner additionally decays to a stop whenever progress
+  // stalls for ~650ms, so a pause always stops him even between renders.
+  const runnerSamplesRef = useRef<{ t: number; len: number }[]>([]);
+  const sampleNow = Date.now();
+  const runnerSamples = runnerSamplesRef.current;
+  if (
+    runnerSamples.length === 0 ||
+    runnerSamples[runnerSamples.length - 1].len !== test.typed.length
+  ) {
+    runnerSamples.push({ t: sampleNow, len: test.typed.length });
+  }
+  while (runnerSamples.length > 1 && runnerSamples[0].t < sampleNow - 2500) {
+    runnerSamples.shift();
+  }
+  const firstRunnerSample = runnerSamples[0];
+  const lastRunnerSample = runnerSamples[runnerSamples.length - 1];
+  const runnerWpm =
+    test.status === "running" &&
+    firstRunnerSample &&
+    lastRunnerSample &&
+    lastRunnerSample.t - firstRunnerSample.t >= 350
+      ? Math.max(
+          0,
+          Math.min(
+            160,
+            (lastRunnerSample.len - firstRunnerSample.len) /
+              5 /
+              ((lastRunnerSample.t - firstRunnerSample.t) / 60000),
+          ),
+        )
+      : 0;
 
   useEffect(() => {
     preloadSoundSamples(RESULT_SOUND_SAMPLES);
