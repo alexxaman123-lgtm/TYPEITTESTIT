@@ -39,11 +39,11 @@ function lerp(a: number, b: number, t: number): number {
  * deviation from that tangent, so he stays grounded even at the steep ends.
  */
 const FWD = -1;
-const UPPER_LEG = 15;
-const LOWER_LEG = 15;
-const BODY_Y = -24; // leg attach height (belly line)
-const FRONT_X = -11; // front leg attach x
-const BACK_X = 12; // back leg attach x
+const UPPER_LEG = 13;
+const LOWER_LEG = 13;
+const BODY_Y = -22; // leg attach height (belly line)
+const FRONT_X = -8; // front leg attach x
+const BACK_X = 9; // back leg attach x
 const GOAT_SCALE = 1.22;
 
 interface Vec {
@@ -195,8 +195,8 @@ export default function TypingArcRunner({
   const applyPose = useCallback(
     (phase: number, move: number, intensity: number, nowMs: number) => {
       const trotBlend = clamp((intensity - 0.28) / 0.34, 0, 1);
-      const strideAmp = move * (5 + 9 * intensity);
-      const liftAmp = move * (1.8 + 4.6 * intensity);
+      const strideAmp = move * (4.5 + 7.5 * intensity);
+      const liftAmp = move * (1.6 + 4 * intensity);
       const bounce = -move * (0.5 + 1.5 * intensity) * Math.abs(Math.sin(phase));
       const rockDeg = move * Math.sin(phase) * (0.8 + 3.2 * intensity * intensity);
 
@@ -209,10 +209,10 @@ export default function TypingArcRunner({
       // Head: up and eager while running; dips down curiously when idle.
       if (headRef.current) {
         const headBob = move * Math.sin(phase * 2 + 0.6) * 0.7;
-        const tilt = lerp(9, -5 - 3 * intensity, move);
+        const tilt = lerp(6, -4 - 3 * intensity, move);
         headRef.current.setAttribute(
           "transform",
-          `translate(-15 ${(-33 + headBob).toFixed(2)}) rotate(${tilt.toFixed(2)} 0 0)`,
+          `translate(-11 ${(-36 + headBob).toFixed(2)}) rotate(${tilt.toFixed(2)} 0 0)`,
         );
       }
       // Tail: lazy sway when idle, happy wagging while moving.
@@ -223,7 +223,7 @@ export default function TypingArcRunner({
             : Math.sin(nowMs / 700) * 5;
         tailRef.current.setAttribute(
           "transform",
-          `translate(17 -42) rotate(${wag.toFixed(2)} 0 0)`,
+          `translate(13 -40) rotate(${wag.toFixed(2)} 0 0)`,
         );
       }
 
@@ -250,8 +250,8 @@ export default function TypingArcRunner({
       // Speed trails stream behind him (local +x, opposite the facing).
       trailRefs.current.forEach((trail, i) => {
         if (!trail) return;
-        const y = -38 + bounce + i * 6.5;
-        const x1 = 21;
+        const y = -36 + bounce + i * 6.5;
+        const x1 = 17;
         const len = (8 + 15 * intensity) * (1 - i * 0.22);
         trail.setAttribute("d", `M ${x1} ${y.toFixed(2)} H ${(x1 + len).toFixed(2)}`);
         trail.style.opacity = (0.5 * intensity * move).toFixed(2);
@@ -371,7 +371,7 @@ export default function TypingArcRunner({
           upperRefs.current[i] = el;
         }}
         className={limbClass}
-        style={{ strokeWidth: 3.7 }}
+        style={{ strokeWidth: 4.2 }}
         x1="0"
         y1="0"
         x2="0"
@@ -382,7 +382,7 @@ export default function TypingArcRunner({
           lowerRefs.current[i] = el;
         }}
         className={limbClass}
-        style={{ strokeWidth: 3.7 }}
+        style={{ strokeWidth: 4.2 }}
         x1="0"
         y1="0"
         x2="0"
@@ -393,7 +393,7 @@ export default function TypingArcRunner({
           hoofRefs.current[i] = el;
         }}
         className={`${limbClass} focus-arc-runner-foot`}
-        style={{ strokeWidth: 3.9 }}
+        style={{ strokeWidth: 4.4 }}
         x1="0"
         y1="0"
         x2="0"
@@ -446,58 +446,66 @@ export default function TypingArcRunner({
         </g>
 
         {/* Far-side legs, dimmed for depth. */}
-        <g opacity={0.45}>
+        <g opacity={0.55}>
           {legEls(1)}
           {legEls(3)}
         </g>
 
         {/* Body, head and tail ride together on the bounce/rock group. */}
         <g ref={bodyRef}>
-          {/* Tail at the rear (+x), wagging from its base. */}
-          <g ref={tailRef} transform="translate(17 -42)">
+          {/* Tail at the rear (+x): a short curly upright wag. */}
+          <g ref={tailRef} transform="translate(13 -40)">
             <path
               className={limbClass}
-              d="M 0 0 Q 6 -2 7.5 -9"
+              style={{ strokeWidth: 3.4 }}
+              d="M 0 0 Q 7 -1 8 -8 Q 8.5 -12.5 5.5 -15.5"
               fill="none"
             />
           </g>
-          {/* Chunky chibi body. */}
+          {/* Short, round chibi body — the head does the talking. */}
           <path
             className="focus-arc-runner-head"
-            d="M -16 -38 Q -17 -47 -7 -47.5 L 9 -47.5 Q 18 -47 18 -38 Q 18 -25 7 -24 L -7 -24 Q -16 -25 -16 -38 Z"
+            d="M -13 -33 Q -14 -44.5 -3 -45.5 L 5 -45.5 Q 14 -44.5 13.5 -34 Q 13 -23.5 4 -22.5 L -5 -22.5 Q -13 -23.5 -13 -33 Z"
           />
-          {/* Head group pivots at the neck (-15, -33). */}
-          <g ref={headRef} transform="translate(-15 -33)">
-            <g transform="translate(-8 -4)">
-              {/* Horns: two small curved arcs sweeping back. */}
+          {/* Head group pivots at the neck (-11, -36). The head is
+              deliberately oversized (r=13 vs the body's 27 length) — at
+              mascot size the silhouette has to read as a goat instantly. */}
+          <g ref={headRef} transform="translate(-11 -36)">
+            <g transform="translate(-9 -5)">
+              {/* Horns: two big curved sweeps, thick enough to survive
+                  being rendered small. */}
               <path
                 className={limbClass}
-                d="M -1 -9.5 Q -7 -15 -3.5 -20.5"
+                style={{ strokeWidth: 3.2 }}
+                d="M 0 -12 Q -8 -19 -4 -26"
                 fill="none"
               />
               <path
                 className={limbClass}
-                d="M 3.5 -10 Q -0.5 -16.5 4 -21"
+                style={{ strokeWidth: 3.2 }}
+                d="M 5.5 -12.5 Q -0.5 -20.5 4.5 -27"
                 fill="none"
               />
-              {/* Floppy ear, poking out behind the head as a silhouette bump. */}
+              {/* Big floppy ear sticking out behind the head. */}
               <ellipse
                 className="focus-arc-runner-head"
-                cx="9"
-                cy="-5.5"
-                rx="5.4"
-                ry="2.6"
-                transform="rotate(38 9 -5.5)"
+                cx="10.5"
+                cy="-6"
+                rx="6.5"
+                ry="3"
+                transform="rotate(45 10.5 -6)"
               />
-              <circle className="focus-arc-runner-head-glow" r="13.5" cx="0" cy="0" />
-              <circle className="focus-arc-runner-head" r="10.5" cx="0" cy="0" />
+              <circle className="focus-arc-runner-head-glow" r="16.5" cx="0" cy="0" />
+              <circle className="focus-arc-runner-head" r="13" cx="0" cy="0" />
+              {/* Muzzle bump on the front of the face. */}
+              <ellipse className="focus-arc-runner-head" cx="-11.5" cy="3.5" rx="4.2" ry="3.1" />
               {/* Beard tuft hanging under the chin. */}
               <path
                 className="focus-arc-runner-head"
-                d="M -8 6.5 L -8.8 11.5 L -5 8 Z"
+                d="M -10 8 L -11.5 15.5 L -5.5 10.5 Z"
               />
               {/* Eye: side-facing, looking along the direction of travel. */}
-              <ellipse className="focus-arc-runner-eye" rx="1.5" ry="2.1" cx="-4.5" cy="-1.2" />
+              <ellipse className="focus-arc-runner-eye" rx="1.9" ry="2.6" cx="-5.5" cy="-2" />
             </g>
           </g>
         </g>
