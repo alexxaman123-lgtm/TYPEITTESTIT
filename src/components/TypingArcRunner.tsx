@@ -120,6 +120,9 @@ export default function TypingArcRunner({
   const bodyRef = useRef<SVGGElement | null>(null);
   const headRef = useRef<SVGGElement | null>(null);
   const tailRef = useRef<SVGGElement | null>(null);
+  const eyeRef = useRef<SVGGElement | null>(null);
+  const earRef = useRef<SVGGElement | null>(null);
+  const hopRef = useRef<{ t0: number; done: boolean }>({ t0: -1, done: false });
 
   const upperRefs = useRef<(SVGLineElement | null)[]>([]);
   const lowerRefs = useRef<(SVGLineElement | null)[]>([]);
@@ -197,13 +200,38 @@ export default function TypingArcRunner({
       const trotBlend = clamp((intensity - 0.28) / 0.34, 0, 1);
       const strideAmp = move * (4.5 + 7.5 * intensity);
       const liftAmp = move * (1.6 + 4 * intensity);
-      const bounce = -move * (0.5 + 1.5 * intensity) * Math.abs(Math.sin(phase));
+
+      // Celebration hop when the text is finished: two little jumps,
+      // lifting the whole goat (hooves included) off the curve.
+      const prog = targetProgressRef.current;
+      if (prog >= 0.995 && !hopRef.current.done && hopRef.current.t0 < 0) {
+        hopRef.current.t0 = nowMs;
+      }
+      if (prog < 0.9) {
+        hopRef.current.done = false;
+        hopRef.current.t0 = -1;
+      }
+      let hopLift = 0;
+      if (hopRef.current.t0 >= 0) {
+        const elapsed = nowMs - hopRef.current.t0;
+        if (elapsed < 950) {
+          hopLift = -Math.abs(Math.sin((elapsed / 950) * Math.PI * 2)) * 6.5;
+        } else {
+          hopRef.current.t0 = -1;
+          hopRef.current.done = true;
+        }
+      }
+
+      const bounce =
+        -move * (0.5 + 1.5 * intensity) * Math.abs(Math.sin(phase)) + hopLift;
       const rockDeg = move * Math.sin(phase) * (0.8 + 3.2 * intensity * intensity);
 
       if (bodyRef.current) {
+        // Idle breathing: a barely-there chest swell while standing.
+        const breathe = 1 + (1 - move) * 0.012 * Math.sin(nowMs / 620);
         bodyRef.current.setAttribute(
           "transform",
-          `translate(0 ${bounce.toFixed(2)}) rotate(${rockDeg.toFixed(2)} 2 -35)`,
+          `translate(0 ${bounce.toFixed(2)}) rotate(${rockDeg.toFixed(2)} 2 -35) scale(1 ${breathe.toFixed(3)})`,
         );
       }
       // Head: up and eager while running; dips down curiously when idle.
@@ -213,6 +241,26 @@ export default function TypingArcRunner({
         headRef.current.setAttribute(
           "transform",
           `translate(-11 ${(-36 + headBob).toFixed(2)}) rotate(${tilt.toFixed(2)} 0 0)`,
+        );
+      }
+      // Blink: a soft 200ms blink every ~4.3s (ported detail).
+      if (eyeRef.current) {
+        const bp = nowMs % 4300;
+        const blinkAmt =
+          bp > 4050 && bp < 4250 ? Math.sin(((bp - 4050) / 200) * Math.PI) : 0;
+        const scaleY = 1 - 0.88 * blinkAmt;
+        eyeRef.current.setAttribute(
+          "transform",
+          `translate(-5.5 -2) scale(1 ${scaleY.toFixed(3)}) translate(5.5 2)`,
+        );
+      }
+      // Ear: pinned back a touch at speed; flicks idly when standing.
+      if (earRef.current) {
+        const flick = Math.pow(Math.max(0, Math.sin(nowMs * 0.0016)), 24);
+        const earRot = -4 * move - (1 - move) * 10 * flick;
+        earRef.current.setAttribute(
+          "transform",
+          `rotate(${earRot.toFixed(2)} 9 -7)`,
         );
       }
       // Tail: lazy sway when idle, happy wagging while moving.
@@ -238,7 +286,10 @@ export default function TypingArcRunner({
         );
         const hoof: Vec = {
           x: hoofX,
-          y: groundYAt(hoofX) + lerp(0, -liftAmp * Math.max(0, Math.sin(legPhase)), move),
+          y:
+            groundYAt(hoofX) +
+            lerp(0, -liftAmp * Math.max(0, Math.sin(legPhase)), move) +
+            hopLift,
         };
         const joint = solveJoint(attach, hoof, UPPER_LEG, LOWER_LEG, cfg.pole);
         setLine(upperRefs.current[i], attach, joint);
@@ -486,17 +537,30 @@ export default function TypingArcRunner({
                 d="M 5.5 -12.5 Q -0.5 -20.5 4.5 -27"
                 fill="none"
               />
-              {/* Big floppy ear sticking out behind the head. */}
+              {/* Far ear, dimmed, peeking behind the head. */}
               <ellipse
                 className="focus-arc-runner-head"
-                cx="10.5"
-                cy="-6"
-                rx="6.5"
-                ry="3"
-                transform="rotate(45 10.5 -6)"
+                cx="12.5"
+                cy="-2"
+                rx="2.6"
+                ry="5.8"
+                opacity="0.55"
+                transform="rotate(22 12.5 -2)"
               />
               <circle className="focus-arc-runner-head-glow" r="16.5" cx="0" cy="0" />
               <circle className="focus-arc-runner-head" r="13" cx="0" cy="0" />
+              {/* Long floppy near ear, hanging down the back of the head
+                  (flicks when idle, driven from the pose loop). */}
+              <g ref={earRef}>
+                <ellipse
+                  className="focus-arc-runner-head"
+                  cx="10.8"
+                  cy="-0.5"
+                  rx="3.1"
+                  ry="7"
+                  transform="rotate(12 10.8 -0.5)"
+                />
+              </g>
               {/* Muzzle bump on the front of the face. */}
               <ellipse className="focus-arc-runner-head" cx="-11.5" cy="3.5" rx="4.2" ry="3.1" />
               {/* Beard tuft hanging under the chin. */}
@@ -504,8 +568,18 @@ export default function TypingArcRunner({
                 className="focus-arc-runner-head"
                 d="M -10 8 L -11.5 15.5 L -5.5 10.5 Z"
               />
-              {/* Eye: side-facing, looking along the direction of travel. */}
-              <ellipse className="focus-arc-runner-eye" rx="1.9" ry="2.6" cx="-5.5" cy="-2" />
+              {/* Ported face details: pale muzzle patch, smile, nostril,
+                  cheek blush — theme-tinted via the patch/dark classes. */}
+              <ellipse className="focus-arc-runner-patch" cx="-11.9" cy="3.1" rx="3.4" ry="2.5" />
+              <path className="focus-arc-runner-smile" d="M -13.8 6.4 Q -10.8 9 -7.4 6.6" />
+              <circle className="focus-arc-runner-dark" cx="-13.4" cy="2" r="0.8" />
+              <circle className="focus-arc-runner-patch" cx="-2.2" cy="4.8" r="2.7" opacity="0.55" />
+              {/* Eye group (blinks from the pose loop): dark eye with a
+                  white sparkle, side-facing along the direction of travel. */}
+              <g ref={eyeRef}>
+                <ellipse className="focus-arc-runner-dark" rx="1.9" ry="2.6" cx="-5.5" cy="-2" />
+                <circle className="focus-arc-runner-eye" cx="-6.2" cy="-3.2" r="0.85" />
+              </g>
             </g>
           </g>
         </g>

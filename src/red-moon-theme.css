@@ -383,6 +383,23 @@ a.bg-primary::after {
   fill: var(--app-on-primary, #fff);
   stroke: none;
 }
+/* Face details ported from the reference chibi design, theme-tinted:
+   pale patch (muzzle/blush) and dark features mixed from the accent so
+   the goat matches every theme instead of a fixed pastel palette. */
+.focus-arc-runner-patch {
+  fill: color-mix(in srgb, var(--app-accent, var(--color-accent)) 42%, white);
+  stroke: none;
+}
+.focus-arc-runner-dark {
+  fill: color-mix(in srgb, var(--app-accent, var(--color-accent)) 25%, black);
+  stroke: none;
+}
+.focus-arc-runner-smile {
+  fill: none;
+  stroke: color-mix(in srgb, var(--app-accent, var(--color-accent)) 30%, black);
+  stroke-width: 1.05;
+  stroke-linecap: round;
+}
 .focus-arc-runner-trail {
   opacity: 0;
   transition: opacity 160ms ease-out;
