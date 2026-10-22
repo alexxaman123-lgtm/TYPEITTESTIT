@@ -1,3 +1,4 @@
+import { GOAT_FACE_PATH } from "./GoatMark";
 import { useCallback, useEffect, useLayoutEffect, useRef, type CSSProperties } from "react";
 
 // The arc is inset from the SVG edges so the entire runner stays on-screen.
@@ -26,7 +27,7 @@ function lerp(a: number, b: number, t: number): number {
 }
 
 /*
- * Procedural chibi goat — the GOATTYPE mascot on the focus-mode arc.
+ * Procedural, logo-faced chibi goat — the GOATTYPE mascot on the focus-mode arc.
  *
  * The goat faces LEFT (the direction of travel): forward is local -x, the
  * ground is local y = 0, up is local -y. All four legs are placed from a
@@ -75,21 +76,14 @@ function solveJoint(
   };
 }
 
-/** Voxel limb segment: a rectangle (as a polygon) spanning a→b. */
-function setQuad(el: SVGPolygonElement | null, a: Vec, b: Vec, width: number) {
+/** Rounded limb, with endpoints driven by the unchanged two-bone IK. */
+function setLimb(el: SVGPathElement | null, a: Vec, b: Vec, width: number) {
   if (!el) return;
-  const dx = b.x - a.x;
-  const dy = b.y - a.y;
-  const len = Math.hypot(dx, dy) || 0.0001;
-  const px = (-dy / len) * (width / 2);
-  const py = (dx / len) * (width / 2);
-  el.setAttribute(
-    "points",
-    `${(a.x + px).toFixed(2)},${(a.y + py).toFixed(2)} ${(b.x + px).toFixed(2)},${(b.y + py).toFixed(2)} ${(b.x - px).toFixed(2)},${(b.y - py).toFixed(2)} ${(a.x - px).toFixed(2)},${(a.y - py).toFixed(2)}`,
-  );
+  el.setAttribute("d", `M ${a.x.toFixed(2)} ${a.y.toFixed(2)} L ${b.x.toFixed(2)} ${b.y.toFixed(2)}`);
+  el.setAttribute("stroke-width", width.toString());
 }
 
-/** Blocky hoof: a small box sitting on the ground at the hoof point.
+/** Compact hoof sitting on the ground at the hoof point.
     The first point stays the exact hoof position (used by verification). */
 function setHoofBox(el: SVGPolygonElement | null, hoof: Vec) {
   if (!el) return;
@@ -132,11 +126,10 @@ export default function TypingArcRunner({
   const headRef = useRef<SVGGElement | null>(null);
   const tailRef = useRef<SVGGElement | null>(null);
   const eyeRef = useRef<SVGGElement | null>(null);
-  const earRef = useRef<SVGGElement | null>(null);
   const hopRef = useRef<{ t0: number; done: boolean }>({ t0: -1, done: false });
 
-  const upperRefs = useRef<(SVGPolygonElement | null)[]>([]);
-  const lowerRefs = useRef<(SVGPolygonElement | null)[]>([]);
+  const upperRefs = useRef<(SVGPathElement | null)[]>([]);
+  const lowerRefs = useRef<(SVGPathElement | null)[]>([]);
   const hoofRefs = useRef<(SVGPolygonElement | null)[]>([]);
   const trailRefs = useRef<(SVGPathElement | null)[]>([]);
 
@@ -261,16 +254,7 @@ export default function TypingArcRunner({
         const scaleY = 1 - 0.88 * blinkAmt;
         eyeRef.current.setAttribute(
           "transform",
-          `translate(-14 -14) scale(1 ${scaleY.toFixed(3)}) translate(14 14)`,
-        );
-      }
-      // Ear: pinned back a touch at speed; flicks idly when standing.
-      if (earRef.current) {
-        const flick = Math.pow(Math.max(0, Math.sin(nowMs * 0.0016)), 24);
-        const earRot = -4 * move - (1 - move) * 10 * flick;
-        earRef.current.setAttribute(
-          "transform",
-          `rotate(${earRot.toFixed(2)} 2 -13)`,
+          `translate(-14.8 -17.2) scale(1 ${scaleY.toFixed(3)}) translate(14.8 17.2)`,
         );
       }
       // Tail: lazy sway when idle, happy wagging while moving.
@@ -302,8 +286,9 @@ export default function TypingArcRunner({
             hopLift,
         };
         const joint = solveJoint(attach, hoof, UPPER_LEG, LOWER_LEG, cfg.pole);
-        setQuad(upperRefs.current[i], attach, joint, 5.6);
-        setQuad(lowerRefs.current[i], joint, hoof, 4.6);
+        setLimb(upperRefs.current[i], attach, joint, 4.7);
+        // End the rounded shank inside the hoof, not below the ground.
+        setLimb(lowerRefs.current[i], joint, { x: hoof.x, y: hoof.y - 2 }, 3.8);
         setHoofBox(hoofRefs.current[i], hoof);
       });
 
@@ -425,19 +410,19 @@ export default function TypingArcRunner({
 
   const legEls = (i: number) => (
     <>
-      <polygon
+      <path
         ref={(el) => {
           upperRefs.current[i] = el;
         }}
-        className="focus-arc-runner-head"
-        points="0,0 0,0 0,0 0,0"
+        className="focus-arc-runner-limb"
+        d="M 0 0 L 0 0"
       />
-      <polygon
+      <path
         ref={(el) => {
           lowerRefs.current[i] = el;
         }}
-        className="focus-arc-runner-head"
-        points="0,0 0,0 0,0 0,0"
+        className="focus-arc-runner-limb"
+        d="M 0 0 L 0 0"
       />
       <polygon
         ref={(el) => {
@@ -491,60 +476,37 @@ export default function TypingArcRunner({
 
         {/* Body, head and tail ride together on the bounce/rock group. */}
         <g ref={bodyRef}>
-          {/* Blocky tail at the rear (+x): two stacked cubes, wagging. */}
+          {/* A short, upturned goat tail, not a stack of voxel cubes. */}
           <g ref={tailRef} transform="translate(14 -43)">
-            <rect className="focus-arc-runner-head" x="0" y="-4" width="4.2" height="9" />
-            <rect className="focus-arc-runner-patch" x="0.4" y="-11" width="4.2" height="7.5" />
+            <path className="focus-arc-runner-head" d="M -2 4 C 2 2 4 -2 3 -8 C 8 -6 8 1 3 6 Z" />
+            <path className="focus-arc-runner-patch" d="M 3 -8 Q 8 -6 6 -1 Q 4 -2 3 -8 Z" />
           </g>
-          {/* Voxel body: a blocky torso with a lighter top face, a
-              shaded belly strip, and a couple of pixel patches so the
-              flat faces read as textured blocks, Minecraft-style. */}
-          <rect className="focus-arc-runner-head" x="-14" y="-45" width="28" height="23" />
-          <rect className="focus-arc-runner-patch" x="-14" y="-45" width="28" height="5" />
-          <rect className="focus-arc-runner-shade" x="-14" y="-26.5" width="28" height="4.5" opacity="0.5" />
-          <rect className="focus-arc-runner-patch" x="3" y="-37" width="5" height="5" opacity="0.45" />
-          <rect className="focus-arc-runner-patch" x="-9" y="-31" width="4" height="4" opacity="0.3" />
-          {/* Head group pivots at the neck (-11, -36). Voxel head: a big
-              blocky skull with a stepped cube horn, box snout and the
-              square white-and-pupil eye — pure Minecraft. Oversized on
-              purpose; at mascot size the silhouette has to read instantly. */}
+          {/* Rounded ribcage, tucked belly, soft haunch and raised chest.
+              The footprint and leg attachment points are unchanged. */}
+          <path className="focus-arc-runner-head" d="M -14 -39 C -12 -46 -5 -47 4 -45 C 12 -45 17 -40 17 -34 C 18 -27 12 -22 6 -22 L -5 -22 C -12 -23 -16 -28 -16 -34 Z" />
+          <path className="focus-arc-runner-patch" opacity="0.6" d="M -12 -39 C -7 -44 3 -44 10 -41 C 4 -42 -3 -40 -8 -37 Q -11 -35 -12 -39 Z" />
+          <path className="focus-arc-runner-shade" opacity="0.34" d="M -12 -28 Q 1 -22 14 -30 Q 11 -21 2 -22 L -5 -22 Q -10 -23 -12 -28 Z" />
+          {/* The neck grows into the head instead of a box sitting on a box. */}
+          <path className="focus-arc-runner-coat" d="M -15 -25 C -22 -28 -24 -38 -21 -45 Q -18 -50 -13 -47 C -9 -42 -9 -35 -4 -29 Q -8 -24 -15 -25 Z" />
+          <path className="focus-arc-runner-patch" opacity="0.4" d="M -21 -42 Q -22 -33 -15 -28 Q -19 -34 -18 -42 Z" />
+          {/* Exact header face, with its splayed ears, swept horns, tapered
+              muzzle and beard. A small three-quarter presentation lets the
+              familiar face stay readable while the body travels left. */}
           <g ref={headRef} transform="translate(-11 -36)">
-            {/* Far horn, dimmed, offset behind. */}
-            <g opacity="0.5">
-              <rect className="focus-arc-runner-horn" x="0" y="-23.5" width="5.4" height="4.2" />
-              <rect className="focus-arc-runner-horn" x="3.5" y="-27.5" width="5.4" height="4.2" />
-              <rect className="focus-arc-runner-horn" x="7" y="-30.5" width="5" height="4" />
+            <g transform="translate(-31 -34) scale(0.09)">
+              {/* Fill the face inside the logo outline, keeping its actual
+                  horns, ears, muzzle and beard rather than a hollow badge. */}
+              <path className="focus-arc-runner-coat" d="M 122 106 Q 180 84 238 106 L 251 151 Q 264 175 264 200 Q 264 223 244 257 L 229 285 L 219 324 L 207 338 L 181 391 L 155 338 L 142 324 L 130 285 L 111 250 Q 96 222 97 195 Q 96 173 110 151 Z" />
+              <path className="focus-arc-runner-face" d={GOAT_FACE_PATH} />
+              <path className="focus-arc-runner-dark" d={GOAT_FACE_PATH.split(" M ").slice(0, 2).join(" M ")} />
             </g>
-            {/* Far ear: a small slab behind the skull. */}
-            <rect className="focus-arc-runner-shade" x="2" y="-12" width="8" height="3.4" opacity="0.55" transform="rotate(16 2 -12)" />
-            {/* Skull box with lighter top face and shaded jaw strip. */}
-            <rect className="focus-arc-runner-head" x="-24" y="-22" width="26" height="21" />
-            <rect className="focus-arc-runner-patch" x="-24" y="-22" width="26" height="4.5" />
-            <rect className="focus-arc-runner-shade" x="-24" y="-5.5" width="26" height="4.5" opacity="0.45" />
-            {/* Near horn: three cubes stepping back and up, rooted
-                tight on the skull so it reads as one horn. */}
-            <rect className="focus-arc-runner-horn" x="-5" y="-26.5" width="6.5" height="5" />
-            <rect className="focus-arc-runner-horn" x="-1.5" y="-31" width="6.5" height="5" />
-            <rect className="focus-arc-runner-horn" x="2" y="-34.5" width="6" height="4.5" />
-            {/* Near ear: a slab sticking out of the back of the skull
-                (flicks when idle, driven from the pose loop). */}
-            <g ref={earRef}>
-              <rect className="focus-arc-runner-head" x="1" y="-15.5" width="9.5" height="4" />
-              <rect className="focus-arc-runner-shade" x="7.5" y="-15.5" width="3" height="4" opacity="0.6" />
-            </g>
-            {/* Snout box protruding from the front-bottom of the skull,
-                with pixel nostrils on its face. */}
-            <rect className="focus-arc-runner-head" x="-29.5" y="-12" width="8" height="8.5" />
-            <rect className="focus-arc-runner-patch" x="-29.5" y="-12" width="8" height="3" />
-            <rect className="focus-arc-runner-dark" x="-28.4" y="-6" width="1.5" height="1.5" />
-            <rect className="focus-arc-runner-dark" x="-24.9" y="-6" width="1.5" height="1.5" />
-            {/* Chin beard: a pale tuft block under the jaw. */}
-            <rect className="focus-arc-runner-patch" x="-20.5" y="-1" width="4.2" height="6.5" />
-            {/* Square Minecraft eye (blinks from the pose loop): white
-                block with the pupil toward the front, like the game. */}
+            {/* Bright, rounded eyes add warmth without changing the logo's
+                silhouette. The existing blink clock animates both together. */}
             <g ref={eyeRef}>
-              <rect className="focus-arc-runner-eye" x="-16.5" y="-16.5" width="5" height="5" />
-              <rect className="focus-arc-runner-dark" x="-18" y="-14.6" width="2.6" height="2.6" />
+              <ellipse className="focus-arc-runner-dark" cx="-21" cy="-17.2" rx="1.45" ry="1.8" />
+              <ellipse className="focus-arc-runner-dark" cx="-8.6" cy="-17.2" rx="1.45" ry="1.8" />
+              <circle className="focus-arc-runner-eye" cx="-21.4" cy="-17.8" r="0.48" />
+              <circle className="focus-arc-runner-eye" cx="-9" cy="-17.8" r="0.48" />
             </g>
           </g>
         </g>

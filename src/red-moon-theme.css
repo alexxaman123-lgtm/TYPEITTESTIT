@@ -309,9 +309,12 @@ a.bg-primary::after {
 
 @media (max-width: 640px) {
   .test-shell-focus .focus-controls-arc {
-    left: -12%;
-    width: 124%;
-    height: clamp(260px, 38vh, 340px);
+    /* Equal x/y scaling keeps the goat proportional instead of stretching
+       it vertically and pushing the start of its path off-screen. */
+    left: 0;
+    width: 100%;
+    height: auto;
+    aspect-ratio: 1600 / 360;
     bottom: 0.75rem;
     opacity: 0.86;
   }
@@ -375,9 +378,25 @@ a.bg-primary::after {
   opacity: 0.17;
 }
 .focus-arc-runner-head {
-  fill: color-mix(in srgb, var(--app-accent, var(--color-accent)) 88%, #65000e);
-  stroke: color-mix(in srgb, var(--app-accent, var(--color-accent)) 82%, white);
+  fill: color-mix(in srgb, var(--app-accent, var(--color-accent)) 88%, white);
+  stroke: color-mix(in srgb, var(--app-accent, var(--color-accent)) 72%, white);
   stroke-width: 0.75;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+.focus-arc-runner-limb {
+  fill: none;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke: color-mix(in srgb, var(--app-accent, var(--color-accent)) 88%, white);
+}
+.focus-arc-runner-coat {
+  fill: color-mix(in srgb, var(--app-accent, var(--color-accent)) 88%, white);
+  stroke: none;
+}
+.focus-arc-runner-face {
+  fill: color-mix(in srgb, var(--app-accent, var(--color-accent)) 72%, white);
+  stroke: none;
 }
 .focus-arc-runner-eye {
   fill: var(--app-on-primary, #fff);
@@ -400,8 +419,7 @@ a.bg-primary::after {
   stroke-width: 1.05;
   stroke-linecap: round;
 }
-/* Voxel (Minecraft-style) shading tones: a mid-dark face for side/belly
-   shading, and a grayish horn tone that stays horn-like in any theme. */
+/* Theme-tinted coat shading; facial negative space remains crisp. */
 .focus-arc-runner-shade {
   fill: color-mix(in srgb, var(--app-accent, var(--color-accent)) 55%, black);
   stroke: none;
