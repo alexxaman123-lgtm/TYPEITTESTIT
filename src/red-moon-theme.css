@@ -400,6 +400,16 @@ a.bg-primary::after {
   stroke-width: 1.05;
   stroke-linecap: round;
 }
+/* Voxel (Minecraft-style) shading tones: a mid-dark face for side/belly
+   shading, and a grayish horn tone that stays horn-like in any theme. */
+.focus-arc-runner-shade {
+  fill: color-mix(in srgb, var(--app-accent, var(--color-accent)) 55%, black);
+  stroke: none;
+}
+.focus-arc-runner-horn {
+  fill: color-mix(in srgb, var(--app-accent, var(--color-accent)) 18%, #98917f);
+  stroke: none;
+}
 .focus-arc-runner-trail {
   opacity: 0;
   transition: opacity 160ms ease-out;
