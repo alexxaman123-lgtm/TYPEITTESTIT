@@ -1,6 +1,29 @@
 import { GOAT_FACE_PATH } from "./GoatMark";
 import { useCallback, useEffect, useLayoutEffect, useRef, type CSSProperties } from "react";
 
+// Turn the existing artwork as a shallow curved surface, rather than
+// substituting a different face. The muzzle projects toward local -x;
+// the original horns, ears, beard and both eye shapes are retained.
+function forwardFaceX(x: number, y: number): number {
+  const u = (x - 181) / 181;
+  const muzzleDepth = 60 + 70 * Math.min(1, Math.max(0, (y - 130) / 220));
+  const depth = Math.max(0, 1 - u * u) * muzzleDepth;
+  return 181 + (x - 181) * 0.76 - depth * 0.65;
+}
+
+function forwardFacePath(path: string): string {
+  return path.replace(/(-?\d+(?:\.\d+)?)\s+(-?\d+(?:\.\d+)?)/g, (_, x: string, y: string) =>
+    `${forwardFaceX(Number(x), Number(y)).toFixed(3)} ${y}`,
+  );
+}
+
+function forwardEyeX(localX: number): number {
+  return forwardFaceX((localX + 31) / 0.09, (-17.2 + 34) / 0.09) * 0.09 - 31;
+}
+
+const RUNNING_FACE_PATH = forwardFacePath(GOAT_FACE_PATH);
+const RUNNING_FACE_DETAILS = forwardFacePath(GOAT_FACE_PATH.split(" M ").slice(0, 2).join(" M "));
+
 // The arc is inset from the SVG edges so the entire runner stays on-screen.
 export const FOCUS_ARC_PATH = "M 70 350 Q 800 -160 1530 350";
 export const FOCUS_ARC_FILL_PATH = FOCUS_ARC_PATH + " L 1530 380 L 70 380 Z";
@@ -76,22 +99,31 @@ function solveJoint(
   };
 }
 
-/** Rounded limb, with endpoints driven by the unchanged two-bone IK. */
-function setLimb(el: SVGPathElement | null, a: Vec, b: Vec, width: number) {
+/** Tapered, softly capped coat shape, driven by the existing IK endpoints. */
+function setLimb(el: SVGPathElement | null, a: Vec, b: Vec, width: number, taper: number) {
   if (!el) return;
-  el.setAttribute("d", `M ${a.x.toFixed(2)} ${a.y.toFixed(2)} L ${b.x.toFixed(2)} ${b.y.toFixed(2)}`);
-  el.setAttribute("stroke-width", width.toString());
+  const length = Math.hypot(b.x - a.x, b.y - a.y) || 1;
+  const ux = (b.x - a.x) / length;
+  const uy = (b.y - a.y) / length;
+  const nx = -uy;
+  const ny = ux;
+  const r1 = width / 2;
+  const r2 = r1 * taper;
+  const point = (x: number, y: number) => `${x.toFixed(2)} ${y.toFixed(2)}`;
+  el.setAttribute("d", [
+    `M ${point(a.x + nx * r1, a.y + ny * r1)}`,
+    `L ${point(b.x + nx * r2, b.y + ny * r2)}`,
+    `Q ${point(b.x + ux * r2, b.y + uy * r2)} ${point(b.x - nx * r2, b.y - ny * r2)}`,
+    `L ${point(a.x - nx * r1, a.y - ny * r1)}`,
+    `Q ${point(a.x - ux * r1, a.y - uy * r1)} ${point(a.x + nx * r1, a.y + ny * r1)} Z`,
+  ].join(" "));
 }
 
-/** Compact hoof sitting on the ground at the hoof point.
-    The first point stays the exact hoof position (used by verification). */
-function setHoofBox(el: SVGPolygonElement | null, hoof: Vec) {
+/** Small rounded cloven hoof; its bottom remains at the solved ground target. */
+function setHoof(el: SVGPathElement | null, hoof: Vec) {
   if (!el) return;
-  const front = hoof.x + FWD * 5.6;
-  el.setAttribute(
-    "points",
-    `${hoof.x.toFixed(2)},${hoof.y.toFixed(2)} ${front.toFixed(2)},${hoof.y.toFixed(2)} ${front.toFixed(2)},${(hoof.y - 3.4).toFixed(2)} ${hoof.x.toFixed(2)},${(hoof.y - 3.4).toFixed(2)}`,
-  );
+  const { x, y } = hoof;
+  el.setAttribute("d", `M ${x} ${y} L ${x - 2} ${y} L ${x - 2.5} ${y - 0.7} L ${x - 2.9} ${y} L ${x - 4.1} ${y} Q ${x - 4.8} ${y - 0.8} ${x - 3.8} ${y - 2.3} L ${x - 1} ${y - 3.1} Q ${x + 1.3} ${y - 3.2} ${x + 1.3} ${y - 1.2} Q ${x + 1.3} ${y} ${x} ${y} Z`);
 }
 
 /** Per-leg gait configuration. Walk = lateral sequence, trot = diagonal pairs. */
@@ -130,8 +162,7 @@ export default function TypingArcRunner({
 
   const upperRefs = useRef<(SVGPathElement | null)[]>([]);
   const lowerRefs = useRef<(SVGPathElement | null)[]>([]);
-  const hoofRefs = useRef<(SVGPolygonElement | null)[]>([]);
-  const trailRefs = useRef<(SVGPathElement | null)[]>([]);
+  const hoofRefs = useRef<(SVGPathElement | null)[]>([]);
 
   const targetProgressRef = useRef(clampProgress(progress));
   const targetWpmRef = useRef(Math.max(0, wpm));
@@ -195,7 +226,7 @@ export default function TypingArcRunner({
    * @param phase gait cycle phase in radians
    * @param move  0 = standing idle, 1 = fully moving (blends every hoof
    *              target so starting/stopping never freezes a hoof mid-air)
-   * @param intensity 0..1 speed factor (stride, cadence, rock, trails)
+   * @param intensity 0..1 speed factor (stride, cadence, rock)
    * @param nowMs clock for idle-only motion (tail sway)
    */
   const applyPose = useCallback(
@@ -240,10 +271,10 @@ export default function TypingArcRunner({
       // Head: up and eager while running; dips down curiously when idle.
       if (headRef.current) {
         const headBob = move * Math.sin(phase * 2 + 0.6) * 0.7;
-        const tilt = lerp(6, -4 - 3 * intensity, move);
+        const tilt = lerp(2, 4, move);
         headRef.current.setAttribute(
           "transform",
-          `translate(-11 ${(-36 + headBob).toFixed(2)}) rotate(${tilt.toFixed(2)} 0 0)`,
+          `translate(-5 ${(-36 + headBob).toFixed(2)}) rotate(${tilt.toFixed(2)} 0 0)`,
         );
       }
       // Blink: a soft 200ms blink every ~4.3s (ported detail).
@@ -254,7 +285,7 @@ export default function TypingArcRunner({
         const scaleY = 1 - 0.88 * blinkAmt;
         eyeRef.current.setAttribute(
           "transform",
-          `translate(-14.8 -17.2) scale(1 ${scaleY.toFixed(3)}) translate(14.8 17.2)`,
+          `translate(${forwardEyeX(-14.8).toFixed(3)} -17.2) scale(1 ${scaleY.toFixed(3)}) translate(${(-forwardEyeX(-14.8)).toFixed(3)} 17.2)`,
         );
       }
       // Tail: lazy sway when idle, happy wagging while moving.
@@ -286,21 +317,13 @@ export default function TypingArcRunner({
             hopLift,
         };
         const joint = solveJoint(attach, hoof, UPPER_LEG, LOWER_LEG, cfg.pole);
-        setLimb(upperRefs.current[i], attach, joint, 4.7);
+        setLimb(upperRefs.current[i], attach, joint, 4.6, 0.68);
         // End the rounded shank inside the hoof, not below the ground.
-        setLimb(lowerRefs.current[i], joint, { x: hoof.x, y: hoof.y - 2 }, 3.8);
-        setHoofBox(hoofRefs.current[i], hoof);
+        setLimb(lowerRefs.current[i], joint, { x: hoof.x, y: hoof.y - 1.5 }, 3.0, 0.65);
+        setHoof(hoofRefs.current[i], hoof);
       });
 
-      // Speed trails stream behind him (local +x, opposite the facing).
-      trailRefs.current.forEach((trail, i) => {
-        if (!trail) return;
-        const y = -36 + bounce + i * 6.5;
-        const x1 = 17;
-        const len = (8 + 15 * intensity) * (1 - i * 0.22);
-        trail.setAttribute("d", `M ${x1} ${y.toFixed(2)} H ${(x1 + len).toFixed(2)}`);
-        trail.style.opacity = (0.5 * intensity * move).toFixed(2);
-      });
+
     },
     [groundYAt],
   );
@@ -424,12 +447,12 @@ export default function TypingArcRunner({
         className="focus-arc-runner-limb"
         d="M 0 0 L 0 0"
       />
-      <polygon
+      <path
         ref={(el) => {
           hoofRefs.current[i] = el;
         }}
         className="focus-arc-runner-dark focus-arc-runner-foot"
-        points="0,0 0,0 0,0 0,0"
+        d="M 0 0 Z"
       />
     </>
   );
@@ -454,20 +477,6 @@ export default function TypingArcRunner({
         aria-hidden="true"
         focusable="false"
       >
-        {/* Speed trails, streamed behind him. */}
-        <g fill="none" stroke="var(--app-accent)" strokeWidth="2.4" strokeLinecap="round">
-          {[0, 1, 2].map((i) => (
-            <path
-              key={i}
-              ref={(el) => {
-                trailRefs.current[i] = el;
-              }}
-              d="M 0 0 H 10"
-              style={{ opacity: 0 }}
-            />
-          ))}
-        </g>
-
         {/* Far-side legs, dimmed for depth. */}
         <g opacity={0.55}>
           {legEls(1)}
@@ -489,24 +498,23 @@ export default function TypingArcRunner({
           {/* The neck grows into the head instead of a box sitting on a box. */}
           <path className="focus-arc-runner-coat" d="M -15 -25 C -22 -28 -24 -38 -21 -45 Q -18 -50 -13 -47 C -9 -42 -9 -35 -4 -29 Q -8 -24 -15 -25 Z" />
           <path className="focus-arc-runner-patch" opacity="0.4" d="M -21 -42 Q -22 -33 -15 -28 Q -19 -34 -18 -42 Z" />
-          {/* Exact header face, with its splayed ears, swept horns, tapered
-              muzzle and beard. A small three-quarter presentation lets the
-              familiar face stay readable while the body travels left. */}
-          <g ref={headRef} transform="translate(-11 -36)">
+          {/* Same header face, projected into a left-looking three-quarter
+              pose. No replacement face or changes to its drawn features. */}
+          <g ref={headRef} transform="translate(-5 -36)">
             <g transform="translate(-31 -34) scale(0.09)">
               {/* Fill the face inside the logo outline, keeping its actual
                   horns, ears, muzzle and beard rather than a hollow badge. */}
-              <path className="focus-arc-runner-coat" d="M 122 106 Q 180 84 238 106 L 251 151 Q 264 175 264 200 Q 264 223 244 257 L 229 285 L 219 324 L 207 338 L 181 391 L 155 338 L 142 324 L 130 285 L 111 250 Q 96 222 97 195 Q 96 173 110 151 Z" />
-              <path className="focus-arc-runner-face" d={GOAT_FACE_PATH} />
-              <path className="focus-arc-runner-dark" d={GOAT_FACE_PATH.split(" M ").slice(0, 2).join(" M ")} />
+              <path className="focus-arc-runner-coat" d={forwardFacePath("M 122 106 Q 180 84 238 106 L 251 151 Q 264 175 264 200 Q 264 223 244 257 L 229 285 L 219 324 L 207 338 L 181 391 L 155 338 L 142 324 L 130 285 L 111 250 Q 96 222 97 195 Q 96 173 110 151 Z")} />
+              <path className="focus-arc-runner-face" d={RUNNING_FACE_PATH} />
+              <path className="focus-arc-runner-dark" d={RUNNING_FACE_DETAILS} />
             </g>
             {/* Bright, rounded eyes add warmth without changing the logo's
                 silhouette. The existing blink clock animates both together. */}
             <g ref={eyeRef}>
-              <ellipse className="focus-arc-runner-dark" cx="-21" cy="-17.2" rx="1.45" ry="1.8" />
-              <ellipse className="focus-arc-runner-dark" cx="-8.6" cy="-17.2" rx="1.45" ry="1.8" />
-              <circle className="focus-arc-runner-eye" cx="-21.4" cy="-17.8" r="0.48" />
-              <circle className="focus-arc-runner-eye" cx="-9" cy="-17.8" r="0.48" />
+              <ellipse className="focus-arc-runner-dark" cx={forwardEyeX(-21)} cy="-17.2" rx="1.45" ry="1.8" />
+              <ellipse className="focus-arc-runner-dark" cx={forwardEyeX(-8.6)} cy="-17.2" rx="1.45" ry="1.8" />
+              <circle className="focus-arc-runner-eye" cx={forwardEyeX(-21.4)} cy="-17.8" r="0.48" />
+              <circle className="focus-arc-runner-eye" cx={forwardEyeX(-9)} cy="-17.8" r="0.48" />
             </g>
           </g>
         </g>
