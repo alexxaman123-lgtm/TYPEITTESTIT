@@ -385,10 +385,8 @@ a.bg-primary::after {
   stroke-linejoin: round;
 }
 .focus-arc-runner-limb {
-  fill: none;
-  stroke-linecap: round;
-  stroke-linejoin: round;
-  stroke: color-mix(in srgb, var(--app-accent, var(--color-accent)) 88%, white);
+  fill: color-mix(in srgb, var(--app-accent, var(--color-accent)) 88%, white);
+  stroke: none;
 }
 .focus-arc-runner-coat {
   fill: color-mix(in srgb, var(--app-accent, var(--color-accent)) 88%, white);
@@ -428,19 +426,8 @@ a.bg-primary::after {
   fill: color-mix(in srgb, var(--app-accent, var(--color-accent)) 18%, #98917f);
   stroke: none;
 }
-.focus-arc-runner-trail {
-  opacity: 0;
-  transition: opacity 160ms ease-out;
-}
-.focus-arc-runner[data-running="true"][data-gait="jog"] .focus-arc-runner-trail {
-  opacity: 0.24;
-}
-.focus-arc-runner[data-running="true"][data-gait="run"] .focus-arc-runner-trail {
-  opacity: 0.52;
-}
 @media (prefers-reduced-motion: reduce) {
-  .focus-arc-runner,
-  .focus-arc-runner-trail {
+  .focus-arc-runner {
     transition: none !important;
   }
 }
