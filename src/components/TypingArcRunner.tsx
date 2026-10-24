@@ -1,3 +1,4 @@
+import { GOAT_FACE_PATH } from "./GoatMark";
 import { useCallback, useEffect, useLayoutEffect, useRef, type CSSProperties } from "react";
 
 // The arc is inset from the SVG edges so the entire runner stays on-screen.
@@ -26,7 +27,7 @@ function lerp(a: number, b: number, t: number): number {
 }
 
 /*
- * Procedural chibi goat with a forward-looking profile — the GOATTYPE mascot on the focus-mode arc.
+ * Procedural, logo-faced chibi goat — the GOATTYPE mascot on the focus-mode arc.
  *
  * The goat faces LEFT (the direction of travel): forward is local -x, the
  * ground is local y = 0, up is local -y. All four legs are placed from a
@@ -261,7 +262,7 @@ export default function TypingArcRunner({
         const scaleY = 1 - 0.88 * blinkAmt;
         eyeRef.current.setAttribute(
           "transform",
-          `translate(-21 -15.2) scale(1 ${scaleY.toFixed(3)}) translate(21 15.2)`,
+          `translate(-14.8 -17.2) scale(1 ${scaleY.toFixed(3)}) translate(14.8 17.2)`,
         );
       }
       // Tail: lazy sway when idle, happy wagging while moving.
@@ -474,26 +475,25 @@ export default function TypingArcRunner({
           {/* The neck grows into the head instead of a box sitting on a box. */}
           <path className="focus-arc-runner-coat" d="M -15 -25 C -22 -28 -24 -38 -21 -45 Q -18 -50 -13 -47 C -9 -42 -9 -35 -4 -29 Q -8 -24 -15 -25 Z" />
           <path className="focus-arc-runner-patch" opacity="0.4" d="M -21 -42 Q -22 -33 -15 -28 Q -19 -34 -18 -42 Z" />
-          {/* Side profile looks along local -x, the direction of travel.
-              Retain the mascot's swept horns, leaf ears, muzzle and beard. */}
+          {/* Exact header face, with its splayed ears, swept horns, tapered
+              muzzle and beard. A small three-quarter presentation lets the
+              familiar face stay readable while the body travels left. */}
           <g ref={headRef} transform="translate(-11 -36)">
-            {/* The farther horn and ear sit behind the visible cheek. */}
-            <path className="focus-arc-runner-horn" opacity="0.65" d="M -9 -23 Q -10 -30 0 -34 Q -4 -29 -4 -22 Z" />
-            <path className="focus-arc-runner-shade" d="M -8 -20 Q -1 -26 6 -21 Q 1 -17 -5 -17 Z" />
-            {/* Swept-back near horn: one organic curve, not voxel steps. */}
-            <path className="focus-arc-runner-patch" d="M -17 -22 Q -19 -31 -5 -34 Q -13 -29 -12 -22 Z" />
-            <path className="focus-arc-runner-head" d="M -12 -23 C -19 -25 -24 -22 -25 -16 L -27 -12 Q -32 -10 -30 -6 Q -28 -3 -23 -4 L -19 -1 Q -13 0 -9 -6 Q -6 -11 -6 -17 Q -6 -22 -12 -23 Z" />
-            <path className="focus-arc-runner-patch" opacity="0.75" d="M -27 -12 Q -32 -10 -30 -6 Q -27 -3 -23 -4 L -21 -8 Q -24 -11 -27 -12 Z" />
-            {/* A small pointed chin tuft makes the silhouette unmistakably goat. */}
-            <path className="focus-arc-runner-patch" d="M -23 -4 Q -20 -2 -17 -3 L -20 3 L -20.5 0 L -22 2 Z" />
-            <path className="focus-arc-runner-head" d="M -9 -20 Q -2 -25 6 -21 Q 2 -15 -7 -16 Z" />
-            <path className="focus-arc-runner-shade" opacity="0.6" d="M -6 -19 Q -1 -22 3 -21 Q 0 -18 -5 -17 Z" />
-            <g ref={eyeRef}>
-              <ellipse className="focus-arc-runner-dark" cx="-21" cy="-15.2" rx="1.85" ry="2.1" />
-              <circle className="focus-arc-runner-eye" cx="-21.65" cy="-15.9" r="0.6" />
+            <g transform="translate(-31 -34) scale(0.09)">
+              {/* Fill the face inside the logo outline, keeping its actual
+                  horns, ears, muzzle and beard rather than a hollow badge. */}
+              <path className="focus-arc-runner-coat" d="M 122 106 Q 180 84 238 106 L 251 151 Q 264 175 264 200 Q 264 223 244 257 L 229 285 L 219 324 L 207 338 L 181 391 L 155 338 L 142 324 L 130 285 L 111 250 Q 96 222 97 195 Q 96 173 110 151 Z" />
+              <path className="focus-arc-runner-face" d={GOAT_FACE_PATH} />
+              <path className="focus-arc-runner-dark" d={GOAT_FACE_PATH.split(" M ").slice(0, 2).join(" M ")} />
             </g>
-            <ellipse className="focus-arc-runner-dark" cx="-28.4" cy="-7.9" rx="0.8" ry="0.6" />
-            <path className="focus-arc-runner-smile" d="M -28 -5.6 Q -25.8 -4.4 -24 -5.4" />
+            {/* Bright, rounded eyes add warmth without changing the logo's
+                silhouette. The existing blink clock animates both together. */}
+            <g ref={eyeRef}>
+              <ellipse className="focus-arc-runner-dark" cx="-21" cy="-17.2" rx="1.45" ry="1.8" />
+              <ellipse className="focus-arc-runner-dark" cx="-8.6" cy="-17.2" rx="1.45" ry="1.8" />
+              <circle className="focus-arc-runner-eye" cx="-21.4" cy="-17.8" r="0.48" />
+              <circle className="focus-arc-runner-eye" cx="-9" cy="-17.8" r="0.48" />
+            </g>
           </g>
         </g>
 
