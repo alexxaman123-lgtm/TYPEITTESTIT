@@ -430,7 +430,7 @@ export default function TypingText({
     const previousValue = inputValueRef.current;
     inputValueRef.current = nextValue;
 
-    if (!disabled && !freeTyping && getSoundEnabled()) {
+    if (!disabled && getSoundEnabled()) {
       unlockTypingSounds();
       const sound = typingSoundForInput(target, previousValue, nextValue);
       if (sound) playTypingKeySound(sound);
