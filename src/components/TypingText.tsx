@@ -454,7 +454,14 @@ export default function TypingText({
     setSoundStyleState(next);
     unlockTypingSounds();
     preloadTypingSounds();
-    if (getSoundEnabled()) playTypingKeySound("correct");
+    if (getSoundEnabled()) playTypingKeySound("correct", "a");
+    inputRef.current?.focus({ preventScroll: true });
+  };
+
+  const previewSound = () => {
+    if (!getSoundEnabled()) return;
+    unlockTypingSounds();
+    playTypingKeySound("correct", "a");
     inputRef.current?.focus({ preventScroll: true });
   };
 
@@ -727,6 +734,18 @@ export default function TypingText({
             <option value="dreamy-piano">{locale === "es" ? "Piano soñador" : "Dreamy Piano"}</option>
           </select>
         </label>
+        <button
+          type="button"
+          onMouseDown={(e) => e.preventDefault()}
+          onClick={previewSound}
+          disabled={!soundEnabled}
+          aria-label={locale === "es" ? "Probar sonido" : "Test sound"}
+          title={locale === "es" ? "Probar sonido" : "Test sound"}
+          className="inline-flex items-center gap-2 rounded-full border border-hairline bg-canvas-soft/90 px-3 py-2 font-label text-sm text-ink transition-colors duration-200 hover:border-accent/50 disabled:cursor-not-allowed disabled:opacity-50"
+        >
+          <span aria-hidden="true">♪</span>
+          <span>{locale === "es" ? "Probar" : "Test"}</span>
+        </button>
         <button
           type="button"
           onMouseDown={(e) => e.preventDefault()}
