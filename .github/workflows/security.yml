@@ -34,9 +34,11 @@ jobs:
         run: npm audit --audit-level=high
 
       - name: Typecheck
+        if: always()
         run: npm run typecheck
 
       - name: Lint
+        if: always()
         # The eslint toolchain is installed with --no-save so package-lock.json
         # stays untouched (it cannot be regenerated through this automation).
         # Pinned versions must stay in sync with eslint.config.js.
@@ -45,7 +47,9 @@ jobs:
           npm run lint
 
       - name: Static security checks
+        if: always()
         run: npm run security:static
 
       - name: Build
+        if: always()
         run: npm run build
