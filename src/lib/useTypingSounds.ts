@@ -302,6 +302,9 @@ export function playTypingKeySound(kind: TypingBufferKind): void {
   }
 
   const style = getTypingSoundStyle();
+  // A previous mechanical error sample must not ring over a newer preset's tone.
+  if (style !== "mechanical") stopActiveWrongSound();
+
   if (style === "soft") {
     if (kind === "wrong") {
       stopActiveWrongSound();
