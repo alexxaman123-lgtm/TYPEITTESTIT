@@ -108,7 +108,18 @@ function stopTypingSamples(): void {
 /** Resume Web Audio for result tones and warm the locally hosted one-shot samples. */
 export function unlockTypingSounds(): void {
   const c = getContext();
-  if (c && c.state !== "running") void c.resume().catch(() => undefined);
+  if (c && c.state !== "running") {
+    // Prime Web Audio directly from the pointer/key gesture for Safari/mobile.
+    try {
+      const source = c.createBufferSource();
+      source.buffer = c.createBuffer(1, 1, c.sampleRate);
+      source.connect(c.destination);
+      source.start(0);
+    } catch {
+      // resume() remains the primary unlock path.
+    }
+    void c.resume().catch(() => undefined);
+  }
   preloadTypingSounds();
 }
 
@@ -150,12 +161,19 @@ export function preloadTypingSounds(): void {
   if (typeof window === "undefined") return;
   const style = getTypingSoundStyle();
   if (isPianoStyle(style)) {
-    PIANO_NOTE_URLS.forEach((src) => getTypingAudioPool(src));
+    PIANO_NOTE_URLS.forEach((src) => {
+      getTypingAudioPool(src);
+      void loadSampleBuffer(src);
+    });
     getTypingAudioPool(PIANO_ERROR_URL);
+    void loadSampleBuffer(PIANO_ERROR_URL);
     return;
   }
-  getTypingAudioPool(TYPING_SOUND_URLS[style]);
+  const src = TYPING_SOUND_URLS[style];
+  getTypingAudioPool(src);
   getTypingAudioPool(WRONG_SOUND_URL);
+  void loadSampleBuffer(src);
+  void loadSampleBuffer(WRONG_SOUND_URL);
 }
 
 function loadSampleBuffer(src: string): Promise<AudioBuffer | null> {
@@ -245,7 +263,7 @@ function fallbackTypingTone(
     }
     const code = character?.toLowerCase().charCodeAt(0) ?? 0;
     const noteIndex = character && code >= 97 && code <= 122 ? (code - 97) % PIANO_FREQUENCIES.length : Math.abs(code) % PIANO_FREQUENCIES.length;
-    const volume = style === "dreamy-piano" ? 0.012 : 0.018;
+    const volume = style === "dreamy-piano" ? 0.055 : 0.075;
     tone(PIANO_FREQUENCIES[noteIndex], style === "dreamy-piano" ? 0.12 : 0.085, volume, "sine");
     return;
   }
@@ -271,6 +289,45 @@ function fallbackTypingTone(
 const audioPlaybackIds = new WeakMap<HTMLAudioElement, number>();
 let nextAudioPlaybackId = 1;
 
+function playDecodedTypingSample(
+  src: string,
+  volume: number,
+  playbackRate: number,
+  maxDurationMs: number,
+  fadeOutMs = 50,
+): boolean {
+  const c = getContext();
+  const buffer = sampleBuffers.get(src);
+  if (!c || !buffer || !soundsEnabled) return false;
+
+  const play = () => {
+    if (!soundsEnabled || c.state !== "running") return;
+    const now = c.currentTime;
+    const source = c.createBufferSource();
+    const gain = c.createGain();
+    source.buffer = buffer;
+    source.playbackRate.setValueAtTime(playbackRate, now);
+    const duration = Math.min(maxDurationMs / 1000, buffer.duration / playbackRate);
+    const fade = Math.min(fadeOutMs / 1000, duration * 0.7);
+    const level = Math.max(0.0001, Math.min(1, volume));
+    gain.gain.setValueAtTime(level, now);
+    gain.gain.setValueAtTime(level, now + Math.max(0, duration - fade));
+    gain.gain.linearRampToValueAtTime(0.0001, now + duration);
+    source.connect(gain);
+    gain.connect(c.destination);
+    source.onended = () => {
+      source.disconnect();
+      gain.disconnect();
+    };
+    source.start(now);
+    source.stop(now + duration + 0.015);
+  };
+
+  if (c.state === "running") play();
+  else void c.resume().then(play).catch(() => undefined);
+  return true;
+}
+
 function playTypingSample(
   src: string,
   volume: number,
@@ -280,9 +337,17 @@ function playTypingSample(
   fadeOutMs = 35,
 ): void {
   if (!soundsEnabled) return;
+
+  // Prefer decoded buffers once available: this avoids media startup delay and
+  // gives piano notes a smooth release envelope.
+  if (playDecodedTypingSample(src, volume, playbackRate, maxDurationMs, fadeOutMs)) return;
+
   const pool = getTypingAudioPool(src);
   if (!pool) {
-    fallback();
+    void loadSampleBuffer(src).then((buffer) => {
+      if (buffer && playDecodedTypingSample(src, volume, playbackRate, maxDurationMs, fadeOutMs)) return;
+      fallback();
+    });
     return;
   }
 
@@ -293,7 +358,7 @@ function playTypingSample(
   const baseVolume = Math.max(0, Math.min(1, volume));
   audio.volume = baseVolume;
   audio.playbackRate = playbackRate;
-  try { audio.currentTime = 0; } catch { /* Metadata can load after first interaction. */ }
+  try { audio.currentTime = 0; } catch { /* Metadata may not be ready yet. */ }
 
   const isThisPlayback = () => audioPlaybackIds.get(audio) === playbackId;
   const finish = () => {
@@ -318,13 +383,16 @@ function playTypingSample(
     window.setTimeout(finish, maxDurationMs);
   };
 
-  // Call play directly from the input event. The pool supports overlapping
-  // fast keystrokes without allocating an AudioBufferSourceNode per character.
+  // Try the native media element during the input event first. On failure,
+  // decode the same local file through Web Audio and only then use a tone.
   let playback: Promise<void> | undefined;
   try {
     playback = audio.play();
   } catch {
-    fallback();
+    void loadSampleBuffer(src).then((buffer) => {
+      if (buffer && playDecodedTypingSample(src, volume, playbackRate, maxDurationMs, fadeOutMs)) return;
+      fallback();
+    });
     return;
   }
 
@@ -335,7 +403,12 @@ function playTypingSample(
         return;
       }
       trimPlayback();
-    }).catch(() => fallback());
+    }).catch(() => {
+      void loadSampleBuffer(src).then((buffer) => {
+        if (buffer && playDecodedTypingSample(src, volume, playbackRate, maxDurationMs, fadeOutMs)) return;
+        fallback();
+      });
+    });
   } else {
     trimPlayback();
   }
@@ -367,9 +440,9 @@ export function playTypingKeySound(kind: "correct" | "wrong", character?: string
       src,
       dreamy ? 0.33 : 0.48,
       dreamy ? 0.96 : 1,
-      dreamy ? 285 : 215,
+      dreamy ? 620 : 520,
       () => fallbackTypingTone("correct", style, character),
-      dreamy ? 90 : 60,
+      dreamy ? 180 : 120,
     );
     if (dreamy) {
       // A quiet second tap gives each note a little room without turning
@@ -378,11 +451,11 @@ export function playTypingKeySound(kind: "correct" | "wrong", character?: string
         if (!soundsEnabled || getTypingSoundStyle() !== "dreamy-piano") return;
         playTypingSample(
           src,
-          0.095,
+          0.12,
           0.96,
-          245,
+          420,
           () => undefined,
-          80,
+          180,
         );
       }, 58);
     }
