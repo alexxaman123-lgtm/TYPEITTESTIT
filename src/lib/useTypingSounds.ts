@@ -4,19 +4,21 @@ let soundsEnabled = true;
 export type TypingSoundStyle = "mechanical" | "soft" | "typewriter" | "retro";
 const SOUND_STYLE_STORAGE_KEY = "typeittestit:typing-sound-style";
 let typingSoundStyle: TypingSoundStyle = "mechanical";
+let soundStyleLoaded = false;
 
 const VALID_SOUND_STYLES = new Set<TypingSoundStyle>(["mechanical", "soft", "typewriter", "retro"]);
 
 export function getTypingSoundStyle(): TypingSoundStyle {
-  if (typeof window !== "undefined") {
-    try {
-      const saved = window.localStorage.getItem(SOUND_STYLE_STORAGE_KEY) as TypingSoundStyle | null;
-      if (saved && VALID_SOUND_STYLES.has(saved)) {
-        typingSoundStyle = saved;
-        return saved;
+  // localStorage is read only once, never from the per-keystroke audio path.
+  if (!soundStyleLoaded) {
+    soundStyleLoaded = true;
+    if (typeof window !== "undefined") {
+      try {
+        const saved = window.localStorage.getItem(SOUND_STYLE_STORAGE_KEY) as TypingSoundStyle | null;
+        if (saved && VALID_SOUND_STYLES.has(saved)) typingSoundStyle = saved;
+      } catch {
+        // Keep the in-memory default if storage is unavailable.
       }
-    } catch {
-      // Keep the in-memory selection if storage is unavailable.
     }
   }
   return typingSoundStyle;
@@ -25,6 +27,7 @@ export function getTypingSoundStyle(): TypingSoundStyle {
 export function setTypingSoundStyle(style: TypingSoundStyle): void {
   if (!VALID_SOUND_STYLES.has(style)) return;
   typingSoundStyle = style;
+  soundStyleLoaded = true;
   if (typeof window === "undefined") return;
   try {
     window.localStorage.setItem(SOUND_STYLE_STORAGE_KEY, style);
