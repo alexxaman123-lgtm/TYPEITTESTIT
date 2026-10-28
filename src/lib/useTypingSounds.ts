@@ -323,8 +323,8 @@ function playDecodedTypingSample(
     source.stop(now + duration + 0.015);
   };
 
-  if (c.state === "running") play();
-  else void c.resume().then(play).catch(() => undefined);
+  if (c.state !== "running") return false;
+  play();
   return true;
 }
 
