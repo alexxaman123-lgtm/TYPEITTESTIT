@@ -21,9 +21,8 @@ function walk(dir) {
   return out;
 }
 
-// This repository uses Astro, so there is no root index.html. Include Astro
-// page/layout files in the source scan and check the Vercel config explicitly.
-const files = walk("src").concat(["vercel.json"]);
+// Astro pages live under src/ and Cloudflare Pages headers live in public/_headers.
+const files = walk("src").concat(["public/_headers"]);
 const failures = [];
 for (const file of files) {
   const text = readFileSync(file, "utf8");
@@ -31,10 +30,11 @@ for (const file of files) {
     if (pattern.test(text)) failures.push(`${file}: found ${label}`);
   }
 }
-const vercel = JSON.parse(readFileSync("vercel.json", "utf8"));
-const headerNames = new Set(vercel.headers?.flatMap((h) => h.headers?.map((x) => x.key) ?? []) ?? []);
+const headerConfig = readFileSync("public/_headers", "utf8");
 for (const required of ["Content-Security-Policy","X-Content-Type-Options","Referrer-Policy","Permissions-Policy","X-Frame-Options","Strict-Transport-Security","X-Permitted-Cross-Domain-Policies","Origin-Agent-Cluster"]) {
-  if (!headerNames.has(required)) failures.push(`vercel.json: missing ${required}`);
+  if (!new RegExp(`^\\s*${required}:`, "mi").test(headerConfig)) {
+    failures.push(`public/_headers: missing ${required}`);
+  }
 }
 if (failures.length) {
   console.error(failures.join("\n"));
