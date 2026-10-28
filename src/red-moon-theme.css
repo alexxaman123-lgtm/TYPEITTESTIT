@@ -307,6 +307,23 @@ a.bg-primary::after {
   box-shadow: 0 5px 22px color-mix(in srgb, var(--app-canvas) 35%, transparent);
 }
 
+.focus-sound-toggle label {
+  min-height: 40px;
+  background: color-mix(in srgb, var(--app-canvas-soft) 90%, transparent);
+  border-color: color-mix(in srgb, var(--app-accent) 30%, transparent);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+}
+
+.typing-sound-select {
+  color: var(--app-ink);
+}
+
+.typing-sound-select option {
+  color: var(--app-ink);
+  background: var(--app-canvas);
+}
+
 @media (max-width: 640px) {
   .test-shell-focus .focus-controls-arc {
     /* Equal x/y scaling keeps the goat proportional instead of stretching
