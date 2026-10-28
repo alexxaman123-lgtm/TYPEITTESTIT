@@ -2,10 +2,13 @@ import { Fragment, useEffect, useLayoutEffect, useMemo, useRef, useState } from 
 import { cn } from "../utils/cn";
 import { getSoundEnabled, setSoundEnabled } from "../lib/useSound";
 import {
+  getTypingSoundStyle,
   playTypingKeySound,
   preloadTypingSounds,
+  setTypingSoundStyle,
   setTypingSoundsEnabled,
   unlockTypingSounds,
+  type TypingSoundStyle,
 } from "../lib/useTypingSounds";
 import { typingSoundForInput } from "../lib/grade";
 import type { Locale } from "../lib/i18n";
@@ -57,17 +60,22 @@ export default function TypingText({
   // from measured caret geometry so rapid keystrokes can interrupt the motion
   // without accumulating cursor drift.
   const wordsRef = useRef<HTMLParagraphElement | null>(null);
+  // Track X is kept numerically so the animation frame never has to force a
+  // computed-style/layout read just to discover the transform we wrote last frame.
+  const trackXRef = useRef(0);
   // Stable first-line marker: measuring against the paragraph bounding box can
   // be ambiguous when inline content fragments across multiple wrapped lines.
   const passageStartRef = useRef<HTMLSpanElement | null>(null);
   const [focused, setFocused] = useState(false);
   const [soundEnabled, setSoundEnabledState] = useState(getSoundEnabled());
+  const [soundStyle, setSoundStyleState] = useState<TypingSoundStyle>(getTypingSoundStyle());
   // The caret holds still (solid) while you are typing and only breathes once
   // you pause - a caret that blinks mid-keystroke looks like it is stuttering.
   const [caretBlinking, setCaretBlinking] = useState(true);
   const surfaceRef = useRef<HTMLDivElement | null>(null);
   const caretRef = useRef<HTMLSpanElement | null>(null);
   const currentCharRef = useRef<HTMLSpanElement | null>(null);
+  const arcElementsRef = useRef<HTMLElement[]>([]);
   // The value from the last real input event. Unlike React state or keydown,
   // this remains exact when a mobile IME emits several events quickly.
   const inputValueRef = useRef(typed);
@@ -92,74 +100,77 @@ export default function TypingText({
   }, [typed, resetKey]);
   const disabled = status === "finished";
 
-  // Cinematic horizontal banner: keep the active caret around 42% of the
-  // viewport while the passage glides from right to left as the user types.
-  // Read the in-flight transform before calculating the next one, so a fast
-  // typist can interrupt the previous animation without overshooting.
+  // Keep the active caret near the visual center while the passage glides
+  // right-to-left. The easing loop only reads the numeric ref it updates; it
+  // never calls getComputedStyle/DOMMatrix on every frame (which forced layout
+  // on slower devices and made the line feel like it was dragging behind).
   useLayoutEffect(() => {
     if (disabled) return;
-    const words = wordsRef.current;
+    const track = wordsRef.current;
     const anchor = currentCharRef.current;
-    const surface = surfaceRef.current;
-    if (!words || !anchor || !surface) return;
+    const typingSurface = surfaceRef.current;
+    if (!track || !anchor || !typingSurface) return;
 
     let trackFrame = 0;
 
     const alignTrack = () => {
       const activeAnchor = currentCharRef.current;
-      const track = wordsRef.current;
-      const typingSurface = surfaceRef.current;
-      if (!activeAnchor || !track || !typingSurface) return;
+      const currentTrack = wordsRef.current;
+      const surface = surfaceRef.current;
+      if (!activeAnchor || !currentTrack || !surface) return;
 
-      const surfaceRect = typingSurface.getBoundingClientRect();
-      const styles = window.getComputedStyle(typingSurface);
+      const surfaceRect = surface.getBoundingClientRect();
+      const styles = window.getComputedStyle(surface);
       const paddingLeft = parseFloat(styles.paddingLeft) || 0;
       const paddingRight = parseFloat(styles.paddingRight) || 0;
       const contentWidth = Math.max(1, surfaceRect.width - paddingLeft - paddingRight);
       const centerX = surfaceRect.left + paddingLeft + contentWidth * 0.5;
       const anchorRect = activeAnchor.getBoundingClientRect();
-      const transform = window.getComputedStyle(track).transform;
-      const currentX = transform === "none" ? 0 : new DOMMatrixReadOnly(transform).m41;
-      const targetX = currentX + centerX - anchorRect.left;
+      const targetX = trackXRef.current + centerX - anchorRect.left;
       const snap = (typed.length === 0 && status === "idle") || reducedMotion;
 
       cancelAnimationFrame(trackFrame);
-      track.style.transition = "none";
+      currentTrack.style.transition = "none";
 
       if (snap) {
-        track.style.transform = `translate3d(${targetX}px, 0, 0)`;
+        trackXRef.current = targetX;
+        currentTrack.style.transform = `translate3d(${targetX}px, 0, 0)`;
         trackFrame = 0;
         return;
       }
 
       let previousTime = 0;
       const easeTrack = (now: number) => {
-        const currentTransform = window.getComputedStyle(track).transform;
-        const liveX = currentTransform === "none" ? 0 : new DOMMatrixReadOnly(currentTransform).m41;
+        const elapsed = previousTime === 0 ? 16 : Math.min(32, now - previousTime);
+        previousTime = now;
+        const liveX = trackXRef.current;
         const delta = targetX - liveX;
 
-        if (Math.abs(delta) < 0.25) {
-          track.style.transform = `translate3d(${targetX}px, 0, 0)`;
+        if (Math.abs(delta) < 0.14) {
+          trackXRef.current = targetX;
+          currentTrack.style.transform = `translate3d(${targetX}px, 0, 0)`;
           trackFrame = 0;
           return;
         }
 
-        const elapsed = previousTime === 0 ? 16 : Math.min(32, now - previousTime);
-        previousTime = now;
-        const blend = 1 - Math.exp(-elapsed / 48);
+        // A gentle exponential ease stays responsive at high WPM, yet carries
+        // the line continuously between keystrokes instead of snapping each time.
+        const blend = 1 - Math.exp(-elapsed / 68);
         const nextX = liveX + delta * blend;
-        track.style.transform = `translate3d(${nextX}px, 0, 0)`;
+        trackXRef.current = nextX;
+        currentTrack.style.transform = `translate3d(${nextX}px, 0, 0)`;
         trackFrame = requestAnimationFrame(easeTrack);
       };
 
       trackFrame = requestAnimationFrame(easeTrack);
     };
+
     alignTrack();
 
     const resizeObserver = typeof ResizeObserver !== "undefined"
       ? new ResizeObserver(() => alignTrack())
       : undefined;
-    resizeObserver?.observe(surface);
+    resizeObserver?.observe(typingSurface);
     window.addEventListener("resize", alignTrack);
     return () => {
       cancelAnimationFrame(trackFrame);
@@ -168,9 +179,15 @@ export default function TypingText({
     };
   }, [typed, target, resetKey, freeTyping, disabled, focusMode, status, reducedMotion]);
 
-  // Keep the caret locked to the active character and refresh the curve while
-  // the horizontal track is gliding. The short RAF window follows the CSS scroll
-  // transition, so words never jump back to a flat baseline between keystrokes.
+  // The arc and caret are animated with cached geometry. Measuring every glyph
+  // on every frame was an expensive layout loop, especially with long passages.
+  // We now measure visible words once per keystroke and update only their
+  // transforms while the line is moving.
+
+  // Keep the caret attached to the active glyph while the track glides. Only
+  // the visible words (plus a generous overscan) are measured; glyph positions
+  // are cached for the short animation window, so a large passage can't trigger
+  // hundreds of getBoundingClientRect calls on each animation frame.
   useLayoutEffect(() => {
     const words = wordsRef.current;
     const caret = caretRef.current;
@@ -178,65 +195,20 @@ export default function TypingText({
     const surface = surfaceRef.current;
     if (!words || !caret || !passageStart || !surface) return;
 
-    const arcElements = Array.from(
-      surface.querySelectorAll<HTMLElement>(".typing-arc-letter, .typing-arc-space"),
-    );
-
-    const updateArc = () => {
-      const surfaceRect = surface.getBoundingClientRect();
-      const halfWidth = Math.max(surfaceRect.width / 2, 1);
-      const centerX = surfaceRect.left + halfWidth;
-      const arcDepth = Math.min(42, Math.max(20, surfaceRect.width * 0.026));
-
-      if (!focusMode || reducedMotion) {
-        arcElements.forEach((element) => {
-          element.style.transform = "";
-          element.style.transition = "";
-        });
-        return;
-      }
-
-      // Read all positions before writing transforms. offsetLeft/offsetWidth
-      // describe each word's untransformed inline layout, while trackRect includes
-      // the live horizontal scroll position. This avoids transform feedback loops.
-      const updates = arcElements.map((element) => {
-        // The track is translated horizontally as typing continues. Measure each glyph's
-        // live viewport position so the curve remains symmetrical around center.
-        // This reads X only; our transforms affect Y, so there is no feedback loop.
-        const rect = element.getBoundingClientRect();
-        const layoutCenterX = rect.left + rect.width / 2;
-        const normalized = Math.max(-1, Math.min(1, (layoutCenterX - centerX) / halfWidth));
-        const y = arcDepth * normalized * normalized;
-        return { element, transform: `translate3d(0, ${y.toFixed(2)}px, 0)` };
+    const clearArcTransforms = () => {
+      arcElementsRef.current.forEach((element) => {
+        element.style.transform = "";
+        element.style.transition = "";
       });
-
-      updates.forEach(({ element, transform }) => {
-        // RAF updates follow the scrolling track frame by frame; CSS transitions
-        // here would restart every frame and make the letters shimmer.
-        element.style.transition = "none";
-        element.style.transformOrigin = "center center";
-        element.style.transform = transform;
-      });
+      arcElementsRef.current = [];
     };
 
-    // Start from the caret's current rendered position so every new keystroke
-    // continues the same motion instead of snapping to a fresh target.
-    const initialTransform = caret.style.transform.match(
-      /translate\(\s*(-?[\d.]+)px(?:,\s*(-?[\d.]+)px)?\s*\)/u,
-    );
-    let caretX = initialTransform ? Number(initialTransform[1]) : 0;
-    let caretY = initialTransform?.[2] ? Number(initialTransform[2]) : 0;
-    const smoothCaret = focusMode && !reducedMotion;
-    const previousTransition = caret.style.transition;
-    if (smoothCaret) caret.style.transition = "none";
-
-    const positionCaret = (elapsed = 16): number => {
-      updateArc();
-
-      const anchor = disabled ? null : currentCharRef.current;
+    const anchor = disabled ? null : currentCharRef.current;
+    if (!focusMode || reducedMotion) {
+      clearArcTransforms();
       if (!anchor) {
         caret.style.opacity = "0";
-        return 0;
+        return;
       }
 
       const startRect = passageStart.getBoundingClientRect();
@@ -249,62 +221,197 @@ export default function TypingText({
         (Number.isFinite(parsedLineHeight) ? parsedLineHeight : 0) ||
         fontSize * 1.6;
       const caretHeight = Math.max(CARET_MIN_HEIGHT_PX, fontSize * CARET_HEIGHT_EM);
+      const x = anchorRect.left - startRect.left;
+      const y = anchorRect.top - startRect.top + (lineBoxHeight - caretHeight) / 2;
+      caret.style.height = `${caretHeight}px`;
+      caret.style.transform = `translate(${x}px, ${y}px)`;
+      caret.style.opacity = "1";
+      return;
+    }
 
-      const targetX = anchorRect.left - startRect.left;
-      const targetY = anchorRect.top - startRect.top + (lineBoxHeight - caretHeight) / 2;
+    type ArcMetric = { element: HTMLElement; baseX: number };
+    let surfaceRect = surface.getBoundingClientRect();
+    let arcMetrics: ArcMetric[] = [];
+    let caretTargetX = 0;
+    let caretBaseY = 0;
+    let caretHeight = CARET_MIN_HEIGHT_PX;
+    let caretAnchorMetric: ArcMetric | undefined;
 
-      if (smoothCaret) {
-        // A short exponential ease avoids both the old hard snap and the lag
-        // caused by restarting a CSS transition on every animation frame.
-        const blend = 1 - Math.exp(-Math.max(0, elapsed) / 42);
-        caretX += (targetX - caretX) * blend;
-        caretY += (targetY - caretY) * blend;
-      } else {
-        caretX = targetX;
-        caretY = targetY;
+    const captureArcMetrics = () => {
+      surfaceRect = surface.getBoundingClientRect();
+      const overscan = surfaceRect.width * 0.7;
+      const minX = surfaceRect.left - overscan;
+      const maxX = surfaceRect.right + overscan;
+      const nextMetrics: ArcMetric[] = [];
+      const seen = new Set<HTMLElement>();
+      const currentTrackX = trackXRef.current;
+
+      const addMetric = (element: HTMLElement) => {
+        if (seen.has(element)) return;
+        const rect = element.getBoundingClientRect();
+        const centerX = rect.left + rect.width / 2;
+        if (centerX < minX || centerX > maxX) return;
+        seen.add(element);
+        nextMetrics.push({ element, baseX: centerX - currentTrackX });
+      };
+
+      // Test mode words wrap all their glyphs. Check word bounds first and only
+      // measure the letters belonging to words near the visible banner.
+      const wordNodes = Array.from(surface.querySelectorAll<HTMLElement>(".typing-arc-word"));
+      wordNodes.forEach((word) => {
+        const rect = word.getBoundingClientRect();
+        if (rect.right < minX || rect.left > maxX) return;
+        word.querySelectorAll<HTMLElement>(".typing-arc-letter, .typing-arc-space").forEach(addMetric);
+      });
+
+      // Spaces between words and the trailing caret anchor are not always nested
+      // inside a word wrapper (notably in free-typing mode).
+      surface.querySelectorAll<HTMLElement>(".typing-arc-space").forEach((space) => {
+        if (!space.closest(".typing-arc-word")) addMetric(space);
+      });
+      const liveAnchor = currentCharRef.current;
+      if (liveAnchor) addMetric(liveAnchor);
+
+      const nextSet = new Set(nextMetrics.map((metric) => metric.element));
+      arcElementsRef.current.forEach((element) => {
+        if (!nextSet.has(element)) {
+          element.style.transform = "";
+          element.style.transition = "";
+        }
+      });
+      arcElementsRef.current = nextMetrics.map((metric) => metric.element);
+      arcMetrics = nextMetrics;
+      caretAnchorMetric = liveAnchor
+        ? arcMetrics.find((metric) => metric.element === liveAnchor)
+        : undefined;
+    };
+
+    const getArcGeometry = () => {
+      const halfWidth = Math.max(surfaceRect.width / 2, 1);
+      return {
+        centerX: surfaceRect.left + halfWidth,
+        halfWidth,
+        arcDepth: Math.min(42, Math.max(20, surfaceRect.width * 0.026)),
+      };
+    };
+
+    const arcOffsetForX = (x: number) => {
+      const { centerX, halfWidth, arcDepth } = getArcGeometry();
+      const normalized = Math.max(-1, Math.min(1, (x - centerX) / halfWidth));
+      return arcDepth * normalized * normalized;
+    };
+
+    const updateArc = () => {
+      const currentTrackX = trackXRef.current;
+      const { centerX, halfWidth, arcDepth } = getArcGeometry();
+      arcMetrics.forEach(({ element, baseX }) => {
+        const normalized = Math.max(-1, Math.min(1, (baseX + currentTrackX - centerX) / halfWidth));
+        const y = arcDepth * normalized * normalized;
+        element.style.transition = "none";
+        element.style.transformOrigin = "center center";
+        element.style.transform = `translate3d(0, ${y.toFixed(2)}px, 0)`;
+      });
+    };
+
+    const measureCaretTarget = (): boolean => {
+      const liveAnchor = disabled ? null : currentCharRef.current;
+      if (!liveAnchor) {
+        caret.style.opacity = "0";
+        return false;
       }
+
+      const startRect = passageStart.getBoundingClientRect();
+      const anchorRect = liveAnchor.getBoundingClientRect();
+      const anchorStyles = window.getComputedStyle(liveAnchor);
+      const fontSize = parseFloat(anchorStyles.fontSize) || 16;
+      const parsedLineHeight = parseFloat(anchorStyles.lineHeight);
+      const lineBoxHeight =
+        anchorRect.height ||
+        (Number.isFinite(parsedLineHeight) ? parsedLineHeight : 0) ||
+        fontSize * 1.6;
+      caretHeight = Math.max(CARET_MIN_HEIGHT_PX, fontSize * CARET_HEIGHT_EM);
+      caretTargetX = anchorRect.left - startRect.left;
+
+      const transformMatch = liveAnchor.style.transform.match(/translate3d\(0,\s*(-?[\d.]+)px,\s*0\)/u);
+      const currentArcY = transformMatch ? Number(transformMatch[1]) : 0;
+      caretBaseY =
+        anchorRect.top - startRect.top - currentArcY +
+        (lineBoxHeight - caretHeight) / 2;
+      return true;
+    };
+
+    captureArcMetrics();
+    updateArc();
+    if (!measureCaretTarget()) return;
+
+    const initialTransform = caret.style.transform.match(
+      /translate\(\s*(-?[\d.]+)px(?:,\s*(-?[\d.]+)px)?\s*\)/u,
+    );
+    let caretX = initialTransform ? Number(initialTransform[1]) : 0;
+    let caretY = initialTransform?.[2] ? Number(initialTransform[2]) : 0;
+    caret.style.transition = "none";
+    caret.style.opacity = "1";
+
+    let arcFrame = 0;
+    let previousTime = 0;
+    let stableFrames = 0;
+    const animationStart = performance.now();
+
+    const followTrack = (now: number) => {
+      const elapsed = previousTime === 0 ? 16 : Math.min(32, now - previousTime);
+      previousTime = now;
+      updateArc();
+
+      const blend = 1 - Math.exp(-Math.max(0, elapsed) / 42);
+      caretX += (caretTargetX - caretX) * blend;
+
+      const liveAnchorX = caretAnchorMetric
+        ? caretAnchorMetric.baseX + trackXRef.current
+        : surfaceRect.left + surfaceRect.width / 2;
+      const targetY = caretBaseY + (caretAnchorMetric ? arcOffsetForX(liveAnchorX) : 0);
+      caretY += (targetY - caretY) * blend;
 
       caret.style.height = `${caretHeight}px`;
       caret.style.transform = `translate(${caretX}px, ${caretY}px)`;
-      caret.style.opacity = "1";
-      return Math.max(Math.abs(targetX - caretX), Math.abs(targetY - caretY));
+
+      const remaining = Math.max(Math.abs(caretTargetX - caretX), Math.abs(targetY - caretY));
+      const elapsedTotal = now - animationStart;
+      stableFrames = remaining < 0.18 ? stableFrames + 1 : 0;
+      if (elapsedTotal < 420 && (elapsedTotal < 260 || stableFrames < 4)) {
+        arcFrame = requestAnimationFrame(followTrack);
+      } else {
+        caretX = caretTargetX;
+        caretY = targetY;
+        caret.style.transform = `translate(${caretX}px, ${caretY}px)`;
+        updateArc();
+        arcFrame = 0;
+      }
     };
 
-    let arcFrame = 0;
-    if (smoothCaret) {
-      let previousTime = 0;
-      let stableFrames = 0;
-      const animationStart = performance.now();
+    arcFrame = requestAnimationFrame(followTrack);
 
-      const followTrack = (now: number) => {
-        const elapsed = previousTime === 0 ? 16 : Math.min(32, now - previousTime);
-        previousTime = now;
-        const remaining = positionCaret(elapsed);
-        const elapsedTotal = now - animationStart;
-
-        stableFrames = remaining < 0.18 ? stableFrames + 1 : 0;
-        if (elapsedTotal < 420 && (elapsedTotal < 280 || stableFrames < 4)) {
-          arcFrame = requestAnimationFrame(followTrack);
-        } else {
-          // Finish within a fraction of a pixel and leave the browser at rest.
-          positionCaret(1000);
-        }
-      };
-
-      arcFrame = requestAnimationFrame(followTrack);
-    } else {
-      positionCaret(16);
-    }
+    const refreshAfterResize = () => {
+      captureArcMetrics();
+      updateArc();
+      if (measureCaretTarget()) {
+        caretX = caretTargetX;
+        caretY = caretBaseY + (caretAnchorMetric
+          ? arcOffsetForX(caretAnchorMetric.baseX + trackXRef.current)
+          : 0);
+        caret.style.height = `${caretHeight}px`;
+        caret.style.transform = `translate(${caretX}px, ${caretY}px)`;
+      }
+    };
 
     const resizeObserver = typeof ResizeObserver !== "undefined"
-      ? new ResizeObserver(() => positionCaret())
+      ? new ResizeObserver(refreshAfterResize)
       : undefined;
     resizeObserver?.observe(surface);
-    window.addEventListener("resize", positionCaret);
+    window.addEventListener("resize", refreshAfterResize);
     return () => {
       cancelAnimationFrame(arcFrame);
       resizeObserver?.disconnect();
-      window.removeEventListener("resize", positionCaret);
+      window.removeEventListener("resize", refreshAfterResize);
     };
   }, [typed, target, freeTyping, disabled, focusMode, focused, status, reducedMotion]);
 
@@ -339,6 +446,16 @@ export default function TypingText({
     setSoundEnabledState(next);
     if (next) { unlockTypingSounds(); preloadTypingSounds(); }
     inputRef.current?.focus();
+  };
+
+  const changeSoundStyle = (event: React.ChangeEvent<HTMLSelectElement>) => {
+    const next = event.currentTarget.value as TypingSoundStyle;
+    setTypingSoundStyle(next);
+    setSoundStyleState(next);
+    unlockTypingSounds();
+    preloadTypingSounds();
+    if (getSoundEnabled()) playTypingKeySound("correct");
+    inputRef.current?.focus({ preventScroll: true });
   };
 
   const copyClass = focusMode ? "typing-copy-focus" : "text-left";
@@ -587,7 +704,27 @@ export default function TypingText({
           className="absolute inset-0 z-10 h-full w-full cursor-text opacity-0"
         />
       </div>
-      <div className={focusMode ? "focus-sound-toggle" : "mt-3 flex justify-end"}>
+      <div className={cn(
+        focusMode ? "focus-sound-toggle flex items-center gap-2" : "mt-3 flex flex-wrap items-center justify-end gap-2",
+      )}>
+        <label className={cn(
+          "inline-flex items-center rounded-full border px-3 py-2 font-label",
+          soundEnabled ? "border-hairline bg-canvas-soft/90 text-ink" : "border-hairline bg-canvas-soft text-text-muted opacity-70",
+        )}>
+          <span className="sr-only">{locale === "es" ? "Estilo de sonido" : "Typing sound style"}</span>
+          <select
+            value={soundStyle}
+            disabled={!soundEnabled}
+            onChange={changeSoundStyle}
+            aria-label={locale === "es" ? "Estilo de sonido" : "Typing sound style"}
+            className="typing-sound-select max-w-[136px] cursor-pointer bg-transparent text-sm outline-none disabled:cursor-not-allowed"
+          >
+            <option value="mechanical">{locale === "es" ? "Teclado" : "Mechanical"}</option>
+            <option value="soft">{locale === "es" ? "Suave" : "Soft"}</option>
+            <option value="typewriter">{locale === "es" ? "Mecánica de escribir" : "Typewriter"}</option>
+            <option value="retro">{locale === "es" ? "Retro" : "Retro"}</option>
+          </select>
+        </label>
         <button
           type="button"
           onMouseDown={(e) => e.preventDefault()}
