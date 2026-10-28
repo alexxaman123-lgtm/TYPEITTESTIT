@@ -433,7 +433,7 @@ export default function TypingText({
     if (!disabled && getSoundEnabled()) {
       unlockTypingSounds();
       const sound = typingSoundForInput(target, previousValue, nextValue);
-      if (sound) playTypingKeySound(sound);
+      if (sound) playTypingKeySound(sound, nextValue.slice(previousValue.length));
     }
 
     onChange(nextValue);
@@ -717,12 +717,14 @@ export default function TypingText({
             disabled={!soundEnabled}
             onChange={changeSoundStyle}
             aria-label={locale === "es" ? "Estilo de sonido" : "Typing sound style"}
-            className="typing-sound-select max-w-[136px] cursor-pointer bg-transparent text-sm outline-none disabled:cursor-not-allowed"
+            className="typing-sound-select max-w-[160px] cursor-pointer bg-transparent text-sm outline-none disabled:cursor-not-allowed"
           >
             <option value="mechanical">{locale === "es" ? "Teclado" : "Mechanical"}</option>
             <option value="soft">{locale === "es" ? "Suave" : "Soft"}</option>
             <option value="typewriter">{locale === "es" ? "Mecánica de escribir" : "Typewriter"}</option>
             <option value="retro">{locale === "es" ? "Retro" : "Retro"}</option>
+            <option value="soft-piano">{locale === "es" ? "Piano suave" : "Soft Piano"}</option>
+            <option value="dreamy-piano">{locale === "es" ? "Piano soñador" : "Dreamy Piano"}</option>
           </select>
         </label>
         <button
