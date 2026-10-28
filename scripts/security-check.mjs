@@ -16,12 +16,14 @@ function walk(dir) {
     const path = join(dir, name);
     const stat = statSync(path);
     if (stat.isDirectory()) out.push(...walk(path));
-    else if (/\.(tsx?|jsx?|html|css)$/.test(name)) out.push(path);
+    else if (/\.(tsx?|jsx?|astro|html|css)$/.test(name)) out.push(path);
   }
   return out;
 }
 
-const files = walk("src").concat(["index.html", "vercel.json"]);
+// This repository uses Astro, so there is no root index.html. Include Astro
+// page/layout files in the source scan and check the Vercel config explicitly.
+const files = walk("src").concat(["vercel.json"]);
 const failures = [];
 for (const file of files) {
   const text = readFileSync(file, "utf8");
