@@ -83,7 +83,7 @@ function getTypingAudioPool(src: string): TypingAudioPool | null {
   if (existing) return existing;
   if (typeof window === "undefined" || typeof Audio === "undefined") return null;
 
-  const poolSize = src.includes("/piano-") ? 2 : TYPING_AUDIO_POOL_SIZE;
+  const poolSize = src.includes("/piano-") ? 3 : TYPING_AUDIO_POOL_SIZE;
   const audio = Array.from({ length: poolSize }, () => {
     const element = new Audio(src);
     element.preload = "auto";
@@ -268,12 +268,16 @@ function fallbackTypingTone(
   }
 }
 
+const audioPlaybackIds = new WeakMap<HTMLAudioElement, number>();
+let nextAudioPlaybackId = 1;
+
 function playTypingSample(
   src: string,
   volume: number,
   playbackRate: number,
   maxDurationMs: number,
   fallback: () => void,
+  fadeOutMs = 35,
 ): void {
   if (!soundsEnabled) return;
   const pool = getTypingAudioPool(src);
@@ -284,20 +288,45 @@ function playTypingSample(
 
   const audio = pool.audio[pool.nextIndex];
   pool.nextIndex = (pool.nextIndex + 1) % pool.audio.length;
-  audio.volume = Math.max(0, Math.min(1, volume));
+  const playbackId = nextAudioPlaybackId++;
+  audioPlaybackIds.set(audio, playbackId);
+  const baseVolume = Math.max(0, Math.min(1, volume));
+  audio.volume = baseVolume;
   audio.playbackRate = playbackRate;
   try { audio.currentTime = 0; } catch { /* Metadata can load after first interaction. */ }
 
+  const isThisPlayback = () => audioPlaybackIds.get(audio) === playbackId;
+  const finish = () => {
+    if (!isThisPlayback() || audio.paused) return;
+    audio.pause();
+    try { audio.currentTime = 0; } catch { /* Ignore early media state. */ }
+    audio.volume = baseVolume;
+  };
+  const trimPlayback = () => {
+    const fadeStartMs = Math.max(0, maxDurationMs - Math.max(0, fadeOutMs));
+    window.setTimeout(() => {
+      if (!isThisPlayback() || audio.paused || fadeOutMs <= 0) return;
+      const startingVolume = audio.volume;
+      const steps = 4;
+      for (let step = 1; step <= steps; step += 1) {
+        window.setTimeout(() => {
+          if (!isThisPlayback() || audio.paused) return;
+          audio.volume = startingVolume * (1 - step / steps);
+        }, (fadeOutMs * step) / steps);
+      }
+    }, fadeStartMs);
+    window.setTimeout(finish, maxDurationMs);
+  };
+
   // Call play directly from the input event. The pool supports overlapping
   // fast keystrokes without allocating an AudioBufferSourceNode per character.
-  const playback = audio.play();
-  const trimPlayback = () => {
-    window.setTimeout(() => {
-      if (audio.paused) return;
-      audio.pause();
-      try { audio.currentTime = 0; } catch { /* Ignore early media state. */ }
-    }, maxDurationMs);
-  };
+  let playback: Promise<void> | undefined;
+  try {
+    playback = audio.play();
+  } catch {
+    fallback();
+    return;
+  }
 
   if (playback && typeof playback.then === "function") {
     void playback.then(() => {
@@ -338,9 +367,25 @@ export function playTypingKeySound(kind: "correct" | "wrong", character?: string
       src,
       dreamy ? 0.33 : 0.48,
       dreamy ? 0.96 : 1,
-      dreamy ? 360 : 245,
+      dreamy ? 285 : 215,
       () => fallbackTypingTone("correct", style, character),
+      dreamy ? 90 : 60,
     );
+    if (dreamy) {
+      // A quiet second tap gives each note a little room without turning
+      // rapid typing into a long, overlapping sound bed.
+      window.setTimeout(() => {
+        if (!soundsEnabled || getTypingSoundStyle() !== "dreamy-piano") return;
+        playTypingSample(
+          src,
+          0.095,
+          0.96,
+          245,
+          () => undefined,
+          80,
+        );
+      }, 58);
+    }
     return;
   }
 
