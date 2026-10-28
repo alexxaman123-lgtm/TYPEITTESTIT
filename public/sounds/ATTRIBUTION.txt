@@ -1,0 +1,13 @@
+Typing sound-effect assets
+
+The following samples are bundled locally for GOATTYPE's typing sound presets:
+- typing-soft.mp3 — "Typewriter soft hit" by Mixkit, Mixkit Sound Effects Free License.
+  Source: https://assets.mixkit.co/active_storage/sfx/1366/1366-preview.mp3
+- typing-typewriter.mp3 — "Mechanical typewriter single hit" by Mixkit, Mixkit Sound Effects Free License.
+  Source: https://assets.mixkit.co/active_storage/sfx/1382/1382-preview.mp3
+- typing-retro.mp3 — "Digital typewriter" by Mixkit, Mixkit Sound Effects Free License.
+  Source: https://assets.mixkit.co/active_storage/sfx/1363/1363-preview.mp3
+
+License reference: https://mixkit.co/license/
+
+typing-mechanical.mp3 and typing-error.mp3 are renamed copies of audio assets that were already present in this repository.
