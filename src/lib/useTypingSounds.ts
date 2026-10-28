@@ -36,24 +36,19 @@ export function setTypingSoundStyle(style: TypingSoundStyle): void {
   }
 }
 
-type TypingBufferKind = "correct" | "wrong";
-
-const TYPING_SOUND_URLS: Record<TypingBufferKind, string> = {
-  // Use the already encoded asset path. The literal brackets trigger a 307
-  // normalization redirect at Cloudflare, which adds avoidable delay before
-  // decoding on mobile browsers.
-  correct: "/koiroylers-keyboard-press-351952_%5Bcut_0sec%5D.mp3",
-  wrong: "/piano-noise-suprise.mp3",
+const TYPING_SOUND_URLS: Record<TypingSoundStyle, string> = {
+  mechanical: "/sounds/typing-mechanical.mp3",
+  soft: "/sounds/typing-soft.mp3",
+  typewriter: "/sounds/typing-typewriter.mp3",
+  retro: "/sounds/typing-retro.mp3",
 };
+const WRONG_SOUND_URL = "/sounds/typing-error.mp3";
 
-const typingBuffers = new Map<TypingBufferKind, AudioBuffer>();
-const typingLoads = new Map<TypingBufferKind, Promise<AudioBuffer | null>>();
+type TypingAudioPool = { audio: HTMLAudioElement[]; nextIndex: number };
+const typingAudioPools = new Map<string, TypingAudioPool>();
+const TYPING_AUDIO_POOL_SIZE = 8;
 const sampleBuffers = new Map<string, AudioBuffer>();
 const sampleLoads = new Map<string, Promise<AudioBuffer | null>>();
-let activeWrongSource: {
-  source: AudioBufferSourceNode;
-  gain: GainNode;
-} | null = null;
 
 function getContext(): AudioContext | null {
   if (typeof window === "undefined") return null;
@@ -66,42 +61,40 @@ function getContext(): AudioContext | null {
 export function getTypingSoundsEnabled(): boolean { return soundsEnabled; }
 export function setTypingSoundsEnabled(enabled: boolean): void {
   soundsEnabled = enabled;
-  if (!enabled) stopActiveWrongSound();
+  if (!enabled) stopTypingSamples();
 }
 
-function stopActiveWrongSound(): void {
-  const active = activeWrongSource;
-  if (!active) return;
-  activeWrongSource = null;
+function getTypingAudioPool(src: string): TypingAudioPool | null {
+  const existing = typingAudioPools.get(src);
+  if (existing) return existing;
+  if (typeof window === "undefined" || typeof Audio === "undefined") return null;
 
-  const c = audioContext;
-  if (!c || c.state === "closed") return;
-  const now = c.currentTime;
-  try {
-    active.gain.gain.cancelScheduledValues(now);
-    active.gain.gain.setTargetAtTime(0.0001, now, 0.004);
-    active.source.stop(now + 0.025);
-  } catch {
-    // The source may already have ended between the key event and this call.
+  const audio = Array.from({ length: TYPING_AUDIO_POOL_SIZE }, () => {
+    const element = new Audio(src);
+    element.preload = "auto";
+    element.setAttribute("playsinline", "");
+    element.load();
+    return element;
+  });
+  const pool: TypingAudioPool = { audio, nextIndex: 0 };
+  typingAudioPools.set(src, pool);
+  return pool;
+}
+
+function stopTypingSamples(): void {
+  for (const pool of typingAudioPools.values()) {
+    for (const audio of pool.audio) {
+      audio.pause();
+      try { audio.currentTime = 0; } catch { /* Metadata may not be ready yet. */ }
+    }
   }
 }
 
+/** Resume Web Audio for result tones and warm the locally hosted one-shot samples. */
 export function unlockTypingSounds(): void {
   const c = getContext();
-  if (!c) return;
-  if (c.state === "running") return;
-
-  // Scheduling a silent frame from the actual pointer/focus gesture primes
-  // Web Audio on iOS Safari as well as Chrome on Android.
-  try {
-    const source = c.createBufferSource();
-    source.buffer = c.createBuffer(1, 1, c.sampleRate);
-    source.connect(c.destination);
-    source.start(0);
-  } catch {
-    // resume() below is still the primary unlock path.
-  }
-  void c.resume().catch(() => undefined);
+  if (c && c.state !== "running") void c.resume().catch(() => undefined);
+  preloadTypingSounds();
 }
 
 function tone(
@@ -137,42 +130,11 @@ function tone(
   else void c.resume().then(play).catch(() => undefined);
 }
 
-function loadTypingBuffer(kind: TypingBufferKind): Promise<AudioBuffer | null> {
-  const existing = typingBuffers.get(kind);
-  if (existing) return Promise.resolve(existing);
-
-  const pending = typingLoads.get(kind);
-  if (pending) return pending;
-
-  const c = getContext();
-  if (!c) return Promise.resolve(null);
-
-  const request = fetch(TYPING_SOUND_URLS[kind], { cache: "force-cache" })
-    .then((response) => {
-      if (!response.ok) throw new Error(`Could not load typing sound: ${response.status}`);
-      return response.arrayBuffer();
-    })
-    .then((data) => c.decodeAudioData(data))
-    .then((buffer) => {
-      typingBuffers.set(kind, buffer);
-      return buffer;
-    })
-    .catch(() => null)
-    .finally(() => {
-      typingLoads.delete(kind);
-    });
-
-  typingLoads.set(kind, request);
-  return request;
-}
-
-/** Start decoding the typing sound without ever blocking the key event path. */
+/** Preload the selected key sample plus the dedicated wrong-key sample. */
 export function preloadTypingSounds(): void {
   if (typeof window === "undefined") return;
-  // Prepare both paths before the user starts typing; the first mistake should
-  // not have to wait for a network request or audio decode.
-  void loadTypingBuffer("correct");
-  void loadTypingBuffer("wrong");
+  getTypingAudioPool(TYPING_SOUND_URLS[getTypingSoundStyle()]);
+  getTypingAudioPool(WRONG_SOUND_URL);
 }
 
 function loadSampleBuffer(src: string): Promise<AudioBuffer | null> {
@@ -250,105 +212,94 @@ export function playSoundSample(src: string, volume: number = 1): void {
   else void c.resume().then(playReadySound).catch(() => undefined);
 }
 
-function playBuffer(kind: TypingBufferKind, volume: number): boolean {
-  const c = getContext();
-  const buffer = typingBuffers.get(kind);
-  if (!c || !buffer || !soundsEnabled || c.state !== "running") return false;
-
-  stopActiveWrongSound();
-  const source = c.createBufferSource();
-  const gain = c.createGain();
-  source.buffer = buffer;
-  gain.gain.setValueAtTime(Math.max(0, Math.min(1, volume)), c.currentTime);
-  source.connect(gain);
-  gain.connect(c.destination);
-
-  // The click MP3 contains about 125 ms of leading silence. Starting at its
-  // audible portion makes feedback immediate, particularly on mobile.
-  const offset = kind === "correct" ? Math.min(0.125, Math.max(0, buffer.duration - 0.01)) : 0;
-  source.start(0, offset);
+function fallbackTypingTone(kind: "correct" | "wrong", style: TypingSoundStyle): void {
   if (kind === "wrong") {
-    activeWrongSource = { source, gain };
-    source.onended = () => {
-      if (activeWrongSource?.source === source) activeWrongSource = null;
-      source.disconnect();
-      gain.disconnect();
-    };
-  } else {
-    source.onended = () => {
-      source.disconnect();
-      gain.disconnect();
-    };
+    tone(185, 0.075, 0.055, "triangle", 115);
+    return;
   }
-  return true;
+  switch (style) {
+    case "soft":
+      tone(660, 0.045, 0.035, "sine");
+      break;
+    case "typewriter":
+      tone(830, 0.055, 0.052, "triangle", 600);
+      break;
+    case "retro":
+      tone(520, 0.035, 0.045, "square", 360);
+      break;
+    default:
+      tone(410, 0.032, 0.052, "square", 280);
+  }
 }
 
-/**
- * Low-latency key sound path. Decoded AudioBuffers are played directly through
- * Web Audio instead of creating/loading/resetting HTMLAudioElement instances on
- * every keystroke. A tiny synthesized fallback keeps feedback immediate while
- * the MP3 buffer is still loading, including on mobile Safari/Chrome.
- */
-export function playTypingKeySound(kind: TypingBufferKind): void {
+function playTypingSample(
+  src: string,
+  volume: number,
+  playbackRate: number,
+  maxDurationMs: number,
+  fallback: () => void,
+): void {
   if (!soundsEnabled) return;
-  const c = getContext();
-  if (!c) return;
-
-  // Resume once from a user gesture; don't fall back to a different sound
-  // just because a mobile browser had suspended the shared context.
-  if (c.state !== "running") {
-    void c.resume().then(() => playTypingKeySound(kind)).catch(() => undefined);
+  const pool = getTypingAudioPool(src);
+  if (!pool) {
+    fallback();
     return;
   }
 
+  const audio = pool.audio[pool.nextIndex];
+  pool.nextIndex = (pool.nextIndex + 1) % pool.audio.length;
+  audio.volume = Math.max(0, Math.min(1, volume));
+  audio.playbackRate = playbackRate;
+  try { audio.currentTime = 0; } catch { /* Metadata can load after first interaction. */ }
+
+  // Call play directly from the input event. The pool supports overlapping
+  // fast keystrokes without allocating an AudioBufferSourceNode per character.
+  const playback = audio.play();
+  const trimPlayback = () => {
+    window.setTimeout(() => {
+      if (audio.paused) return;
+      audio.pause();
+      try { audio.currentTime = 0; } catch { /* Ignore early media state. */ }
+    }, maxDurationMs);
+  };
+
+  if (playback && typeof playback.then === "function") {
+    void playback.then(() => {
+      if (!soundsEnabled) {
+        audio.pause();
+        return;
+      }
+      trimPlayback();
+    }).catch(() => fallback());
+  } else {
+    trimPlayback();
+  }
+}
+
+/** Play a bundled sample for every accepted keystroke. */
+export function playTypingKeySound(kind: "correct" | "wrong"): void {
+  if (!soundsEnabled) return;
   const style = getTypingSoundStyle();
-  // A previous mechanical error sample must not ring over a newer preset's tone.
-  if (style !== "mechanical") stopActiveWrongSound();
 
-  if (style === "soft") {
-    if (kind === "wrong") {
-      stopActiveWrongSound();
-      tone(215, 0.055, 0.026, "sine", 145);
-    } else {
-      tone(660, 0.028, 0.018, "sine");
-    }
-    return;
-  }
-
-  if (style === "typewriter") {
-    if (kind === "wrong") {
-      stopActiveWrongSound();
-      tone(250, 0.075, 0.032, "triangle", 125);
-    } else {
-      tone(1180, 0.022, 0.022, "triangle");
-    }
-    return;
-  }
-
-  if (style === "retro") {
-    if (kind === "wrong") {
-      stopActiveWrongSound();
-      tone(260, 0.065, 0.024, "square", 165);
-    } else {
-      tone(560, 0.032, 0.018, "square");
-    }
-    return;
-  }
-
-  // Mechanical uses the real keyboard press sample and a distinct error sample.
-  // If a buffer is still decoding, give immediate synthesized feedback instead
-  // of waiting for it; subsequent keys use the decoded sample.
   if (kind === "wrong") {
-    stopActiveWrongSound();
-    if (playBuffer("wrong", 0.22)) return;
-    tone(196, 0.05, 0.028, "sine", 140);
-    void loadTypingBuffer("wrong");
+    playTypingSample(WRONG_SOUND_URL, 0.42, 1, 260, () => fallbackTypingTone("wrong", style));
     return;
   }
 
-  if (playBuffer("correct", 0.72)) return;
-  tone(440, 0.045, 0.032, "sine");
-  void loadTypingBuffer("correct");
+  const settings: Record<TypingSoundStyle, { volume: number; rate: number; duration: number }> = {
+    mechanical: { volume: 0.82, rate: 1, duration: 125 },
+    soft: { volume: 0.58, rate: 0.88, duration: 140 },
+    typewriter: { volume: 0.78, rate: 1, duration: 190 },
+    retro: { volume: 0.72, rate: 1.12, duration: 145 },
+  };
+  const selected = settings[style];
+  playTypingSample(
+    TYPING_SOUND_URLS[style],
+    selected.volume,
+    selected.rate,
+    selected.duration,
+    () => fallbackTypingTone("correct", style),
+  );
 }
 
 export function playTypingSound(type: "key" | "error" | "backspace"): void {
