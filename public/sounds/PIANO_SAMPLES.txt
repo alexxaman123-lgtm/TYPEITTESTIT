@@ -1,0 +1,10 @@
+Soothing piano typing sounds
+
+The piano notes in this folder are taken from Meta Open Sound's Meta Piano collection:
+https://github.com/facebookincubator/Meta-open-sound/tree/main/systems/instruments/meta-piano
+
+License: CC0 1.0 Universal (public domain dedication).
+Samples are the softest velocity layer (Vel01 / pianissimo) of these recorded notes:
+C3, C4, D4, E4, G4, A4, and C5.
+
+The Meta Open Sound README and the Meta Piano collection's LICENSE document the CC0 terms.
