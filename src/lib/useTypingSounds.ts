@@ -1,12 +1,12 @@
 let audioContext: AudioContext | null = null;
 let soundsEnabled = true;
 
-export type TypingSoundStyle = "mechanical" | "soft" | "typewriter" | "retro";
+export type TypingSoundStyle = "mechanical" | "soft" | "typewriter" | "retro" | "soft-piano" | "dreamy-piano";
 const SOUND_STYLE_STORAGE_KEY = "typeittestit:typing-sound-style";
 let typingSoundStyle: TypingSoundStyle = "mechanical";
 let soundStyleLoaded = false;
 
-const VALID_SOUND_STYLES = new Set<TypingSoundStyle>(["mechanical", "soft", "typewriter", "retro"]);
+const VALID_SOUND_STYLES = new Set<TypingSoundStyle>(["mechanical", "soft", "typewriter", "retro", "soft-piano", "dreamy-piano"]);
 
 export function getTypingSoundStyle(): TypingSoundStyle {
   // localStorage is read only once, never from the per-keystroke audio path.
@@ -41,8 +41,22 @@ const TYPING_SOUND_URLS: Record<TypingSoundStyle, string> = {
   soft: "/sounds/typing-soft.mp3",
   typewriter: "/sounds/typing-typewriter.mp3",
   retro: "/sounds/typing-retro.mp3",
+  "soft-piano": "/sounds/piano-c4.ogg",
+  "dreamy-piano": "/sounds/piano-c4.ogg",
 };
 const WRONG_SOUND_URL = "/sounds/typing-error.mp3";
+const PIANO_ERROR_URL = "/sounds/piano-c3.ogg";
+const PIANO_NOTE_URLS = [
+  "/sounds/piano-c4.ogg",
+  "/sounds/piano-d4.ogg",
+  "/sounds/piano-e4.ogg",
+  "/sounds/piano-g4.ogg",
+  "/sounds/piano-a4.ogg",
+  "/sounds/piano-c5.ogg",
+] as const;
+const PIANO_FREQUENCIES = [261.63, 293.66, 329.63, 392, 440, 523.25] as const;
+const isPianoStyle = (style: TypingSoundStyle) =>
+  style === "soft-piano" || style === "dreamy-piano";
 
 type TypingAudioPool = { audio: HTMLAudioElement[]; nextIndex: number };
 const typingAudioPools = new Map<string, TypingAudioPool>();
@@ -69,7 +83,8 @@ function getTypingAudioPool(src: string): TypingAudioPool | null {
   if (existing) return existing;
   if (typeof window === "undefined" || typeof Audio === "undefined") return null;
 
-  const audio = Array.from({ length: TYPING_AUDIO_POOL_SIZE }, () => {
+  const poolSize = src.includes("/piano-") ? 2 : TYPING_AUDIO_POOL_SIZE;
+  const audio = Array.from({ length: poolSize }, () => {
     const element = new Audio(src);
     element.preload = "auto";
     element.setAttribute("playsinline", "");
@@ -133,7 +148,13 @@ function tone(
 /** Preload the selected key sample plus the dedicated wrong-key sample. */
 export function preloadTypingSounds(): void {
   if (typeof window === "undefined") return;
-  getTypingAudioPool(TYPING_SOUND_URLS[getTypingSoundStyle()]);
+  const style = getTypingSoundStyle();
+  if (isPianoStyle(style)) {
+    PIANO_NOTE_URLS.forEach((src) => getTypingAudioPool(src));
+    getTypingAudioPool(PIANO_ERROR_URL);
+    return;
+  }
+  getTypingAudioPool(TYPING_SOUND_URLS[style]);
   getTypingAudioPool(WRONG_SOUND_URL);
 }
 
@@ -212,7 +233,22 @@ export function playSoundSample(src: string, volume: number = 1): void {
   else void c.resume().then(playReadySound).catch(() => undefined);
 }
 
-function fallbackTypingTone(kind: "correct" | "wrong", style: TypingSoundStyle): void {
+function fallbackTypingTone(
+  kind: "correct" | "wrong",
+  style: TypingSoundStyle,
+  character?: string,
+): void {
+  if (isPianoStyle(style)) {
+    if (kind === "wrong") {
+      tone(style === "dreamy-piano" ? 146.83 : 164.81, 0.12, 0.018, "sine");
+      return;
+    }
+    const code = character?.toLowerCase().charCodeAt(0) ?? 0;
+    const noteIndex = character && code >= 97 && code <= 122 ? (code - 97) % PIANO_FREQUENCIES.length : Math.abs(code) % PIANO_FREQUENCIES.length;
+    const volume = style === "dreamy-piano" ? 0.012 : 0.018;
+    tone(PIANO_FREQUENCIES[noteIndex], style === "dreamy-piano" ? 0.12 : 0.085, volume, "sine");
+    return;
+  }
   if (kind === "wrong") {
     tone(185, 0.075, 0.055, "triangle", 115);
     return;
@@ -276,29 +312,56 @@ function playTypingSample(
   }
 }
 
-/** Play a bundled sample for every accepted keystroke. */
-export function playTypingKeySound(kind: "correct" | "wrong"): void {
+/** Play a bundled real sample for each accepted keystroke. */
+export function playTypingKeySound(kind: "correct" | "wrong", character?: string): void {
   if (!soundsEnabled) return;
   const style = getTypingSoundStyle();
 
-  if (kind === "wrong") {
-    playTypingSample(WRONG_SOUND_URL, 0.42, 1, 260, () => fallbackTypingTone("wrong", style));
+  if (isPianoStyle(style)) {
+    if (kind === "wrong") {
+      const volume = style === "dreamy-piano" ? 0.24 : 0.3;
+      const duration = style === "dreamy-piano" ? 300 : 220;
+      playTypingSample(PIANO_ERROR_URL, volume, style === "dreamy-piano" ? 0.92 : 1, duration,
+        () => fallbackTypingTone("wrong", style, character));
+      return;
+    }
+
+    // C-major pentatonic notes make the stream of keystrokes feel musical
+    // without clashing as aggressively as chromatic or random pitches.
+    const code = character?.toLowerCase().charCodeAt(0) ?? 0;
+    const noteIndex = character && code >= 97 && code <= 122
+      ? (code - 97) % PIANO_NOTE_URLS.length
+      : Math.abs(code) % PIANO_NOTE_URLS.length;
+    const src = PIANO_NOTE_URLS[noteIndex];
+    const dreamy = style === "dreamy-piano";
+    playTypingSample(
+      src,
+      dreamy ? 0.33 : 0.48,
+      dreamy ? 0.96 : 1,
+      dreamy ? 360 : 245,
+      () => fallbackTypingTone("correct", style, character),
+    );
     return;
   }
 
-  const settings: Record<TypingSoundStyle, { volume: number; rate: number; duration: number }> = {
+  if (kind === "wrong") {
+    playTypingSample(WRONG_SOUND_URL, 0.42, 1, 260, () => fallbackTypingTone("wrong", style, character));
+    return;
+  }
+
+  const settings: Record<Exclude<TypingSoundStyle, "soft-piano" | "dreamy-piano">, { volume: number; rate: number; duration: number }> = {
     mechanical: { volume: 0.82, rate: 1, duration: 125 },
     soft: { volume: 0.58, rate: 0.88, duration: 140 },
     typewriter: { volume: 0.78, rate: 1, duration: 190 },
     retro: { volume: 0.72, rate: 1.12, duration: 145 },
   };
-  const selected = settings[style];
+  const selected = settings[style as keyof typeof settings];
   playTypingSample(
     TYPING_SOUND_URLS[style],
     selected.volume,
     selected.rate,
     selected.duration,
-    () => fallbackTypingTone("correct", style),
+    () => fallbackTypingTone("correct", style, character),
   );
 }
 
