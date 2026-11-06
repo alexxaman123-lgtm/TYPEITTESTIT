@@ -46,6 +46,7 @@ const TYPING_SOUND_URLS: Record<TypingSoundStyle, string> = {
 };
 const WRONG_SOUND_URL = "/sounds/typing-error.mp3";
 const PIANO_ERROR_URL = "/sounds/piano-c3.ogg";
+const MECHANICAL_SOUND_START_OFFSET_SECONDS = 0.126; // The original keyboard sample has ~126 ms of leading silence.
 const PIANO_NOTE_URLS = [
   "/sounds/piano-c4.ogg",
   "/sounds/piano-d4.ogg",
@@ -295,6 +296,7 @@ function playDecodedTypingSample(
   playbackRate: number,
   maxDurationMs: number,
   fadeOutMs = 50,
+  startOffsetSeconds = 0,
 ): boolean {
   const c = getContext();
   const buffer = sampleBuffers.get(src);
@@ -307,7 +309,8 @@ function playDecodedTypingSample(
     const gain = c.createGain();
     source.buffer = buffer;
     source.playbackRate.setValueAtTime(playbackRate, now);
-    const duration = Math.min(maxDurationMs / 1000, buffer.duration / playbackRate);
+    const offset = Math.min(Math.max(0, startOffsetSeconds), Math.max(0, buffer.duration - 0.01));
+    const duration = Math.min(maxDurationMs / 1000, Math.max(0.01, buffer.duration - offset) / playbackRate);
     const fade = Math.min(fadeOutMs / 1000, duration * 0.7);
     const level = Math.max(0.0001, Math.min(1, volume));
     gain.gain.setValueAtTime(level, now);
@@ -319,7 +322,7 @@ function playDecodedTypingSample(
       source.disconnect();
       gain.disconnect();
     };
-    source.start(now);
+    source.start(now, offset);
     source.stop(now + duration + 0.015);
   };
 
@@ -335,17 +338,18 @@ function playTypingSample(
   maxDurationMs: number,
   fallback: () => void,
   fadeOutMs = 35,
+  startOffsetSeconds = 0,
 ): void {
   if (!soundsEnabled) return;
 
   // Prefer decoded buffers once available: this avoids media startup delay and
   // gives piano notes a smooth release envelope.
-  if (playDecodedTypingSample(src, volume, playbackRate, maxDurationMs, fadeOutMs)) return;
+  if (playDecodedTypingSample(src, volume, playbackRate, maxDurationMs, fadeOutMs, startOffsetSeconds)) return;
 
   const pool = getTypingAudioPool(src);
   if (!pool) {
     void loadSampleBuffer(src).then((buffer) => {
-      if (buffer && playDecodedTypingSample(src, volume, playbackRate, maxDurationMs, fadeOutMs)) return;
+      if (buffer && playDecodedTypingSample(src, volume, playbackRate, maxDurationMs, fadeOutMs, startOffsetSeconds)) return;
       fallback();
     });
     return;
@@ -358,7 +362,7 @@ function playTypingSample(
   const baseVolume = Math.max(0, Math.min(1, volume));
   audio.volume = baseVolume;
   audio.playbackRate = playbackRate;
-  try { audio.currentTime = 0; } catch { /* Metadata may not be ready yet. */ }
+  try { audio.currentTime = startOffsetSeconds; } catch { /* Metadata may not be ready yet. */ }
 
   const isThisPlayback = () => audioPlaybackIds.get(audio) === playbackId;
   const finish = () => {
@@ -390,7 +394,7 @@ function playTypingSample(
     playback = audio.play();
   } catch {
     void loadSampleBuffer(src).then((buffer) => {
-      if (buffer && playDecodedTypingSample(src, volume, playbackRate, maxDurationMs, fadeOutMs)) return;
+      if (buffer && playDecodedTypingSample(src, volume, playbackRate, maxDurationMs, fadeOutMs, startOffsetSeconds)) return;
       fallback();
     });
     return;
@@ -405,7 +409,7 @@ function playTypingSample(
       trimPlayback();
     }).catch(() => {
       void loadSampleBuffer(src).then((buffer) => {
-        if (buffer && playDecodedTypingSample(src, volume, playbackRate, maxDurationMs, fadeOutMs)) return;
+        if (buffer && playDecodedTypingSample(src, volume, playbackRate, maxDurationMs, fadeOutMs, startOffsetSeconds)) return;
         fallback();
       });
     });
@@ -480,6 +484,8 @@ export function playTypingKeySound(kind: "correct" | "wrong", character?: string
     selected.rate,
     selected.duration,
     () => fallbackTypingTone("correct", style, character),
+    35,
+    style === "mechanical" ? MECHANICAL_SOUND_START_OFFSET_SECONDS : 0,
   );
 }
 
