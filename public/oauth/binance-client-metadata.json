@@ -1,8 +1,0 @@
-{
-  "client_id": "https://typeittestit.com/oauth/binance-client-metadata.json",
-  "client_name": "Muse Binance Agent - Aman Gusain",
-  "redirect_uris": ["https://agent.meta.ai/api/hatch/oauth/callback"],
-  "grant_types": ["authorization_code"],
-  "response_types": ["code"],
-  "token_endpoint_auth_method": "none"
-}
